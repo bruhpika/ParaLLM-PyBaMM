@@ -197,7 +197,9 @@ def document_conditions(raw_text: str, max_sentences: int = 8) -> DocumentCondit
         sentence = raw_text[start:end].strip()
         if not sentence or len(sentence) > 600:
             continue
-        if not _SETUP_RE.search(sentence):
+        # a sentence is an experimental-setup statement when it carries setup
+        # cues, or when it names the cell/product the experiment used
+        if not (_SETUP_RE.search(sentence) or _CELL_RE.search(sentence)):
             continue
         facts = extract_conditions(sentence)
         n_classes = sum(1 for v in facts.coverage().values() if v)
@@ -249,16 +251,36 @@ def document_conditions(raw_text: str, max_sentences: int = 8) -> DocumentCondit
 
 
 def _split_sentences(text: str) -> list[tuple[int, int]]:
-    """Sentence spans (start, end) of ``text`` — deterministic, punctuation-based."""
+    """Sentence spans (start, end) of ``text`` — deterministic.
+
+    Extracted PDF text is hard-wrapped, so a line break is a *soft* break: the
+    sentence continues on the next line unless the line ends with sentence
+    punctuation, is empty, or looks like a table row (>= 2 numeric tokens).
+    """
     spans: list[tuple[int, int]] = []
-    start = 0
-    for m in re.finditer(r"(?<=[.!?])\s+|\n+", text):
-        end = m.start()
-        if end > start:
+    start: int | None = None
+    end: int | None = None
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        stripped = line.strip()
+        if not stripped:
+            if start is not None and end is not None:
+                spans.append((start, end))
+            start = None
+            end = None
+            offset += len(line)
+            continue
+        if start is None:
+            start = offset
+        end = offset + len(line)
+        is_table_row = len(_NUMERIC_RE.findall(line)) >= 2
+        if is_table_row or re.search(r"[.!?:;]\s*$", stripped):
             spans.append((start, end))
-        start = m.end()
-    if start < len(text):
-        spans.append((start, len(text)))
+            start = None
+            end = None
+        offset += len(line)
+    if start is not None and end is not None:
+        spans.append((start, end))
     return spans
 
 
@@ -352,3 +374,224 @@ def window_from_store(
         expand_chars=expand_chars,
         page=page,
     )
+
+
+# ---------------------------------------------------------------------------
+# table-aware chunking, multi-window retrieval, evidence verification (V2.5)
+# ---------------------------------------------------------------------------
+_TABLE_CAPTION_RE = re.compile(r"^\s*(?:Table|Tab\.|TABLE)\s*\d+", re.IGNORECASE)
+_NUMERIC_RE = re.compile(r"[-+]?\d[\d.,]*\s*(?:[·x×]\s*10\s*[−-]?\s*\d+)?")
+_FOOTNOTE_RE = re.compile(r"^\s*[a-z]\)|\([a-z]\)|^\s*\d+\)\s", re.IGNORECASE)
+
+
+@dataclass
+class TableBlock:
+    """A detected table region: caption, header rows, body rows and footnotes."""
+
+    start: int
+    end: int
+    caption: str
+    header: list[str] = field(default_factory=list)
+    rows: list[str] = field(default_factory=list)
+    footnotes: list[str] = field(default_factory=list)
+
+    @property
+    def text(self) -> str:
+        parts = [self.caption] + self.header + self.rows + self.footnotes
+        return "\n".join(p for p in parts if p)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "start": self.start,
+            "end": self.end,
+            "caption": " ".join(self.caption.split())[:300],
+            "n_header": len(self.header),
+            "n_rows": len(self.rows),
+            "n_footnotes": len(self.footnotes),
+        }
+
+
+def detect_table_blocks(text: str, max_gap: int = 2) -> list[TableBlock]:
+    """Detect table regions in extracted PDF text (deterministic heuristic).
+
+    Two entry signals are used, because published tables are inconsistent:
+
+    1. an explicit caption (``Table N`` / ``Tab. N``), or
+    2. a run of >= 2 consecutive lines that each carry >= 2 numeric tokens
+       (the numeric body of a table), optionally preceded by up to 3
+       descriptive/header lines.
+
+    Trailing footnote lines (``a)``, ``(1)`` ...) are attached, and the first
+    body row is kept as the header when it carries unit/symbol words.
+    """
+    lines = text.splitlines(keepends=True)
+    offsets: list[int] = []
+    pos = 0
+    for line in lines:
+        offsets.append(pos)
+        pos += len(line)
+
+    def numeric_count(line: str) -> int:
+        return len(_NUMERIC_RE.findall(line))
+
+    blocks: list[TableBlock] = []
+    i = 0
+    n = len(lines)
+    while i < n:
+        if _TABLE_CAPTION_RE.match(lines[i]):
+            caption = lines[i].strip()
+            j = i + 1
+            body: list[str] = []
+            gap = 0
+            while j < n:
+                line = lines[j]
+                if not line.strip():
+                    gap += 1
+                    if gap > max_gap:
+                        break
+                    j += 1
+                    continue
+                gap = 0
+                if _FOOTNOTE_RE.match(line):
+                    break
+                if numeric_count(line) < 2:
+                    if not body and j - i <= 3:
+                        body.append(line.strip())
+                        j += 1
+                        continue
+                    break
+                body.append(line.strip())
+                j += 1
+            if body:
+                blocks.append(
+                    _make_block(text, offsets, i, j, caption, body)
+                )
+            i = max(j, i + 1)
+            continue
+
+        # signal 2: a numeric body run, with up to 3 preceding descriptive lines
+        if numeric_count(lines[i]) >= 2:
+            j = i
+            run: list[str] = []
+            while j < n and lines[j].strip() and numeric_count(lines[j]) >= 2:
+                run.append(lines[j].strip())
+                j += 1
+            if len(run) >= 2 and j - i <= 30:
+                head_start = i
+                while head_start > 0 and i - head_start < 3 and lines[head_start].strip():
+                    if numeric_count(lines[head_start]) >= 2:
+                        break
+                    head_start -= 1
+                head = [lines[h].strip() for h in range(head_start, i) if lines[h].strip()]
+                # a two-line numeric run is only a table when a real header
+                # (unit/symbol/parameter words) precedes it
+                has_header = any(
+                    re.search(r"\b(unit|symbol|parameter|property|quantity)\b", h, re.IGNORECASE)
+                    for h in head
+                )
+                if len(run) < 3 and not has_header:
+                    i = j
+                    continue
+                blocks.append(_make_block(text, offsets, head_start, j, "", head + run))
+                i = j
+                continue
+        i += 1
+    return blocks
+
+
+def _make_block(
+    text: str,
+    offsets: list[int],
+    start_i: int,
+    end_i: int,
+    caption: str,
+    body: list[str],
+) -> TableBlock:
+    """Split a detected region into caption / header / rows / footnotes."""
+    footnotes: list[str] = []
+    k = end_i
+    while k < len(offsets) and offsets[k] < len(text):
+        line = text[offsets[k] : text.find("\n", offsets[k]) if text.find("\n", offsets[k]) != -1 else len(text)]
+        if not line.strip() or not _FOOTNOTE_RE.match(line):
+            break
+        footnotes.append(line.strip())
+        k += 1
+    header: list[str] = []
+    rows = list(body)
+    if body and re.search(r"\b(unit|symbol|parameter|property|quantity)\b", body[0], re.IGNORECASE):
+        header = [body[0]]
+        rows = body[1:]
+    end = offsets[min(k, len(offsets)) - 1] if k > start_i else offsets[start_i]
+    return TableBlock(
+        start=offsets[start_i],
+        end=min(len(text), end + 1),
+        caption=caption,
+        header=header,
+        rows=rows,
+        footnotes=footnotes,
+    )
+
+
+def table_window(text: str, probe: str, radius: int = 260) -> tuple[str, bool]:
+    """Expand a probe window to the enclosing table block when the probe is
+    inside a table row. Returns (text, used_table)."""
+    folded = ascii_fold(text)
+    idx = folded.find(ascii_fold(probe))
+    if idx < 0:
+        raise ValueError(f"probe {probe!r} not found")
+    for block in detect_table_blocks(text):
+        if block.start <= idx <= block.end:
+            lo = min(block.start, max(0, idx - radius))
+            hi = max(block.end, min(len(text), idx + len(probe) + radius))
+            return text[lo:hi], True
+    lo = max(0, idx - radius)
+    hi = min(len(text), idx + len(probe) + radius)
+    return text[lo:hi], False
+
+
+def multi_windows(
+    text: str, probe: str, k: int = 3, radius: int = 260, overlap_ratio: float = 0.5
+) -> list[tuple[int, int]]:
+    """Top-k de-duplicated windows around every occurrence of the probe.
+
+    A parameter value is often printed more than once (e.g. in a table and
+    again in the text). Overlapping windows are merged so the model sees each
+    occurrence once, with the surrounding context.
+    """
+    folded = ascii_fold(text)
+    needle = ascii_fold(probe)
+    spans: list[tuple[int, int]] = []
+    start = 0
+    while True:
+        idx = folded.find(needle, start)
+        if idx < 0:
+            break
+        spans.append((max(0, idx - radius), min(len(text), idx + len(probe) + radius)))
+        start = idx + len(needle)
+    if not spans:
+        return []
+    spans.sort()
+    merged: list[tuple[int, int]] = [spans[0]]
+    for lo, hi in spans[1:]:
+        last_lo, last_hi = merged[-1]
+        if lo <= last_hi and (hi - lo) > 0:
+            overlap = min(hi, last_hi) - max(lo, last_lo)
+            smaller = min(hi - lo, last_hi - last_lo)
+            if smaller and overlap / smaller >= overlap_ratio:
+                merged[-1] = (min(lo, last_lo), max(hi, last_hi))
+                continue
+        merged.append((lo, hi))
+    return merged[:k]
+
+
+def verify_quote_in_evidence(quote: str, evidence_text: str) -> bool:
+    """True when the quote appears verbatim (whitespace/unicode-folded) in the
+    evidence the model was shown. A quote that fails this check was not
+    supported by the retrieved evidence."""
+    if not quote or not quote.strip():
+        return False
+    return _norm_quote(quote) in _norm_quote(evidence_text)
+
+
+def _norm_quote(text: str) -> str:
+    return " ".join(ascii_fold(text).split())

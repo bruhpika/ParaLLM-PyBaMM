@@ -46,11 +46,22 @@ contains each condition class:
 | chemistry | 0.243 | 0.595 | **0.838** |
 | method | 0.649 | 0.946 | **1.000** |
 
-**Still to do in V2.5:** table-aware chunking (header row + body), multi-window
-(top-k deduped) retrieval, the optional verification pass, and the **LLM-side**
-measurement (condition completeness on the **private v4**, target ≥ 0.5, false
-extraction still 0.000) — which requires the private v4 fixture.
-*Depends on:* a private v4 fixture (built in this milestone, kept unpublished).
+**Also landed (second slice):** table-aware chunking (caption/header/footnotes
+kept with the rows), top-k de-duplicated multi-window retrieval, and the
+**private v4 benchmark**: 30 items over 3 CC BY papers (Schmitt 2023, Tuchel
+2026, Wheeler 2024), categories A–E, with a frozen scorer that treats a gold
+`not_stated` field as matched only when the extraction reports nothing there.
+
+**LLM-side result on v4** (extractor `gemini-flash-lite-latest`, free tier —
+*not* comparable with the v0.1/v3 numbers; arms comparable with each other):
+condition-field accuracy **0.105 (compact) → 0.243 (expanded) → 0.229 (v25)**,
+value found 0.367 → 0.400 → 0.600, temperature 0.067 → 0.529 → 0.556, format
+0.267 → 0.941 → 1.000, but **chemistry 0.000 in every arm**, protocol ≤ 0.118,
+and the invented-condition rate **rises** with richer evidence (0.367 → 0.533).
+
+**Still to do in V2.5:** the optional verification pass, a `not_stated`
+discipline mechanism (to counter the rise in invented conditions), and repeats
+for the arm comparison (r1/r2 running). Full design: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
 
 ## V2.1 — Applicability & conflict engine  *(first milestone)*
 

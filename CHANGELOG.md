@@ -10,6 +10,27 @@ Proposal only; no v0.2 code exists yet. Scope, exit criteria, risks and
 decisions: `docs/ROADMAP_V0.2.md`. Positioning/competitive scan:
 `docs/POSITIONING.md`.
 
+### Landed so far (2026-11-16)
+
+- **V2.5 (second slice) — private v4 condition benchmark**: 30 items over three
+  CC BY papers (Schmitt 2023 JES, Tuchel 2026 JES, Wheeler 2024 Batteries),
+  categories A–E (separated conditions, table-dependent interpretation, multiple
+  conditions, same-parameter/different-value, condition genuinely absent).
+  Corpus, fixture and per-item results stay **private** (git-ignored); only the
+  harness, the scorer and the aggregates are public. Frozen scorer: a gold
+  `not_stated` field is matched only when the extraction reports nothing there;
+  transport failures are excluded (not counted as abstentions); printed values
+  are coerced to numbers by a deterministic rule applied to every arm.
+- **V2.5 evidence layer, second slice**: table-aware chunking (caption/header/
+  footnotes with the rows), top-k de-duplicated multi-window retrieval.
+- **Private v4 result** (extractor `gemini-flash-lite-latest`, free tier; arms
+  comparable with each other, **not** with the v0.1/v3 numbers): condition-field
+  accuracy 0.105 (compact) → 0.243 (expanded) → 0.229 (v25); value found 0.367 →
+  0.400 → 0.600; temperature 0.067 → 0.529 → 0.556; format 0.267 → 0.941 → 1.000.
+  Negative findings disclosed: chemistry never recovered (0.000 in every arm),
+  protocol ≤ 0.118, and invented conditions rise with richer evidence
+  (0.367 → 0.533). Design + results: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
+
 ### Landed so far (2026-11-08)
 - **V2.5 (first slice) — evidence engineering**: condition-aware evidence window
   (±900 chars + condition-bearing sentences) and document-level experimental-setup

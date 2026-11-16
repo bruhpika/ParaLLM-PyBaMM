@@ -331,6 +331,7 @@ class RobustLLMClient:
 
     def __init__(self, inner: Any, attempts: int = 5, backoff_s: float = 6.0):
         import http.client as _http
+        import urllib.error
 
         self._inner = inner
         self._attempts = attempts
@@ -374,12 +375,13 @@ _CONDITION_SPECS: dict[str, dict[str, Any]] = {
 }
 
 
-EVIDENCE_MODES = ("compact", "expanded")
+EVIDENCE_MODES = ("compact", "expanded", "v25")
 
 
 def _evidence_block(
-    item: BenchmarkItemP4, store: DocumentStore, evidence_mode: str = "compact"
+    item: Any, store: DocumentStore, evidence_mode: str = "compact"
 ) -> str:
+    """Build the evidence text for one item (v3 or v4 fixture item)."""
     """Build the evidence text for one item.
 
     ``compact``  : the v0.1 behaviour — a strict +/-260-character window around
@@ -390,16 +392,42 @@ def _evidence_block(
                    sentences (verbatim), clearly labelled as document-level
                    statements.
     """
+    probe = getattr(item, "passage_probe", None) or item.probe
     if evidence_mode == "compact":
-        return resolve_passage(store, item.document_id, item.passage_probe)
+        return resolve_passage(store, item.document_id, probe)
 
-    from ..literature.evidence import document_conditions, window_from_store
-
-    window = window_from_store(store, item.document_id, item.passage_probe)
-    doc_conditions = document_conditions(
-        (store.raw_dir / f"{item.document_id}.txt").read_text()
+    from ..literature.evidence import (
+        document_conditions,
+        multi_windows,
+        table_window,
+        window_from_store,
     )
+
+    raw = (store.raw_dir / f"{item.document_id}.txt").read_text()
+    window = window_from_store(store, item.document_id, probe)
     text = window.text
+
+    if evidence_mode == "v25":
+        # table-aware chunking: if the probe sits in a table row, the whole
+        # table block (caption, header, footnotes) is included
+        try:
+            table_text, used_table = table_window(raw, probe, radius=260)
+            if used_table:
+                text = table_text
+        except ValueError:
+            pass
+        # top-k de-duplicated multi-window retrieval (a value is often printed
+        # more than once: in the table and again in the text)
+        spans = multi_windows(raw, probe, k=2, radius=260)
+        extra: list[str] = []
+        for lo, hi in spans:
+            chunk = raw[lo:hi]
+            if chunk and chunk not in text:
+                extra.append(chunk)
+        if extra:
+            text += "\n\nADDITIONAL OCCURRENCES (same document):\n" + "\n---\n".join(extra)
+
+    doc_conditions = document_conditions(raw)
     if doc_conditions.sentences:
         text += (
             "\n\nEXPERIMENT CONDITIONS (document-level statements from the same "

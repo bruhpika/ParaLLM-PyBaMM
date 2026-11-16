@@ -242,10 +242,29 @@ is less auditable than a rubric plus deterministic checks.
 
 Plan, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 
+### v0.2 progress (started)
+
+- **V2.5 evidence engineering** — condition-aware windows, document-level setup
+  retrieval, table-aware chunking, top-k multi-window retrieval
+  (`literature/evidence.py`).
+- **Private v4 condition benchmark** — 30 items over three CC BY papers,
+  categories A–E; corpus, fixture and per-item results are **never published**
+  (only the harness, the scorer and the aggregates). Frozen scorer: a gold
+  `not_stated` field is matched only when the extraction reports nothing there.
+  Result (extractor `gemini-flash-lite-latest`, free tier — **not** comparable
+  with the v0.1/v3 numbers): condition-field accuracy **0.105 → 0.243** once the
+  setup statements are supplied; temperature 0.067 → 0.529, format 0.267 → 0.941.
+  **Negative findings:** electrode chemistry is never recovered (0.000 in every
+  arm) and invented conditions **rise** with richer evidence (0.367 → 0.533).
+  Details: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
+- **Assembly layer** (prototyped) — auditable rubric, conflict resolution, the
+  per-parameter dossier as the central artifact, human approval gate.
+
 ## Status
 
-Public beta `v0.1.0-beta.1` — P0–P5 shipped (v0.1 feature set). v0.2 is a
-**proposal under review**; no v0.2 code exists yet. Carried TODO for v0.3+:
+Public beta `v0.1.0-beta.1` — P0–P5 shipped (v0.1 feature set). v0.2 is
+**in progress** (V2.5 landed and measured; V2.1/V2.2 prototyped, not yet
+accepted). Carried TODO for v0.3+:
 multi-chemistry coverage (LFP/graphite, NMC811, Li-metal), experimental dataset
 acquisition, observables beyond voltage (EIS/OCV/dQ/dV/GITT-D), a first-party
 parameter set, and PyPI/CI/docs-site release.
