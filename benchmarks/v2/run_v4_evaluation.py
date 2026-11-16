@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import statistics
 import sys
 import time
 from datetime import datetime, timezone
@@ -115,6 +116,123 @@ def run_mode(items, store, mode: str, client, repeat: int, sleep_s: float = 0.0)
     return {"mode": mode, "repeat": repeat, "rows": rows, "raw": raw_rows}
 
 
+_METRICS = (
+    "condition_field_accuracy",
+    "parameter_value_accuracy",
+    "parameter_unit_accuracy",
+    "value_found_rate",
+    "invented_condition_rate",
+    "abstention_rate",
+)
+
+
+def _arm_means(arm_summaries: list[dict]) -> dict:
+    """Mean/std over repeats for each metric and each condition field."""
+    out: dict[str, dict[str, float | None]] = {}
+    for metric in _METRICS:
+        vals = [a["all"].get(metric, float("nan")) for a in arm_summaries]
+        vals = [v for v in vals if v == v]
+        out[metric] = {
+            "mean": statistics.fmean(vals) if vals else None,
+            "std": statistics.pstdev(vals) if len(vals) > 1 else (0.0 if vals else None),
+            "n": len(vals),
+        }
+    fields: dict[str, dict[str, float | None]] = {}
+    for fname in ("chemistry", "cell", "format", "temperature_k", "soc", "method", "protocol"):
+        vals = [
+            a["all"].get("per_field_accuracy", {}).get(fname, float("nan"))
+            for a in arm_summaries
+        ]
+        vals = [v for v in vals if v == v]
+        fields[fname] = {
+            "mean": statistics.fmean(vals) if vals else None,
+            "std": statistics.pstdev(vals) if len(vals) > 1 else (0.0 if vals else None),
+            "n": len(vals),
+        }
+    out["per_field"] = fields  # type: ignore[assignment]
+    out["n_transport_errors"] = sum(
+        a.get("n_transport_errors", 0) for a in arm_summaries
+    )
+    return out
+
+
+def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
+    """Write the public aggregate summary (no per-item detail)."""
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "generated": datetime.now(timezone.utc).isoformat(),
+        "extractor": extractor,
+        "fixture": "PRIVATE v4 (30 items; fixture not published)",
+        "n_items": len(items),
+        "categories": {
+            c: sum(1 for i in items if i.category == c)
+            for c in sorted({i.category for i in items})
+        },
+        "repeats": args.repeats,
+        "modes": args.modes,
+        "summary": summaries,
+        "arm_means": arm_means,
+        "note": (
+            "Condition-field accuracy counts a gold 'not_stated' field as matched "
+            "only when the extraction reports nothing there; invented conditions are "
+            "always penalised. Per-item results stay private."
+        ),
+    }
+    (out_dir / "summary.json").write_text(json.dumps(payload, indent=2, sort_keys=True))
+
+    lines = [
+        "# V2.5 — private v4 condition benchmark",
+        "",
+        f"extractor: `{extractor['model']}` @ `{extractor['base_url']}` "
+        "(identical across arms; not comparable with the v0.1/v3 numbers, which "
+        "used a different model)",
+        "",
+        f"{len(items)} items (PRIVATE fixture, not published), categories: "
+        + ", ".join(f"{k}={v}" for k, v in payload["categories"].items()),
+        "",
+    ]
+    if arm_means:
+        lines += [
+            "## Arms (mean +/- std over repeats)",
+            "",
+            "| metric | " + " | ".join(arm_means) + " |",
+            "|---|" + "---|" * len(arm_means),
+        ]
+        for metric in _METRICS:
+            row = [metric]
+            for mode in arm_means:
+                cell = arm_means[mode].get(metric, {})
+                m, sd = cell.get("mean"), cell.get("std")
+                row.append("n/a" if m is None else f"{m:.3f} +/- {sd:.3f}")
+            lines.append("| " + " | ".join(row) + " |")
+        lines += [
+            "",
+            "## Per condition field (mean +/- std over repeats)",
+            "",
+            "| field | " + " | ".join(arm_means) + " |",
+            "|---|" + "---|" * len(arm_means),
+        ]
+        for fname in ("chemistry", "cell", "format", "temperature_k", "soc", "method", "protocol"):
+            row = [fname]
+            for mode in arm_means:
+                cell = arm_means[mode]["per_field"].get(fname, {})
+                m, sd = cell.get("mean"), cell.get("std")
+                row.append("n/a" if m is None else f"{m:.3f} +/- {sd:.3f}")
+            lines.append("| " + " | ".join(row) + " |")
+        lines += ["", f"transport errors excluded from scoring: "
+                  + ", ".join(f"{m}={arm_means[m].get('n_transport_errors')}" for m in arm_means), ""]
+    lines += ["", "Per-repeat summaries:"]
+    lines += ["", "| metric | " + " | ".join(summaries) + " |", "|---|" + "---|" * len(summaries)]
+    for metric in _METRICS:
+        row = [metric]
+        for tag in summaries:
+            v = summaries[tag]["all"].get(metric, float("nan"))
+            row.append("n/a" if v != v else f"{v:.3f}")
+        lines.append("| " + " | ".join(row) + " |")
+    (out_dir / "summary.md").write_text("\n".join(lines) + "\n")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--modes", nargs="+", default=["compact", "expanded", "v25"])
@@ -122,6 +240,12 @@ def main() -> int:
     ap.add_argument("--items", default=str(FIXTURE))
     ap.add_argument("--out", default=str(PUBLIC_RESULTS))
     ap.add_argument("--force", action="store_true", help="re-run arms whose raw file exists")
+    ap.add_argument(
+        "--aggregate-only",
+        action="store_true",
+        help="rebuild the public summary from the stored (private) per-repeat rows, "
+        "without any model calls",
+    )
     ap.add_argument(
         "--sleep",
         type=float,
@@ -151,6 +275,24 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     summaries = {}
+    arm_means: dict[str, dict] = {}
+    if args.aggregate_only:
+        for mode in args.modes:
+            tags = []
+            for repeat in range(args.repeats):
+                tag = f"{mode}_r{repeat}"
+                rows_path = PRIVATE_RESULTS / f"rows_{tag}.json"
+                if not rows_path.exists():
+                    continue
+                rows = json.loads(rows_path.read_text())
+                summaries[tag] = aggregate(rows)
+                tags.append(tag)
+            if tags:
+                arm_means[mode] = _arm_means([summaries[t] for t in tags])
+        _write_outputs(items, args, extractor, summaries, arm_means)
+        print(f"wrote {out_dir}/summary.md (aggregate-only)")
+        return 0
+
     for mode in args.modes:
         for repeat in range(args.repeats):
             tag = f"{mode}_r{repeat}"

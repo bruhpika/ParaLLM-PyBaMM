@@ -251,11 +251,13 @@ Plan, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
   categories A–E; corpus, fixture and per-item results are **never published**
   (only the harness, the scorer and the aggregates). Frozen scorer: a gold
   `not_stated` field is matched only when the extraction reports nothing there.
-  Result (extractor `gemini-flash-lite-latest`, free tier — **not** comparable
-  with the v0.1/v3 numbers): condition-field accuracy **0.105 → 0.243** once the
-  setup statements are supplied; temperature 0.067 → 0.529, format 0.267 → 0.941.
+  Result, 3 repeats/arm (extractor `gemini-flash-lite-latest`, free tier —
+  **not** comparable with the v0.1/v3 numbers): condition-field accuracy
+  **0.111 ± 0.009 → 0.240 ± 0.004 → 0.249 ± 0.022** once the setup statements
+  are supplied; temperature 0.059 → 0.479 → 0.591, format 0.219 → 0.980 → 0.976.
   **Negative findings:** electrode chemistry is never recovered (0.000 in every
-  arm) and invented conditions **rise** with richer evidence (0.367 → 0.533).
+  arm), the full arm regresses on cell identity, and invented conditions
+  **rise** with richer evidence (0.411 → 0.500).
   Details: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
 - **Assembly layer** (prototyped) — auditable rubric, conflict resolution, the
   per-parameter dossier as the central artifact, human approval gate.

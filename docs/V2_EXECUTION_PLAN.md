@@ -54,10 +54,12 @@ kept with the rows), top-k de-duplicated multi-window retrieval, and the
 
 **LLM-side result on v4** (extractor `gemini-flash-lite-latest`, free tier —
 *not* comparable with the v0.1/v3 numbers; arms comparable with each other):
-condition-field accuracy **0.105 (compact) → 0.243 (expanded) → 0.229 (v25)**,
-value found 0.367 → 0.400 → 0.600, temperature 0.067 → 0.529 → 0.556, format
-0.267 → 0.941 → 1.000, but **chemistry 0.000 in every arm**, protocol ≤ 0.118,
-and the invented-condition rate **rises** with richer evidence (0.367 → 0.533).
+condition-field accuracy **0.111 ± 0.009 (compact) → 0.240 ± 0.004 (expanded)
+→ 0.249 ± 0.022 (v25)** (3 repeats/arm), value found 0.389 → 0.389 → 0.583,
+temperature 0.059 → 0.479 → 0.591, format 0.219 → 0.980 → 0.976, but
+**chemistry 0.000 in every arm**, protocol ≤ 0.091, `v25` regresses on cell
+identity (0.360 → 0.186), and the invented-condition rate **rises** with
+richer evidence (0.411 → 0.500 → 0.439).
 
 **Still to do in V2.5:** the optional verification pass, a `not_stated`
 discipline mechanism (to counter the rise in invented conditions), and repeats

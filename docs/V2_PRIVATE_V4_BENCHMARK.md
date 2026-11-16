@@ -104,56 +104,66 @@ Consequences, stated plainly:
 
 See `results/v2/v4/summary.md` (aggregate only; per-item rows stay private).
 
-### 7.1 Single-run result (r0, extractor `gemini-flash-lite-latest`)
+### 7.1 Result — 3 repeats per arm (extractor `gemini-flash-lite-latest`)
 
 | metric | compact (v0.1) | expanded | v25 (full) |
 |---|---:|---:|---:|
-| condition-field accuracy | 0.105 | **0.243** | 0.229 |
-| value found | 0.367 | 0.400 | **0.600** |
-| unit accuracy | 0.400 | 0.367 | 0.433 |
-| **invented-condition rate** | 0.367 | 0.533 | 0.467 |
-| abstention rate | 0.500 | 0.433 | 0.400 |
+| condition-field accuracy | 0.111 ± 0.009 | **0.240 ± 0.004** | **0.249 ± 0.022** |
+| value found | 0.389 ± 0.016 | 0.389 ± 0.042 | **0.583 ± 0.014** |
+| unit accuracy | 0.433 ± 0.027 | 0.367 ± 0.027 | 0.403 ± 0.024 |
+| **invented-condition rate** | 0.411 ± 0.042 | **0.500 ± 0.027** | 0.439 ± 0.021 |
+| abstention rate | 0.433 ± 0.047 | 0.444 ± 0.016 | 0.417 ± 0.014 |
 
-Per condition field:
+Per condition field (mean ± std over 3 repeats):
 
 | field | compact | expanded | v25 |
 |---|---:|---:|---:|
-| chemistry | 0.000 | 0.000 | 0.000 |
-| cell | 0.267 | **0.353** | 0.167 |
-| format | 0.267 | 0.941 | **1.000** |
-| temperature | 0.067 | 0.529 | **0.556** |
-| SOC | 0.400 | 0.412 | 0.444 |
-| method | 0.467 | **0.647** | 0.500 |
-| protocol | 0.000 | 0.118 | 0.000 |
+| chemistry | **0.000 ± 0.000** | **0.000 ± 0.000** | **0.000 ± 0.000** |
+| cell | 0.219 ± 0.041 | **0.360 ± 0.010** | 0.186 ± 0.021 |
+| format | 0.219 ± 0.041 | 0.980 ± 0.028 | 0.976 ± 0.034 |
+| temperature | 0.059 ± 0.005 | 0.479 ± 0.038 | **0.591 ± 0.040** |
+| SOC | 0.374 ± 0.029 | 0.461 ± 0.037 | **0.515 ± 0.053** |
+| method | 0.507 ± 0.037 | **0.661 ± 0.019** | 0.629 ± 0.162 |
+| protocol | 0.000 ± 0.000 | 0.080 ± 0.027 | 0.091 ± 0.090 |
+
+Transport errors excluded from scoring: compact 0, expanded 0, v25 6 (free-tier
+503s; they are counted, never scored as abstentions).
 
 ### 7.2 What the result says (and what it does not)
 
-**Supported.** The V2.5 hypothesis is confirmed for the *value-local*
-conditions: supplying the document-level setup statements lifts the
-condition-field accuracy from **0.105 → 0.243** (2.3×), with the largest gains
-in temperature (0.067 → 0.529), format (0.267 → 0.941) and method
-(0.467 → 0.647). The same evidence also raises the rate at which the correct
-value is found at all (0.367 → 0.600 for the full `v25` arm).
+**Supported — the V2.5 hypothesis holds for value-local conditions.**
+Supplying the document-level setup statements lifts the condition-field
+accuracy from **0.111 → 0.240** (2.2×, and the two arms are far apart relative
+to their spread: std 0.009 / 0.004), with the largest gains in temperature
+(0.059 → 0.479), format (0.219 → 0.980) and method (0.507 → 0.661). The full
+`v25` arm adds table-aware chunking and multi-window retrieval: temperature
+0.591, SOC 0.515, and — notably — **the rate at which the correct value is
+found rises from 0.389 to 0.583**, i.e. the table context also helps *value*
+selection, not only conditions.
 
-**Not supported / negative findings.**
-- **Chemistry is never recovered** (0.000 in every arm): the system does not
-  report the electrode chemistry correctly, even when the material is in the
-  evidence. This is a genuine gap, not a scoring artefact.
-- **Protocol stays near zero** (0.000–0.118): pulse/rest details are stated in
-  the methods but not recovered.
+**Negative findings (disclosed, not smoothed over).**
+- **Electrode chemistry is never recovered** (0.000 in every arm, every repeat):
+  the system does not attach the active-material chemistry to the value even
+  when it is in the evidence. This is the largest remaining gap.
+- **Protocol stays near zero** (0.000 → 0.080 → 0.091): pulse current, pulse
+  duration and rest time are stated in the methods but are not recovered.
 - **More evidence, more invention.** The invented-condition rate *rises* with
-  the richer evidence (0.367 → 0.533 → 0.467): supplying more context gives
+  the richer evidence (0.411 → 0.500 → 0.439). Supplying more context gives
   the model more opportunity to attach a condition that does not belong to the
-  value. A future iteration must pair evidence engineering with a
-  *not_stated*-discipline mechanism.
-- **The `v25` cell regression** (0.353 → 0.167) is a hypothesis to test, not
-  a settled result: table-aware + multi-window evidence dilutes the cell
-  identity. With one repeat per arm the arm differences beyond compact-vs-
-  evidence are inside run-to-run noise, which is why repeats are running.
+  value. Evidence engineering must therefore be paired with an explicit
+  `not_stated` discipline (the next V2.5 item) — otherwise condition
+  completeness and condition *correctness* trade off against each other.
+- **`v25` regresses on cell identity** (0.360 → 0.186, consistent across all
+  three repeats, so not noise). Hypothesis: the table-aware block and the
+  additional occurrence windows dilute the sentence that identifies the cell.
+  This is a concrete, testable follow-up (the table block should carry the cell
+  identity, not compete with it).
 
-**Not established.** These numbers are from a **free-tier model on a 30-item
+**Not established.** These numbers come from a **free-tier model on a 30-item
 private fixture**; they are a diagnostic for the evidence layer, not a
-capability claim, and they are not comparable with the v0.1/v3 results.
+capability claim, and they are **not comparable** with the v0.1/v3 results
+(different model, different fixture). The v0.1/v3 numbers remain the
+reference for extraction quality; v4 answers a different question.
 
 ## 8. What this benchmark does and does not establish
 

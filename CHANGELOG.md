@@ -23,13 +23,15 @@ decisions: `docs/ROADMAP_V0.2.md`. Positioning/competitive scan:
   are coerced to numbers by a deterministic rule applied to every arm.
 - **V2.5 evidence layer, second slice**: table-aware chunking (caption/header/
   footnotes with the rows), top-k de-duplicated multi-window retrieval.
-- **Private v4 result** (extractor `gemini-flash-lite-latest`, free tier; arms
-  comparable with each other, **not** with the v0.1/v3 numbers): condition-field
-  accuracy 0.105 (compact) → 0.243 (expanded) → 0.229 (v25); value found 0.367 →
-  0.400 → 0.600; temperature 0.067 → 0.529 → 0.556; format 0.267 → 0.941 → 1.000.
-  Negative findings disclosed: chemistry never recovered (0.000 in every arm),
-  protocol ≤ 0.118, and invented conditions rise with richer evidence
-  (0.367 → 0.533). Design + results: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
+- **Private v4 result**, 3 repeats/arm (extractor `gemini-flash-lite-latest`,
+  free tier; arms comparable with each other, **not** with the v0.1/v3 numbers):
+  condition-field accuracy **0.111 ± 0.009 (compact) → 0.240 ± 0.004 (expanded)
+  → 0.249 ± 0.022 (v25)**; value found 0.389 → 0.389 → 0.583; temperature
+  0.059 → 0.479 → 0.591; format 0.219 → 0.980 → 0.976. Negative findings
+  disclosed: **chemistry never recovered (0.000 in every arm)**, protocol ≤ 0.091,
+  `v25` regresses on cell identity (0.360 → 0.186), and invented conditions
+  **rise** with richer evidence (0.411 → 0.500 → 0.439). Design + results:
+  `docs/V2_PRIVATE_V4_BENCHMARK.md`.
 
 ### Landed so far (2026-11-08)
 - **V2.5 (first slice) — evidence engineering**: condition-aware evidence window
