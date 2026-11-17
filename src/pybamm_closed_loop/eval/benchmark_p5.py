@@ -28,7 +28,6 @@ from __future__ import annotations
 import json
 import re
 import statistics
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -397,6 +396,7 @@ def _evidence_block(
         return resolve_passage(store, item.document_id, probe)
 
     from ..literature.evidence import (
+        cell_identification_sentences,
         document_conditions,
         multi_windows,
         table_window,
@@ -426,6 +426,13 @@ def _evidence_block(
                 extra.append(chunk)
         if extra:
             text += "\n\nADDITIONAL OCCURRENCES (same document):\n" + "\n---\n".join(extra)
+
+    cell_sentences = cell_identification_sentences(raw)
+    if cell_sentences:
+        text += (
+            "\n\nCELL IDENTIFICATION (statements from the same document naming the "
+            "cell/product used):\n" + "\n".join(f"- {s}" for s in cell_sentences)
+        )
 
     doc_conditions = document_conditions(raw)
     if doc_conditions.sentences:

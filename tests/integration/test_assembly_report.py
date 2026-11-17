@@ -35,7 +35,7 @@ def _records() -> list[dict]:
 
 
 def _report():
-    return assemble(_records(), TARGET, Rubric("rubric-v1"))
+    return assemble(_records(), TARGET, Rubric("rubric-v2"))
 
 
 class TestAssemblyOverRealRegistry:
@@ -70,7 +70,7 @@ class TestAssemblyOverRealRegistry:
         gate = ApprovalGate()
         exported = report.pybamm_export(gate)
         assert exported == {}
-        gate.approve("neg_bruggeman_electrolyte", "FIX", "owner", "rubric-v1")
+        gate.approve("neg_bruggeman_electrolyte", "FIX", "owner", "rubric-v2")
         exported = report.pybamm_export(gate)
         assert exported == {"neg_bruggeman_electrolyte": 1.5}
 

@@ -14,8 +14,6 @@ from pybamm_closed_loop.pybamm_engine import (
     BaselineRunConfig,
     build_model,
     build_parameter_values,
-    build_simulation,
-    build_solver,
     run,
 )
 

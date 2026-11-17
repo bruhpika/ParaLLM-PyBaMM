@@ -160,6 +160,7 @@ class TargetSpecification:
     temperature_k: float | None = None
     temperature_range_k: tuple[float, float] | None = None
     soc: str | None = None
+    electrolyte: str | None = None
     model: str = "DFN"
     parameter_set: str = "Chen2020"
     notes: str = ""
@@ -173,6 +174,7 @@ class TargetSpecification:
             "temperature_k": self.temperature_k,
             "temperature_range_k": list(self.temperature_range_k) if self.temperature_range_k else None,
             "soc": self.soc,
+            "electrolyte": self.electrolyte,
             "model": self.model,
             "parameter_set": self.parameter_set,
             "notes": self.notes,

@@ -1,0 +1,48 @@
+{
+  "agreement": {
+    "all": {
+      "decision_agreement": 0.9583333333333334,
+      "full_agreement": 0.9583333333333334,
+      "n_ambiguous": 2,
+      "n_cases": 24,
+      "n_mismatched_choice": 0,
+      "n_mismatched_decision": 1
+    },
+    "class:ambiguous": {
+      "decision_agreement": 0.5,
+      "full_agreement": 0.5,
+      "n_ambiguous": 2,
+      "n_cases": 2,
+      "n_mismatched_choice": 0,
+      "n_mismatched_decision": 1
+    },
+    "class:applicability": {
+      "decision_agreement": 1.0,
+      "full_agreement": 1.0,
+      "n_ambiguous": 0,
+      "n_cases": 5,
+      "n_mismatched_choice": 0,
+      "n_mismatched_decision": 0
+    },
+    "class:conflict": {
+      "decision_agreement": 1.0,
+      "full_agreement": 1.0,
+      "n_ambiguous": 0,
+      "n_cases": 17,
+      "n_mismatched_choice": 0,
+      "n_mismatched_decision": 0
+    },
+    "label_status": {
+      "drafted": 24,
+      "reviewed": 0
+    }
+  },
+  "generated": "2026-11-17T02:47:37.406955+00:00",
+  "label_status": {
+    "drafted": 24,
+    "reviewed": 0
+  },
+  "n_cases": 24,
+  "note": "Labels are drafted by the assistant until the project owner reviews them; agreement against drafted labels is not yet agreement with expert judgement.",
+  "rubric_version": "rubric-v2"
+}

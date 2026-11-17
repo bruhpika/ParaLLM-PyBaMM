@@ -4,7 +4,6 @@ Runs without pybamm: a synthetic ParameterValues-style dict plus a
 synthetic archive text assembled from the real probe strings.
 """
 
-import inspect
 
 import pytest
 

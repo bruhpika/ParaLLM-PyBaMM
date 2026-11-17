@@ -79,6 +79,8 @@ def _source_key(candidate: CandidateValue) -> str | None:
 
 def _distinct_values(candidates: Sequence[CandidateValue]) -> bool:
     """True when the candidates disagree numerically (or one is non-numeric)."""
+    if len(candidates) < 2:
+        return False
     numeric = [c.canonical_value for c in candidates if c.canonical_value is not None]
     if len(candidates) != len(numeric):
         return True
@@ -127,17 +129,60 @@ def resolve_parameter(
             f"(source={o.candidate.source_id or 'unknown'}): {reasons}".strip()
         )
 
-    if not surviving:
+    # A candidate that is not declarable in the model (e.g. a function-valued
+    # parameter) versus a scalar candidate for the same parameter is a *form*
+    # mismatch: adopting the scalar would change the model's structure, which
+    # is a modelling decision, not an applicability question.
+    form_mismatch = any(
+        any("not declarable" in b["reason"] for b in o.blockers) for o in rejected
+    )
+    if form_mismatch and surviving:
         return Resolution(
             canonical_id=canonical_id,
             decision=Decision.REVIEW,
             chosen=None,
+            alternatives=[o.candidate for o in surviving],
             rejected=[o.candidate for o in rejected],
             rationale=rationale
-            + ["no candidate survives the applicability rubric for this target"],
+            + [
+                "REVIEW: the candidates differ in FORM (one is not declarable in the "
+                "target model, the other is a scalar) - choosing between them changes "
+                "the model, so a scientific decision is required."
+            ],
             outcomes=outcomes,
             rubric_version=rubric.version,
             review_required=True,
+        )
+
+    if not surviving:
+        # Distinguish "this candidate does not apply to the target" (REJECT:
+        # the parameter simply stays unresolved for this cell) from "this
+        # candidate cannot be trusted" (REVIEW: a human must look, e.g. a
+        # quote that does not verify). Trust issues alone escalate; any
+        # applicability blocker means the parameter stays unresolved.
+        trust_blocks = {"evidence"}
+        only_trust_issues = all(
+            all(b["dimension"] in trust_blocks for b in o.blockers)
+            for o in rejected
+        )
+        decision = Decision.REVIEW if only_trust_issues else Decision.REJECT
+        return Resolution(
+            canonical_id=canonical_id,
+            decision=decision,
+            chosen=None,
+            rejected=[o.candidate for o in rejected],
+            rationale=rationale
+            + [
+                "no candidate survives the applicability rubric for this target"
+                + (
+                    "; the parameter stays unresolved for this cell"
+                    if decision is Decision.REJECT
+                    else "; the surviving evidence cannot be verified, so a human must decide"
+                )
+            ],
+            outcomes=outcomes,
+            rubric_version=rubric.version,
+            review_required=decision is Decision.REVIEW,
         )
 
     conflicting = _distinct_values([o.candidate for o in surviving])
@@ -147,6 +192,27 @@ def resolve_parameter(
     if not conflicting:
         best = max(surviving, key=lambda o: o.total)
         decision = _decision_for_method(best.candidate)
+        if rejected:
+            # other candidates existed but failed the rubric: the survivor is
+            # adopted, and the rejection is recorded as a preserved conflict
+            rationale.append(
+                f"adopted {best.candidate.value} {best.candidate.unit or ''} "
+                f"(source={best.candidate.source_id}, rubric score {best.total:.3f}); "
+                f"the competing candidate did not pass the applicability rubric "
+                f"for this target"
+            )
+            return Resolution(
+                canonical_id=canonical_id,
+                decision=decision,
+                chosen=best.candidate,
+                alternatives=[],
+                rejected=[o.candidate for o in rejected],
+                rationale=rationale,
+                outcomes=outcomes,
+                conflict=True,
+                conflict_class="cross_source" if len(source_keys) > 1 else "same_source",
+                rubric_version=rubric.version,
+            )
         rationale.append(
             f"{decision.value}: single applicable candidate {best.candidate.value} "
             f"{best.candidate.unit or ''} (rubric score {best.total:.3f}, "
@@ -165,7 +231,28 @@ def resolve_parameter(
         )
 
     ranked = sorted(surviving, key=lambda o: (-o.total, not o.candidate.is_operative))
-    top, second = ranked[0], ranked[1]
+    top = ranked[0]
+    if len(ranked) < 2:
+        # defensive: conflicting was true but ranking collapsed (should not
+        # happen once _distinct_values requires >= 2 candidates)
+        decision = _decision_for_method(top.candidate)
+        rationale.append(
+            f"adopted {top.candidate.value} {top.candidate.unit or ''} "
+            f"(source={top.candidate.source_id}, rubric score {top.total:.3f}); "
+            f"no competing surviving candidate"
+        )
+        return Resolution(
+            canonical_id=canonical_id,
+            decision=decision,
+            chosen=top.candidate,
+            alternatives=[],
+            rejected=[o.candidate for o in rejected],
+            rationale=rationale,
+            outcomes=outcomes,
+            conflict=False,
+            rubric_version=rubric.version,
+        )
+    second = ranked[1]
 
     if same_source:
         operative = next((o for o in surviving if o.candidate.is_operative), None)
@@ -203,7 +290,6 @@ def resolve_parameter(
     )
     if margin < rubric.review_margin:
         decision = Decision.REVIEW
-        review_required = True
         rationale.append(
             f"REVIEW: top two candidates are within the review margin "
             f"({margin:.3f} < {rubric.review_margin:.3f}); the conflict is ambiguous and "
@@ -212,6 +298,32 @@ def resolve_parameter(
         return Resolution(
             canonical_id=canonical_id,
             decision=decision,
+            chosen=None,
+            alternatives=[o.candidate for o in surviving],
+            rejected=[o.candidate for o in rejected],
+            rationale=rationale,
+            outcomes=outcomes,
+            conflict=True,
+            conflict_class=conflict_class,
+            review_required=True,
+            rubric_version=rubric.version,
+        )
+
+    # A disagreement between candidates obtained by *different kinds* of method
+    # (e.g. a fitted value vs a measured one) is a scientific disagreement, not
+    # an applicability question: escalate unless the applicability evidence
+    # clearly favours one of them.
+    divergent = top.candidate.method_class != second.candidate.method_class
+    if divergent and margin <= rubric.method_divergence_margin:
+        rationale.append(
+            f"REVIEW: the candidates differ in method class "
+            f"({top.candidate.method_class.value} vs {second.candidate.method_class.value}) "
+            f"and the applicability margin ({margin:.3f}) does not clearly favour "
+            f"either - a scientific decision is required."
+        )
+        return Resolution(
+            canonical_id=canonical_id,
+            decision=Decision.REVIEW,
             chosen=None,
             alternatives=[o.candidate for o in surviving],
             rejected=[o.candidate for o in rejected],

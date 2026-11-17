@@ -58,6 +58,75 @@ POSITIVE_KEYWORDS: tuple[str, ...] = ("positive", "cathode", "nmc", "lco", "lmo"
 NEGATIVE_KEYWORDS: tuple[str, ...] = ("negative", "anode", "graphite", "siOx", "siox", "li-metal")
 
 
+# cell identifiers that distinguish one build from another
+CELL_TOKEN_RE = re.compile(
+    r"\b(lg\s?m50|lgnm50|inr\s?21700|21700|18650|2032|coin cell|coin-cell"
+    r"|three-electrode|three electrode|two-electrode|pouch|cylindrical|samsung"
+    r"|laboratory cell|lab cell|half[- ]cell|full cell)\b",
+    re.IGNORECASE,
+)
+
+
+def cell_tokens(text: str | None) -> tuple[str, ...]:
+    """Cell-identifier tokens found in a free-text condition."""
+    if not text:
+        return ()
+    out: list[str] = []
+    for m in CELL_TOKEN_RE.finditer(_normalise(text)):
+        token = " ".join(m.group(0).split())
+        if token not in out:
+            out.append(token)
+    return tuple(out)
+
+
+# parameters whose value is a property of ONE cell build: a value measured on
+# another cell is not transferable. Everything else (reference temperature,
+# symmetry factors, generic constants) is cell-independent and must not be
+# blocked by a cell mismatch.
+CELL_SPECIFIC_PATTERNS: tuple[str, ...] = (
+    "thickness",
+    "porosity",
+    "area",
+    "radius",
+    "current collector",
+    "current_collector",
+    "separator",
+    "volume fraction",
+    "cell area",
+    "grain size",
+    "coating",
+    "loading",
+)
+
+
+# parameter families: an electrolyte-level parameter is decided by the
+# electrolyte, not by the electrode chemistry (a graphite/NMC cell and an
+# NMC111/graphite cell can share an electrolyte while sharing nothing else).
+ELECTROLYTE_FAMILY_PATTERNS: tuple[str, ...] = (
+    "transference",
+    "electrolyte_diffusivity",
+    "electrolyte_conductivity",
+    "electrolyte_bruggeman",
+    "bruggeman_electrolyte",
+    "electrolyte_",
+    "_electrolyte",
+)
+
+
+def parameter_family(parameter: str) -> str:
+    """``"electrolyte"`` or ``"electrode"`` (the deciding condition family)."""
+    p = _normalise(parameter)
+    if any(pattern in p for pattern in ELECTROLYTE_FAMILY_PATTERNS):
+        return "electrolyte"
+    return "electrode"
+
+
+def is_cell_specific(parameter: str) -> bool:
+    """True when the parameter belongs to one specific cell build."""
+    p = _normalise(parameter)
+    return any(pattern in p for pattern in CELL_SPECIFIC_PATTERNS)
+
+
 @dataclass(frozen=True)
 class CellFacts:
     """Facts recovered from a free-text condition blob."""

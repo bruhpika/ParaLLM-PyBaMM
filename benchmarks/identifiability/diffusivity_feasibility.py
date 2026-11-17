@@ -81,7 +81,7 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     names = [p["name"] for p in cfg["study_parameters"]]
-    kinds = {p["name"]: p["kind"] for p in cfg["study_parameters"]}
+    {p["name"]: p["kind"] for p in cfg["study_parameters"]}
     base_scales = {n: 1.0 for n in names}
 
     report: dict = {

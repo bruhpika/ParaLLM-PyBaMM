@@ -7,6 +7,7 @@ target:
   format: "21700"
   temperature_k: 298.15
   soc: "50%"
+  electrolyte: "1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V), 1 wt% VC"
   model: DFN
   parameter_set: Chen2020
   notes: >
@@ -14,3 +15,5 @@ target:
     reference. The SOC field records the state at which the reference
     parameterisation was validated (50 %); parameters measured at other SOC
     states are scored lower in the SOC dimension but are not blocked.
+    The electrolyte field is the Chen2020 formulation (1 M LiPF6 in EC:EMC
+    3:7 with 1 wt% VC); electrolyte-family parameters weight that match.

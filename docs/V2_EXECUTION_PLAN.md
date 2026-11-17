@@ -25,7 +25,7 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done
 
 ---
 
-## V2.5 — Evidence engineering (P8′)  *[in progress — first slice landed]*
+## V2.5 — Evidence engineering (P8′)  *[slices landed; exit criterion not yet met]*
 
 **Landed:** condition-aware evidence window (±900 chars around the probe, plus
 nearby condition-bearing sentences) and **document-level experimental-setup
@@ -52,20 +52,53 @@ kept with the rows), top-k de-duplicated multi-window retrieval, and the
 2026, Wheeler 2024), categories A–E, with a frozen scorer that treats a gold
 `not_stated` field as matched only when the extraction reports nothing there.
 
-**LLM-side result on v4** (extractor `gemini-flash-lite-latest`, free tier —
-*not* comparable with the v0.1/v3 numbers; arms comparable with each other):
-condition-field accuracy **0.111 ± 0.009 (compact) → 0.240 ± 0.004 (expanded)
-→ 0.249 ± 0.022 (v25)** (3 repeats/arm), value found 0.389 → 0.389 → 0.583,
-temperature 0.059 → 0.479 → 0.591, format 0.219 → 0.980 → 0.976, but
-**chemistry 0.000 in every arm**, protocol ≤ 0.091, `v25` regresses on cell
-identity (0.360 → 0.186), and the invented-condition rate **rises** with
-richer evidence (0.411 → 0.500 → 0.439).
+**Also landed (third slice):** the deterministic **verification pass**
+(`verify_quote_in_evidence`, every candidate's quote checked against the
+evidence actually shown) and the **`not_stated` discipline**
+(`evidence_support` / `enforce_not_stated` in `eval/benchmark_v4.py`): a stated
+condition with no trace in the evidence is replaced by `not_stated`, counted in
+`mean_dropped_conditions`, and scored both ways (raw vs disciplined) so the
+effect is visible. Cell identification evidence (`cell_tokens`,
+`cell_identification_sentences`) and the SOC/protocol numeric false-positive fix
+land with it. All nine raw runs were re-scored offline (`--rescore`, no model
+calls) against the current fixture.
 
-**Still to do in V2.5:** the optional verification pass, a `not_stated`
-discipline mechanism (to counter the rise in invented conditions), and repeats
-for the arm comparison (r1/r2 running). Full design: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
+**LLM-side result on v4, re-scored** (extractor `gemini-flash-lite-latest`,
+free tier — *not* comparable with the v0.1/v3 numbers; arms comparable with
+each other; mean ± std over 3 repeats/arm; disciplined value with the raw
+value in brackets):
 
-## V2.1 — Applicability & conflict engine  *(first milestone)*
+| metric | compact | expanded | v25 |
+|---|---:|---:|---:|
+| condition-field accuracy | 0.095 ± 0.010 [0.116] | 0.251 ± 0.014 [0.257] | **0.256 ± 0.023** [0.266] |
+| value found | 0.389 ± 0.016 | 0.389 ± 0.042 | **0.583 ± 0.014** |
+| invented-condition rate | 0.411 ± 0.042 | **0.500 ± 0.027** | 0.439 ± 0.021 |
+| temperature / format / SOC | 0.059 / 0.196 / 0.374 | 0.479 / 0.980 / 0.461 | **0.591 / 0.976 / 0.515** |
+| chemistry / protocol | 0.000 / 0.000 | 0.178 / 0.080 | 0.143 / 0.091 |
+
+Transport errors excluded: compact 0, expanded 0, v25 6 (free-tier 503s).
+
+**Honest read of the discipline pass (measured, not assumed):**
+- It fires — on average 3.5–14.7 conditions per item are dropped for having no
+  trace in the evidence — and quote verification passes for 0.991–1.000 of
+  candidates.
+- It **did not reduce the invented-condition rate** (identical raw vs
+  disciplined in every arm): all 119 invented claims carry a token that *does*
+  occur somewhere in the richer evidence, so an evidence-trace check cannot
+  distinguish "condition of this value" from "number that appears elsewhere in
+  the passage". Countering invention needs condition↔value association, not a
+  trace check.
+- It slightly **lowered** condition-field accuracy (19 field verdicts changed,
+  all in the losing direction): the conservative trace check also rejects some
+  correct claims. Disclosed as `raw_*` metrics rather than hidden.
+
+**Still to do in V2.5:** the roadmap exit criterion (condition completeness
+≥ 0.5 on the private v4, false extraction 0.000) is **not met** — current
+0.256 / 0.439. The remaining gap is chemistry (0.143), protocol (0.091) and
+the `v25` cell-identity regression (0.360 → 0.186), plus an association-level
+mechanism against invented conditions. Full design: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
+
+## V2.1 — Applicability & conflict engine  *[first milestone — implemented; awaiting label review]*
 
 **Goal.** For a target cell + protocol, rank and decide among candidate values
 for one parameter, with a recorded rationale, preserving conflicts.
@@ -84,20 +117,29 @@ for one parameter, with a recorded rationale, preserving conflicts.
   - `dossier.py` — per-parameter dossier (dict + Markdown).
   - `gate.py` — approval record (who/when/what/rubric version) + gate check.
   - `report.py` — `assemble(records, target, rubric)` over the real registry.
-- `configs/v2/target_lgm50.yaml` — target specification (LG M50 / Chen2020).
-- `configs/v2/rubric_v1.yaml` — rubric definition + weights + version.
-- `scripts/v2/build_applicability_cases.py` → `data/eval/applicability_cases_v1.jsonl`
-  — ≥20 labelled conflict/applicability cases **derived from** the registry and
+- `configs/v2/target_lgm50.yaml` — target specification (LG M50 / Chen2020),
+  including the cell product and electrolyte families.
+- `configs/v2/rubric_v2.yaml` — rubric definition + weights + version
+  (documentation-only; the authoritative weights live in
+  `assembly/rubric.py` and are validated to sum to 1.00).
+- `data/private_v4/build_applicability_cases.py` →
+  `data/private_v4/applicability_cases_v1.jsonl` (**private**, git-ignored)
+  — 24 labelled conflict/applicability cases **derived from** the registry and
   the v3 fixture (no hand-typed values); expert labels drafted, `reviewed_by`
   pending owner sign-off.
 - `benchmarks/v2/run_applicability.py` — agreement of the rubric with the
-  labelled set + rule-firing statistics.
+  labelled set + rule-firing statistics; aggregates public under
+  `results/v2/applicability/`, per-case rows private.
 - `tests/unit/test_assembly_*.py`, `tests/integration/test_assembly_report.py`.
 
-**Rubric dimensions (v1, hand-set weights, sum 1.00)**
-chemistry 0.28 · temperature 0.14 · method 0.20 · evidence integrity 0.14 ·
-SOC 0.10 · format 0.04 · cross-source agreement 0.05 · model applicability 0.05.
-Blocking rules: chemistry-family mismatch, failed quote verification.
+**Rubric dimensions (v2, hand-set weights, sum 1.00)**
+chemistry 0.22 · method 0.16 · temperature 0.12 · evidence 0.12 ·
+cell_product 0.12 · SOC 0.08 · model 0.05 · electrolyte 0.05 · format 0.04 ·
+cross-source agreement 0.04. An `ELECTROLYTE_WEIGHTS` variant (sum 1.00,
+electrolyte 0.19 / chemistry 0.06) is applied to electrolyte-family
+parameters. Blocking rules: chemistry-family mismatch, failed quote
+verification, not declarable in the model, cell-specific cell-product
+mismatch.
 
 **Conflict classes**
 - **Same-source** (all candidates share a source): adopt the source's
@@ -111,15 +153,19 @@ Blocking rules: chemistry-family mismatch, failed quote verification.
 V2.3 (the taxonomy in the roadmap is unchanged; V2.1 emits a subset).
 
 **Acceptance checks**
-- [ ] Unit tests: each dimension, each blocker, same-source policy,
+- [x] Unit tests: each dimension, each blocker, same-source policy,
       cross-source ranking, margin→REVIEW, dossier/gate round-trip.
-- [ ] Integration test: assembly over the real 96-record registry produces a
+- [x] Integration test: assembly over the real 96-record registry produces a
       report with no exceptions and every field traceable.
-- [ ] Benchmark: agreement with the drafted labelled set **≥ 80 %**
-      (exit criterion), with per-case failures listed.
-- [ ] Report states decisions for all parameters; no silent defaults.
-- [ ] Docs updated (`ROADMAP_V0.2.md` status, `ARCHITECTURE.md` planned
-      modules → implemented, `CHANGELOG.md`).
+- [x] Benchmark: agreement with the drafted labelled set **0.958** (24 cases,
+      ≥ 80 % exit criterion met); mismatches listed per case in
+      `results/v2/applicability/summary.md` — note the `ambiguous` class alone
+      is 1/2 (the set is 2 ambiguous cases, too few to read that subclass).
+- [ ] Expert labels reviewed (`reviewed_by` / owner sign-off) — **pending;
+      agreement against unreviewed labels is provisional**.
+- [x] Report states decisions for all parameters; no silent defaults.
+- [x] Docs updated (`ROADMAP_V0.2.md` status, `CHANGELOG.md`); planned
+      modules in `ARCHITECTURE.md` still to be moved to implemented.
 
 **Failure modes to watch**
 - Free-text condition parsing mislabels a chemistry → mitigate with explicit

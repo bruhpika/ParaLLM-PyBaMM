@@ -4,7 +4,6 @@ from pybamm_closed_loop.registry.model import (
     ParameterRecord,
     ParameterStatus as PS,
     ReviewState as RS,
-    SourceRef,
 )
 from pybamm_closed_loop.registry.store import RegistryStore
 from pybamm_closed_loop.validation.checks import review_candidate

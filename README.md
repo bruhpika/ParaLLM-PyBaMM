@@ -245,28 +245,37 @@ Plan, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 ### v0.2 progress (started)
 
 - **V2.5 evidence engineering** — condition-aware windows, document-level setup
-  retrieval, table-aware chunking, top-k multi-window retrieval
-  (`literature/evidence.py`).
+  retrieval, table-aware chunking, top-k multi-window retrieval, plus the
+  deterministic verification pass and `not_stated` discipline
+  (`literature/evidence.py`, `eval/benchmark_v4.py`).
 - **Private v4 condition benchmark** — 30 items over three CC BY papers,
   categories A–E; corpus, fixture and per-item results are **never published**
   (only the harness, the scorer and the aggregates). Frozen scorer: a gold
   `not_stated` field is matched only when the extraction reports nothing there.
-  Result, 3 repeats/arm (extractor `gemini-flash-lite-latest`, free tier —
-  **not** comparable with the v0.1/v3 numbers): condition-field accuracy
-  **0.111 ± 0.009 → 0.240 ± 0.004 → 0.249 ± 0.022** once the setup statements
-  are supplied; temperature 0.059 → 0.479 → 0.591, format 0.219 → 0.980 → 0.976.
-  **Negative findings:** electrode chemistry is never recovered (0.000 in every
-  arm), the full arm regresses on cell identity, and invented conditions
-  **rise** with richer evidence (0.411 → 0.500).
+  Result, 3 repeats/arm re-scored with the discipline pass (extractor
+  `gemini-flash-lite-latest`, free tier — **not** comparable with the v0.1/v3
+  numbers): condition-field accuracy **0.095 ± 0.010 → 0.251 ± 0.014 →
+  0.256 ± 0.023** [raw: 0.116 / 0.257 / 0.266] once the setup statements are
+  supplied; temperature 0.059 → 0.479 → 0.591, format 0.196 → 0.980 → 0.976.
+  **Negative findings (disclosed):** invented conditions **rise** with richer
+  evidence (0.411 → 0.500 → 0.439) and the discipline pass removed **none** of
+  them (every invented claim's token occurs somewhere in the evidence); the
+  full arm regresses on cell identity (0.360 → 0.186); chemistry and protocol
+  stay weak (≤0.178 / ≤0.091).
   Details: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
-- **Assembly layer** (prototyped) — auditable rubric, conflict resolution, the
-  per-parameter dossier as the central artifact, human approval gate.
+- **Assembly layer (V2.1, rubric v2)** — auditable hand-set rubric with
+  `cell_product` and `electrolyte` dimensions, conflict resolution, the
+  per-parameter dossier as the central artifact, human approval gate, and the
+  24-case expert-agreement benchmark: decision agreement **0.958** against
+  *drafted* labels (pending owner review), aggregates in
+  `results/v2/applicability/`.
 
 ## Status
 
 Public beta `v0.1.0-beta.1` — P0–P5 shipped (v0.1 feature set). v0.2 is
-**in progress** (V2.5 landed and measured; V2.1/V2.2 prototyped, not yet
-accepted). Carried TODO for v0.3+:
+**in progress** (V2.5 slices landed and re-scored, exit criterion not yet met;
+V2.1 rubric v2 + agreement benchmark run against drafted labels, pending owner
+label review; V2.2 prototyped). Carried TODO for v0.3+:
 multi-chemistry coverage (LFP/graphite, NMC811, Li-metal), experimental dataset
 acquisition, observables beyond voltage (EIS/OCV/dQ/dV/GITT-D), a first-party
 parameter set, and PyPI/CI/docs-site release.

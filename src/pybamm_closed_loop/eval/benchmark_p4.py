@@ -20,7 +20,7 @@ import json
 import re
 import time
 import urllib.error
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -36,7 +36,6 @@ from ..literature.extraction import (
     OfflineDeterministicExtractor,
     run_extraction,
 )
-from ..literature.index import SYNONYMS
 from ..literature.ingest import DocumentStore
 from ..literature.retrieval import RAGContext, RetrievalFacets, RetrievedSegment
 from ..registry.textnorm import ascii_fold

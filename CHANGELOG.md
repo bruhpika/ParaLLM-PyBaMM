@@ -4,11 +4,53 @@ All notable changes to PARALLM are documented here. The project follows the
 milestone plan (P0–P8); scientific behavior is versioned conservatively and
 documented with provenance.
 
-## [Unreleased] — v0.2 "Parameter Assembly" (planned, not implemented)
+## [Unreleased] — v0.2 "Parameter Assembly" (in execution)
 
-Proposal only; no v0.2 code exists yet. Scope, exit criteria, risks and
-decisions: `docs/ROADMAP_V0.2.md`. Positioning/competitive scan:
-`docs/POSITIONING.md`.
+Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
+Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
+`docs/V2_EXECUTION_PLAN.md`.
+
+### Landed so far (2026-11-17)
+
+- **V2.5 (third slice) — verification pass + `not_stated` discipline**
+  (`eval/benchmark_v4.py`): every candidate's quote is checked against the
+  evidence actually shown; a stated condition with no trace in the evidence is
+  replaced by `not_stated` (temperature within 1 K of an extracted temperature;
+  chemistry/cell/format/method tokens present; SOC/protocol numbers as
+  standalone tokens). Shared verbatim by the live runner and the new offline
+  `run_v4_evaluation.py --rescore` path (no model calls). Scored twice: the
+  disciplined verdict plus `raw_*` verdicts, so the effect is measured.
+  **Measured effect (disclosed):** it fires (3.5–14.7 conditions/item dropped,
+  quote verification 0.991–1.000) but removed **none** of the 119 invented
+  claims (their tokens do occur in the evidence) and slightly *lowered*
+  condition accuracy (19 verdicts changed, all losing). Also landed: cell
+  identification evidence (`cell_tokens`, `cell_identification_sentences`) and
+  the SOC numeric false-positive fix (`50` inside `INR21700-50E`).
+- **Private v4 re-scored** (same raw outputs, corrected fixture chemistry gold
+  labels, discipline pass): condition-field accuracy **0.095 ± 0.010 (compact)
+  → 0.251 ± 0.014 (expanded) → 0.256 ± 0.023 (v25)** [raw 0.116 / 0.257 /
+  0.266]; value found 0.389 → 0.389 → 0.583; invented conditions still rise
+  with richer evidence (0.411 → 0.500 → 0.439). The earlier "chemistry never
+  recovered" finding reflects the pre-correction fixture; corrected chemistry is
+  0.000 / 0.178 / 0.143. Roadmap exit criterion (≥0.5 completeness, false
+  extraction 0.000) **not met**. Aggregates: `results/v2/v4/`.
+- **V2.1 — applicability rubric v2** (`assembly/rubric.py`,
+  `configs/v2/rubric_v2.yaml`): new `cell_product` and `electrolyte`
+  dimensions (sum still 1.00; `ELECTROLYTE_WEIGHTS` variant for
+  electrolyte-family parameters; blocking rule for cell-specific cell-product
+  mismatches). `configs/v2/rubric_v1.yaml` removed; the target spec records
+  the cell product and electrolyte families.
+- **V2.1 — expert-agreement case set + benchmark**: 24 labelled
+  conflict/applicability cases (**private**, git-ignored; labels drafted,
+  pending owner review) scored by `benchmarks/v2/run_applicability.py`:
+  decision agreement **0.958** (≥80% exit threshold), 1 mismatch
+  (`APP-AMB-exchange-current-density`, ambiguous class 1/2). Public aggregates:
+  `results/v2/applicability/`.
+- **Assembly resolve/report fixes**: evidence-dimension checks now require
+  *all* blockers evidence-related (was *any*); a single surviving candidate
+  with rejections is no longer reported conflict-free; non-numeric single
+  survivors no longer crash the ranking; per-case agreement now reports
+  distinct sources instead of a constant conflict count.
 
 ### Landed so far (2026-11-16)
 
@@ -28,7 +70,8 @@ decisions: `docs/ROADMAP_V0.2.md`. Positioning/competitive scan:
   condition-field accuracy **0.111 ± 0.009 (compact) → 0.240 ± 0.004 (expanded)
   → 0.249 ± 0.022 (v25)**; value found 0.389 → 0.389 → 0.583; temperature
   0.059 → 0.479 → 0.591; format 0.219 → 0.980 → 0.976. Negative findings
-  disclosed: **chemistry never recovered (0.000 in every arm)**, protocol ≤ 0.091,
+  disclosed: **chemistry never recovered (0.000 in every arm — later corrected
+  with the fixture's chemistry gold labels, see 2026-11-17)**, protocol ≤ 0.091,
   `v25` regresses on cell identity (0.360 → 0.186), and invented conditions
   **rise** with richer evidence (0.411 → 0.500 → 0.439). Design + results:
   `docs/V2_PRIVATE_V4_BENCHMARK.md`.

@@ -1,9 +1,11 @@
 # PARALLM v0.2 Roadmap — "Parameter Assembly" (proposal, 2026-11-08)
 
-Status: **proposal for approval.** No code has been written for v0.2 yet. This
-document defines the intent, scope, exit criteria and risks; the milestone plan
-follows the repository's incremental rule (work one milestone at a time, only
-after explicit assignment).
+Status: **in execution.** V2.5 (evidence layer + verification pass +
+`not_stated` discipline) and V2.1 (applicability rubric v2 + expert-agreement
+case set) are implemented; see §2.9 for measured status. This document defines
+the intent, scope, exit criteria and risks; the milestone plan follows the
+repository's incremental rule (work one milestone at a time, only after
+explicit assignment).
 
 Audience: **battery researchers already using PyBaMM/PyBOP** (the group that
 actually has the parameter problem today).
@@ -68,7 +70,7 @@ Negative particle diffusivity [m2.s-1]
                    temperature 1.00 (298.15 K) → total 0.884
   identifiability: |S| = 0.011–0.048 over 0.5C–2C → UNOBSERVABLE              [7]
   recommendation:  fix at literature value; if accuracy needed, measure via GITT [8]
-  approval:        pending human sign-off (rubric-v1)                          [9]
+  approval:        pending human sign-off (rubric-v2)                          [9]
 ```
 
 ```
@@ -127,18 +129,19 @@ calibration) is deterministic. This is a deliberate scientific stance, and it is
 the axis on which we differ from the closest neighbour (see
 `docs/POSITIONING.md`).
 
-## 2.9 Execution status (2026-11-08)
+## 2.9 Execution status (2026-11-17)
 
 | item | status | evidence |
 |---|---|---|
-| **V2.5** evidence layer (condition-aware window + document-level setup + table-aware chunking + top-k multi-window) | **implemented; LLM-side effect measured on the private v4** | `literature/evidence.py`; deterministic coverage on v3: temperature availability **0.108 → 0.838**, SOC **0.108 → 0.757**, chemistry **0.243 → 0.838**, method **0.649 → 1.000**. Private v4 (30 items, categories A–E, 3 CC BY papers, fixture not published): condition-field accuracy **0.111 ± 0.009 (compact) → 0.240 ± 0.004 (expanded) → 0.249 ± 0.022 (v25)**, value found 0.389 → 0.389 → 0.583; chemistry never recovered (0.000) and invented conditions rise with richer evidence (0.411 → 0.500). Design + results: `docs/V2_PRIVATE_V4_BENCHMARK.md` |
-| **V2.1** applicability & conflict engine | **prototyped, acceptance pending V2.5** | `assembly/` package (rubric, resolution, dossier, gate); over the real 96-record registry: 96 dossiers, 7 same-source conflicts all resolved to the source's operative value with the alternative preserved, 0 spurious escalations. The expert-agreement case set (§3.1) is still to be built — **this is the V2.1 acceptance criterion** |
+| **V2.5** evidence layer (condition-aware window + document-level setup + table-aware chunking + top-k multi-window + verification pass + `not_stated` discipline) | **implemented and measured; roadmap exit criterion (≥0.5 completeness, false extraction 0.000) NOT met yet** | `literature/evidence.py`, `eval/benchmark_v4.py`; deterministic coverage on v3: temperature availability **0.108 → 0.838**, SOC **0.108 → 0.757**, chemistry **0.243 → 0.838**, method **0.649 → 1.000**. Private v4 (30 items, categories A–E, 3 CC BY papers, fixture not published), 3 repeats/arm, re-scored offline with the discipline pass: condition-field accuracy **0.095 ± 0.010 (compact) → 0.251 ± 0.014 (expanded) → 0.256 ± 0.023 (v25)** [raw, pre-discipline: 0.116 / 0.257 / 0.266], value found 0.389 → 0.389 → 0.583; invented conditions still rise with richer evidence (0.411 → 0.500 → 0.439) and the discipline pass removed **none** of them (every invented claim's token occurs somewhere in the evidence — a trace check cannot separate "condition of this value" from "number elsewhere in the passage"). Design + results: `docs/V2_PRIVATE_V4_BENCHMARK.md` |
+| **V2.1** applicability & conflict engine (rubric v2: `cell_product` + `electrolyte` dimensions) | **implemented; expert-agreement benchmark run against drafted labels — pending owner label review** | `assembly/` package (rubric, resolution, dossier, gate); over the real 96-record registry: 96 dossiers, 7 same-source conflicts all resolved to the source's operative value with the alternative preserved, 0 spurious escalations. Expert-agreement case set built (24 private cases, §3.1): decision agreement **0.958** (≥80% threshold met), 1 mismatch (`APP-AMB-exchange-current-density`, ambiguous class 1/2). Labels are **drafted**, `reviewed_by` pending — the number is provisional until reviewed. Aggregates: `results/v2/applicability/` |
 | **V2.2** dossier | **schema implemented** (all 9 fields) | `assembly/dossier.py`; rendering to Markdown/JSON implemented, CLI pending |
 | **V2.3–V2.7** | not started | — |
 
 Note the sequencing consequence: V2.1's rubric consumes the evidence produced by
 V2.5, so V2.1 is not accepted until the expanded evidence mode is the one it is
-evaluated with.
+evaluated with — and both remain open until their exit criteria are met (V2.5:
+completeness ≥0.5 on v4; V2.1: owner-reviewed labels).
 
 ## 3. Workstreams, exit criteria, dependencies
 

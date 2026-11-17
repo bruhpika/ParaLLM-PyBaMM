@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import statistics
 import sys
 import time
@@ -46,7 +47,7 @@ from pybamm_closed_loop.eval.benchmark_v4 import (  # noqa: E402
     build_v4_prompt,
     coerce_candidates,
     load_items,
-    score_item,
+    score_with_discipline,
 )
 from pybamm_closed_loop.eval.benchmark_p5 import (  # noqa: E402
     candidates_from_raw,
@@ -96,10 +97,11 @@ def run_mode(items, store, mode: str, client, repeat: int, sleep_s: float = 0.0)
                 if isinstance(c.get("value"), (int, float))
                 and not isinstance(c.get("value"), bool)
             ]
-        row = score_item(item, candidates, abstained=not candidates)
-        row["transport_error"] = transport_error
-        row["n_coerced"] = n_coerced
-        row["evidence_chars"] = len(evidence)
+        # verification pass + deterministic `not_stated` discipline (shared
+        # with the offline re-score path so both arms apply the same rules)
+        row = score_with_discipline(
+            item, evidence, candidates, transport_error, n_coerced
+        )
         rows.append(row)
         raw_rows.append(
             {
@@ -116,6 +118,40 @@ def run_mode(items, store, mode: str, client, repeat: int, sleep_s: float = 0.0)
     return {"mode": mode, "repeat": repeat, "rows": rows, "raw": raw_rows}
 
 
+def rescore_from_raw(items, mode: str, repeat: int, raw_path: Path) -> list[dict]:
+    """Re-score preserved raw outputs with the discipline pass — no model calls.
+
+    The raw file stores {item_id, raw, evidence}; evidence is reused verbatim
+    so the deterministic verification + `not_stated` rules see exactly what the
+    model saw. Chemistry gold labels come from the *current* fixture.
+    """
+    raw_rows = [json.loads(line) for line in raw_path.read_text().splitlines() if line.strip()]
+    by_item = {r["item_id"]: r for r in raw_rows}
+    rows: list[dict] = []
+    for item in items:
+        rec = by_item.get(item.item_id)
+        if rec is None:
+            raise SystemExit(f"raw outputs missing item {item.item_id} for {mode} r{repeat}")
+        evidence = rec.get("evidence") or ""
+        raw = rec.get("raw") or ""
+        transport_error = raw.startswith("__ERROR__") if raw else True
+        candidates: list[dict] = []
+        n_coerced = 0
+        if not transport_error:
+            parsed = candidates_from_raw(raw)
+            coerced, n_coerced = coerce_candidates(parsed)
+            candidates = [
+                c
+                for c in coerced
+                if isinstance(c.get("value"), (int, float))
+                and not isinstance(c.get("value"), bool)
+            ]
+        rows.append(
+            score_with_discipline(item, evidence, candidates, transport_error, n_coerced)
+        )
+    return rows
+
+
 _METRICS = (
     "condition_field_accuracy",
     "parameter_value_accuracy",
@@ -123,6 +159,10 @@ _METRICS = (
     "value_found_rate",
     "invented_condition_rate",
     "abstention_rate",
+    "mean_dropped_conditions",
+    "quote_in_evidence_rate",
+    "raw_condition_field_accuracy",
+    "raw_invented_condition_rate",
 )
 
 
@@ -220,7 +260,7 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
                 m, sd = cell.get("mean"), cell.get("std")
                 row.append("n/a" if m is None else f"{m:.3f} +/- {sd:.3f}")
             lines.append("| " + " | ".join(row) + " |")
-        lines += ["", f"transport errors excluded from scoring: "
+        lines += ["", "transport errors excluded from scoring: "
                   + ", ".join(f"{m}={arm_means[m].get('n_transport_errors')}" for m in arm_means), ""]
     lines += ["", "Per-repeat summaries:"]
     lines += ["", "| metric | " + " | ".join(summaries) + " |", "|---|" + "---|" * len(summaries)]
@@ -247,6 +287,12 @@ def main() -> int:
         "without any model calls",
     )
     ap.add_argument(
+        "--rescore",
+        action="store_true",
+        help="re-score stored raw outputs with the verification + not_stated "
+        "discipline (no model calls); rewrites rows_*.json and the public summary",
+    )
+    ap.add_argument(
         "--sleep",
         type=float,
         default=4.0,
@@ -255,27 +301,60 @@ def main() -> int:
     args = ap.parse_args()
 
     items = load_items(args.items)
-    store = DocumentStore(STORE_DIR)
-    inner = OpenAICompatibleClient()
-    client = RobustLLMClient(inner, attempts=6, backoff_s=10.0)
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    PRIVATE_RESULTS.mkdir(parents=True, exist_ok=True)
+
+    # extractor disclosure for the public summary; no model calls on
+    # --rescore / --aggregate-only, so the client is only built when needed.
+    # Re-score preserves the extractor recorded in the previous summary so the
+    # arm stays labelled with the model that actually produced the raw outputs.
     extractor = {
-        "model": inner.model,
-        "base_url": inner.base_url,
+        "model": os.environ.get("PYCL_LLM_MODEL", "unknown"),
+        "base_url": os.environ.get("PYCL_LLM_BASE_URL", "unknown"),
         "note": (
             "The extractor is held identical across evidence modes, so the arms are "
             "comparable with each other. Absolute numbers are NOT comparable with the "
             "v0.1/v3 results, which used a different (cloud) model."
         ),
     }
+    prev_summary = out_dir / "summary.json"
+    if prev_summary.exists():
+        try:
+            prev_ext = json.loads(prev_summary.read_text()).get("extractor") or {}
+        except json.JSONDecodeError:
+            prev_ext = {}
+        extractor["model"] = prev_ext.get("model", extractor["model"])
+        extractor["base_url"] = prev_ext.get("base_url", extractor["base_url"])
     print(f"private v4 fixture: {len(items)} items", flush=True)
-    print(f"extractor: {extractor['model']} @ {extractor['base_url']}", flush=True)
-
-    PRIVATE_RESULTS.mkdir(parents=True, exist_ok=True)
-    out_dir = Path(args.out)
-    out_dir.mkdir(parents=True, exist_ok=True)
 
     summaries = {}
     arm_means: dict[str, dict] = {}
+    if args.rescore:
+        for mode in args.modes:
+            tags = []
+            for repeat in range(args.repeats):
+                tag = f"{mode}_r{repeat}"
+                raw_path = PRIVATE_RESULTS / f"raw_{tag}.jsonl"
+                if not raw_path.exists():
+                    print(f"  [{tag}] raw file missing - skipped", flush=True)
+                    continue
+                rows = rescore_from_raw(items, mode, repeat, raw_path)
+                (PRIVATE_RESULTS / f"rows_{tag}.json").write_text(
+                    json.dumps(rows, indent=2, sort_keys=True)
+                )
+                summaries[tag] = aggregate(rows)
+                tags.append(tag)
+                print(
+                    f"--- {tag}: {json.dumps(summaries[tag]['all'], sort_keys=True)}",
+                    flush=True,
+                )
+            if tags:
+                arm_means[mode] = _arm_means([summaries[t] for t in tags])
+        _write_outputs(items, args, extractor, summaries, arm_means)
+        print(f"wrote {out_dir}/summary.md (rescored with discipline)")
+        return 0
+
     if args.aggregate_only:
         for mode in args.modes:
             tags = []
@@ -292,6 +371,16 @@ def main() -> int:
         _write_outputs(items, args, extractor, summaries, arm_means)
         print(f"wrote {out_dir}/summary.md (aggregate-only)")
         return 0
+
+    store = DocumentStore(STORE_DIR)
+    inner = OpenAICompatibleClient()
+    client = RobustLLMClient(inner, attempts=6, backoff_s=10.0)
+    extractor = {
+        "model": inner.model,
+        "base_url": inner.base_url,
+        "note": extractor["note"],
+    }
+    print(f"extractor: {extractor['model']} @ {extractor['base_url']}", flush=True)
 
     for mode in args.modes:
         for repeat in range(args.repeats):
@@ -348,9 +437,7 @@ def main() -> int:
         "| metric | " + " | ".join(summaries) + " |",
         "|---|" + "---|" * len(summaries),
     ]
-    for metric in ("condition_field_accuracy", "parameter_value_accuracy",
-                   "parameter_unit_accuracy", "invented_condition_rate",
-                   "abstention_rate"):
+    for metric in _METRICS:
         row = [metric]
         for tag in summaries:
             v = summaries[tag]["all"].get(metric, float("nan"))

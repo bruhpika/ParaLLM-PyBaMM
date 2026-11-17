@@ -42,7 +42,7 @@ def test_ingest_is_immutable(tmp_path):
 
 
 def test_pdf_ingest_records_real_pages(tmp_path):
-    pypdf = pytest.importorskip("pypdf")
+    pytest.importorskip("pypdf")
     pdf_path = tmp_path / "two_pages.pdf"
     _write_minimal_pdf(pdf_path, ["Hello page one", "Second page text"])
     store = DocumentStore(tmp_path)

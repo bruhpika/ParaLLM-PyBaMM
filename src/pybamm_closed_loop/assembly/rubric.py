@@ -19,23 +19,69 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Sequence
 
-from .schema import CandidateValue, ConditionFacts, MethodClass, TargetSpecification
+from .schema import CandidateValue, MethodClass, TargetSpecification
+from ..registry.textnorm import ascii_fold
 
 # ---------------------------------------------------------------------------
 # dimension weights (hand-set; sum = 1.00)
 # ---------------------------------------------------------------------------
-DEFAULT_WEIGHTS: dict[str, float] = {
-    "chemistry": 0.28,
-    "temperature": 0.14,
-    "method": 0.20,
-    "evidence": 0.14,
-    "soc": 0.10,
+# electrolyte-family parameters weight the electrolyte instead of the electrode
+# chemistry (the deciding condition differs).
+ELECTROLYTE_WEIGHTS: dict[str, float] = {
+    "chemistry": 0.06,
+    "temperature": 0.12,
+    "method": 0.16,
+    "evidence": 0.12,
+    "soc": 0.08,
     "format": 0.04,
-    "agreement": 0.05,
+    "agreement": 0.04,
     "model": 0.05,
+    "cell_product": 0.14,
+    "electrolyte": 0.19,
+}
+
+DEFAULT_WEIGHTS: dict[str, float] = {
+    # rubric v2 (2026-11-16): the cell product and the electrolyte/medium were
+    # missing, so values measured on a *different cell* (or with a different
+    # electrolyte) could outrank the demonstrator's own value. Weights are
+    # re-balanced to keep the sum at 1.00.
+    "chemistry": 0.22,
+    "temperature": 0.12,
+    "method": 0.16,
+    "evidence": 0.12,
+    "soc": 0.08,
+    "format": 0.04,
+    "agreement": 0.04,
+    "model": 0.05,
+    "cell_product": 0.12,
+    "electrolyte": 0.05,
 }
 
 _NMC_COMPOSITION_RE = re.compile(r"nmc[^0-9]{0,3}(\d{3})")
+
+
+def _electrolyte_tokens(text: str) -> set[str]:
+    """Distinguishing tokens of an electrolyte description (salt, ratio, additive)."""
+    t = ascii_fold(str(text)).lower()
+    tokens: set[str] = set()
+    for salt in ("lipf6", "lifipf6", "lifsi", "libf4", "litfsi"):
+        if salt in t:
+            tokens.add(salt)
+    for ratio in ("3:7", "1:1", "2:1", "4:1"):
+        if ratio in t:
+            tokens.add("ratio" + ratio)
+    if "vc" in t and "vinylene" in t:
+        tokens.add("vc")
+    return tokens
+
+
+def _electrolyte_key(text: str) -> str | None:
+    """A short, comparable key for an electrolyte description (salt only)."""
+    t = ascii_fold(str(text)).lower()
+    for salt in ("lipf6", "lifipf6", "lifsi", "libf4", "litfsi"):
+        if salt in t:
+            return salt
+    return None
 
 
 def _nmc_composition(families: Iterable[str], text: str | None) -> str | None:
@@ -101,13 +147,27 @@ class Rubric:
         weights: dict[str, float] | None = None,
         dimensions: Sequence[Dimension] | None = None,
         review_margin: float = 0.10,
+        method_divergence_margin: float = 0.10,
+        electrolyte_weights: dict[str, float] | None = None,
         rules: Sequence[Rule] | None = None,
     ) -> None:
         self.version = version
         self.weights = dict(weights or DEFAULT_WEIGHTS)
+        self.electrolyte_weights = dict(
+            electrolyte_weights or ELECTROLYTE_WEIGHTS
+        )
         total = sum(self.weights.values())
         if abs(total - 1.0) > 1e-9:
             raise ValueError(f"rubric weights must sum to 1.0 (got {total})")
+        e_total = sum(self.electrolyte_weights.values())
+        if abs(e_total - 1.0) > 1e-9:
+            raise ValueError(
+                f"electrolyte rubric weights must sum to 1.0 (got {e_total})"
+            )
+        if set(self.electrolyte_weights) != set(self.weights):
+            raise ValueError(
+                "electrolyte_weights must cover the same dimensions as weights"
+            )
         self.dimensions = list(
             dimensions
             or [
@@ -119,9 +179,20 @@ class Rubric:
                 Dimension("format", self.weights["format"], "cell format / geometry"),
                 Dimension("agreement", self.weights["agreement"], "agreement with other sources"),
                 Dimension("model", self.weights["model"], "declarability in the target model"),
+                Dimension(
+                    "cell_product",
+                    self.weights["cell_product"],
+                    "cell product / build the value was measured on",
+                ),
+                Dimension(
+                    "electrolyte",
+                    self.weights["electrolyte"],
+                    "electrolyte / medium the value applies to",
+                ),
             ]
         )
         self.review_margin = review_margin
+        self.method_divergence_margin = method_divergence_margin
         self.rules = list(rules or [])
 
     # -- helpers ---------------------------------------------------------
@@ -309,6 +380,114 @@ class Rubric:
                    {"n_independent": len(others)})
         return 0.35
 
+    def _score_cell_product(
+        self, cand: CandidateValue, target: TargetSpecification, outcome: RubricOutcome
+    ) -> float:
+        """Cell product / build match; a *known* mismatch blocks the candidate.
+
+        Electrode thickness, porosity, current collectors and cell areas are
+        properties of one specific build: a value measured on another cell is
+        not transferable, however similar the chemistry is. The comparison uses
+        the cell identifiers in the free-text condition ("coin cell",
+        "three-electrode", "18650", "LG M50", ...) rather than a whitelist of
+        product names.
+        """
+        from .lexicon import cell_tokens
+
+        c = cand.conditions.cell_product
+        t = target.cell_product
+        raw_cell = (cand.conditions.raw or {}).get("cell")
+        tokens = cell_tokens(raw_cell) or cell_tokens(c)
+        target_tokens = {tok.lower() for tok in cell_tokens(t)}
+
+        from .lexicon import is_cell_specific
+
+        cell_specific = is_cell_specific(cand.canonical_id)
+        if tokens and target_tokens:
+            matched = any(
+                tok.lower() in target_tokens
+                or any(tok.lower() in tt for tt in target_tokens)
+                for tok in tokens
+            )
+            if not matched and cell_specific:
+                self._fire(
+                    outcome,
+                    "cell_product",
+                    0.0,
+                    "value measured on a different cell/build (cell-specific parameter)",
+                    {
+                        "candidate_cell": raw_cell or c,
+                        "candidate_tokens": list(tokens),
+                        "target_cell": t,
+                    },
+                    blocking=True,
+                )
+                return 0.0
+            if not matched:
+                self._fire(
+                    outcome,
+                    "cell_product",
+                    0.6,
+                    "value measured on a different build, but the parameter is not "
+                    "cell-specific",
+                    {"candidate_cell": raw_cell or c, "target_cell": t},
+                )
+                return 0.6
+            self._fire(
+                outcome,
+                "cell_product",
+                1.0,
+                "same cell build as the target",
+                {"candidate_tokens": list(tokens), "target_cell": t},
+            )
+            return 1.0
+
+        if c and t and c == t:
+            self._fire(outcome, "cell_product", 1.0, "same cell product", {"cell": c})
+            return 1.0
+        self._fire(
+            outcome,
+            "cell_product",
+            0.5,
+            "cell build could not be matched to the target",
+            {"candidate_cell": raw_cell or c, "target_cell": t},
+        )
+        return 0.5
+
+    def _score_electrolyte(
+        self, cand: CandidateValue, target: TargetSpecification, outcome: RubricOutcome
+    ) -> float:
+        """Electrolyte / medium match (electrolyte-level parameters)."""
+        c = (cand.conditions.raw or {}).get("electrolyte")
+        t = (target.electrolyte or "").strip()
+        if not c or not t:
+            self._fire(outcome, "electrolyte", 0.5, "electrolyte not stated on one side",
+                       {"candidate": c, "target": t or None})
+            return 0.5
+        cn = ascii_fold(str(c)).lower()
+        tn = ascii_fold(t).lower()
+        if cn == tn:
+            self._fire(outcome, "electrolyte", 1.0, "same electrolyte", {"electrolyte": c})
+            return 1.0
+        # the demonstrator's own electrolyte (salt AND solvent ratio AND
+        # additive) is a stronger match than "same salt, different solvent mix"
+        target_tokens = _electrolyte_tokens(t)
+        candidate_tokens = _electrolyte_tokens(str(c))
+        if target_tokens and target_tokens <= candidate_tokens:
+            self._fire(outcome, "electrolyte", 1.0,
+                       "candidate states the target electrolyte",
+                       {"candidate": c})
+            return 1.0
+        salt = _electrolyte_key(t)
+        if salt and salt in cn:
+            self._fire(outcome, "electrolyte", 0.6,
+                       "same salt, but the solvent mix / additive is not stated",
+                       {"candidate": c, "target": t})
+            return 0.6
+        self._fire(outcome, "electrolyte", 0.4, "different electrolyte",
+                   {"candidate": c, "target": t})
+        return 0.4
+
     def _score_model(self, cand: CandidateValue, outcome: RubricOutcome) -> float:
         if cand.model_applicable is False:
             self._fire(outcome, "model", 0.0, "parameter is not declarable in the target model",
@@ -321,6 +500,14 @@ class Rubric:
         return 0.6
 
     # -- public API ------------------------------------------------------
+    def weights_for(self, parameter: str) -> dict[str, float]:
+        """Weight set for a parameter family (electrolyte vs electrode)."""
+        from .lexicon import parameter_family
+
+        if parameter_family(parameter) == "electrolyte":
+            return dict(self.electrolyte_weights)
+        return dict(self.weights)
+
     def evaluate(
         self,
         candidate: CandidateValue,
@@ -338,16 +525,21 @@ class Rubric:
             "format": self._score_format(candidate, target, outcome),
             "agreement": self._score_agreement(candidate, siblings, outcome),
             "model": self._score_model(candidate, outcome),
+            "cell_product": self._score_cell_product(candidate, target, outcome),
+            "electrolyte": self._score_electrolyte(candidate, target, outcome),
         }
         outcome.dimension_scores = scores
-        outcome.total = sum(self.weights[k] * v for k, v in scores.items())
+        weights = self.weights_for(candidate.canonical_id)
+        outcome.total = sum(weights[k] * v for k, v in scores.items())
         return outcome
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "version": self.version,
             "weights": dict(self.weights),
+            "electrolyte_weights": dict(self.electrolyte_weights),
             "review_margin": self.review_margin,
+            "method_divergence_margin": self.method_divergence_margin,
             "dimensions": [
                 {"name": d.name, "weight": d.weight, "description": d.description}
                 for d in self.dimensions

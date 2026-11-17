@@ -11,9 +11,8 @@ approval gate disposes.
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Iterable, Mapping
 
 from .dossier import dossier, to_markdown
 from .gate import ApprovalGate

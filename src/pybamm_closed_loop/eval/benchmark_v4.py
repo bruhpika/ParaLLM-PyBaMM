@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import re
+import statistics
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -310,7 +311,6 @@ def score_item(
     ]
 
     cand = best["candidate"]
-    gold_value = item.parameter.get("value")
     value_ok = best["value_match"]
     unit_ok = _unit_match(cand.get("unit"), item.parameter.get("unit"))
 
@@ -391,6 +391,11 @@ def _unit_match(extracted: Any, gold: Any) -> bool:
     return False
 
 
+def _mean_optional(values: Iterable[Any]) -> float:
+    vals = [v for v in values if v is not None and v == v]
+    return statistics.fmean(vals) if vals else float("nan")
+
+
 def aggregate(rows: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
     """Aggregate v4 scores overall and per category.
 
@@ -422,6 +427,24 @@ def aggregate(rows: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
             "parameter_unit_accuracy": sum(1 for r in subset if r["parameter_unit_ok"]) / n,
             "invented_condition_rate": invented / n,
             "abstention_rate": sum(1 for r in subset if r["abstained"]) / n,
+            "mean_dropped_conditions": (
+                statistics.fmean([r.get("n_dropped_conditions", 0) for r in subset])
+                if subset
+                else float("nan")
+            ),
+            "quote_in_evidence_rate": _mean_optional(
+                [r.get("quote_in_evidence_rate") for r in subset]
+            ),
+            "raw_condition_field_accuracy": (
+                sum(r.get("raw_field_hits", 0) for r in subset) / total
+                if total
+                else float("nan")
+            ),
+            "raw_invented_condition_rate": (
+                sum(len(r.get("raw_invented_conditions", [])) for r in subset) / n
+                if n
+                else float("nan")
+            ),
         }
 
     out["all"] = block(rows)
@@ -566,3 +589,185 @@ def coerce_candidates(candidates: Iterable[dict[str, Any]]) -> tuple[list[dict[s
         c["temperature"] = temp
         out.append(c)
     return out, n_coerced
+
+
+# ---------------------------------------------------------------------------
+# evidence-grounded `not_stated` discipline (deterministic, applied to all arms)
+# ---------------------------------------------------------------------------
+def evidence_support(
+    evidence_text: str, field_name: str, value: Any
+) -> bool:
+    """Is the stated condition supported by the evidence that was shown?
+
+    A condition that the evidence does not mention is *not* evidence-grounded:
+    it is either a guess or imported from the model's memory. This check
+    therefore drops such statements (they become ``None``, i.e. ``not_stated``)
+    instead of letting them be reported as conditions.
+
+    The check is deterministic, arm-independent and deliberately conservative:
+    it only accepts a condition when a matching trace (a number, a keyword)
+    is present in the evidence text.
+    """
+    from ..literature.evidence import extract_conditions
+
+    if value is None:
+        return False
+    text = _norm(value)
+    if not text:
+        return False
+
+    if field_name == "temperature_k":
+        facts = extract_conditions(evidence_text)
+        candidates = [facts.temperature_k]
+        if facts.temperature_k is None:
+            return False
+        try:
+            target = float(value)
+        except (TypeError, ValueError):
+            return False
+        return any(c is not None and abs(c - target) <= 1.0 for c in candidates)
+
+    if field_name in ("chemistry", "cell", "format", "method"):
+        haystack = _norm(evidence_text)
+        # "-" separates tokens too ("INR21700-50E" -> "inr21700", "50e")
+        tokens = [t for t in re.split(r"[^a-z0-9.+]+", text) if len(t) > 2]
+        if not tokens:
+            return False
+        if field_name == "cell":
+            # the generic product words carry no discriminating information; the
+            # distinguishing token (e.g. "50e" vs "30t") must be present
+            generic = {
+                "inr21700", "21700", "18650", "cell", "cells", "cylindrical",
+                "coin", "pouch", "type", "samsung", "graphite", "anode", "cathode",
+                "full", "half", "laboratory", "commercial", "high", "energy",
+                "power",
+            }
+            specific = [t for t in tokens if t not in generic]
+            if specific:
+                tokens = specific
+        for token in tokens:
+            if token in haystack:
+                continue
+            if field_name == "chemistry" and token in haystack:
+                continue
+            return False
+        return True
+
+    # SOC / protocol: the stated numbers or keywords must occur in the evidence.
+    # Numbers must appear as standalone tokens (word-ish boundaries): a bare
+    # substring check would match "50" inside "INR21700-50E" and wrongly
+    # confirm a SOC the source never states.
+    haystack = _norm(evidence_text)
+    numbers = re.findall(r"\d+(?:[.,]\d+)?", text)
+    if numbers:
+        for n in numbers:
+            needle = _norm(n).replace(",", ".")
+            if re.search(rf"(?<![\w.]){re.escape(needle)}(?![\w])", haystack.replace(",", ".")):
+                return True
+        return False
+    keywords = [t for t in re.split(r"[^a-z0-9.+-]+", text) if len(t) > 2]
+    if not keywords:
+        return False
+    return any(k in haystack for k in keywords)
+
+
+def enforce_not_stated(
+    evidence_text: str, candidate: Mapping[str, Any]
+) -> tuple[dict[str, Any], list[str]]:
+    """Replace unsupported conditions with None (deterministic `not_stated`).
+
+    Returns (cleaned_candidate, dropped_fields). Nothing else about the
+    candidate is changed, and the dropped fields are reported so the effect is
+    visible rather than hidden.
+    """
+    cleaned = dict(candidate)
+    dropped: list[str] = []
+    for fname in CONDITION_FIELDS:
+        source_field = FIELD_SOURCE[fname]
+        value = cleaned.get(source_field)
+        if value is None:
+            continue
+        if fname in ("soc", "protocol"):
+            value = _context_slice(cleaned.get("context"), fname)
+            if value is None:
+                continue
+        if not evidence_support(evidence_text, fname, value):
+            if fname in ("soc", "protocol"):
+                # the context carries several statements; drop only the
+                # unsupported sub-statement by neutralising it
+                cleaned["context"] = _strip_context_part(cleaned.get("context"), fname)
+            else:
+                cleaned[source_field] = None
+            dropped.append(fname)
+    return cleaned, dropped
+
+
+def apply_discipline(
+    evidence_text: str, candidates: Sequence[Mapping[str, Any]]
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Verification pass + `not_stated` discipline over one item's candidates.
+
+    Shared by the live runner and the offline re-score path so both apply the
+    identical deterministic post-processing. Returns (cleaned_candidates, stats).
+    """
+    from ..literature.evidence import verify_quote_in_evidence
+
+    cleaned: list[dict[str, Any]] = []
+    dropped_total = 0
+    n_quote_unsupported = 0
+    for cand in candidates:
+        quote = (cand.get("source") or {}).get("quote")
+        supported = verify_quote_in_evidence(quote, evidence_text) if quote else False
+        c = dict(cand)
+        c["_quote_in_evidence"] = supported
+        if not supported:
+            n_quote_unsupported += 1
+        cleaned_cand, dropped = enforce_not_stated(evidence_text, c)
+        cleaned_cand["_dropped_conditions"] = dropped
+        dropped_total += len(dropped)
+        cleaned.append(cleaned_cand)
+    stats = {
+        "n_dropped_conditions": dropped_total,
+        "n_quote_not_in_evidence": n_quote_unsupported,
+        "quote_in_evidence_rate": (
+            1.0 - n_quote_unsupported / len(candidates) if candidates else None
+        ),
+    }
+    return cleaned, stats
+
+
+def score_with_discipline(
+    item: V4Item,
+    evidence_text: str,
+    candidates: Sequence[Mapping[str, Any]],
+    transport_error: bool,
+    n_coerced: int = 0,
+) -> dict[str, Any]:
+    """Score one item after applying the verification + `not_stated` discipline."""
+    cleaned, stats = apply_discipline(evidence_text, candidates)
+    row = score_item(item, cleaned, abstained=not cleaned)
+    row["transport_error"] = transport_error
+    row["n_coerced"] = n_coerced
+    row["evidence_chars"] = len(evidence_text)
+    row.update(stats)
+    row_raw = score_item(item, candidates, abstained=not candidates)
+    row["raw_condition_score"] = row_raw["condition_score"]
+    row["raw_field_hits"] = row_raw["field_hits"]
+    row["raw_invented_conditions"] = row_raw["invented_conditions"]
+    return row
+
+
+def _strip_context_part(context: Any, fname: str) -> Any:
+    """Remove an unsupported SOC/protocol fragment from the free-text context."""
+    text = str(context or "")
+    if not text:
+        return context
+    if fname == "soc":
+        cleaned = re.sub(
+            r"[^.;]*?(\d{1,3}(?:\.\d+)?)\s*%\s*(?:soc|state[- ]of[- ]charge)[^.;]*",
+            "SOC not stated in the evidence",
+            text,
+            flags=re.IGNORECASE,
+        )
+        return cleaned if cleaned.strip() else text
+    return text

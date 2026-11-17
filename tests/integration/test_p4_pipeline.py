@@ -7,7 +7,6 @@ dev items, then re-scores the frozen "raw" outputs through the rescore path.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest

@@ -78,13 +78,13 @@ class TestRubric:
             Rubric("bad", weights={"chemistry": 0.5})
 
     def test_matching_candidate_scores_high(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         outcome = rubric.evaluate(_candidate(1.0, "dimensionless"), TARGET)
         assert outcome.total > 0.8
         assert not outcome.blocked
 
     def test_chemistry_family_mismatch_blocks(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         cand = _candidate(
             1.0,
             "dimensionless",
@@ -100,7 +100,7 @@ class TestRubric:
         assert any("chemistry" in b["dimension"] for b in outcome.blockers)
 
     def test_failed_quote_verification_blocks(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         outcome = rubric.evaluate(
             _candidate(1.0, "dimensionless", quote="x", quote_verified=False), TARGET
         )
@@ -108,20 +108,20 @@ class TestRubric:
         assert any("evidence" in b["dimension"] for b in outcome.blockers)
 
     def test_not_declarable_in_model_blocks(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         outcome = rubric.evaluate(
             _candidate(1.0, "dimensionless", model_applicable=False), TARGET
         )
         assert outcome.blocked
 
     def test_rules_are_recorded_with_inputs(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         outcome = rubric.evaluate(_candidate(1.0, "dimensionless"), TARGET)
         assert outcome.fired
         assert all("reason" in f and "inputs" in f for f in outcome.fired)
 
     def test_temperature_mismatch_lowers_score(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         warm = _candidate(
             1.0,
             "dimensionless",
@@ -139,19 +139,19 @@ class TestRubric:
 
 class TestResolution:
     def test_single_candidate_measured_is_use(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         res = resolve_parameter("p", [_candidate(1.0, "dimensionless")], TARGET, rubric)
         assert res.decision is Decision.USE
         assert not res.conflict
 
     def test_single_candidate_assumed_is_fix(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         cand = _candidate(1.0, "dimensionless", method_class=MethodClass.ASSUMED)
         res = resolve_parameter("p", [cand], TARGET, rubric)
         assert res.decision is Decision.FIX
 
     def test_same_source_conflict_adopts_operative(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         operative = _candidate(
             1.5, "dimensionless", method_class=MethodClass.ASSUMED, is_operative=True
         )
@@ -166,7 +166,7 @@ class TestResolution:
         assert "operative" in " ".join(res.rationale)
 
     def test_cross_source_small_margin_escalates_to_review(self):
-        rubric = Rubric("rubric-v1", review_margin=0.5)
+        rubric = Rubric("rubric-v2", review_margin=0.5)
         a = _candidate(1.0, "dimensionless", source_id="doc-a", source_document="doc-a")
         b = _candidate(2.0, "dimensionless", source_id="doc-b", source_document="doc-b")
         res = resolve_parameter("p", [a, b], TARGET, rubric)
@@ -175,7 +175,7 @@ class TestResolution:
         assert len(res.alternatives) == 2
 
     def test_cross_source_clear_winner_is_chosen(self):
-        rubric = Rubric("rubric-v1", review_margin=0.01)
+        rubric = Rubric("rubric-v2", review_margin=0.01)
         a = _candidate(
             1.0,
             "dimensionless",
@@ -206,8 +206,31 @@ class TestResolution:
         assert res.chosen is a
         assert res.conflict_class == "cross_source"
 
-    def test_all_blocked_escalates_to_review(self):
-        rubric = Rubric("rubric-v1")
+    def test_evidence_only_block_is_review(self):
+        """Unverifiable quote alone escalates: a human must look."""
+        rubric = Rubric("rubric-v2")
+        bad = _candidate(1.0, "dimensionless", quote="x", quote_verified=False)
+        res = resolve_parameter("p", [bad], TARGET, rubric)
+        assert res.decision is Decision.REVIEW
+        assert res.review_required
+        assert res.rejected
+
+    def test_applicability_block_is_reject(self):
+        """Wrong chemistry alone does not apply to this cell: REJECT, not REVIEW."""
+        rubric = Rubric("rubric-v2")
+        bad = _candidate(
+            1.0,
+            "dimensionless",
+            conditions=ConditionFacts(chemistry_families=("LFP",)),
+        )
+        res = resolve_parameter("p", [bad], TARGET, rubric)
+        assert res.decision is Decision.REJECT
+        assert not res.review_required
+        assert res.rejected
+
+    def test_mixed_blockers_applicability_dominates_reject(self):
+        """Chemistry mismatch + failed quote → REJECT (does not apply here)."""
+        rubric = Rubric("rubric-v2")
         bad = _candidate(
             1.0,
             "dimensionless",
@@ -216,13 +239,13 @@ class TestResolution:
             conditions=ConditionFacts(chemistry_families=("LFP",)),
         )
         res = resolve_parameter("p", [bad], TARGET, rubric)
-        assert res.decision is Decision.REVIEW
+        assert res.decision is Decision.REJECT
         assert res.rejected
 
 
 class TestDossier:
     def test_all_nine_fields_present(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         cand = _candidate(1.0, "dimensionless", quote="a quote", quote_verified=True)
         res = resolve_parameter("p", [cand], TARGET, rubric)
         d = dossier(res)
@@ -237,7 +260,7 @@ class TestDossier:
         assert d["recommendation"]["decision"] == res.decision.value
 
     def test_identifiability_and_approval_can_be_filled(self):
-        rubric = Rubric("rubric-v1")
+        rubric = Rubric("rubric-v2")
         res = resolve_parameter("p", [_candidate(1.0, "dimensionless")], TARGET, rubric)
         d = dossier(
             res,
@@ -251,7 +274,7 @@ class TestDossier:
 class TestApprovalGate:
     def test_approval_roundtrip(self):
         gate = ApprovalGate()
-        gate.approve("p", "USE", "owner", "rubric-v1", note="ok")
+        gate.approve("p", "USE", "owner", "rubric-v2", note="ok")
         assert gate.is_approved("p")
         restored = ApprovalGate.from_dict(gate.to_dict())
         assert restored.is_approved("p")
@@ -259,5 +282,5 @@ class TestApprovalGate:
 
     def test_rejection_does_not_approve(self):
         gate = ApprovalGate()
-        gate.reject("p", "REVIEW", "owner", "rubric-v1")
+        gate.reject("p", "REVIEW", "owner", "rubric-v2")
         assert not gate.is_approved("p")

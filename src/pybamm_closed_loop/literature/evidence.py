@@ -595,3 +595,29 @@ def verify_quote_in_evidence(quote: str, evidence_text: str) -> bool:
 
 def _norm_quote(text: str) -> str:
     return " ".join(ascii_fold(text).split())
+
+
+def cell_identification_sentences(raw_text: str, max_sentences: int = 4) -> list[str]:
+    """Sentences that name the cell / product the experiment used.
+
+    The cell identity is the condition most often lost when a table block
+    dominates the evidence (the parameter table lists both cells at once).
+    These sentences are therefore surfaced separately, verbatim.
+    """
+    spans = _split_sentences(raw_text)
+    out: list[str] = []
+    for start, end in spans:
+        sentence = raw_text[start:end].strip()
+        if not sentence or len(sentence) > 500:
+            continue
+        if not _CELL_RE.search(sentence):
+            continue
+        if not _SETUP_RE.search(sentence):
+            # a bare product name without setup context is still useful, but
+            # prefer sentences that also carry an experimental cue
+            if len(out) >= 2:
+                continue
+        out.append(sentence)
+        if len(out) >= max_sentences:
+            break
+    return out

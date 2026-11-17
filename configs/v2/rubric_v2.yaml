@@ -1,0 +1,46 @@
+# Applicability rubric v2 — hand-set, auditable, no learned weights
+# (v0.2 decision D1). Weights sum to 1.00. The rubric version is recorded in
+# every decision and in every approval record.
+#
+# v2 (2026-11-16): added cell_product and electrolyte dimensions (a value
+# measured on a different cell build, or for a different electrolyte, could
+# previously outrank the demonstrator's own value). Weights re-balanced to
+# keep the sum at 1.00. An electrolyte-family weight set is applied for
+# electrolyte-level parameters (see ELECTROLYTE_WEIGHTS in rubric.py).
+rubric:
+  version: rubric-v2
+  review_margin: 0.10
+  method_divergence_margin: 0.10
+  weights:
+    chemistry: 0.22        # active-material / cell chemistry applicability (blocking on family mismatch)
+    temperature: 0.12      # temperature of the measurement vs the target
+    method: 0.16           # how the value was obtained (measured > calculated > fitted > calibrated > assumed)
+    evidence: 0.12         # evidence integrity (verified quote + locator); blocks on failed verification
+    soc: 0.08              # state of charge window
+    format: 0.04           # cell format / geometry
+    agreement: 0.04        # agreement with an independent source
+    model: 0.05            # declarability in the target model (blocks when not declarable)
+    cell_product: 0.12     # cell product / build the value was measured on (blocks cell-specific mismatches)
+    electrolyte: 0.05      # electrolyte / medium the value applies to
+  electrolyte_weights:
+    # applied when parameter_family(parameter) == "electrolyte": the deciding
+    # condition is the electrolyte, not the electrode chemistry
+    chemistry: 0.06
+    temperature: 0.12
+    method: 0.16
+    evidence: 0.12
+    soc: 0.08
+    format: 0.04
+    agreement: 0.04
+    model: 0.05
+    cell_product: 0.14
+    electrolyte: 0.19
+  blocking_rules:
+    - id: chemistry_family_mismatch
+      reason: chemistry family not applicable to the target
+    - id: quote_verification_failed
+      reason: quote could not be verified against the archived source
+    - id: not_declarable_in_model
+      reason: parameter is not declarable in the target model
+    - id: cell_product_mismatch_cell_specific
+      reason: value measured on a different cell build (cell-specific parameter)

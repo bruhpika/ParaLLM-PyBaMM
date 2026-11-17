@@ -20,3 +20,7 @@ data/raw_documents/chen2020_supplement/suppdata_fulltext.txt
 
 # Private v4 benchmark corpus + fixture (NOT published; see docs/ROADMAP_V0.2.md)
 data/private_v4/
+
+# Private per-item result rows (applicability cases, v4 per-item scores).
+# Only aggregate summaries under results/v2/ are public.
+results/private_v4/
