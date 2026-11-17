@@ -250,11 +250,39 @@ mean |normalized sensitivity| 0.011/0.021/0.048 at 0.5C/1C/2C), 89
 successful fit never proves identifiability (rule 7); thresholds are
 assumptions, recorded in every assessment and in the run manifest.
 
-## V2.4 — Synthetic end-to-end validation
+## V2.4 — Synthetic end-to-end validation  *[implemented; acceptance met]*
 
 Protocol-faithful synthetic experiment with deliberate mismatch: assemble →
 calibrate on one rate → validate on held-out rates; negative control (fit an
 unobservable parameter → validation degrades). Labelled **synthetic**, never
+
+**Implementation** (`benchmarks/v2/run_synthetic_validation.py`, run under
+`.venv-ecosystem312`; committed run: `results/v2/synthetic_validation/`):
+1. assembles decisions from the real registry + the V2.3 observability join
+   (and aborts if the join disagrees with the experiment's expected role
+   assignment — never silently);
+2. builds a deliberately mismatched synthetic ground truth (Chen2020 with
+   offsets: volume fractions 0.72/0.63, neg diffusivity 5.0e-14 vs the
+   assembled 0.75/0.665/3.3e-14) and seeded synthetic data at 0.5C/1C/2C;
+3. validates the assembled set on held-out rates (baseline);
+4. positive control: fits the CALIBRATE-action observable pair (electrode
+   volume fractions) on 1C only, re-validates;
+5. negative control: fits the unobservable `neg_particle_diffusivity`
+   (FIX/MEASURE decision) on the same 1C data — violating the decision —
+   and re-validates;
+6. reports held-out RMSE vs baseline for both controls and whether the
+   predicted pattern reproduced (positive improves; negative does not).
+
+**Measured (seed 20261117, noise σ=1e-3 V, DFN, maxiter 40, both fits
+converged):** held-out mean voltage RMSE **4.55 mV baseline → 0.97 mV
+positive control (4.7× better) → 4.55 mV negative control (unchanged)** —
+fitting the unobservable parameter gains nothing while the observable pair
+generalizes. **Prediction reproduced: True.** Limitations: synthetic only
+(scientific rules 7/8 — not experimental validation, not proof of
+identifiability); the positive fit covers only the scalar-declarable
+observable pair (function-valued kinetics remain CALIBRATE in the matrix but
+are out of this run's fitting scope); one seed — noise-level variation is
+expected.
 experimental.
 
 ## V2.6 — Closed-loop refinement (P7) — **gated on V2.1–V2.4**

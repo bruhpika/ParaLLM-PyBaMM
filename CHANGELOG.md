@@ -89,6 +89,17 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   0.011/0.021/0.048) → FIX, or MEASURE when accuracy-critical. Measured on
   the real registry: 7/96 assessed (6 CALIBRATE, 1 MEASURE/FIX), 89 explicit
   `not_assessed`.
+- **V2.4 — synthetic end-to-end validation**: `benchmarks/v2/run_synthetic_validation.py`
+  (run under `.venv-ecosystem312`; committed run in
+  `results/v2/synthetic_validation/`, labelled SYNTHETIC): assemble (real
+  registry + observability join) → deliberately mismatched synthetic ground
+  truth → seeded synthetic data at 0.5C/1C/2C → baseline held-out validation
+  → positive control (fit the CALIBRATE-action observable pair on 1C) →
+  negative control (fit the unobservable `neg_particle_diffusivity` on 1C,
+  violating the decision). Measured: held-out mean voltage RMSE **4.55 mV
+  baseline → 0.97 mV positive (4.7×) → 4.55 mV negative (no gain); both fits
+  converged; **prediction reproduced**. Not experimental validation and not
+  proof of identifiability (rules 7/8).
 
 ### Landed so far (2026-11-16)
 
