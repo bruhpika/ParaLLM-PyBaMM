@@ -9,6 +9,7 @@ validation (scientific rule 8).
 
 from __future__ import annotations
 
+import zlib
 from dataclasses import dataclass
 from typing import Any
 
@@ -102,7 +103,13 @@ def generate_dataset(
     solution = pybamm.Simulation(model, parameter_values=pv, experiment=experiment).solve()
     t = np.asarray(solution.t, dtype=float)
 
-    np.random.seed(spec.seed)  # reproducible noise; recorded in metadata
+    # Per-condition noise seed, derived deterministically from spec.seed and
+    # the condition name: independent noise across conditions, reproducible
+    # runs. Recorded in metadata alongside the base seed.
+    noise_seed = int(spec.seed) + zlib.crc32(condition.name.encode("utf-8")) % (
+        2**31
+    )
+    np.random.seed(noise_seed)
     voltage_clean = np.asarray(solution["Terminal voltage [V]"](t), dtype=float)
     current = np.asarray(solution["Current [A]"](t), dtype=float)
     voltage_noisy = pybop.add_noise(voltage_clean, spec.noise_sigma_V)
@@ -116,6 +123,7 @@ def generate_dataset(
         "true_values": dict(spec.true_values),
         "noise_sigma_V": spec.noise_sigma_V,
         "seed": spec.seed,
+        "noise_seed": noise_seed,
         "n_points": int(t.size),
         "t_end_s": float(t[-1]),
         "voltage_clean_range_V": [float(voltage_clean.min()), float(voltage_clean.max())],
@@ -126,7 +134,8 @@ def generate_dataset(
 def generate_datasets(
     spec: SyntheticSpec,
 ) -> list[tuple[str, pybop.Dataset, dict[str, Any]]]:
-    """Generate one dataset per condition (same seed each: deterministic)."""
+    """Generate one dataset per condition (independent deterministic noise per
+    condition, derived from spec.seed and the condition name)."""
     return [
         (cond.name, *generate_dataset(spec, cond)) for cond in spec.conditions
     ]

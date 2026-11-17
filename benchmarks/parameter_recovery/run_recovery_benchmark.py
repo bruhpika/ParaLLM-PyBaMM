@@ -130,7 +130,11 @@ def main() -> int:
         print(f"  final_cost={report['final_cost']:.6e} runtime={report['runtime_s']:.1f} s "
               f"evals={report['n_evaluations']}")
 
-    best_index = int(np.argmin([r["final_cost"] for r in runs]))
+    # Prefer converged starts; fall back to all runs if none converged, but
+    # keep the per-run success flag visible in the report.
+    converged = [i for i, r in enumerate(runs) if r.get("success") is True]
+    pool = converged if converged else list(range(len(runs)))
+    best_index = int(np.argmin([runs[i]["final_cost"] for i in pool]))
     report = {
         "run_id": raw["run_id"],
         "description": raw.get("description", ""),

@@ -221,3 +221,59 @@ identifiability, or anything about real-cell validation. The fixture is small
 (30 items, three papers) and the extractor is a free-tier model, so the
 absolute numbers are a *diagnostic*, not a benchmark result to cite as a
 capability claim.
+
+## 9. External corroboration (related work, checked 2026-11-17)
+
+The two negative findings of §7.2 — (a) the discipline pass removed **none**
+of the invented conditions because each invented value's token does occur
+somewhere in the evidence, and (b) counteracting this needs condition↔value
+**association**, not a trace check — were checked against the published
+literature. The sources below are *external* results on *different* tasks,
+datasets and metrics; their numbers are **not comparable** with ours (we
+score per-field exact match with a gold `not_stated` penalty on 30 private
+items). They are cited only as qualitative corroboration of the diagnosis and
+of the follow-up direction:
+
+- **Cross-context numeric contamination is a known LLM failure mode.**
+  *Comparison of LLMs in extracting synthesis conditions and generating Q&A
+  datasets for metal–organic frameworks* (Yaghi group,
+  <https://yaghi.berkeley.edu/pdfPublications/25compareLLM.pdf>): frontier
+  models (GPT-4 Turbo, Claude 3 Opus, Gemini 1.5 Pro) reached 67.8–83.5 %
+  completeness / 83.5–95.7 % correctness on synthesis-condition extraction,
+  but *"similar numerical data is presented in multiple contexts… leading to
+  confusion or overwriting of details"* — the same mechanism by which our
+  invented conditions survive a trace check (the number exists in the
+  passage, attached to a different context).
+- **Source-tracked, multi-stage extraction is the documented remedy.**
+  MetMINE (Wang et al., *RSC Digital Discovery*, 2026,
+  <https://pubs.rsc.org/dd/article/5/10/4191/1296477/MetMINE-a-generative-large-language-model-based>)
+  records a companion source text per value, extracts iteratively per material
+  and finishes with a confirmation pass, reporting that *"confusion errors,
+  comprising 62.5 % of total errors, predominantly involve attributing
+  properties from one material to another"* without it; and *Reliable
+  End-to-End Material Information Extraction from the Literature with
+  Source-Tracked Multi-Stage Large Language Models* (arXiv:2510.05142, 2025)
+  reports feature-level F1 ≈ 0.96 for the multi-stage source-tracked pipeline
+  vs 0.869 for single-pass extraction over 100 articles with a five-expert
+  ground truth.
+- **Tuple/condition binding is the active bottleneck for value+condition
+  records.** Phi et al., *A Hybrid LLM and Supervised Model Pipeline for
+  Polymer Property Extraction from Tables in Scientific Literature* (WASP
+  2025, doi:10.18653/v1/2025.wasp-main.11): 5-ary tuples
+  (polymer, property, value, **condition**, method); a hybrid LLM+encoder
+  pipeline reached 67.9 % F1 vs 56.7 % for direct LLM extraction, i.e. binding
+  the condition to the value is where systems lose accuracy. See also the
+  engineering hypothesis note *"Find With the LLM, Bind With the Encoder:
+  Slot-Level Verification for Document-Level N-ary Extraction"*
+  (<https://lacuna.tiptreesystems.com/hypothesis/find-with-the-llm-bind-with-the-encoder-slot-level-verification-for-document-119008f290834bbf>,
+  **not peer-reviewed**), which states the thesis directly: most document-level
+  errors are *binding* errors, not *finding* errors.
+- **Extractor capability is a plausible bottleneck (to be isolated, not
+  assumed).** On related-but-not-identical tasks — extraction of experimental
+  "specifications" attached to table claims — frontier models scored F1
+  ≈ 0.59–0.63 (Bertillo et al., *TaDA*, VLDB Workshops 2025,
+  <https://www.vldb.org/2025/Workshops/VLDB-Workshops-2025/TaDA/TaDA25_16.pdf>).
+  Our 0.256 was measured with a **free-tier lite model**. Whether the V2.5 gap
+  is an evidence-layer problem or an extractor-capability problem is therefore
+  an *open question* that only a controlled stronger-extractor re-run can
+  settle (decision reserved for the project owner).

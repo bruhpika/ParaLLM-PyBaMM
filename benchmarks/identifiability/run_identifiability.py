@@ -178,8 +178,8 @@ def main() -> int:
         jac = finite_difference_jacobian(predict, x_hat, rel_step=float(cfg["fd_rel_step"]),
                                          bounds=bounds)
         y0 = predict(x_hat)
-        diag = fim_diagnostics(jac, sigma=spec.noise_sigma_V)
         y_scale = float(np.std(y0)) or 1.0
+        diag = fim_diagnostics(jac, sigma=spec.noise_sigma_V, x=x_hat, y_scale=y_scale)
         sens = normalized_sensitivity(jac, x_hat, y_scale)
         return {
             "jacobian_shape": list(jac.shape),

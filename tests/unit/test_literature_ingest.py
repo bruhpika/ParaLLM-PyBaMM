@@ -33,6 +33,27 @@ def test_ingest_text_segments_have_offsets(tmp_path):
     assert segs[0].heading is not None  # Table II caption tracked
 
 
+def test_headings_track_captions_and_titles_not_sentences(tmp_path):
+    text = """Table 3: Cycling conditions.
+
+The cells were cycled at 25 C between 2.5 and 4.2 V, a full sentence.
+
+A Short Title
+
+Another full sentence with a period."""
+    store = DocumentStore(tmp_path)
+    store.ingest_text("docA", text)
+    segs = store.segments("docA")
+    headings = [s.heading for s in segs]
+    assert "Table 3: Cycling conditions." in headings
+    assert "A Short Title" in headings
+    assert (
+        "The cells were cycled at 25 C between 2.5 and 4.2 V, a full sentence."
+        not in headings
+    )
+    assert "Another full sentence with a period." not in headings
+
+
 def test_ingest_is_immutable(tmp_path):
     store = DocumentStore(tmp_path)
     store.ingest_text("docA", TEXT_A)

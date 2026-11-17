@@ -57,14 +57,27 @@ def normalized_sensitivity(jacobian: np.ndarray, x: np.ndarray,
     return jacobian * (np.asarray(x, dtype=float) / y_scale)[None, :]
 
 
-def fim_diagnostics(jacobian: np.ndarray, sigma: float) -> dict[str, Any]:
+def fim_diagnostics(
+    jacobian: np.ndarray, sigma: float, x: np.ndarray | None = None,
+    y_scale: float | None = None,
+) -> dict[str, Any]:
     """Fisher-information diagnostics from a Jacobian and i.i.d. noise sigma.
 
     Returns FIM, parameter correlation (from pseudo-inverse covariance),
     eigenvalues and condition number. A large condition number or |corr| -> 1
     indicates the observations cannot separate the parameters well.
+
+    When ``x`` (parameter values) and optional ``y_scale`` are given, the
+    Jacobian columns are first scaled to dimensionless sensitivities
+    ``S_ij = (x_j / y_scale) * dy_i / dx_j``, so eigenvalues and condition
+    number are comparable across parameters regardless of units; the
+    correlation matrix is scale-invariant either way. Without scaling the FIM
+    is dominated by the smallest-magnitude parameters and its eigenvalues are
+    not comparable across unit systems.
     """
     jac = np.asarray(jacobian, dtype=float)
+    if x is not None:
+        jac = normalized_sensitivity(jac, np.asarray(x, dtype=float), y_scale or 1.0)
     w = 1.0 / (sigma ** 2)
     fim = w * (jac.T @ jac)
     eigvals, eigvecs = np.linalg.eigh(fim)

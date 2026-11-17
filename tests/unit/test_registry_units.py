@@ -37,6 +37,15 @@ def test_to_canonical_unknown_unit_raises():
         to_canonical("furlongs.per.fortnight")
 
 
+def test_to_canonical_celsius_token_is_ambiguous():
+    """'C' must not silently map to kelvin (Celsius needs an offset; coulomb
+    and C-rate are distinct physical quantities)."""
+    with pytest.raises(KeyError, match="ambiguous"):
+        to_canonical("C")
+    with pytest.raises(KeyError, match="ambiguous"):
+        to_canonical("celsius")
+
+
 def test_reaction_rate_unit_detection():
     assert is_exchange_current_reaction_rate_unit("A m-2 (m3 mol-1)1.5")
     assert not is_exchange_current_reaction_rate_unit("A m-2")

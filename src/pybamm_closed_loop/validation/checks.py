@@ -8,6 +8,7 @@ Three review states are supported: ACCEPTED / NEEDS_REVIEW / REJECTED.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import re
 from typing import Any
 
 from ..registry import units as units_mod
@@ -38,6 +39,52 @@ PLAUSIBILITY_RANGES: dict[str, tuple[float, float, str]] = {
 }
 
 TEMP_RANGE_CHEN2020_K = (273.15, 333.15)
+
+_NAME_STOPWORDS = frozenset(
+    {"the", "a", "an", "of", "in", "on", "for", "and", "or", "parameter", "value"}
+)
+
+
+def _strip_unit_suffix(name: str) -> str:
+    """Drop a trailing ``[unit]`` suffix from a PyBaMM parameter name."""
+    m = re.search(r"\s*\[[^\[\]]+\]\s*$", name)
+    return name[: m.start()] if m else name
+
+
+def _name_tokens(s: str) -> frozenset[str]:
+    """Significant (length > 2, non-stopword) alphanumeric tokens of a name."""
+    return frozenset(
+        t
+        for t in re.findall(r"[a-z0-9]+", ascii_fold(s).lower())
+        if len(t) > 2 and t not in _NAME_STOPWORDS
+    )
+
+
+def _matching_records(payload: dict[str, Any], store: RegistryStore) -> list:
+    """All registry records whose PyBaMM name carries the extracted name's
+    significant tokens (either direction).
+
+    Returns every match: ambiguous extractions stay visible instead of being
+    silently resolved to the first record in store order.
+    """
+    name = payload.get("parameter_name", "").strip()
+    if not name:
+        return []
+    toks = _name_tokens(name)
+    if not toks:
+        return []
+    matches = []
+    seen = set()
+    for rec in store.all_records():
+        if rec.canonical_id in seen:
+            continue
+        for pn in rec.pybamm_names or []:
+            ptoks = _name_tokens(_strip_unit_suffix(pn))
+            if ptoks and (toks <= ptoks or ptoks <= toks):
+                matches.append(rec)
+                seen.add(rec.canonical_id)
+                break
+    return matches
 
 
 @dataclass
@@ -236,16 +283,20 @@ def detect_conflict(
     overwrite): the registry keeps conflicting literature values.
     """
     name = payload.get("parameter_name", "")
-    match = None
-    for rec in store.all_records():
-        if rec.pybamm_names and any(
-            name.lower() in pn.lower() or pn.lower() in name.lower()
-            for pn in rec.pybamm_names
-        ):
-            match = rec
-            break
-    if match is None:
-        return "warn", "extraction does not map to any registry parameter"
+    matches = _matching_records(payload, store)
+    if not matches:
+        return (
+            "warn",
+            f"extraction {name!r} does not map to any registry parameter",
+        )
+    ids = {rec.canonical_id for rec in matches}
+    if len(ids) > 1:
+        return (
+            "warn",
+            f"extraction {name!r} maps to multiple registry records "
+            f"({', '.join(sorted(ids))}); ambiguous mapping preserved",
+        )
+    match = matches[0]
     try:
         _, val, _ = check_value_unit(payload)
     except (ValueError, KeyError) as exc:
@@ -279,16 +330,25 @@ def check_pybamm_mapping(
     mismatch — no invented PyBaMM names, rule 2).
     """
     name = payload.get("parameter_name", "")
-    for rec in store.all_records():
-        if rec.pybamm_names and any(
-            name.lower() in pn.lower() or pn.lower() in name.lower()
-            for pn in rec.pybamm_names
-        ):
-            if installed_names is not None:
-                missing = [n for n in rec.pybamm_names if n not in installed_names]
-                if missing:
-                    return "fail", f"registry pybamm name not in installed set: {missing}"
-            return "ok", f"mapped to {rec.canonical_id} ({rec.pybamm_names[0]})"
+    matches = _matching_records(payload, store)
+    if not matches:
+        return (
+            "warn",
+            f"no PyBaMM mapping for this parameter name ({name!r})",
+        )
+    ids = {rec.canonical_id for rec in matches}
+    if len(ids) > 1:
+        return (
+            "warn",
+            f"parameter name {name!r} maps to multiple registry records "
+            f"({', '.join(sorted(ids))}); ambiguous mapping",
+        )
+    rec = matches[0]
+    if installed_names is not None:
+        missing = [n for n in rec.pybamm_names if n not in installed_names]
+        if missing:
+            return "fail", f"registry pybamm name not in installed set: {missing}"
+    return "ok", f"mapped to {rec.canonical_id} ({rec.pybamm_names[0]})"
     return "warn", "no PyBaMM mapping for this parameter name"
 
 

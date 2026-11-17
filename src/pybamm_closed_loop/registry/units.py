@@ -60,7 +60,6 @@ CONVERSIONS: dict[str, tuple[str, float]] = {
     "m3": ("m3", 1.0),
     "cm3": ("m3", 1e-6),
     "K": ("K", 1.0),
-    "C": ("K", 1.0),
     "mol.m-3": ("mol.m-3", 1.0),
     "mol.dm-3": ("mol.m-3", 1e3),
     "A": ("A", 1.0),
@@ -120,8 +119,16 @@ def to_canonical(token: str) -> tuple[str, float]:
     """Return (canonical_unit_name, factor) for a unit token.
 
     Raises KeyError for unknown units; never silently maps (rule 6).
+    ``C`` is deliberately absent: it is ambiguous between degrees Celsius
+    (which needs a +273.15 offset this multiplicative table cannot express),
+    coulombs (charge), and C-rate, so it must be specified explicitly.
     """
     norm = normalize_token(token)
+    if norm.lower() in {"c", "celsius", "degc", "deg c", "\u00b0c"}:
+        raise KeyError(
+            f"ambiguous unit token {token!r}: 'C' may mean Celsius, coulomb, "
+            f"or C-rate; specify explicitly (e.g. 'K', 'A.h', 'h-1')"
+        )
     try:
         return CONVERSIONS[norm]
     except KeyError as exc:

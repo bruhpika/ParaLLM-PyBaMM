@@ -180,6 +180,37 @@ Effort guidance (for the owner, one working week ≈ 1 unit): V2.1 ≈ 2 units,
 V2.2 ≈ 1.5, V2.3 ≈ 1, V2.4 ≈ 2, V2.5 ≈ 2, V2.6 ≈ 2, V2.7 ≈ 1.5 spread over the
 release. One milestone at a time; each ends with tests, docs, and a commit.
 
+### 3.2 External evidence for the V2.5 follow-up direction (checked 2026-11-17)
+
+The measured V2.5 finding — a deterministic evidence-trace check removes
+**none** of the invented conditions, because the invented number's token does
+occur somewhere in the passage — was checked against the published
+literature (full citations, non-comparability caveat and quoted findings:
+`docs/V2_PRIVATE_V4_BENCHMARK.md` §9). Corroboration, summarised:
+
+- Cross-context numeric contamination ("similar numerical data is presented in
+  multiple contexts… leading to confusion or overwriting") is a **known LLM
+  extraction failure mode** (Yaghi-group LLM comparison for synthesis-condition
+  extraction).
+- **Source-tracked, multi-stage extraction** — a companion source text per
+  value plus iterative passes and a final confirmation pass — is the
+  documented remedy for exactly this mis-attribution class (MetMINE, *RSC
+  Digital Discovery* 2026; arXiv:2510.05142 report F1 ≈ 0.96 vs 0.869
+  single-pass).
+- Binding the **condition to its value** (not finding either one) is the
+  recognised bottleneck for value+condition records (Phi et al., WASP 2025:
+  hybrid pipeline 67.9 % F1 vs direct LLM 56.7 % on 5-ary tuples with a
+  CONDITION slot).
+- Whether our residual gap is an evidence-layer problem or an
+  **extractor-capability problem** (we measured with a free-tier lite model,
+  while frontier models reach ~0.6–0.8 on related tasks) is an open question;
+  isolating it requires a controlled stronger-extractor re-run — an owner
+  decision, not taken here.
+
+These references **inform** the V2.5 follow-up scope (condition↔value
+association, per-value source spans, confirmation pass); they are external
+results on other tasks and are not evidence for our own numbers.
+
 ## 4. Sequencing and gates
 
 ```

@@ -140,3 +140,54 @@ def test_fitted_qualifier_accepted_with_warning_note(tmp_path):
     # fitted values are legitimate but must not masquerade as measurements
     assert report.state in ("ACCEPTED", "NEEDS_REVIEW")
     assert any("must NOT be recorded" in c.detail for c in report.checks)
+
+
+def _two_record_store(tmp_path):
+    store = RegistryStore(tmp_path / "reg")
+    for cid, pn in (
+        ("neg_diff", "Negative electrode diffusivity [m2.s-1]"),
+        ("pos_diff", "Positive electrode diffusivity [m2.s-1]"),
+    ):
+        store.upsert(
+            ParameterRecord(
+                canonical_id=cid,
+                pybamm_names=[pn],
+                pybop_mapping=None,
+                definition="d",
+                value=1e-14,
+                value_unit="m2.s-1",
+                normalized_value=1e-14,
+                normalized_value_unit="m2.s-1",
+                status=PS.LITERATURE_DERIVED,
+                source_id="doi",
+                source_location="Table II",
+                evidence=None,
+                conditions={},
+                method="GITT",
+                reported_uncertainty=None,
+                validation_state=RS.ACCEPTED,
+                compatibility={},
+            ),
+            actor="t",
+            note="seed",
+        )
+    return store
+
+
+def test_short_extracted_name_does_not_match_anything(tmp_path):
+    report = review_candidate(
+        _payload(parameter_name="D", value=1e-14, unit="m2.s-1"),
+        _store(tmp_path),
+        {"doc1": ARCHIVE_TEXT},
+    )
+    assert any("does not map to any registry parameter" in r for r in report.reasons)
+
+
+def test_ambiguous_mapping_is_flagged_not_silently_resolved(tmp_path):
+    report = review_candidate(
+        _payload(parameter_name="electrode diffusivity", value=1e-14, unit="m2.s-1"),
+        _two_record_store(tmp_path),
+        {"doc1": ARCHIVE_TEXT},
+    )
+    assert report.state == "NEEDS_REVIEW"
+    assert any("maps to multiple registry records" in r for r in report.reasons)

@@ -190,6 +190,19 @@ def run_fit_with_result(
     result = optimiser.run()
     runtime = time.perf_counter() - t0
 
+    # pybop Result carries no top-level "success"; the optimisation success
+    # flag lives on the wrapped scipy OptimizeResult (result.scipy_result).
+    # Record it so callers can distinguish converged fits from maxiter /
+    # tolerance failures instead of comparing final_cost blindly.
+    scipy_res = result.scipy_result
+    success: bool | None = None
+    status: int | None = None
+    optim_message = str(result.message)
+    if scipy_res is not None:
+        success = bool(getattr(scipy_res, "success", False))
+        status = getattr(scipy_res, "status", None)
+        optim_message = str(getattr(scipy_res, "message", result.message))
+
     x = np.asarray(result.x, dtype=float)
     report: dict[str, Any] = {
         "fit_spec": {
@@ -212,7 +225,9 @@ def run_fit_with_result(
         ],
         "runtime_s": float(runtime),
         "final_cost": float(result.best_cost),
-        "message": str(result.message),
+        "success": success,
+        "status": status,
+        "message": optim_message,
         # API finding: Result.total_evaluations is a method in pybop 26.10
         "n_evaluations": (
             int(result.total_evaluations())

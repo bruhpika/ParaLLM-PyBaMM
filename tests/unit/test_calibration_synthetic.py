@@ -66,3 +66,28 @@ def test_generation_metadata_records_ground_truth():
     assert meta["seed"] == 123
     assert meta["n_points"] > 0
     assert ds.check()
+
+
+def test_per_condition_noise_seeds_are_deterministic_and_independent():
+    spec = make_spec(
+        conditions=[
+            SyntheticCondition(name="1C", steps=["Discharge at 1C for 60 s"]),
+            SyntheticCondition(name="2C", steps=["Discharge at 2C for 30 s"]),
+        ],
+    )
+    ds1, meta1 = generate_dataset(spec, spec.conditions[0])
+    ds2, meta2 = generate_dataset(spec, spec.conditions[1])
+    # base seed recorded; derived noise seed differs per condition
+    assert meta1["seed"] == spec.seed == meta2["seed"]
+    assert "noise_seed" in meta1 and "noise_seed" in meta2
+    assert meta1["noise_seed"] != meta2["noise_seed"]
+    # same condition re-run reproduces identical noise
+    ds3, _ = generate_dataset(spec, spec.conditions[0])
+    assert np.array_equal(
+        np.asarray(ds1.data["Voltage [V]"]), np.asarray(ds3.data["Voltage [V]"])
+    )
+    # different conditions draw independent noise (compare the shared prefix)
+    n = min(ds1.data["Voltage [V]"].size, ds2.data["Voltage [V]"].size)
+    assert not np.array_equal(
+        np.asarray(ds1.data["Voltage [V]"])[:n], np.asarray(ds2.data["Voltage [V]"])[:n]
+    )

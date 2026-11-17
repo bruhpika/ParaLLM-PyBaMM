@@ -264,7 +264,9 @@ class DocumentStore:
         return segments
 
 
-_HEADING_RE = re.compile(r"^(Table\s+[IVXLC]+\.|Figure\s+\d+\.|[A-Z][^\n]{0,110})$")
+_CAPTION_RE = re.compile(r"^(Table|Figure)\s+[IVXLC0-9]+[.:]", re.IGNORECASE)
+_HEADING_RE = re.compile(r"^[A-Z][^\n]{0,110}$")
+_SENTENCE_END = (".", "!", "?")
 
 
 def _paragraph_spans(
@@ -272,9 +274,9 @@ def _paragraph_spans(
 ) -> list[tuple[int, int, str, str | None]]:
     """Split text into paragraphs with absolute char spans; track headings.
 
-    A line is treated as a heading when it is short, does not end with
-    sentence punctuation and matches a table/figure caption pattern or a
-    short title-like line. Returns (start, end, chunk, new_heading).
+    A line is treated as a heading when it matches a table/figure caption
+    pattern, or when it is short, does not end with sentence punctuation, and
+    reads like a title. Returns (start, end, chunk, new_heading).
     """
     spans: list[tuple[int, int, str, str | None]] = []
     pos = 0
@@ -291,7 +293,10 @@ def _paragraph_spans(
         lines = chunk.strip().splitlines()
         if lines:
             first = lines[0].strip()
-            if _HEADING_RE.match(first) and first.endswith((".", ":", ".")):
+            if _CAPTION_RE.match(first) or (
+                _HEADING_RE.match(first)
+                and not first.endswith(_SENTENCE_END)
+            ):
                 new_heading = first
         out.append((start, end, chunk, new_heading))
         current_heading = new_heading

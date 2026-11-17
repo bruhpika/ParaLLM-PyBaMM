@@ -90,3 +90,19 @@ def test_parametric_bootstrap_collects_estimates():
     assert len(out["estimates"]) == 5
     assert out["mean"][1] == pytest.approx(2.0)
     assert out["bootstrap_seed"] == 7
+
+
+def test_fim_diagnostics_scales_by_parameter_value():
+    # Parameters with very different units: the raw FIM is dominated by the
+    # smallest-magnitude parameter's column; scaling by parameter value
+    # (dimensionless sensitivities) makes eigenvalues comparable.
+    def predict(x):
+        return np.array([x[0] * 1e14, x[1]])
+
+    x = np.array([1e-14, 1.0])
+    jac = finite_difference_jacobian(predict, x)
+    raw = fim_diagnostics(jac, sigma=1e-3)
+    scaled = fim_diagnostics(jac, sigma=1e-3, x=x, y_scale=1.0)
+    assert raw["condition_number"] > 1e3
+    assert scaled["condition_number"] == pytest.approx(1.0)
+    assert abs(scaled["correlation"][0, 1]) < 0.2

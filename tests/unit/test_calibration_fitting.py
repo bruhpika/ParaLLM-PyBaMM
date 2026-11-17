@@ -9,6 +9,7 @@ from pybamm_closed_loop.calibration.fitting import (  # noqa: E402
     FitSpec,
     build_problem,
     run_fit,
+    run_fit_with_result,
 )
 from pybamm_closed_loop.calibration.synthetic import (  # noqa: E402
     SyntheticCondition,
@@ -81,6 +82,25 @@ def test_tiny_fit_runs_and_reports():
     assert 0.55 <= est <= 0.9
     assert "recovery" in report
     assert report["runtime_s"] > 0
+
+
+def test_fit_report_records_optimiser_success():
+    synth = SyntheticSpec(
+        parameter_set="Chen2020",
+        model_name="SPM",
+        true_values={"Negative electrode active material volume fraction": 0.75},
+        conditions=[SyntheticCondition(name="1C", steps=["Discharge at 1C for 60 s"])],
+        noise_sigma_V=1e-3,
+        seed=5,
+    )
+    datasets = generate_datasets(synth)
+    spec = make_spec()
+    problem, info = build_problem(datasets, spec)
+    report, result = run_fit_with_result(problem, spec)
+    assert "success" in report
+    assert isinstance(report["success"], bool)
+    assert "status" in report
+    assert isinstance(report["message"], str)
 
 
 def test_multi_condition_builds_metaproblem():

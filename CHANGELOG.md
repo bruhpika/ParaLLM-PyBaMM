@@ -51,6 +51,16 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   with rejections is no longer reported conflict-free; non-numeric single
   survivors no longer crash the ranking; per-case agreement now reports
   distinct sources instead of a constant conflict count.
+- **Docs: external corroboration cited.** The v4 negative findings (trace
+  check cannot remove invented conditions; counteracting needs condition↔value
+  association) are now referenced against the published literature —
+  cross-context numeric contamination as a known LLM failure mode
+  (Yaghi-group LLM comparison), source-tracked multi-stage extraction as the
+  documented remedy (MetMINE, *RSC Digital Discovery* 2026; arXiv:2510.05142),
+  and condition binding as the bottleneck for value+condition tuples (Phi et
+  al., WASP 2025). Citations, quoted findings and an explicit
+  non-comparability caveat: `docs/V2_PRIVATE_V4_BENCHMARK.md` §9 and
+  `docs/ROADMAP_V0.2.md` §3.2.
 
 ### Landed so far (2026-11-16)
 
@@ -96,6 +106,33 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   status) plus the mandatory human approval gate. Over the real 96-record
   registry: 96 dossiers, 7 same-source conflicts all resolved to the source's
   operative value with the alternative preserved, no spurious escalations.
+
+### Fixed (2026-11-17)
+
+- **`registry/units.py`**: removed the silent `"C" -> ("K", 1.0)` mapping, which
+  misread Celsius as kelvin and collided with coulomb / C-rate; `to_canonical("C")`
+  now raises an explicit KeyError (units table is multiplicative-only, so Celsius
+  cannot be expressed without an offset).
+- **`validation/checks.py`**: parameter-name matching is token-based (tokens of
+  length > 2, stopword-filtered, subset either direction) instead of bidirectional
+  substring matching, so short names (e.g. `"D"`) no longer match arbitrary
+  records; ambiguous mappings (one extraction → multiple registry records) are
+  reported as warnings instead of being silently resolved to the first record.
+- **`literature/ingest.py`**: heading detection fixed — table/figure captions are
+  tracked, short title-like lines are headings, but full sentences ending in
+  sentence punctuation are no longer mistaken for headings.
+- **`calibration/synthetic.py`**: noise is drawn under a per-condition seed
+  derived deterministically from `spec.seed` and the condition name (recorded as
+  `noise_seed` alongside `seed`), so conditions get independent noise instead of
+  reusing the same global draw.
+- **`calibration/identifiability.py`**: `fim_diagnostics` accepts parameter
+  values `x` and scales the Jacobian to dimensionless sensitivities before the
+  FIM, so eigenvalues and condition number are comparable across units
+  (`run_identifiability` passes `x_hat`; `correlation` was already scale-invariant).
+- **`calibration/fitting.py`**: `run_fit_with_result` records the optimiser
+  success flag and status from the wrapped scipy result (`success`/`status` in
+  the report) instead of comparing `final_cost` blindly; the recovery benchmark
+  prefers converged multi-start runs.
 
 ### Planned
 - **V2.1** Applicability & conflict engine — auditable, hand-set rubric; decision
