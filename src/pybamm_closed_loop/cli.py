@@ -24,6 +24,11 @@ from pathlib import Path
 
 from .assembly import ApprovalGate, Rubric, TargetSpecification, assemble
 from .assembly.dossier import check_traceability
+from .assembly.observability import (
+    BOOTSTRAP_REL_STD_OBSERVABILITY,
+    SENSITIVITY_OBSERVABILITY_THRESHOLD,
+    load_observability,
+)
 from .assembly.report import verify_record_quotes
 
 
@@ -104,7 +109,10 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
         records, quote_stats = verify_record_quotes(records, doc_texts)
 
     rubric = Rubric(args.rubric_version)
-    report = assemble(records, target, rubric)
+    observability = load_observability(
+        Path(args.p2_results), records, set(args.accuracy_critical or ())
+    )
+    report = assemble(records, target, rubric, observability=observability)
 
     trace: list[dict] = []
     counts = {"ok": 0, "warn": 0, "fail": 0}
@@ -155,6 +163,16 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
             "sha256": _sha256(gate_path) if gate_path else None,
             "n_approved": len(gate.approved_parameters()),
         },
+        "observability": {
+            "p2_results": str(args.p2_results),
+            "assessed_parameters": sorted(observability),
+            "accuracy_critical": sorted(args.accuracy_critical or ()),
+            "thresholds": {
+                "sensitivity_observability": SENSITIVITY_OBSERVABILITY_THRESHOLD,
+                "bootstrap_rel_std_observability": BOOTSTRAP_REL_STD_OBSERVABILITY,
+            },
+            "action_matrix": report.action_matrix(),
+        },
         "traceability": counts,
         "n_exported": len(exported),
         "outputs": ["report.json", "report.md", "pybamm_export.json", "manifest.json"],
@@ -180,6 +198,7 @@ def _cmd_assemble(args: argparse.Namespace) -> int:
         f"cross-source {summary['cross_source_conflicts']})"
     )
     print(f"traceability: ok={counts['ok']} warn={counts['warn']} fail={counts['fail']}")
+    print(f"action matrix: {report.action_matrix()}")
     print(
         f"approved export: {len(exported)} parameter(s) "
         f"(gate: {str(gate_path) if gate_path else 'none provided'})"
@@ -211,6 +230,19 @@ def main(argv: list[str] | None = None) -> int:
         "--gate",
         default=None,
         help="approval gate JSON (only approved parameters are exported)",
+    )
+    a.add_argument(
+        "--p2-results",
+        default="results/p2",
+        help="recorded P2 identifiability artifacts for the observability join (V2.3)",
+    )
+    a.add_argument(
+        "--accuracy-critical",
+        nargs="*",
+        default=[],
+        metavar="CANONICAL_ID",
+        help="parameters whose accuracy is critical: unobservable ones become "
+        "MEASURE instead of FIX in the action matrix",
     )
     a.add_argument("--rubric-version", default="rubric-v2")
     args = ap.parse_args(argv)

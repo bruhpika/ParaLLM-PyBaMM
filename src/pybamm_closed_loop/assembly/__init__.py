@@ -16,6 +16,11 @@ from __future__ import annotations
 
 from .dossier import check_traceability, dossier, to_markdown
 from .gate import ApprovalGate, ApprovalRecord
+from .observability import (
+    ObservabilityAssessment,
+    load_observability,
+    not_assessed,
+)
 from .report import (
     AssemblyReport,
     assemble,
@@ -43,6 +48,7 @@ __all__ = [
     "Decision",
     "Dimension",
     "MethodClass",
+    "ObservabilityAssessment",
     "Resolution",
     "Rubric",
     "RubricOutcome",
@@ -53,6 +59,8 @@ __all__ = [
     "check_traceability",
     "dossier",
     "infer_method_class",
+    "load_observability",
+    "not_assessed",
     "resolve_parameter",
     "to_markdown",
     "verify_record_quotes",

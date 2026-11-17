@@ -17,6 +17,12 @@ from typing import Any, Iterable, Mapping
 
 from .dossier import dossier, to_markdown
 from .gate import ApprovalGate
+from .observability import (
+    ACTION_CALIBRATE,
+    ACTION_FIX,
+    ACTION_MEASURE,
+    ObservabilityAssessment,
+)
 from .resolve import Resolution, resolve_parameter
 from .rubric import Rubric
 from .schema import (
@@ -151,7 +157,21 @@ class AssemblyReport:
             "n_review_required": sum(1 for d in self.dossiers if d["review_required"]),
             "n_preserved_alternatives": sum(len(d["alternatives"]) for d in self.dossiers),
             "n_rejected_candidates": sum(len(d["rejected"]) for d in self.dossiers),
+            "action_matrix": self.action_matrix(),
         }
+
+    def action_matrix(self) -> dict[str, int]:
+        """Fit/fix/measure action counts from the observability join (V2.3).
+
+        Parameters without a recorded identifiability artifact are counted as
+        ``not_assessed`` — explicit, never silently fitted.
+        """
+        counts = {ACTION_CALIBRATE: 0, ACTION_FIX: 0, ACTION_MEASURE: 0,
+                  "not_assessed": 0}
+        for d in self.dossiers:
+            action = (d.get("identifiability") or {}).get("action")
+            counts[action if action in counts else "not_assessed"] += 1
+        return counts
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -223,17 +243,83 @@ def verify_record_quotes(
     return stamped, stats
 
 
+def _apply_observability_upgrade(
+    d: dict[str, Any], resolution: Resolution, assess: ObservabilityAssessment | None
+) -> dict[str, Any]:
+    """Upgrade USE/FIX decisions using the observability action (V2.3).
+
+    Deterministic (rule-firing recorded in the recommendation rationale):
+    observable -> CALIBRATE (free for estimation); unobservable -> FIX (hold
+    the literature value) or MEASURE when the parameter is marked
+    accuracy-critical. REJECT/REVIEW are never upgraded.
+    """
+    if assess is None or not assess.action:
+        return d
+    base = resolution.decision
+    if base not in (Decision.USE, Decision.FIX):
+        return d
+    if assess.action == ACTION_CALIBRATE:
+        new = Decision.CALIBRATE
+    elif assess.action == ACTION_MEASURE:
+        new = Decision.MEASURE
+    else:
+        new = Decision.FIX
+    protocols = "/".join(assess.protocols) or "recorded protocols"
+    rules = ", ".join(r["rule"] for r in assess.rules_fired)
+    if new != base:
+        d["decision"] = new.value
+        d["recommendation"]["decision"] = new.value
+        d["recommendation"]["rationale"].append(
+            f"decision upgraded {base.value} -> {new.value} by the observability "
+            f"join: {assess.status} under {protocols} (rule: {rules})"
+        )
+    else:
+        d["recommendation"]["rationale"].append(
+            f"decision {base.value} confirmed by the observability join: "
+            f"{assess.status} under {protocols} (rule: {rules})"
+        )
+    if new == Decision.CALIBRATE:
+        d["recommendation"]["next_step"] = (
+            "free this parameter for estimation under the stated protocol "
+            "(observability supports identification)"
+        )
+    elif new == Decision.MEASURE:
+        d["recommendation"]["next_step"] = (
+            "not identifiable under the stated protocol: specify the experiment "
+            "that would identify it (MEASURE) before relying on the value's "
+            "accuracy"
+        )
+    else:
+        d["recommendation"]["next_step"] = (
+            "adopt and hold the literature value (FIX): unobservable under the "
+            "stated protocol; if accuracy is required, specify an identifying "
+            "experiment (MEASURE)"
+        )
+    return d
+
+
 def assemble(
     records: Iterable[Mapping[str, Any]],
     target: TargetSpecification,
     rubric: Rubric,
+    observability: Mapping[str, ObservabilityAssessment] | None = None,
 ) -> AssemblyReport:
-    """Assemble decisions for every parameter in ``records``."""
+    """Assemble decisions for every parameter in ``records``.
+
+    ``observability`` (optional, V2.3) maps canonical ids to recorded
+    identifiability assessments; it populates dossier field 7 and upgrades
+    USE/FIX decisions to CALIBRATE/MEASURE/FIX deterministically.
+    """
     report = AssemblyReport(target=target, rubric_version=rubric.version)
     for record in records:
         canonical_id = record.get("canonical_id", "")
         candidates = candidates_from_record(record)
         resolution = resolve_parameter(canonical_id, candidates, target, rubric)
         report.resolutions.append(resolution)
-        report.dossiers.append(dossier(resolution))
+        assess = (observability or {}).get(canonical_id)
+        d = dossier(
+            resolution,
+            identifiability=assess.to_dossier_field() if assess else None,
+        )
+        report.dossiers.append(_apply_observability_upgrade(d, resolution, assess))
     return report

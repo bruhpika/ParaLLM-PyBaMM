@@ -74,6 +74,21 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   recorded quotes verify**, traceability **79 ok / 17 fail** — the 17 flags
   are `LITERATURE_DERIVED` values with no recorded quote (owner decision:
   backfill quotes or correct statuses; listed in `report.json`).
+- **V2.3 — identifiability (observability) join**: `assembly/observability.py`
+  deterministically joins the recorded P2 artifacts (`results/p2/`:
+  per-protocol normalized sensitivities; parametric-bootstrap std, FIM
+  condition numbers, profiles, Sobol) into dossier field 7 and a
+  fit/fix/measure action matrix, and upgrades decisions (rule-firing recorded
+  in the rationale): observable → `CALIBRATE`; unobservable → `FIX` or
+  `MEASURE` when explicitly `--accuracy-critical`; REJECT/REVIEW never
+  upgraded; uncovered parameters stay `not_assessed`. Explicit recorded
+  thresholds (assumptions, in every assessment + manifest): mean |normalized
+  sensitivity| < 0.05 → unobservable; bootstrap relative std > 5 % →
+  unobservable. **Acceptance met**: the report reproduces the P2 finding —
+  `neg_particle_diffusivity` UNOBSERVABLE under 0.5C/1C/2C (mean |S| =
+  0.011/0.021/0.048) → FIX, or MEASURE when accuracy-critical. Measured on
+  the real registry: 7/96 assessed (6 CALIBRATE, 1 MEASURE/FIX), 89 explicit
+  `not_assessed`.
 
 ### Landed so far (2026-11-16)
 

@@ -214,12 +214,41 @@ export + a reproducibility manifest (`cli.py`; entry point `parallm`).
   quotes or an explicit status correction — an owner decision, listed in
   `report.json` `traceability`.
 
-## V2.3 — Identifiability assessment (observability join)
+## V2.3 — Identifiability assessment (observability join)  *[implemented; acceptance met]*
 
 Attach FIM/Sobol/profile-likelihood results per parameter → fit/fix/measure
 action matrix; upgrades decisions to include `CALIBRATE`/`MEASURE`.
 **Acceptance:** reproduces the P2 finding (negative diffusivity unobservable
-≤2C) inside the report.
+≤2C) inside the report — **met** (integration test
+`test_p2_finding_reproduced_in_report`).
+
+**Implementation** (`assembly/observability.py`, wired into `assemble()` and
+`parallm assemble --p2-results results/p2 [--accuracy-critical …]`):
+- deterministic join from the **recorded P2 artifacts** (nothing estimated at
+  runtime): `diffusivity_feasibility/report.json` (mean |normalized
+  sensitivity| per protocol) and `identifiability_volume_fractions/report.json`
+  (parametric-bootstrap std, FIM condition numbers, profiles, Sobol);
+- explicit, recorded thresholds: sensitivity < 0.05 (mean |normalized
+  sensitivity|, i.e. <5 % output change for an order-unity parameter change)
+  → UNOBSERVABLE; bootstrap relative std > 5 % → UNOBSERVABLE;
+- decision upgrades (rule-firing recorded in the recommendation rationale):
+  observable → `CALIBRATE`; unobservable → `FIX` (hold) or `MEASURE` when the
+  parameter is explicitly listed `--accuracy-critical`; REJECT/REVIEW never
+  upgraded; unassessed parameters stay `not_assessed` (explicit, never
+  silently fitted);
+- per-parameter dossier field 7 carries the assessment (status, action,
+  protocols, metrics, rules, source artifact); the set summary carries the
+  action matrix.
+
+**Measured on the real registry:** 7/96 parameters assessed — 6 CALIBRATE
+(both volume fractions, both solid diffusivities except neg, electrolyte
+diffusivity, both exchange-current densities), 1 MEASURE (`neg_particle_diffusivity`
+when marked accuracy-critical; FIX otherwise — **the P2 finding, reproduced**:
+mean |normalized sensitivity| 0.011/0.021/0.048 at 0.5C/1C/2C), 89
+`not_assessed`. Limitations: only the protocols studied in the artifacts
+(0.5C–2C discharge, 1C / 0.5C+1C+2C synthetic fits) are classified; a
+successful fit never proves identifiability (rule 7); thresholds are
+assumptions, recorded in every assessment and in the run manifest.
 
 ## V2.4 — Synthetic end-to-end validation
 

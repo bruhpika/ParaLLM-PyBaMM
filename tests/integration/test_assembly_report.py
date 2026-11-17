@@ -114,3 +114,40 @@ def test_cli_over_real_registry(tmp_path):
     for t in report["traceability"]:
         if t["level"] == "fail":
             assert any("explicit status flag" in m for m in t["messages"])
+
+
+def test_p2_finding_reproduced_in_report():
+    """V2.3 acceptance: the report reproduces the P2 finding — the negative
+    particle diffusivity is unobservable under the studied protocols
+    (0.5C/1C/2C) — and upgrades decisions via the observability join."""
+    from pybamm_closed_loop.assembly import load_observability
+
+    obs = load_observability(
+        ROOT / "results/p2", _records(), accuracy_critical={"neg_particle_diffusivity"}
+    )
+    report = assemble(_records(), TARGET, Rubric("rubric-v2"), observability=obs)
+    by_id = {d["parameter"]: d for d in report.dossiers}
+
+    d = by_id["neg_particle_diffusivity"]
+    ident = d["identifiability"]
+    assert ident["status"] == "UNOBSERVABLE"
+    assert set(ident["protocols"]) == {"0.5C", "1C", "2C"}
+    sens = ident["metrics"]["mean_abs_normalized_sensitivity"]
+    assert all(v < 0.05 for v in sens.values())
+    assert "0.5C/1C/2C" in ident["note"]
+    # accuracy-critical + unobservable -> MEASURE
+    assert d["decision"] == "MEASURE"
+    assert any("observability" in r for r in d["recommendation"]["rationale"])
+
+    v = by_id["neg_electrode_active_material_volume_fraction"]
+    assert v["identifiability"]["status"] == "OBSERVABLE"
+    assert v["decision"] == "CALIBRATE"
+
+    matrix = report.summary()["action_matrix"]
+    # 7 parameters assessed: 6 observable (CALIBRATE), 1 accuracy-critical
+    # unobservable (MEASURE); the rest are explicitly not_assessed
+    assert matrix["MEASURE"] == 1
+    assert matrix["CALIBRATE"] == 6
+    assert matrix["not_assessed"] == 96 - 7
+    text = report.to_markdown()
+    assert "UNOBSERVABLE" in text and "CALIBRATE" in text

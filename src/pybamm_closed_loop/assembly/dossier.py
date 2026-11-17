@@ -284,7 +284,19 @@ def to_markdown(dossiers: list[dict[str, Any]], title: str = "PARALLM parameter 
             f"({', '.join(f'{k}={v:.2f}' for k, v in (app.get('dimension_scores') or {}).items())})"
         )
         ident = d["identifiability"]
-        lines.append(f"- **identifiability:** {ident.get('status')} — {ident.get('note')}")
+        act = ident.get("action")
+        lines.append(
+            f"- **identifiability:** {ident.get('status')}"
+            + (f" → {act}" if act else "")
+            + (
+                f" under {', '.join(ident.get('protocols') or [])}"
+                if ident.get("protocols")
+                else ""
+            )
+            + f" — {ident.get('note')}"
+        )
+        for r in ident.get("rules_fired") or []:
+            lines.append(f"  - rule `{r.get('rule')}`: {r.get('fired')}")
         for r in d["recommendation"]["rationale"]:
             lines.append(f"- **rationale:** {r}")
         if d["alternatives"]:
