@@ -120,6 +120,69 @@ def dossier(
     return d
 
 
+# statuses that carry an explicit non-quote provenance flag (rule: every field
+# traces to a *verified* quote or to an explicit flag — never silent)
+_EXPLICIT_FLAG_STATUSES = frozenset(
+    {"CALCULATED", "ASSUMED", "CALIBRATED", "USER_SUPPLIED", "UNRESOLVED"}
+)
+
+
+def check_traceability(d: dict[str, Any]) -> tuple[str, list[str]]:
+    """Deterministic traceability check of one dossier (V2.2 acceptance).
+
+    Returns (level, messages) with level one of "ok" / "warn" / "fail":
+    - every mandatory field is present;
+    - a selected value is traceable to a *verified* quote, or carries an
+      explicit non-literature status flag (CALCULATED/ASSUMED/...). A value
+      carried despite a *failed* quote verification without such a flag is a
+      failure; a quote that could not be re-verified against the archive is a
+      warning (visible, not silent);
+    - identifiability and approval carry explicit statuses;
+    - the recommendation carries a rationale.
+    """
+    fails: list[str] = []
+    warns: list[str] = []
+    missing = [k for k in DOSSIER_FIELDS + ("rejected",) if k not in d]
+    if missing:
+        return "fail", [f"missing dossier fields: {', '.join(missing)}"]
+    param = d.get("parameter", "?")
+    sel = d["selected"] or {}
+    lv = d["literature_value"] or {}
+    ev = d["evidence"] or {}
+    if sel.get("value") is not None:
+        status = lv.get("status")
+        verified = ev.get("quote_verified")
+        if verified is True or status in _EXPLICIT_FLAG_STATUSES:
+            pass  # traceable: verified quote or explicit flag
+        elif verified is False:
+            fails.append(
+                f"{param}: selected value carried despite failed quote "
+                f"verification and without an explicit status flag "
+                f"(status={status})"
+            )
+        elif ev.get("quote_present"):
+            warns.append(
+                f"{param}: quote present but not re-verified against the "
+                f"archive (status={status})"
+            )
+        else:
+            fails.append(
+                f"{param}: selected value has no quote and no explicit "
+                f"status flag (status={status})"
+            )
+    if not (d["identifiability"] or {}).get("status"):
+        fails.append(f"{param}: identifiability field missing explicit status")
+    if not (d["approval"] or {}).get("status"):
+        fails.append(f"{param}: approval field missing explicit status")
+    if not (d["recommendation"] or {}).get("rationale"):
+        fails.append(f"{param}: recommendation field missing rationale")
+    if fails:
+        return "fail", fails + warns
+    if warns:
+        return "warn", warns
+    return "ok", []
+
+
 def _alternative(c: CandidateValue) -> dict[str, Any]:
     return {
         "value": c.value,

@@ -30,6 +30,9 @@ ecosystem = [
     "PyProBE-Data>=2.6.1,<3 ; python_version < '3.13'",
 ]
 
+[project.scripts]
+parallm = "pybamm_closed_loop.cli:main"
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"

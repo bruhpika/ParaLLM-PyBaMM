@@ -11,6 +11,7 @@ approval gate disposes.
 
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Mapping
 
@@ -26,6 +27,7 @@ from .schema import (
     MethodClass,
     TargetSpecification,
 )
+from ..literature.evidence import verify_quote_in_evidence
 
 _METHOD_KEYWORDS: tuple[tuple[MethodClass, tuple[str, ...]], ...] = (
     (MethodClass.MEASURED, ("measured", "measurement", "instrument", "vernier", "sem ", "fib", "tga", "eis")),
@@ -82,7 +84,7 @@ def candidates_from_record(record: Mapping[str, Any]) -> list[CandidateValue]:
         page=source.get("page") if isinstance(source.get("page"), int) else None,
         quote=source.get("quote"),
         quote_present=bool(source.get("quote")),
-        quote_verified=None,
+        quote_verified=source.get("quote_verified"),
         is_operative=True,
         model_applicable=mapping.get("applicable"),
         model_note=mapping.get("notes"),
@@ -111,7 +113,7 @@ def candidates_from_record(record: Mapping[str, Any]) -> list[CandidateValue]:
                 page=csource.get("page") if isinstance(csource.get("page"), int) else None,
                 quote=csource.get("quote"),
                 quote_present=bool(csource.get("quote")),
-                quote_verified=None,
+                quote_verified=csource.get("quote_verified"),
                 is_operative=False,
                 model_applicable=mapping.get("applicable"),
             )
@@ -178,6 +180,47 @@ class AssemblyReport:
                 continue
             out[d["parameter"]] = value
         return out
+
+
+def verify_record_quotes(
+    records: Iterable[Mapping[str, Any]],
+    doc_texts: Mapping[str, str],
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Stamp a deterministic quote-verification result onto record copies.
+
+    For every quoted source (operative and conflicts) whose document text is
+    available, ``quote_verified`` is set from the verbatim checker
+    (``verify_quote_in_evidence``). Quotes whose document is not in
+    ``doc_texts`` stay unchecked (``quote_verified`` remains None) — never
+    silently treated as verified. Inputs are not mutated (raw data is
+    preserved); returns (stamped copies, statistics).
+    """
+    stamped = copy.deepcopy(list(records))
+    stats = {"n_quotes": 0, "n_checked": 0, "n_verified": 0, "n_failed": 0,
+             "n_no_text": 0}
+
+    def _stamp(source: Mapping[str, Any] | None) -> None:
+        if not isinstance(source, dict):
+            return
+        quote = source.get("quote")
+        if not quote:
+            return
+        stats["n_quotes"] += 1
+        doc_id = source.get("document_id")
+        text = doc_texts.get(doc_id) if doc_id else None
+        if not text:
+            stats["n_no_text"] += 1
+            return
+        verified = verify_quote_in_evidence(quote, text)
+        source["quote_verified"] = bool(verified)
+        stats["n_checked"] += 1
+        stats["n_verified" if verified else "n_failed"] += 1
+
+    for rec in stamped:
+        _stamp((rec.get("evidence") or {}).get("source"))
+        for conflict in rec.get("conflicts") or []:
+            _stamp(conflict.get("source"))
+    return stamped, stats
 
 
 def assemble(

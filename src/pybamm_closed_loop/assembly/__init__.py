@@ -14,9 +14,15 @@ Design commitments:
 
 from __future__ import annotations
 
-from .dossier import dossier, to_markdown
+from .dossier import check_traceability, dossier, to_markdown
 from .gate import ApprovalGate, ApprovalRecord
-from .report import AssemblyReport, assemble, candidates_from_record, infer_method_class
+from .report import (
+    AssemblyReport,
+    assemble,
+    candidates_from_record,
+    infer_method_class,
+    verify_record_quotes,
+)
 from .resolve import Resolution, resolve_parameter
 from .rubric import DEFAULT_WEIGHTS, Dimension, Rubric, RubricOutcome, Rule
 from .schema import (
@@ -44,8 +50,10 @@ __all__ = [
     "TargetSpecification",
     "assemble",
     "candidates_from_record",
+    "check_traceability",
     "dossier",
     "infer_method_class",
     "resolve_parameter",
     "to_markdown",
+    "verify_record_quotes",
 ]

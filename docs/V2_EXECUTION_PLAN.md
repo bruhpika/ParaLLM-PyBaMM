@@ -179,7 +179,7 @@ V2.3 (the taxonomy in the roadmap is unchanged; V2.1 emits a subset).
 
 ---
 
-## V2.2 — Dossier & assembly report
+## V2.2 — Dossier & assembly report  *[implemented; traceability acceptance partially met]*
 
 The **per-parameter dossier is the central artifact** (9 mandatory fields,
 roadmap §2.1): selected parameter and units · original literature value ·
@@ -187,10 +187,32 @@ verified quotation and page · experimental conditions · alternative values and
 conflicts · applicability rationale · identifiability assessment · final
 recommendation · human approval status.
 
-`parallm assemble --target configs/v2/target_lgm50.yaml --out reports/` renders
-the dossiers as JSON + Markdown + PyBaMM export.
-**Acceptance:** reproducible report; every dossier contains all 9 fields; every
-field traces to a verified quote or carries an explicit `assumed` flag.
+`parallm assemble --target configs/v2/target_lgm50.yaml --registry
+data/registry/registry.json --out reports/ [--documents data/raw_documents]
+[--gate gate.json]` renders the dossiers as JSON + Markdown + a PyBaMM-style
+export + a reproducibility manifest (`cli.py`; entry point `parallm`).
+
+**Deterministic pieces:**
+- quote verification against the archived full texts
+  (`verify_record_quotes` / `verify_quote_in_evidence`) — every run records
+  the counts in `manifest.json`;
+- `check_traceability` per dossier: a selected value must trace to a
+  *verified* quote or carry an explicit status flag (CALCULATED/ASSUMED/…);
+  a value carried despite a *failed* verification is a **fail**; a quote that
+  could not be re-verified is a **warn** (visible, never silent);
+- mandatory human gate (D6): without a gate file the PyBaMM export is empty
+  by design.
+
+**Acceptance status (measured on the real 96-record registry):**
+- reproducible report (manifest records versions, rubric version, registry +
+  config SHA-256, quote-verification counts) — met;
+- all 9 fields in every dossier — met (tested);
+- traceability: **79/96 ok, 17 fail** — *not yet met*: 17 parameters carry
+  `LITERATURE_DERIVED` values with no recorded quote (they cite tables/PyBaMM
+  defaults as locators). All 36 quotes that *are* recorded verify against the
+  archive (0 failures). The 17 flagged parameters need either backfilled
+  quotes or an explicit status correction — an owner decision, listed in
+  `report.json` `traceability`.
 
 ## V2.3 — Identifiability assessment (observability join)
 

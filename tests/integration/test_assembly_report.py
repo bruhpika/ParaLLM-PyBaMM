@@ -85,3 +85,32 @@ class TestAssemblyOverRealRegistry:
         text = _report().to_markdown()
         assert "PARALLM parameter assembly" in text
         assert "neg_bruggeman_electrolyte" in text
+
+
+def test_cli_over_real_registry(tmp_path):
+    """The CLI runs over the real registry and its traceability gate is honest:
+    every recorded quote verifies against the archive, and values carried
+    without a quote or an explicit status flag are flagged as failures."""
+    from pybamm_closed_loop.cli import main
+
+    out = tmp_path / "out"
+    rc = main(
+        [
+            "assemble",
+            "--target", str(ROOT / "configs/v2/target_lgm50.yaml"),
+            "--registry", str(REGISTRY),
+            "--out", str(out),
+            "--documents", str(ROOT / "data/raw_documents"),
+        ]
+    )
+    manifest = json.loads((out / "manifest.json").read_text())
+    assert manifest["registry"]["n_records"] == 96
+    assert manifest["documents"]["quote_verification"]["n_checked"] > 0
+    assert manifest["documents"]["quote_verification"]["n_failed"] == 0
+    report = json.loads((out / "report.json").read_text())
+    levels = [t["level"] for t in report["traceability"]]
+    assert len(levels) == 96
+    assert rc == (1 if "fail" in levels else 0)
+    for t in report["traceability"]:
+        if t["level"] == "fail":
+            assert any("explicit status flag" in m for m in t["messages"])

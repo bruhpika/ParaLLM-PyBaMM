@@ -61,6 +61,19 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   al., WASP 2025). Citations, quoted findings and an explicit
   non-comparability caveat: `docs/V2_PRIVATE_V4_BENCHMARK.md` §9 and
   `docs/ROADMAP_V0.2.md` §3.2.
+- **V2.2 — dossier & assembly report CLI**: `parallm assemble` (`cli.py`,
+  new `[project.scripts]` entry) renders the 9-field per-parameter dossiers
+  as JSON + Markdown + a PyBaMM-style export + a reproducibility manifest
+  (tool versions, rubric version, registry/config SHA-256, quote-verification
+  counts). Deterministic quote verification against the archived full texts
+  (`verify_record_quotes`) and a `check_traceability` acceptance gate (a
+  selected value must trace to a *verified* quote or carry an explicit status
+  flag). The mandatory human gate (D6) is enforced: without a gate file the
+  export is empty by design. Measured on the real 96-record registry:
+  decisions 29 USE / 67 FIX (7 same-source conflicts preserved), **all 36
+  recorded quotes verify**, traceability **79 ok / 17 fail** — the 17 flags
+  are `LITERATURE_DERIVED` values with no recorded quote (owner decision:
+  backfill quotes or correct statuses; listed in `report.json`).
 
 ### Landed so far (2026-11-16)
 
