@@ -280,9 +280,10 @@ Plan, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
   (negative particle diffusivity unobservable under 0.5C–2C).
 - **Synthetic end-to-end validation (V2.4)** — deliberately mismatched
   synthetic truth, held-out-rate validation, positive/negative controls:
-  held-out RMSE 4.55 mV (assembled baseline) → 0.97 mV (fitting the
-  observable pair) → 4.55 mV (fitting the unobservable parameter, no gain).
-  Labelled SYNTHETIC — not experimental validation.
+  held-out RMSE **4.4 ± 0.1 mV** (assembled baseline) → **1.1 ± 0.1 mV**
+  (fitting the observable pair) → **4.4 ± 0.1 mV** (fitting the unobservable
+  parameter, no gain), reproduced on **5/5 seeds**. Labelled SYNTHETIC — not
+  experimental validation.
 
 ## Status
 

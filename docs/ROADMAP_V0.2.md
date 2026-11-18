@@ -137,7 +137,7 @@ the axis on which we differ from the closest neighbour (see
 | **V2.1** applicability & conflict engine (rubric v2: `cell_product` + `electrolyte` dimensions) | **implemented; expert-agreement benchmark run against drafted labels — pending owner label review** | `assembly/` package (rubric, resolution, dossier, gate); over the real 96-record registry: 96 dossiers, 7 same-source conflicts all resolved to the source's operative value with the alternative preserved, 0 spurious escalations. Expert-agreement case set built (24 private cases, §3.1): decision agreement **0.958** (≥80% threshold met), 1 mismatch (`APP-AMB-exchange-current-density`, ambiguous class 1/2). Labels are **drafted**, `reviewed_by` pending — the number is provisional until reviewed. Aggregates: `results/v2/applicability/` |
 | **V2.2** dossier | **implemented (CLI + manifest + traceability check); traceability acceptance 79/96, 17 flagged** | `parallm assemble` (`cli.py`): 9-field dossiers → JSON + Markdown + approved-only PyBaMM export + reproducibility manifest; deterministic quote verification (36/36 recorded quotes verify against the archive); `check_traceability` flags 17 parameters carrying `LITERATURE_DERIVED` values with no recorded quote (owner decision: backfill quotes or correct statuses) |
 | **V2.3** identifiability | **implemented; acceptance met** (P2 finding reproduced in the report) | `assembly/observability.py`: recorded P2 artifacts → per-parameter observability + fit/fix/measure action matrix + decision upgrades (CALIBRATE/MEASURE); 7/96 parameters assessed (6 CALIBRATE, 1 MEASURE/FIX), 89 explicitly `not_assessed` |
-| **V2.4** synthetic end-to-end validation | **implemented; acceptance met** (prediction reproduced, single seed) | `benchmarks/v2/run_synthetic_validation.py` + `results/v2/synthetic_validation/`: deliberate mismatch, held-out rates, positive/negative controls — held-out RMSE 4.55 mV (baseline) → 0.97 mV (positive control) → 4.55 mV (negative control, no gain); labelled SYNTHETIC |
+| **V2.4** synthetic end-to-end validation | **implemented; acceptance met** (prediction reproduced on 5/5 seeds) | `benchmarks/v2/run_synthetic_validation.py` + `results/v2/synthetic_validation/`: deliberate mismatch, held-out rates, positive/negative controls — held-out RMSE 4.4 ± 0.1 mV (baseline) → 1.1 ± 0.1 mV (positive control) → 4.4 ± 0.1 mV (negative control, no gain), stable across 5 seeds; labelled SYNTHETIC |
 | **V2.6** closed loop | **gated — not started** (see §4.2: V2.1/V2.2 pending owner items) | — |
 | **V2.7** productisation | not started (continuous track) | — |
 
@@ -242,12 +242,12 @@ criteria, the synthetic validation is stable across repeats, and the dossier
 has been reviewed by the scientific decision-maker on a real parameter set.
 
 **Gate status (2026-11-17):** V2.3 ✅ (P2 finding reproduced in the report)
-and V2.4 ✅ (prediction reproduced, single seed — repeat stability still to be
-confirmed across seeds). V2.1 ⏳ (agreement 0.958 measured, but against
-*drafted* labels — owner review pending) and V2.2 ⏳ (traceability 79/96 — 17
-parameters need backfilled quotes or explicit status corrections, owner
-decision). **The gate is therefore not yet open**; the two pending items are
-owner decisions, not engineering work.
+and V2.4 ✅ (prediction reproduced on **5/5 seeds** — repeat stability
+confirmed). V2.1 ⏳ (agreement 0.958 measured, but against *drafted* labels —
+owner review pending) and V2.2 ⏳ (traceability 79/96 — 17 parameters need
+backfilled quotes or explicit status corrections, owner decision).
+**The gate is therefore not yet open**; the two pending items are owner
+decisions, not engineering work.
 
 Rationale: an automated loop that repeatedly retrieves evidence and recalibrates
 an incorrect parameter is not a scientific instrument — it is an automated way of

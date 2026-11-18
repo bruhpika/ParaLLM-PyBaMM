@@ -96,10 +96,11 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   truth → seeded synthetic data at 0.5C/1C/2C → baseline held-out validation
   → positive control (fit the CALIBRATE-action observable pair on 1C) →
   negative control (fit the unobservable `neg_particle_diffusivity` on 1C,
-  violating the decision). Measured: held-out mean voltage RMSE **4.55 mV
-  baseline → 0.97 mV positive (4.7×) → 4.55 mV negative (no gain); both fits
-  converged; **prediction reproduced**. Not experimental validation and not
-  proof of identifiability (rules 7/8).
+  violating the decision). Measured (5 seeds): held-out mean voltage RMSE
+  **4.4 ± 0.1 mV baseline → 1.1 ± 0.1 mV positive (4×) → 4.4 ± 0.1 mV
+  negative (no gain)**; all fits converged; **prediction reproduced on 5/5
+  seeds** (V2.6 gate "stable across repeats" item). Not experimental
+  validation and not proof of identifiability (rules 7/8).
 
 ### Landed so far (2026-11-16)
 

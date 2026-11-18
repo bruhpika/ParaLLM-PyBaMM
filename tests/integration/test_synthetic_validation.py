@@ -59,3 +59,27 @@ def test_quick_synthetic_validation_run(tmp_path):
     assert (tmp_path / "summary.md").exists()
     # labelled synthetic in every artifact
     assert "SYNTHETIC" in (tmp_path / "summary.md").read_text()
+
+
+def test_multi_seed_stability_run(tmp_path):
+    payload = sv.run_stability(
+        [11, 12],
+        out_dir=tmp_path,
+        model_name="SPM",
+        steps=QUICK_STEPS,
+        maxiter=2,
+        noise_sigma_V=1e-3,
+    )
+    st = payload["stability"]
+    assert st["n_seeds"] == 2
+    assert st["seeds"] == [11, 12]
+    assert st["prediction_reproduced_count"].endswith("/2")
+    assert isinstance(st["prediction_reproduced_all"], bool)
+    assert st["all_fits_converged"] in (True, False)
+    for arm in ("baseline", "positive_control", "negative_control"):
+        s = st["mean_held_out_error_V"][arm]
+        assert s["min"] <= s["mean"] <= s["max"]
+    assert len(st["per_seed"]) == 2
+    assert "SYNTHETIC" in (tmp_path / "summary.md").read_text()
+    # drill-down report of the representative seed is retained
+    assert payload["representative_seed"]["protocol"]["seed"] == 11

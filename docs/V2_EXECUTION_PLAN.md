@@ -273,17 +273,16 @@ unobservable parameter → validation degrades). Labelled **synthetic**, never
 6. reports held-out RMSE vs baseline for both controls and whether the
    predicted pattern reproduced (positive improves; negative does not).
 
-**Measured (seed 20261117, noise σ=1e-3 V, DFN, maxiter 40, both fits
-converged):** held-out mean voltage RMSE **4.55 mV baseline → 0.97 mV
-positive control (4.7× better) → 4.55 mV negative control (unchanged)** —
-fitting the unobservable parameter gains nothing while the observable pair
-generalizes. **Prediction reproduced: True.** Limitations: synthetic only
+**Measured (5 seeds 20261117–20261121, noise σ=1e-3 V, DFN, maxiter 40, all
+fits converged):** held-out mean voltage RMSE **4.4 ± 0.1 mV baseline →
+1.1 ± 0.1 mV positive control (4× better) → 4.4 ± 0.1 mV negative control
+(unchanged)** — fitting the unobservable parameter gains nothing while the
+observable pair generalizes. **Prediction reproduced on 5/5 seeds** (the
+V2.6 "stable across repeats" gate item). Limitations: synthetic only
 (scientific rules 7/8 — not experimental validation, not proof of
 identifiability); the positive fit covers only the scalar-declarable
 observable pair (function-valued kinetics remain CALIBRATE in the matrix but
-are out of this run's fitting scope); one seed — noise-level variation is
-expected.
-experimental.
+are out of this run's fitting scope).
 
 ## V2.6 — Closed-loop refinement (P7) — **gated on V2.1–V2.4**  *[gate not yet open]*
 
@@ -293,8 +292,8 @@ Parameter-targeted loop: flagged field → targeted evidence request → retriev
 validation is stable across repeats, and the dossier has been reviewed by the
 scientific decision-maker on a real parameter set.
 
-**Gate status (2026-11-17):** V2.3 ✅ · V2.4 ✅ (single seed — repeat
-stability across seeds still to be confirmed) · V2.1 ⏳ owner label review ·
+**Gate status (2026-11-17):** V2.3 ✅ · V2.4 ✅ (prediction reproduced on
+**5/5 seeds**, repeat stability confirmed) · V2.1 ⏳ owner label review ·
 V2.2 ⏳ 17 traceability flags (backfill quotes or correct statuses). The two
 pending items are owner decisions; no engineering work can close them.
 

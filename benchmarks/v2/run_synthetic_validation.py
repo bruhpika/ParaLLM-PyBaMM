@@ -454,6 +454,142 @@ def _error_row(
     return f"| {label} | " + " | ".join(cells) + f" | {mean:.4f} | {delta} |"
 
 
+def run_stability(
+    seeds: list[int],
+    *,
+    out_dir: Path | None = None,
+    registry: Path = DEFAULT_REGISTRY,
+    target_path: Path = DEFAULT_TARGET,
+    p2_dir: Path = DEFAULT_P2,
+    **kwargs,
+) -> dict:
+    """Run the experiment once per seed and aggregate (V2.6 gate item).
+
+    Stability criterion: the predicted pattern (positive improves held-out,
+    negative does not) must reproduce on **every** seed. Returns the combined
+    report payload; writes report.json / summary.md under ``out_dir``.
+    """
+    payloads = [
+        run_experiment(
+            registry=registry,
+            target_path=target_path,
+            p2_dir=p2_dir,
+            seed=int(s),
+            **kwargs,
+        )
+        for s in seeds
+    ]
+
+    def _stats(values: list[float]) -> dict[str, float]:
+        arr = np.asarray(values, dtype=float)
+        return {
+            "mean": float(np.mean(arr)),
+            "std": float(np.std(arr)),
+            "min": float(np.min(arr)),
+            "max": float(np.max(arr)),
+        }
+
+    per_seed = [
+        {
+            "seed": p["protocol"]["seed"],
+            "baseline_mean_V": p["baseline"]["mean_held_out_error_V"],
+            "positive_mean_V": p["positive_control"]["mean_held_out_error_V"],
+            "negative_mean_V": p["negative_control"]["mean_held_out_error_V"],
+            "reproduced": p["prediction"]["reproduced"],
+            "positive_fit_success": p["positive_control"]["fit"].get("success"),
+            "negative_fit_success": p["negative_control"]["fit"].get("success"),
+        }
+        for p in payloads
+    ]
+    reproduced_count = sum(1 for s in per_seed if s["reproduced"])
+    stability = {
+        "n_seeds": len(seeds),
+        "seeds": [int(s) for s in seeds],
+        "criterion": (
+            "prediction (positive improves held-out, negative does not) "
+            "reproduces on every seed"
+        ),
+        "prediction_reproduced_count": f"{reproduced_count}/{len(seeds)}",
+        "prediction_reproduced_all": reproduced_count == len(seeds),
+        "all_fits_converged": all(
+            s["positive_fit_success"] and s["negative_fit_success"]
+            for s in per_seed
+        ),
+        "mean_held_out_error_V": {
+            "baseline": _stats([s["baseline_mean_V"] for s in per_seed]),
+            "positive_control": _stats([s["positive_mean_V"] for s in per_seed]),
+            "negative_control": _stats([s["negative_mean_V"] for s in per_seed]),
+        },
+        "per_seed": per_seed,
+    }
+    payload = {
+        "run_id": "synthetic_validation_v2.4",
+        "label": LABEL_SYNTHETIC,
+        "generated": datetime.now(timezone.utc).isoformat(),
+        "stability": stability,
+        # full single-seed report of the first seed for drill-down
+        "representative_seed": payloads[0],
+        "scientific_note": payloads[0]["scientific_note"],
+    }
+    if out_dir is not None:
+        out_dir = Path(out_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "report.json").write_text(
+            json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8"
+        )
+        _write_stability_summary(payload, out_dir / "summary.md")
+    return payload
+
+
+def _write_stability_summary(payload: dict, path: Path) -> None:
+    st = payload["stability"]
+    errs = st["mean_held_out_error_V"]
+    lines = [
+        "# V2.4 — synthetic end-to-end validation (multi-seed stability)",
+        "",
+        f"**Label:** {payload['label']}",
+        "",
+        "## Stability across seeds",
+        "",
+        f"- seeds: {', '.join(str(s) for s in st['seeds'])} "
+        f"(n = {st['n_seeds']})",
+        f"- criterion: {st['criterion']}",
+        f"- **prediction reproduced: {st['prediction_reproduced_count']}** "
+        f"(all: {st['prediction_reproduced_all']})",
+        f"- all fits converged: {st['all_fits_converged']}",
+        "",
+        "## Held-out mean voltage RMSE [V] across seeds",
+        "",
+        "| arm | mean | std | min | max |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    for arm in ("baseline", "positive_control", "negative_control"):
+        s = errs[arm]
+        lines.append(
+            f"| {arm} | {s['mean']:.4f} | {s['std']:.4f} | "
+            f"{s['min']:.4f} | {s['max']:.4f} |"
+        )
+    lines += [
+        "",
+        "## Per-seed detail",
+        "",
+        "| seed | baseline | positive | negative | reproduced |",
+        "|---|---:|---:|---:|---|",
+    ]
+    for s in st["per_seed"]:
+        lines.append(
+            f"| {s['seed']} | {s['baseline_mean_V']:.4f} | "
+            f"{s['positive_mean_V']:.4f} | {s['negative_mean_V']:.4f} | "
+            f"{s['reproduced']} |"
+        )
+    lines += [
+        "",
+        f"- {payload['scientific_note']}",
+        "",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--registry", default=str(DEFAULT_REGISTRY))
@@ -462,33 +598,50 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", default=str(DEFAULT_OUT))
     ap.add_argument("--model", default="DFN")
     ap.add_argument("--seed", type=int, default=20261117)
+    ap.add_argument(
+        "--n-seeds",
+        type=int,
+        default=5,
+        help="run the experiment for this many consecutive seeds and report "
+        "stability (1 = single-seed report)",
+    )
     ap.add_argument("--maxiter", type=int, default=40)
     ap.add_argument("--noise-sigma-v", type=float, default=1e-3)
     args = ap.parse_args(argv)
 
     t0 = time.perf_counter()
-    payload = run_experiment(
+    common = dict(
         registry=Path(args.registry),
         target_path=Path(args.target),
         p2_dir=Path(args.p2_results),
-        out_dir=Path(args.out),
         model_name=args.model,
         noise_sigma_V=args.noise_sigma_v,
-        seed=args.seed,
         maxiter=args.maxiter,
     )
+    if args.n_seeds > 1:
+        seeds = [args.seed + i for i in range(args.n_seeds)]
+        payload = run_stability(seeds, out_dir=Path(args.out), **common)
+        st = payload["stability"]
+        print(f"label        : {payload['label']}")
+        print(f"seeds        : {st['seeds']}")
+        for arm, s in st["mean_held_out_error_V"].items():
+            print(f"{arm:16s}: {s['mean']:.4f} +/- {s['std']:.4f} V")
+        print(f"prediction reproduced: {st['prediction_reproduced_count']} "
+              f"(all: {st['prediction_reproduced_all']})")
+    else:
+        payload = run_experiment(seed=args.seed, out_dir=Path(args.out), **common)
+        print(f"label        : {payload['label']}")
+        print(f"baseline mean: {payload['baseline']['mean_held_out_error_V']:.4f} V")
+        print(
+            f"positive mean: {payload['positive_control']['mean_held_out_error_V']:.4f} V "
+            f"(fit success: {payload['positive_control']['fit'].get('success')})"
+        )
+        print(
+            f"negative mean: {payload['negative_control']['mean_held_out_error_V']:.4f} V "
+            f"(fit success: {payload['negative_control']['fit'].get('success')})"
+        )
+        print(f"prediction reproduced: {payload['prediction']['reproduced']}")
     runtime = time.perf_counter() - t0
-    print(f"label        : {payload['label']}")
-    print(f"baseline mean: {payload['baseline']['mean_held_out_error_V']:.4f} V")
-    print(
-        f"positive mean: {payload['positive_control']['mean_held_out_error_V']:.4f} V "
-        f"(fit success: {payload['positive_control']['fit'].get('success')})"
-    )
-    print(
-        f"negative mean: {payload['negative_control']['mean_held_out_error_V']:.4f} V "
-        f"(fit success: {payload['negative_control']['fit'].get('success')})"
-    )
-    print(f"prediction reproduced: {payload['prediction']['reproduced']}")
     print(f"wrote {args.out}/report.json, summary.md ({runtime:.1f} s)")
     return 0
 
