@@ -285,13 +285,18 @@ are out of this run's fitting scope); one seed — noise-level variation is
 expected.
 experimental.
 
-## V2.6 — Closed-loop refinement (P7) — **gated on V2.1–V2.4**
+## V2.6 — Closed-loop refinement (P7) — **gated on V2.1–V2.4**  *[gate not yet open]*
 
 Parameter-targeted loop: flagged field → targeted evidence request → retrieval
 → extraction → validation → approval → recalibrate → iteration log.
 **Gate:** may not start until V2.1–V2.4 exit criteria are met, the synthetic
 validation is stable across repeats, and the dossier has been reviewed by the
 scientific decision-maker on a real parameter set.
+
+**Gate status (2026-11-17):** V2.3 ✅ · V2.4 ✅ (single seed — repeat
+stability across seeds still to be confirmed) · V2.1 ⏳ owner label review ·
+V2.2 ⏳ 17 traceability flags (backfill quotes or correct statuses). The two
+pending items are owner decisions; no engineering work can close them.
 
 ## V2.7 — Product & community
 
@@ -313,6 +318,12 @@ decision logic is built on top of them.
 **V2.6 is hard-gated** on V2.1–V2.4 (§4.2 of the roadmap): an automated
 retrieval/recalibration loop over an unreliable decision layer is an automated
 way of producing incorrect results.
+
+**Milestone status (2026-11-17):** V2.1 ✅ implemented (agreement 0.958 vs
+drafted labels, review pending) · V2.2 ✅ implemented (traceability 79/96,
+17 flags pending owner) · V2.3 ✅ acceptance met · V2.4 ✅ acceptance met ·
+V2.5 ⏳ exit criterion not met (0.256 / 0.439 vs ≥0.5 / 0.000; blocked on an
+extractor decision) · V2.6 gated · V2.7 not started.
 
 **TODO carried (not v0.2 scope):** multi-chemistry (LFP/graphite, NMC811,
 Li-metal); experimental dataset acquisition + licensing; observables beyond

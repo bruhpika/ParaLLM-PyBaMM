@@ -269,13 +269,28 @@ Plan, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
   24-case expert-agreement benchmark: decision agreement **0.958** against
   *drafted* labels (pending owner review), aggregates in
   `results/v2/applicability/`.
+- **Dossier & assembly report (V2.2)** — `parallm assemble` CLI: 9-field
+  dossiers → JSON + Markdown + approved-only PyBaMM export + reproducibility
+  manifest; deterministic quote verification (36/36 recorded quotes verify)
+  and a traceability gate (79/96 pass; 17 flagged parameters need backfilled
+  quotes or explicit statuses — owner decision).
+- **Identifiability join (V2.3)** — recorded P2 artifacts → per-parameter
+  observability, fit/fix/measure action matrix, and CALIBRATE/MEASURE
+  decision upgrades; acceptance met: the report reproduces the P2 finding
+  (negative particle diffusivity unobservable under 0.5C–2C).
+- **Synthetic end-to-end validation (V2.4)** — deliberately mismatched
+  synthetic truth, held-out-rate validation, positive/negative controls:
+  held-out RMSE 4.55 mV (assembled baseline) → 0.97 mV (fitting the
+  observable pair) → 4.55 mV (fitting the unobservable parameter, no gain).
+  Labelled SYNTHETIC — not experimental validation.
 
 ## Status
 
 Public beta `v0.1.0-beta.1` — P0–P5 shipped (v0.1 feature set). v0.2 is
-**in progress** (V2.5 slices landed and re-scored, exit criterion not yet met;
-V2.1 rubric v2 + agreement benchmark run against drafted labels, pending owner
-label review; V2.2 prototyped). Carried TODO for v0.3+:
+**in progress**: V2.1–V2.4 all implemented (V2.3/V2.4 exit criteria met;
+V2.1 label review and V2.2 traceability flags are pending owner decisions;
+V2.5 evidence slices landed, exit criterion not yet met) — the V2.6
+closed-loop gate is therefore not yet open. Carried TODO for v0.3+:
 multi-chemistry coverage (LFP/graphite, NMC811, Li-metal), experimental dataset
 acquisition, observables beyond voltage (EIS/OCV/dQ/dV/GITT-D), a first-party
 parameter set, and PyPI/CI/docs-site release.

@@ -198,7 +198,7 @@ behind (`docs/ROADMAP_V0.2.md`):
 
 | planned module | responsibility |
 |---|---|
-| `assembly/` (new) | applicability rubric, conflict resolution, decision taxonomy, rule-firing transcript, per-parameter dossier, PyBaMM export |
+| `assembly/` (**implemented** in v0.2: rubric v2, resolution, dossier, gate, report + `parallm assemble` CLI, observability join) | applicability rubric, conflict resolution, decision taxonomy, rule-firing transcript, per-parameter dossier, PyBaMM export |
 | `closed_loop/` | parameter-targeted loop: diagnose → targeted evidence request → retrieve → extract → validate → approve → recalibrate → iteration log |
 | `diagnostics/` | residual/discrepancy attribution feeding the loop's evidence requests |
 | `specifications/` | target cell + protocol specification consumed by the rubric (chemistry, format, T, SOC window, rates) |

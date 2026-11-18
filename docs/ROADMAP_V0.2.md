@@ -136,7 +136,10 @@ the axis on which we differ from the closest neighbour (see
 | **V2.5** evidence layer (condition-aware window + document-level setup + table-aware chunking + top-k multi-window + verification pass + `not_stated` discipline) | **implemented and measured; roadmap exit criterion (≥0.5 completeness, false extraction 0.000) NOT met yet** | `literature/evidence.py`, `eval/benchmark_v4.py`; deterministic coverage on v3: temperature availability **0.108 → 0.838**, SOC **0.108 → 0.757**, chemistry **0.243 → 0.838**, method **0.649 → 1.000**. Private v4 (30 items, categories A–E, 3 CC BY papers, fixture not published), 3 repeats/arm, re-scored offline with the discipline pass: condition-field accuracy **0.095 ± 0.010 (compact) → 0.251 ± 0.014 (expanded) → 0.256 ± 0.023 (v25)** [raw, pre-discipline: 0.116 / 0.257 / 0.266], value found 0.389 → 0.389 → 0.583; invented conditions still rise with richer evidence (0.411 → 0.500 → 0.439) and the discipline pass removed **none** of them (every invented claim's token occurs somewhere in the evidence — a trace check cannot separate "condition of this value" from "number elsewhere in the passage"). Design + results: `docs/V2_PRIVATE_V4_BENCHMARK.md` |
 | **V2.1** applicability & conflict engine (rubric v2: `cell_product` + `electrolyte` dimensions) | **implemented; expert-agreement benchmark run against drafted labels — pending owner label review** | `assembly/` package (rubric, resolution, dossier, gate); over the real 96-record registry: 96 dossiers, 7 same-source conflicts all resolved to the source's operative value with the alternative preserved, 0 spurious escalations. Expert-agreement case set built (24 private cases, §3.1): decision agreement **0.958** (≥80% threshold met), 1 mismatch (`APP-AMB-exchange-current-density`, ambiguous class 1/2). Labels are **drafted**, `reviewed_by` pending — the number is provisional until reviewed. Aggregates: `results/v2/applicability/` |
 | **V2.2** dossier | **implemented (CLI + manifest + traceability check); traceability acceptance 79/96, 17 flagged** | `parallm assemble` (`cli.py`): 9-field dossiers → JSON + Markdown + approved-only PyBaMM export + reproducibility manifest; deterministic quote verification (36/36 recorded quotes verify against the archive); `check_traceability` flags 17 parameters carrying `LITERATURE_DERIVED` values with no recorded quote (owner decision: backfill quotes or correct statuses) |
-| **V2.3–V2.7** | V2.3 **implemented** (observability join, acceptance met: P2 finding reproduced in the report); V2.4 **implemented** (synthetic end-to-end validation, acceptance met: prediction reproduced); V2.6–V2.7 not started | `assembly/observability.py`: recorded P2 artifacts → per-parameter observability + fit/fix/measure action matrix + decision upgrades (CALIBRATE/MEASURE); 7/96 parameters assessed (6 CALIBRATE, 1 MEASURE/FIX), 89 explicitly `not_assessed`. `benchmarks/v2/run_synthetic_validation.py`: deliberate mismatch, held-out rates, positive/negative controls — held-out RMSE 4.55 mV (baseline) → 0.97 mV (positive control) → 4.55 mV (negative control, no gain); prediction reproduced; labelled SYNTHETIC |
+| **V2.3** identifiability | **implemented; acceptance met** (P2 finding reproduced in the report) | `assembly/observability.py`: recorded P2 artifacts → per-parameter observability + fit/fix/measure action matrix + decision upgrades (CALIBRATE/MEASURE); 7/96 parameters assessed (6 CALIBRATE, 1 MEASURE/FIX), 89 explicitly `not_assessed` |
+| **V2.4** synthetic end-to-end validation | **implemented; acceptance met** (prediction reproduced, single seed) | `benchmarks/v2/run_synthetic_validation.py` + `results/v2/synthetic_validation/`: deliberate mismatch, held-out rates, positive/negative controls — held-out RMSE 4.55 mV (baseline) → 0.97 mV (positive control) → 4.55 mV (negative control, no gain); labelled SYNTHETIC |
+| **V2.6** closed loop | **gated — not started** (see §4.2: V2.1/V2.2 pending owner items) | — |
+| **V2.7** productisation | not started (continuous track) | — |
 
 Note the sequencing consequence: V2.1's rubric consumes the evidence produced by
 V2.5, so V2.1 is not accepted until the expanded evidence mode is the one it is
@@ -237,6 +240,14 @@ decisions as the dossier (V2.2), then make them scientifically meaningful
 **V2.6 may not start** until V2.1, V2.2, V2.3 and V2.4 have all met their exit
 criteria, the synthetic validation is stable across repeats, and the dossier
 has been reviewed by the scientific decision-maker on a real parameter set.
+
+**Gate status (2026-11-17):** V2.3 ✅ (P2 finding reproduced in the report)
+and V2.4 ✅ (prediction reproduced, single seed — repeat stability still to be
+confirmed across seeds). V2.1 ⏳ (agreement 0.958 measured, but against
+*drafted* labels — owner review pending) and V2.2 ⏳ (traceability 79/96 — 17
+parameters need backfilled quotes or explicit status corrections, owner
+decision). **The gate is therefore not yet open**; the two pending items are
+owner decisions, not engineering work.
 
 Rationale: an automated loop that repeatedly retrieves evidence and recalibrates
 an incorrect parameter is not a scientific instrument — it is an automated way of
