@@ -12,6 +12,7 @@ from __future__ import annotations
 import math
 import re
 from collections import Counter
+from typing import Sequence
 
 from .ingest import DocumentStore, Segment
 from ..registry.textnorm import ascii_fold
@@ -125,9 +126,9 @@ class BM25Index:
             {term: len(postings) for term, postings in self._postings.items()}
         )
 
-    def search(self, query: str, k: int = 8) -> list[tuple[Segment, float]]:
-        terms = expand_query(query)
-        if not terms or not self.segments:
+    def score_terms(self, terms: Sequence[str]) -> list[float]:
+        """Raw BM25 scores for already-tokenised terms (one per segment)."""
+        if not self.segments:
             return []
         n = len(self.segments)
         scores: list[float] = [0.0] * n
@@ -142,7 +143,14 @@ class BM25Index:
                     1 - self.b + self.b * self._doc_len[i] / (self._avgdl or 1)
                 )
                 scores[i] += idf * (tf * (self.k1 + 1)) / denom
-        ranked = sorted(range(n), key=lambda i: scores[i], reverse=True)
+        return scores
+
+    def search(self, query: str, k: int = 8) -> list[tuple[Segment, float]]:
+        terms = expand_query(query)
+        if not terms or not self.segments:
+            return []
+        scores = self.score_terms(terms)
+        ranked = sorted(range(len(self.segments)), key=lambda i: scores[i], reverse=True)
         return [(self.segments[i], scores[i]) for i in ranked[:k] if scores[i] > 0]
 
 

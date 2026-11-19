@@ -10,6 +10,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ARMS = REPO_ROOT / "src/pybamm_closed_loop/eval/retrieval_arms.py"
 INDEX = REPO_ROOT / "src/pybamm_closed_loop/literature/index.py"
+LEXICAL = REPO_ROOT / "src/pybamm_closed_loop/literature/lexical.py"
 FORBIDDEN = {
     "probe",
     "passage_probe",
@@ -50,6 +51,11 @@ def _accessed_names(source: str) -> set[str]:
         (ARMS, "query_for_item"),
         (ARMS, "facets_for_item"),
         (INDEX, "expand_query"),
+        (LEXICAL, "lexical_terms"),
+        (LEXICAL, "registry_aliases"),
+        (LEXICAL, "symbol_terms"),
+        (LEXICAL, "unit_query_terms"),
+        (LEXICAL, "lexical_search"),
     ],
 )
 def test_query_and_expansion_never_read_gold_fields(path, name):

@@ -12,6 +12,32 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Retrieval improvement — cheap lexical ablation (dev-only tuning)
+
+- Added optional, declared-only lexical features in `literature/lexical.py`:
+  public registry PyBaMM-name aliases, unit spellings via `registry/units.py`,
+  symbol variants keyed by the existing `SYNONYMS` groups, table/caption and
+  number+unit segment multipliers, plus a `BM25Index.score_terms` method that
+  leaves the default `search` behaviour unchanged. No model call, no new
+  dependency, no gold text in any query path.
+- `benchmarks/v2/lexical_ablation.py` tried **11 variants on v4/small dev only**
+  and logged all of them (plus the single test evaluation) in
+  `results/v2/retrieval_improvement/config_log.jsonl`. **Plain lexical
+  expansion did not help:** dev recall@1 baseline 0.333 vs registry aliases
+  0.400 (tie), unit terms 0.333, symbols 0.267, query_all 0.200; table boost
+  hurt (0.133). Chosen by dev recall@1 then MRR: **BM25 b=0.5, k1=1.5**
+  (dev 0.400 / MRR 0.611), saved to `configs/retrieval/lexical_config.json`.
+- Test was evaluated **once** for that configuration
+  (`results/v2/retrieval_improvement/lexical_ablation.{json,md}`): recall@1/3/5/10
+  v3/full 0.158/0.263/0.368/0.421 vs baseline 0.158/0.211/0.316/0.421;
+  v4/full 0.267/0.533/0.867/0.933 vs 0.200/0.333/0.600/0.933; v4/small
+  0.333/0.800/0.933/1.000 vs 0.267/0.800/0.867/1.000. **Bootstrap 95% CIs
+  overlap heavily** on these small test sets (v3 19, v4 15 items), so this is
+  not evidence of a significant gain; v3 and v4 are not comparable and the v4
+  corpus is small and private.
+- Leakage tests extended to the new expansion/search functions (10 new tests).
+  Verification: ruff clean; core scope 375 passed, 14 skipped, 3 deselected.
+
 ### Retrieval improvement — evaluation protocol and BM25 baseline
 
 - No retrieval code changed. Froze a stratified dev/test split of v3 (37) and

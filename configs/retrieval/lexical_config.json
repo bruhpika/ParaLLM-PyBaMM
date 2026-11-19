@@ -1,0 +1,11 @@
+{
+  "config": {
+    "b": 0.5,
+    "k1": 1.5
+  },
+  "generated": "2026-11-19T07:53:55.650674+00:00",
+  "name": "bm25_b_0p5",
+  "seed": 20261119,
+  "selected_on": "v4/small dev only",
+  "selection_rule": "max dev recall@1, then MRR, then doc-recall@10"
+}

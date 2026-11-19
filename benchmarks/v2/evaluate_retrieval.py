@@ -135,14 +135,21 @@ def evaluate(
     items: Sequence[Any],
     index: BM25Index,
     gold: dict[str, dict[str, Any]],
+    *,
+    query_fn: Any | None = None,
+    search_fn: Any | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     max_k = max(RECALL_KS)
     indexed_segments = {s.segment_id for s in index.segments}
     indexed_docs = {s.document_id for s in index.segments}
     rows: list[dict[str, Any]] = []
     for item in items:
-        query = query_for_item(item)
-        hits = index.search(query, k=max_k)
+        query = query_fn(item) if query_fn else query_for_item(item)
+        hits = (
+            search_fn(index, query, max_k, item)
+            if search_fn
+            else index.search(query, k=max_k)
+        )
         hit_ids = [seg.segment_id for seg, _ in hits]
         hit_docs = [seg.document_id for seg, _ in hits]
         gold_ids = list(gold.get(str(item.item_id), {}).get("gold_segment_ids") or [])

@@ -4,3 +4,15 @@
 {"b": 0.75, "configuration": "v4/small/test", "generated": "2026-11-19T07:48:18.639189+00:00", "k1": 1.5, "n_gold_retrievable": 15, "n_items": 15, "seed": 20261119, "status": "ok"}
 {"b": 0.75, "configuration": "v4/full/dev", "generated": "2026-11-19T07:48:18.732593+00:00", "k1": 1.5, "n_gold_retrievable": 15, "n_items": 15, "seed": 20261119, "status": "ok"}
 {"b": 0.75, "configuration": "v4/full/test", "generated": "2026-11-19T07:48:18.820910+00:00", "k1": 1.5, "n_gold_retrievable": 15, "n_items": 15, "seed": 20261119, "status": "ok"}
+{"configuration": "registry_aliases", "generated": "2026-11-19T07:53:41.948892+00:00", "params": {"use_registry": true}, "split_used": "dev", "status": "ok"}
+{"configuration": "unit_terms", "generated": "2026-11-19T07:53:42.072834+00:00", "params": {"use_unit": true}, "split_used": "dev", "status": "ok"}
+{"configuration": "symbols", "generated": "2026-11-19T07:53:42.176218+00:00", "params": {"use_symbols": true}, "split_used": "dev", "status": "ok"}
+{"configuration": "query_all", "generated": "2026-11-19T07:53:42.285235+00:00", "params": {"use_registry": true, "use_symbols": true, "use_unit": true}, "split_used": "dev", "status": "ok"}
+{"configuration": "boost_tables", "generated": "2026-11-19T07:53:42.388030+00:00", "params": {"boost_tables": true}, "split_used": "dev", "status": "ok"}
+{"configuration": "boost_units", "generated": "2026-11-19T07:53:42.518326+00:00", "params": {"boost_units": true}, "split_used": "dev", "status": "ok"}
+{"configuration": "query_all_and_boosts", "generated": "2026-11-19T07:53:42.643989+00:00", "params": {"boost_tables": true, "boost_units": true, "use_registry": true, "use_symbols": true, "use_unit": true}, "split_used": "dev", "status": "ok"}
+{"configuration": "bm25_k1_1p2", "generated": "2026-11-19T07:53:42.747912+00:00", "params": {"b": 0.75, "k1": 1.2}, "split_used": "dev", "status": "ok"}
+{"configuration": "bm25_b_0p5", "generated": "2026-11-19T07:53:42.852530+00:00", "params": {"b": 0.5, "k1": 1.5}, "split_used": "dev", "status": "ok"}
+{"configuration": "bm25_k1_2p0", "generated": "2026-11-19T07:53:42.957322+00:00", "params": {"b": 0.75, "k1": 2.0}, "split_used": "dev", "status": "ok"}
+{"configuration": "bm25_b_0p9", "generated": "2026-11-19T07:53:43.061176+00:00", "params": {"b": 0.9, "k1": 1.5}, "split_used": "dev", "status": "ok"}
+{"configuration": "bm25_b_0p5", "detail": "v3/full", "generated": "2026-11-19T07:53:55.750331+00:00", "params": {"b": 0.5, "k1": 1.5}, "split_used": "test", "status": "chosen_test"}
