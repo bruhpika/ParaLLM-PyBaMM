@@ -1,12 +1,15 @@
 # V2.5 — private v4 condition benchmark
 
-extractor: `gemini-flash-lite-latest` @ `https://generativelanguage.googleapis.com/v1beta/openai` (identical across arms; not comparable with the v0.1/v3 numbers, which used a different model)
+extractor: `gemini-flash-lite-latest` @ `https://generativelanguage.googleapis.com/v1beta/openai` date `2026-11-19` (identical across arms; not comparable with the v0.1/v3 numbers, which used a different model)
 
 30 items (PRIVATE fixture, not published), categories: A=9, B=5, C=7, D=3, E=6
 
+- oracle-located (upper bound): compact/expanded/v25 locate evidence from the probe; upper bound, not retrieval.
+- real retrieval (BM25): query from parameter name/unit only; full-store BM25; no probe, target document or gold condition used.
+
 ## Arms (mean +/- std over repeats)
 
-| metric | compact | expanded | v25 |
+| metric | oracle-located (upper bound): compact | oracle-located (upper bound): expanded | oracle-located (upper bound): v25 |
 |---|---|---|---|
 | condition_field_accuracy | 0.144 +/- 0.016 | 0.294 +/- 0.018 | 0.310 +/- 0.022 |
 | parameter_value_accuracy | 0.389 +/- 0.016 | 0.389 +/- 0.042 | 0.583 +/- 0.014 |
@@ -21,7 +24,7 @@ extractor: `gemini-flash-lite-latest` @ `https://generativelanguage.googleapis.c
 
 ## Per condition field (mean +/- std over repeats)
 
-| field | compact | expanded | v25 |
+| field | oracle-located (upper bound): compact | oracle-located (upper bound): expanded | oracle-located (upper bound): v25 |
 |---|---|---|---|
 | chemistry | 0.000 +/- 0.000 | 0.178 +/- 0.126 | 0.143 +/- 0.027 |
 | cell | 0.196 +/- 0.023 | 0.360 +/- 0.010 | 0.186 +/- 0.021 |
@@ -36,7 +39,7 @@ transport errors excluded from scoring: compact=0, expanded=0, v25=6
 
 Per-repeat summaries:
 
-| metric | compact_r0 | compact_r1 | compact_r2 | expanded_r0 | expanded_r1 | expanded_r2 | v25_r0 | v25_r1 | v25_r2 |
+| metric | oracle-located (upper bound): compact (0) | oracle-located (upper bound): compact (1) | oracle-located (upper bound): compact (2) | oracle-located (upper bound): expanded (0) | oracle-located (upper bound): expanded (1) | oracle-located (upper bound): expanded (2) | oracle-located (upper bound): v25 (0) | oracle-located (upper bound): v25 (1) | oracle-located (upper bound): v25 (2) |
 |---|---|---|---|---|---|---|---|---|---|
 | condition_field_accuracy | 0.129 | 0.138 | 0.167 | 0.314 | 0.271 | 0.295 | 0.286 | 0.339 | 0.305 |
 | parameter_value_accuracy | 0.367 | 0.400 | 0.400 | 0.400 | 0.433 | 0.333 | 0.600 | 0.583 | 0.567 |

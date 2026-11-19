@@ -1,4 +1,9 @@
 {
+  "arm_labels": {
+    "compact": "oracle-located (upper bound): compact",
+    "expanded": "oracle-located (upper bound): expanded",
+    "v25": "oracle-located (upper bound): v25"
+  },
   "arm_means": {
     "compact": {
       "abstention_rate": {
@@ -278,21 +283,28 @@
     "D": 3,
     "E": 6
   },
+  "evidence_sources": {
+    "compact": "oracle",
+    "expanded": "oracle",
+    "v25": "oracle"
+  },
   "extractor": {
     "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+    "date": "2026-11-19",
     "model": "gemini-flash-lite-latest",
     "note": "The extractor is held identical across evidence modes, so the arms are comparable with each other. Absolute numbers are NOT comparable with the v0.1/v3 results, which used a different (cloud) model."
   },
   "fixture": "PRIVATE v4 (30 items; fixture not published)",
-  "generated": "2026-11-19T01:44:50.105391+00:00",
+  "generated": "2026-11-19T04:26:40.983117+00:00",
   "modes": [
     "compact",
     "expanded",
     "v25"
   ],
   "n_items": 30,
-  "note": "Condition-field accuracy counts a gold 'not_stated' field as matched only when the extraction reports nothing there; invented conditions are always penalised. Per-item results stay private.",
+  "note": "oracle-located (upper bound): the evidence is located from the fixture probe and is an upper bound, not a retrieval result. real retrieval (BM25): the query uses only parameter name/unit and BM25 searches the full store. Condition-field accuracy counts a gold 'not_stated' field as matched only when the extraction reports nothing there; invented conditions are always penalised. Per-item results stay private.",
   "repeats": 3,
+  "retrieval_k": 8,
   "summary": {
     "compact_r0": {
       "all": {
