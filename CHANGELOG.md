@@ -212,6 +212,17 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   locally; `__version__` synced to `0.1.0b1`. PyPI **publish** stays an owner
   action (credentials + version decision); docs site, gallery and v4a remain
   open.
+- **CI hardening after the first Actions run**: environment-pinned
+  characterization gates (`test_char_baseline.py` P0 at rtol=atol=1e-12 and
+  `test_char_p2_recovery.py` at 1e-4) are now tagged `characterization` and
+  excluded from CI — their baselines are documented same-machine/same-venv
+  gates (runtime `aot_compile` and BLAS kernels make the last bits
+  environment-dependent), so they stay in the local default run only. The
+  PyProBE Neware audit test skips when the git-ignored
+  `data/external/pyprobe_sample/neware/` fixture is absent (previously a hard
+  `FileNotFoundError` on any clean checkout). Pytest failures are now emitted
+  as check annotations (JUnit XML) so red runs are diagnosable without log
+  access.
 
 ### Planned
 - **V2.1** Applicability & conflict engine — auditable, hand-set rubric; decision

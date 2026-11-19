@@ -22,8 +22,37 @@ jobs:
         run: python -m pip install -U pip && python -m pip install -e ".[dev]"
       - name: Lint
         run: ruff check src/ benchmarks/ tests/
-      - name: Test (unit + integration; pybop-gated tests skip)
-        run: python -m pytest -q
+      # `characterization` gates compare committed numeric baselines at
+      # machine-level tolerances (rtol=1e-12; same-machine/same-venv by
+      # design) and are documented as local gates, not portable software
+      # tests. They stay in the local default run and are excluded here.
+      - name: Test (unit + integration; pybop-gated + characterization gates excluded)
+        run: >-
+          python -m pytest -q -m "not benchmark and not characterization"
+          --junitxml="$RUNNER_TEMP/junit.xml"
+      - name: Surface pytest failures as check annotations
+        if: failure()
+        run: |
+          python - "$RUNNER_TEMP/junit.xml" <<'PY'
+          import os
+          import sys
+          import xml.etree.ElementTree as ET
+
+          path = sys.argv[1]
+          if not os.path.exists(path):
+              sys.exit(0)
+          for case in ET.parse(path).iter("testcase"):
+              for problem in case.findall("failure") + case.findall("error"):
+                  message = (problem.get("message") or "failed").splitlines()[0][:250]
+                  fname = case.get("file")
+                  location = (
+                      f" file={fname},line={case.get('line') or 1}" if fname else ""
+                  )
+                  print(
+                      f"::error{location}"
+                      f"::{case.get('classname')}::{case.get('name')}: {message}"
+                  )
+          PY
 
   ecosystem:
     # pybop/pints/SALib stack is verified on CPython 3.12
@@ -37,8 +66,36 @@ jobs:
           python-version: "3.12"
       - name: Install (ecosystem stack)
         run: python -m pip install -U pip && python -m pip install -e ".[dev,ecosystem]"
-      - name: Test (all tests incl. pybop-gated)
-        run: python -m pytest -q
+      # Characterization gates are excluded here as well: their baselines are
+      # pinned to the frozen lock (requirements/ecosystem-py312.lock), not to
+      # this floating resolution.
+      - name: Test (pybop-gated included; characterization gates excluded)
+        run: >-
+          python -m pytest -q -m "not benchmark and not characterization"
+          --junitxml="$RUNNER_TEMP/junit.xml"
+      - name: Surface pytest failures as check annotations
+        if: failure()
+        run: |
+          python - "$RUNNER_TEMP/junit.xml" <<'PY'
+          import os
+          import sys
+          import xml.etree.ElementTree as ET
+
+          path = sys.argv[1]
+          if not os.path.exists(path):
+              sys.exit(0)
+          for case in ET.parse(path).iter("testcase"):
+              for problem in case.findall("failure") + case.findall("error"):
+                  message = (problem.get("message") or "failed").splitlines()[0][:250]
+                  fname = case.get("file")
+                  location = (
+                      f" file={fname},line={case.get('line') or 1}" if fname else ""
+                  )
+                  print(
+                      f"::error{location}"
+                      f"::{case.get('classname')}::{case.get('name')}: {message}"
+                  )
+          PY
 
   package:
     # Build sdist + wheel, install the wheel in a clean venv, smoke-test the

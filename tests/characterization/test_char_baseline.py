@@ -25,7 +25,11 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BASE_DIR = Path(__file__).resolve().parents[1] / "baselines"
 
-pytestmark = pytest.mark.integration
+# Environment-pinned numeric gate: baselines were generated in ``.venv``
+# (CPython 3.14) and are compared at rtol=atol=1e-12. Runtime code generation
+# (pybamm ``aot_compile``) and BLAS kernels make the last bits compiler/CPU
+# dependent, so this gate is deliberately excluded from CI (see ci.yml).
+pytestmark = [pytest.mark.integration, pytest.mark.characterization]
 
 
 def _load_npz(path: Path) -> dict:

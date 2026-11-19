@@ -60,6 +60,7 @@ markers = [
     "integration: tests that build and run PyBaMM simulations",
     "slow: tests that take more than a few seconds",
     "benchmark: scientific performance benchmarks (excluded from default runs)",
+    "characterization: environment-pinned numeric baseline gates (excluded from CI)",
 ]
 addopts = "-m 'not benchmark'"
 

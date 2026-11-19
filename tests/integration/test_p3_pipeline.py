@@ -119,7 +119,10 @@ def test_neware_sample_is_incompatible_with_lgm50():
     pytest.importorskip("pyprobe")
     from pybamm_closed_loop.datasets.pyprobe_link import audit_neware_sample
 
-    cand = audit_neware_sample(REPO_ROOT / "data/external/pyprobe_sample/neware")
+    sample_root = REPO_ROOT / "data/external/pyprobe_sample/neware"
+    if not sample_root.exists():
+        pytest.skip("PyProBE Neware sample not present in this checkout")
+    cand = audit_neware_sample(sample_root)
     assert cand.verdict.value == "INCOMPATIBLE"
     assert any("NOT validation data" in n for n in cand.notes)
     assert "README.yaml" in cand.protocol

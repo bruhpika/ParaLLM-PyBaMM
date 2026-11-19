@@ -26,6 +26,12 @@ yaml = pytest.importorskip("yaml")
 pytest.importorskip("pybamm")
 pybop = pytest.importorskip("pybop")
 
+# Environment-pinned numeric gate: baselines were generated in
+# ``.venv-ecosystem312`` (see requirements/ecosystem-py312.lock). Floating
+# dependency resolution and compiler/CPU differences move the optimiser
+# estimates, so this gate is deliberately excluded from CI (see ci.yml).
+pytestmark = pytest.mark.characterization
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BASE_DIR = Path(__file__).resolve().parents[1] / "baselines"
 sys.path.insert(0, str(REPO_ROOT / "benchmarks"))
