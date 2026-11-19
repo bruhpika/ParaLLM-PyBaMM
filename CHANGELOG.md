@@ -12,6 +12,27 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Retrieval improvement — corpus-size scaling
+
+- `benchmarks/v2/corpus_scaling.py` reports v4 gold-passage recall vs corpus
+  size using the committed tuned BM25 config and frozen split. Points:
+  4 docs (private v4 store), 8 docs (current combined local store, since the
+  Chen2020 article/supplement are not tracked), then synthetic distractor
+  documents that re-use only existing licence-evidenced main-store segments
+  to reach 10, 20 and 40 documents. **No new documents were fetched and no
+  gold passage was duplicated**; the extra corpora are stress tests, not real
+  paper collections.
+- Measured test recall@1/3/5/10
+  (`results/v2/retrieval_improvement/corpus_scaling.md`): 4 docs
+  0.333/0.800/0.933/1.000; 8 docs 0.267/0.533/0.867/0.933; 10 docs
+  0.267/0.533/0.800/0.933; 20 docs 0.200/0.400/0.533/0.933; 40 docs
+  0.200/0.333/0.400/0.600. Figure:
+  `results/v2/retrieval_improvement/corpus_scaling.png` (script-generated).
+  Config log now has 46 entries. The v4 corpus is small and private; these
+  numbers are not comparable with v3.
+- Tests for deterministic, unique, gold-free distractor construction (3 new).
+  Verification: ruff clean; core scope 386 passed, 15 skipped, 3 deselected.
+
 ### Retrieval improvement — dense/hybrid measurement (NULL RESULT)
 
 - Owner-approved setup completed under the stated conditions: fresh

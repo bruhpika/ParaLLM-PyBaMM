@@ -1,0 +1,873 @@
+{
+  "bm25_config": {
+    "b": 0.5,
+    "k1": 1.5
+  },
+  "distractor_policy": "synthetic documents built from existing licence-evidenced main-store segments; no new documents fetched, no gold passage duplicated",
+  "generated": "2026-11-19T08:26:47.150894+00:00",
+  "label_source": "data/private_v4/results/retrieval_recall_full_audit.json",
+  "rows": [
+    {
+      "metrics": {
+        "metrics": {
+          "document_recall@1": {
+            "ci95": {
+              "high": 0.9333333333333333,
+              "low": 0.4666666666666667
+            },
+            "mean": 0.7333333333333333,
+            "n": 15
+          },
+          "document_recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "document_recall@3": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "document_recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "mrr": {
+            "ci95": {
+              "high": 0.7777777777777779,
+              "low": 0.45555555555555544
+            },
+            "mean": 0.611111111111111,
+            "n": 15
+          },
+          "recall@1": {
+            "ci95": {
+              "high": 0.6666666666666666,
+              "low": 0.19833333333333344
+            },
+            "mean": 0.4,
+            "n": 15
+          },
+          "recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "recall@3": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          },
+          "recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          }
+        },
+        "n_documents_indexed": 4,
+        "n_gold_retrievable": 15,
+        "n_items": 15,
+        "n_query_mismatches": 0,
+        "n_segments_indexed": 121
+      },
+      "n_documents": 4,
+      "n_segments": 121,
+      "split": "dev"
+    },
+    {
+      "metrics": {
+        "metrics": {
+          "document_recall@1": {
+            "ci95": {
+              "high": 0.7333333333333333,
+              "low": 0.2
+            },
+            "mean": 0.4666666666666667,
+            "n": 15
+          },
+          "document_recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "document_recall@3": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          },
+          "document_recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "mrr": {
+            "ci95": {
+              "high": 0.7277777777777777,
+              "low": 0.39333333333333337
+            },
+            "mean": 0.5522222222222222,
+            "n": 15
+          },
+          "recall@1": {
+            "ci95": {
+              "high": 0.6,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.3333333333333333,
+            "n": 15
+          },
+          "recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "recall@3": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6
+            },
+            "mean": 0.8,
+            "n": 15
+          },
+          "recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          }
+        },
+        "n_documents_indexed": 4,
+        "n_gold_retrievable": 15,
+        "n_items": 15,
+        "n_query_mismatches": 0,
+        "n_segments_indexed": 121
+      },
+      "n_documents": 4,
+      "n_segments": 121,
+      "split": "test"
+    },
+    {
+      "metrics": {
+        "metrics": {
+          "document_recall@1": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.26666666666666666
+            },
+            "mean": 0.5333333333333333,
+            "n": 15
+          },
+          "document_recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "document_recall@3": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6666666666666666
+            },
+            "mean": 0.8666666666666667,
+            "n": 15
+          },
+          "document_recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "mrr": {
+            "ci95": {
+              "high": 0.7022222222222222,
+              "low": 0.3588888888888889
+            },
+            "mean": 0.5211111111111111,
+            "n": 15
+          },
+          "recall@1": {
+            "ci95": {
+              "high": 0.6,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.3333333333333333,
+            "n": 15
+          },
+          "recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "recall@3": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.3333333333333333
+            },
+            "mean": 0.6,
+            "n": 15
+          },
+          "recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          }
+        },
+        "n_documents_indexed": 8,
+        "n_gold_retrievable": 15,
+        "n_items": 15,
+        "n_query_mismatches": 0,
+        "n_segments_indexed": 317
+      },
+      "n_documents": 8,
+      "n_segments": 317,
+      "split": "dev"
+    },
+    {
+      "metrics": {
+        "metrics": {
+          "document_recall@1": {
+            "ci95": {
+              "high": 0.6,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.3333333333333333,
+            "n": 15
+          },
+          "document_recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          },
+          "document_recall@3": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6666666666666666
+            },
+            "mean": 0.8666666666666667,
+            "n": 15
+          },
+          "document_recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          },
+          "mrr": {
+            "ci95": {
+              "high": 0.631111111111111,
+              "low": 0.2727777777777778
+            },
+            "mean": 0.44166666666666665,
+            "n": 15
+          },
+          "recall@1": {
+            "ci95": {
+              "high": 0.5333333333333333,
+              "low": 0.06666666666666667
+            },
+            "mean": 0.26666666666666666,
+            "n": 15
+          },
+          "recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          },
+          "recall@3": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.26666666666666666
+            },
+            "mean": 0.5333333333333333,
+            "n": 15
+          },
+          "recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6666666666666666
+            },
+            "mean": 0.8666666666666667,
+            "n": 15
+          }
+        },
+        "n_documents_indexed": 8,
+        "n_gold_retrievable": 15,
+        "n_items": 15,
+        "n_query_mismatches": 0,
+        "n_segments_indexed": 317
+      },
+      "n_documents": 8,
+      "n_segments": 317,
+      "split": "test"
+    },
+    {
+      "metrics": {
+        "metrics": {
+          "document_recall@1": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.26666666666666666
+            },
+            "mean": 0.5333333333333333,
+            "n": 15
+          },
+          "document_recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "document_recall@3": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6666666666666666
+            },
+            "mean": 0.8666666666666667,
+            "n": 15
+          },
+          "document_recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "mrr": {
+            "ci95": {
+              "high": 0.7022777777777774,
+              "low": 0.36000000000000004
+            },
+            "mean": 0.5211111111111111,
+            "n": 15
+          },
+          "recall@1": {
+            "ci95": {
+              "high": 0.6,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.3333333333333333,
+            "n": 15
+          },
+          "recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "recall@3": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.3333333333333333
+            },
+            "mean": 0.6,
+            "n": 15
+          },
+          "recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          }
+        },
+        "n_documents_indexed": 10,
+        "n_gold_retrievable": 15,
+        "n_items": 15,
+        "n_query_mismatches": 0,
+        "n_segments_indexed": 357
+      },
+      "n_documents": 10,
+      "n_segments": 357,
+      "split": "dev"
+    },
+    {
+      "metrics": {
+        "metrics": {
+          "document_recall@1": {
+            "ci95": {
+              "high": 0.6,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.3333333333333333,
+            "n": 15
+          },
+          "document_recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          },
+          "document_recall@3": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6666666666666666
+            },
+            "mean": 0.8666666666666667,
+            "n": 15
+          },
+          "document_recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6666666666666666
+            },
+            "mean": 0.8666666666666667,
+            "n": 15
+          },
+          "mrr": {
+            "ci95": {
+              "high": 0.6296666666666664,
+              "low": 0.2681296296296296
+            },
+            "mean": 0.4385185185185185,
+            "n": 15
+          },
+          "recall@1": {
+            "ci95": {
+              "high": 0.5333333333333333,
+              "low": 0.06666666666666667
+            },
+            "mean": 0.26666666666666666,
+            "n": 15
+          },
+          "recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          },
+          "recall@3": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.26666666666666666
+            },
+            "mean": 0.5333333333333333,
+            "n": 15
+          },
+          "recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6
+            },
+            "mean": 0.8,
+            "n": 15
+          }
+        },
+        "n_documents_indexed": 10,
+        "n_gold_retrievable": 15,
+        "n_items": 15,
+        "n_query_mismatches": 0,
+        "n_segments_indexed": 357
+      },
+      "n_documents": 10,
+      "n_segments": 357,
+      "split": "test"
+    },
+    {
+      "metrics": {
+        "metrics": {
+          "document_recall@1": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.26666666666666666
+            },
+            "mean": 0.5333333333333333,
+            "n": 15
+          },
+          "document_recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "document_recall@3": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6
+            },
+            "mean": 0.8,
+            "n": 15
+          },
+          "document_recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6666666666666666
+            },
+            "mean": 0.8666666666666667,
+            "n": 15
+          },
+          "mrr": {
+            "ci95": {
+              "high": 0.6777777777777777,
+              "low": 0.3056111111111111
+            },
+            "mean": 0.4806349206349206,
+            "n": 15
+          },
+          "recall@1": {
+            "ci95": {
+              "high": 0.6,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.3333333333333333,
+            "n": 15
+          },
+          "recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 1.0
+            },
+            "mean": 1.0,
+            "n": 15
+          },
+          "recall@3": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.26666666666666666
+            },
+            "mean": 0.5333333333333333,
+            "n": 15
+          },
+          "recall@5": {
+            "ci95": {
+              "high": 0.9333333333333333,
+              "low": 0.4666666666666667
+            },
+            "mean": 0.7333333333333333,
+            "n": 15
+          }
+        },
+        "n_documents_indexed": 20,
+        "n_gold_retrievable": 15,
+        "n_items": 15,
+        "n_query_mismatches": 0,
+        "n_segments_indexed": 557
+      },
+      "n_documents": 20,
+      "n_segments": 557,
+      "split": "dev"
+    },
+    {
+      "metrics": {
+        "metrics": {
+          "document_recall@1": {
+            "ci95": {
+              "high": 0.6,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.3333333333333333,
+            "n": 15
+          },
+          "document_recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          },
+          "document_recall@3": {
+            "ci95": {
+              "high": 0.9333333333333333,
+              "low": 0.4666666666666667
+            },
+            "mean": 0.7333333333333333,
+            "n": 15
+          },
+          "document_recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6666666666666666
+            },
+            "mean": 0.8666666666666667,
+            "n": 15
+          },
+          "mrr": {
+            "ci95": {
+              "high": 0.5573816137566139,
+              "low": 0.2101825396825397
+            },
+            "mean": 0.3674867724867724,
+            "n": 15
+          },
+          "recall@1": {
+            "ci95": {
+              "high": 0.4,
+              "low": 0.0
+            },
+            "mean": 0.2,
+            "n": 15
+          },
+          "recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          },
+          "recall@3": {
+            "ci95": {
+              "high": 0.6666666666666666,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.4,
+            "n": 15
+          },
+          "recall@5": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.26666666666666666
+            },
+            "mean": 0.5333333333333333,
+            "n": 15
+          }
+        },
+        "n_documents_indexed": 20,
+        "n_gold_retrievable": 15,
+        "n_items": 15,
+        "n_query_mismatches": 0,
+        "n_segments_indexed": 557
+      },
+      "n_documents": 20,
+      "n_segments": 557,
+      "split": "test"
+    },
+    {
+      "metrics": {
+        "metrics": {
+          "document_recall@1": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.26666666666666666
+            },
+            "mean": 0.5333333333333333,
+            "n": 15
+          },
+          "document_recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.8
+            },
+            "mean": 0.9333333333333333,
+            "n": 15
+          },
+          "document_recall@3": {
+            "ci95": {
+              "high": 0.8666666666666667,
+              "low": 0.3333333333333333
+            },
+            "mean": 0.6,
+            "n": 15
+          },
+          "document_recall@5": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6
+            },
+            "mean": 0.8,
+            "n": 15
+          },
+          "mrr": {
+            "ci95": {
+              "high": 0.6023333333333327,
+              "low": 0.23333333333333334
+            },
+            "mean": 0.40888888888888897,
+            "n": 15
+          },
+          "recall@1": {
+            "ci95": {
+              "high": 0.5333333333333333,
+              "low": 0.06666666666666667
+            },
+            "mean": 0.26666666666666666,
+            "n": 15
+          },
+          "recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6666666666666666
+            },
+            "mean": 0.8666666666666667,
+            "n": 15
+          },
+          "recall@3": {
+            "ci95": {
+              "high": 0.7333333333333333,
+              "low": 0.2
+            },
+            "mean": 0.4666666666666667,
+            "n": 15
+          },
+          "recall@5": {
+            "ci95": {
+              "high": 0.8,
+              "low": 0.26666666666666666
+            },
+            "mean": 0.5333333333333333,
+            "n": 15
+          }
+        },
+        "n_documents_indexed": 40,
+        "n_gold_retrievable": 15,
+        "n_items": 15,
+        "n_query_mismatches": 0,
+        "n_segments_indexed": 957
+      },
+      "n_documents": 40,
+      "n_segments": 957,
+      "split": "dev"
+    },
+    {
+      "metrics": {
+        "metrics": {
+          "document_recall@1": {
+            "ci95": {
+              "high": 0.6,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.3333333333333333,
+            "n": 15
+          },
+          "document_recall@10": {
+            "ci95": {
+              "high": 1.0,
+              "low": 0.6666666666666666
+            },
+            "mean": 0.8666666666666667,
+            "n": 15
+          },
+          "document_recall@3": {
+            "ci95": {
+              "high": 0.9333333333333333,
+              "low": 0.4666666666666667
+            },
+            "mean": 0.7333333333333333,
+            "n": 15
+          },
+          "document_recall@5": {
+            "ci95": {
+              "high": 0.9333333333333333,
+              "low": 0.4666666666666667
+            },
+            "mean": 0.7333333333333333,
+            "n": 15
+          },
+          "mrr": {
+            "ci95": {
+              "high": 0.5190595238095238,
+              "low": 0.13396825396825396
+            },
+            "mean": 0.30896825396825395,
+            "n": 15
+          },
+          "recall@1": {
+            "ci95": {
+              "high": 0.4,
+              "low": 0.0
+            },
+            "mean": 0.2,
+            "n": 15
+          },
+          "recall@10": {
+            "ci95": {
+              "high": 0.8666666666666667,
+              "low": 0.3333333333333333
+            },
+            "mean": 0.6,
+            "n": 15
+          },
+          "recall@3": {
+            "ci95": {
+              "high": 0.6,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.3333333333333333,
+            "n": 15
+          },
+          "recall@5": {
+            "ci95": {
+              "high": 0.6666666666666666,
+              "low": 0.13333333333333333
+            },
+            "mean": 0.4,
+            "n": 15
+          }
+        },
+        "n_documents_indexed": 40,
+        "n_gold_retrievable": 15,
+        "n_items": 15,
+        "n_query_mismatches": 0,
+        "n_segments_indexed": 957
+      },
+      "n_documents": 40,
+      "n_segments": 957,
+      "split": "test"
+    }
+  ],
+  "seed": 20261119,
+  "split_source": "configs/retrieval/dev_test_split.json"
+}
