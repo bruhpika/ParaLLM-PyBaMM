@@ -36,6 +36,10 @@ from pybamm_closed_loop.eval.run_guard import (  # noqa: E402
     add_live_guard_args,
     client_for_live_run,
     find_raw,
+from pybamm_closed_loop.eval.benchmark import load_items, run_benchmark  # noqa: E402
+from pybamm_closed_loop.literature.availability import (  # noqa: E402
+    ARTICLE_MISSING_REASON,
+    article_source_text_available,
 )
 from pybamm_closed_loop.literature.extraction import (  # noqa: E402
     OfflineDeterministicExtractor,
@@ -55,6 +59,14 @@ def _rel(path: Path) -> str:
         return str(path.relative_to(REPO_ROOT))
     except ValueError:
         return str(path)
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--provider", choices=["offline", "llm"], default="offline")
+    ap.add_argument("--out", default="results/p3")
+    ap.add_argument("--items", default="data/eval/extraction_benchmark_v1.jsonl")
+    args = ap.parse_args()
+    if not article_source_text_available():
+        raise SystemExit(f"SKIP P3 benchmark: {ARTICLE_MISSING_REASON}")
 
 
 def _write_report(out_dir: Path, report: dict) -> None:

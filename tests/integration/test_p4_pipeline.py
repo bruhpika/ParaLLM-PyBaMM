@@ -11,6 +11,14 @@ from pathlib import Path
 
 import pytest
 
+from pybamm_closed_loop.literature.availability import (
+    ARTICLE_MISSING_REASON,
+    article_source_text_available,
+)
+
+if not article_source_text_available():
+    pytest.skip(f"SKIP: {ARTICLE_MISSING_REASON}", allow_module_level=True)
+
 from pybamm_closed_loop.eval.benchmark_p4 import (
     load_items_v2,
     rescore_arm_from_raw,

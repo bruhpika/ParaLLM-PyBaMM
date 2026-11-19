@@ -91,8 +91,16 @@ def test_cli_over_real_registry(tmp_path):
     """The CLI runs over the real registry and its traceability gate is honest:
     every recorded quote verifies against the archive, and values carried
     without a quote or an explicit status flag are flagged as failures."""
-    from pybamm_closed_loop.cli import main
+    import pytest
 
+    from pybamm_closed_loop.cli import main
+    from pybamm_closed_loop.literature.availability import (
+        ARTICLE_MISSING_REASON,
+        article_source_text_available,
+    )
+
+    if not article_source_text_available():
+        pytest.skip(f"SKIP: {ARTICLE_MISSING_REASON}")
     out = tmp_path / "out"
     rc = main(
         [

@@ -24,10 +24,25 @@ recorded license evidence.
 | Dessantis et al. 2023 (Batteries 9:146) | `data/raw_documents/dessantis2023_batteries9_0146/` | **CC BY 4.0** (verified) | same |
 | Goussian et al. 2024 (Batteries 10:205) | `data/raw_documents/goussian2024_batteries10_00205/` | **CC BY 4.0** (verified) | same; no numeric cell parameters (data confidential) |
 | PyBaMM parameter-sets documentation snapshot | `data/raw_documents/pybamm_parameter_sets_docs/` | PyBaMM project docs (PyBaMM is BSD-licensed upstream; snapshot kept with source URL/retrieval metadata) | ingested text snapshot |
-| Chen2020 **text** extract (article) | `data/raw_documents/chen2020_jes_167_080534/`, `data/literature_store/` | ECS © — **text extract retained for provenance/benchmarking**; not a redistribution of the publisher PDF | used by v2/v3 fixtures with provenance |
+| Chen2020 **text** extract (article) | not tracked; fetch + verify locally via `scripts/fetch_chen2020.py` | ECS © / CC BY-NC-ND (licence statement UNVERIFIED in this repo — see TASK 3) | raw text and segments were removed from git tracking; regenerate locally from an owner-supplied PDF |
 | Benchmark fixtures & derived results | `data/eval/`, `results/p4/`, `results/p5/`, `data/registry/` | produced by this project (MIT, subject to underlying source terms noted per item) | include recorded provenance/qualifiers; raw model outputs preserved |
 
 License evidence and sha256: `data/raw_documents/p5_sources/acquisition_manifest.json`.
+
+### Local fetch of the Chen2020 article (no automatic download)
+
+The full article text is **not redistributed**. Supply the publisher PDF
+yourself and run `scripts/fetch_chen2020.py --pdf <path>`; the script verifies
+the checksum before ingesting into `data/literature_store/` with the existing
+ingest code. The generated raw text/segments and any local PDF are gitignored.
+
+Chen2020 article PDF sha256: TODO (owner to fill) — no sha256 for the publisher
+PDF is recorded in this repository or in the Task F licensing report. Do not
+invent one; `scripts/fetch_chen2020.py` refuses to ingest until this line holds
+a 64-hex value. The sha256 of the previously tracked **text extract** was
+`dffc1f9f532b9b899ce83caabcec711db154204db355f77e5a714d4ae28e07da`
+(recorded in `data/literature_store/documents.json` before untracking) and can
+be used to check the regenerated text.
 
 ## NOT redistributed (acquire separately)
 

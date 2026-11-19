@@ -9,10 +9,15 @@ from types import SimpleNamespace
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 from pybamm_closed_loop.literature.availability import (
+    ARTICLE_DOCUMENT_ID,
+    ARTICLE_MISSING_REASON,
     SUPPLEMENT_DOCUMENT_ID,
     SUPPLEMENT_MISSING_REASON,
+    article_text_available,
+    article_text_path,
     supplement_text_available,
     supplement_text_path,
+    without_article_items,
     without_supplement_items,
 )
 
@@ -51,6 +56,26 @@ def test_dict_items_and_present_text(tmp_path):
     supplement_text_path(tmp_path).parent.mkdir(parents=True)
     supplement_text_path(tmp_path).write_text("locally ingested")
     assert without_supplement_items(
+        rows, tmp_path, document_id_of=lambda r: r["document_id"]
+    ) == rows
+
+
+def test_article_items_are_filtered_with_explicit_reason(tmp_path):
+    assert article_text_path(tmp_path) == tmp_path / "raw" / f"{ARTICLE_DOCUMENT_ID}.txt"
+    assert article_text_available(tmp_path) is False
+    rows = [
+        {"item_id": "drop", "document_id": ARTICLE_DOCUMENT_ID},
+        {"item_id": "keep", "document_id": "laue2021_jappl_electrochem_51_1253"},
+    ]
+    logged: list[str] = []
+    kept = without_article_items(
+        rows, tmp_path, log=logged.append, document_id_of=lambda r: r["document_id"]
+    )
+    assert [r["item_id"] for r in kept] == ["keep"]
+    assert ARTICLE_MISSING_REASON in logged[0]
+    article_text_path(tmp_path).parent.mkdir(parents=True)
+    article_text_path(tmp_path).write_text("locally fetched")
+    assert without_article_items(
         rows, tmp_path, document_id_of=lambda r: r["document_id"]
     ) == rows
 

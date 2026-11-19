@@ -18,6 +18,12 @@ secrets/
 data/raw_documents/chen2020_supplement/JES_167_8_080534_suppdata.pdf
 data/raw_documents/chen2020_supplement/suppdata_fulltext.txt
 
+# Chen2020 article: acquire the PDF and ingest locally via scripts/fetch_chen2020.py
+data/raw_documents/chen2020_jes_167_080534/*.pdf
+data/raw_documents/chen2020_jes_167_080534/chen2020_jes_167_080534_fulltext.txt
+data/literature_store/raw/chen2020_jes_167_080534.txt
+data/literature_store/segments/chen2020_jes_167_080534.json
+
 # Private v4 benchmark corpus + fixture (NOT published; see docs/ROADMAP_V0.2.md)
 data/private_v4/
 
