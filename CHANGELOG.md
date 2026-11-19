@@ -12,6 +12,40 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### README rewritten for v0.2 (documentation only)
+
+- Replaced the marketing tagline with a scoped, non-overclaiming one; reframed
+  the document around the v0.2 pipeline (literature evidence → applicability/
+  conflict assembly → per-parameter dossier + human gate → observability-based
+  CALIBRATE/FIX/MEASURE). Kept it short and sourced every figure in the Results
+  section from a committed `results/` file, cited inline.
+- Replaced the stale "184 passed / 201 passed" (release commit `bec653d`)
+  counts with a measurement at the current HEAD: **334 passed, 7 skipped**
+  (3 characterization tests deselected), core `.venv`, CPython 3.14.8, command
+  `.venv/bin/python -m pytest -q -m "not benchmark and not characterization"`.
+  The brief's stated "332 passed / 9 skipped" could not be reproduced in any
+  local env; it differs by exactly 2 passes → skips and is **not written into
+  docs** because it is not from a committed results file or a command run here.
+- Added the required oracle-located vs real-BM25 side-by-side (v3 deterministic
+  extractor), the v3/v4 recall table, an explicit "oracle = upper bound"
+  statement, the v4 easy-corpus caveat, and the synthetic-only V2.4 result.
+  Limitations now state: no experimental validation, synthetic mismatch only,
+  private v4 not reproducible, scorer revised post-hoc (not pre-registered),
+  observability limited to protocols in `results/p2/`.
+- Contradictions fixed (all in README.md): (1) old tagline "Parameters — not a
+  problem anymore" removed (marketing overclaim already dropped from the package
+  description); (2) "184/201 passed" + release-commit scope → measured counts;
+  (3) "retrieval + strict" described as a ±260-char probe window but presented
+  as retrieval → relabelled **oracle-located (upper bound)** throughout;
+  (4) milestone naming reconciled — v0.2 work is V2.x (ROADMAP §9), not P6+;
+  (5) future-tense "What's next" framing of dossiers, rubric, human gate,
+  observability and synthetic validation → implemented status (V2.1–V2.4
+  landed), with V2.5/V2.6/V2.7 status; (6) "public beta v0.1.0-beta.1" only
+  status → v0.1 beta released + v0.2 in progress; (7) `retrieval_strict` arm
+  label in the v3 table → "oracle-located (upper bound): retrieval_strict";
+  (8) duplicated "Where PARALLM fits" / "What's next" sections condensed.
+  No other files changed; no scientific number changed.
+
 ### Retrieval arms (2026-11-19)
 
 - **Oracle vs real retrieval separated.** The probe-based evidence path is now
