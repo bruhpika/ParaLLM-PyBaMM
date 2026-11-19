@@ -23,11 +23,29 @@ recorded license evidence.
 | Laue et al. 2021 (J Appl Electrochem 51:1253–1265) | `data/raw_documents/laue2021_jappl_electrochem_51_1253/` | **CC BY 4.0** (PDF text verified) | archived + sha256 in `data/raw_documents/p5_sources/acquisition_manifest.json`; ingested to `data/literature_store/` |
 | Dessantis et al. 2023 (Batteries 9:146) | `data/raw_documents/dessantis2023_batteries9_0146/` | **CC BY 4.0** (verified) | same |
 | Goussian et al. 2024 (Batteries 10:205) | `data/raw_documents/goussian2024_batteries10_00205/` | **CC BY 4.0** (verified) | same; no numeric cell parameters (data confidential) |
-| PyBaMM parameter-sets documentation snapshot | `data/raw_documents/pybamm_parameter_sets_docs/` | PyBaMM project docs (PyBaMM is BSD-licensed upstream; snapshot kept with source URL/retrieval metadata) | ingested text snapshot |
-| Chen2020 **text** extract (article) | not tracked; fetch + verify locally via `scripts/fetch_chen2020.py` | ECS © / CC BY-NC-ND (licence statement UNVERIFIED in this repo — see TASK 3) | raw text and segments were removed from git tracking; regenerate locally from an owner-supplied PDF |
+| PyBaMM parameter-sets documentation snapshot | `data/raw_documents/pybamm_parameter_sets_docs/` | PyBaMM project docs (PyBaMM code is **BSD 3-Clause**, verified below; the docs snapshot itself has no explicit licence evidence recorded) | ingested text snapshot |
+| Chen2020 **text** extract (article) | not tracked; fetch + verify locally via `scripts/fetch_chen2020.py` | **UNVERIFIED** — see the single statement below; the publisher page was unreachable | raw text and segments were removed from git tracking; regenerate locally from an owner-supplied PDF |
 | Benchmark fixtures & derived results | `data/eval/`, `results/p4/`, `results/p5/`, `data/registry/` | produced by this project (MIT, subject to underlying source terms noted per item) | include recorded provenance/qualifiers; raw model outputs preserved |
 
 License evidence and sha256: `data/raw_documents/p5_sources/acquisition_manifest.json`.
+
+### Chen2020 article licence — single statement (UNVERIFIED)
+
+- **Status: UNVERIFIED.** No exact publisher licence statement text was
+  obtained from this environment.
+- Publisher URL checked: `https://iopscience.iop.org/article/10.1149/1945-7111/ab9050`
+  (HTTP 500 on 2026-11-19). DOI resolver
+  `https://doi.org/10.1149/1945-7111/ab9050` returned only citation metadata
+  (`Chen, C.-H., ... Journal of the Electrochemical Society, 167(8), 80534`),
+  with no licence statement.
+- Conflicting secondary statements are recorded, not adopted: the University
+  of Warwick repository lists the published version as **CC BY-NC-ND 4.0**
+  (per project context; not independently verified here); this file previously
+  said "ECS ©" and `docs/LITERATURE_INGESTION.md` said "CC BY-NC-ND 4.0".
+- The article text was originally retrieved **2026-11-04** (recorded in
+  `documents.json` before untracking); the licence check above was attempted
+  **2026-11-19**. Because the licence is UNVERIFIED, the text is not
+  redistributed — it is fetched and verified locally.
 
 ### Local fetch of the Chen2020 article (no automatic download)
 
@@ -54,9 +72,17 @@ be used to check the regenerated text.
 
 ## Upstream software (attributed, not vendored as source here except via deps)
 
-PyBaMM (MIT), PyBOP (MIT), PyProBE-Data and their transitive
-dependencies are installed from PyPI per the lockfiles; consult their upstream
-LICENSE/NOTICE files in installed distributions. PyBaMM's Chen2020
+PyBaMM (**BSD 3-Clause**, verified), PyBOP (MIT), PyProBE-Data and their
+transitive dependencies are installed from PyPI per the lockfiles; consult
+their upstream LICENSE/NOTICE files in installed distributions. Verification
+(2026-11-19, `.venv`, pinned PyBaMM 26.8.0.0):
+`.venv/lib/python3.14/site-packages/pybamm-26.8.0.0.dist-info/licenses/LICENSE.txt`
+begins "Copyright (c) 2018, the PyBaMM team. All rights reserved." and states
+"Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:"
+plus the three BSD conditions; package metadata classifier is
+"License :: OSI Approved :: BSD License". An earlier line of this file called
+PyBaMM MIT — that was wrong and is corrected here. PyBaMM's Chen2020
 `ParameterValues` are loaded from the installed PyBaMM library (not hand-typed).
 
 ## Third-party code in this repo
