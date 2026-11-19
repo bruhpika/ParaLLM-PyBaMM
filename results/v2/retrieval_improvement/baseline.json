@@ -1,0 +1,515 @@
+{
+  "benchmarks": {
+    "v3": {
+      "full": {
+        "dev": {
+          "metrics": {
+            "document_recall@1": {
+              "ci95": {
+                "high": 0.5555555555555556,
+                "low": 0.1111111111111111
+              },
+              "mean": 0.3333333333333333,
+              "n": 18
+            },
+            "document_recall@10": {
+              "ci95": {
+                "high": 0.7777777777777778,
+                "low": 0.3333333333333333
+              },
+              "mean": 0.5555555555555556,
+              "n": 18
+            },
+            "document_recall@3": {
+              "ci95": {
+                "high": 0.6666666666666666,
+                "low": 0.2222222222222222
+              },
+              "mean": 0.4444444444444444,
+              "n": 18
+            },
+            "document_recall@5": {
+              "ci95": {
+                "high": 0.7222222222222222,
+                "low": 0.2777777777777778
+              },
+              "mean": 0.5,
+              "n": 18
+            },
+            "mrr": {
+              "ci95": {
+                "high": 0.3773341049382715,
+                "low": 0.04552469135802469
+              },
+              "mean": 0.1983024691358025,
+              "n": 18
+            },
+            "recall@1": {
+              "ci95": {
+                "high": 0.3333333333333333,
+                "low": 0.0
+              },
+              "mean": 0.16666666666666666,
+              "n": 18
+            },
+            "recall@10": {
+              "ci95": {
+                "high": 0.5555555555555556,
+                "low": 0.1111111111111111
+              },
+              "mean": 0.3333333333333333,
+              "n": 18
+            },
+            "recall@3": {
+              "ci95": {
+                "high": 0.4444444444444444,
+                "low": 0.05555555555555555
+              },
+              "mean": 0.2222222222222222,
+              "n": 18
+            },
+            "recall@5": {
+              "ci95": {
+                "high": 0.4444444444444444,
+                "low": 0.05555555555555555
+              },
+              "mean": 0.2222222222222222,
+              "n": 18
+            }
+          },
+          "n_documents_indexed": 4,
+          "n_gold_retrievable": 11,
+          "n_items": 18,
+          "n_query_mismatches": 0,
+          "n_segments_indexed": 196
+        },
+        "test": {
+          "metrics": {
+            "document_recall@1": {
+              "ci95": {
+                "high": 0.47368421052631576,
+                "low": 0.10526315789473684
+              },
+              "mean": 0.2631578947368421,
+              "n": 19
+            },
+            "document_recall@10": {
+              "ci95": {
+                "high": 0.7368421052631579,
+                "low": 0.3157894736842105
+              },
+              "mean": 0.5263157894736842,
+              "n": 19
+            },
+            "document_recall@3": {
+              "ci95": {
+                "high": 0.5789473684210527,
+                "low": 0.15789473684210525
+              },
+              "mean": 0.3684210526315789,
+              "n": 19
+            },
+            "document_recall@5": {
+              "ci95": {
+                "high": 0.6842105263157895,
+                "low": 0.2631578947368421
+              },
+              "mean": 0.47368421052631576,
+              "n": 19
+            },
+            "mrr": {
+              "ci95": {
+                "high": 0.39705827067669136,
+                "low": 0.0781484962406015
+              },
+              "mean": 0.22293233082706768,
+              "n": 19
+            },
+            "recall@1": {
+              "ci95": {
+                "high": 0.3157894736842105,
+                "low": 0.0
+              },
+              "mean": 0.15789473684210525,
+              "n": 19
+            },
+            "recall@10": {
+              "ci95": {
+                "high": 0.631578947368421,
+                "low": 0.21052631578947367
+              },
+              "mean": 0.42105263157894735,
+              "n": 19
+            },
+            "recall@3": {
+              "ci95": {
+                "high": 0.42105263157894735,
+                "low": 0.05263157894736842
+              },
+              "mean": 0.21052631578947367,
+              "n": 19
+            },
+            "recall@5": {
+              "ci95": {
+                "high": 0.5263157894736842,
+                "low": 0.10526315789473684
+              },
+              "mean": 0.3157894736842105,
+              "n": 19
+            }
+          },
+          "n_documents_indexed": 4,
+          "n_gold_retrievable": 11,
+          "n_items": 19,
+          "n_query_mismatches": 0,
+          "n_segments_indexed": 196
+        }
+      }
+    },
+    "v4": {
+      "full": {
+        "dev": {
+          "metrics": {
+            "document_recall@1": {
+              "ci95": {
+                "high": 0.7333333333333333,
+                "low": 0.2
+              },
+              "mean": 0.4666666666666667,
+              "n": 15
+            },
+            "document_recall@10": {
+              "ci95": {
+                "high": 1.0,
+                "low": 1.0
+              },
+              "mean": 1.0,
+              "n": 15
+            },
+            "document_recall@3": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.6
+              },
+              "mean": 0.8,
+              "n": 15
+            },
+            "document_recall@5": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.8
+              },
+              "mean": 0.9333333333333333,
+              "n": 15
+            },
+            "mrr": {
+              "ci95": {
+                "high": 0.5952460317460317,
+                "low": 0.273968253968254
+              },
+              "mean": 0.4206349206349207,
+              "n": 15
+            },
+            "recall@1": {
+              "ci95": {
+                "high": 0.4,
+                "low": 0.0
+              },
+              "mean": 0.2,
+              "n": 15
+            },
+            "recall@10": {
+              "ci95": {
+                "high": 1.0,
+                "low": 1.0
+              },
+              "mean": 1.0,
+              "n": 15
+            },
+            "recall@3": {
+              "ci95": {
+                "high": 0.6666666666666666,
+                "low": 0.19833333333333344
+              },
+              "mean": 0.4,
+              "n": 15
+            },
+            "recall@5": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.6666666666666666
+              },
+              "mean": 0.8666666666666667,
+              "n": 15
+            }
+          },
+          "n_documents_indexed": 8,
+          "n_gold_retrievable": 15,
+          "n_items": 15,
+          "n_query_mismatches": 0,
+          "n_segments_indexed": 317
+        },
+        "test": {
+          "metrics": {
+            "document_recall@1": {
+              "ci95": {
+                "high": 0.6,
+                "low": 0.13333333333333333
+              },
+              "mean": 0.3333333333333333,
+              "n": 15
+            },
+            "document_recall@10": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.8
+              },
+              "mean": 0.9333333333333333,
+              "n": 15
+            },
+            "document_recall@3": {
+              "ci95": {
+                "high": 0.9333333333333333,
+                "low": 0.4666666666666667
+              },
+              "mean": 0.7333333333333333,
+              "n": 15
+            },
+            "document_recall@5": {
+              "ci95": {
+                "high": 0.9333333333333333,
+                "low": 0.4666666666666667
+              },
+              "mean": 0.7333333333333333,
+              "n": 15
+            },
+            "mrr": {
+              "ci95": {
+                "high": 0.5438888888888889,
+                "low": 0.20498611111111112
+              },
+              "mean": 0.3594444444444445,
+              "n": 15
+            },
+            "recall@1": {
+              "ci95": {
+                "high": 0.4,
+                "low": 0.0
+              },
+              "mean": 0.2,
+              "n": 15
+            },
+            "recall@10": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.8
+              },
+              "mean": 0.9333333333333333,
+              "n": 15
+            },
+            "recall@3": {
+              "ci95": {
+                "high": 0.6,
+                "low": 0.13333333333333333
+              },
+              "mean": 0.3333333333333333,
+              "n": 15
+            },
+            "recall@5": {
+              "ci95": {
+                "high": 0.8666666666666667,
+                "low": 0.3333333333333333
+              },
+              "mean": 0.6,
+              "n": 15
+            }
+          },
+          "n_documents_indexed": 8,
+          "n_gold_retrievable": 15,
+          "n_items": 15,
+          "n_query_mismatches": 0,
+          "n_segments_indexed": 317
+        }
+      },
+      "small": {
+        "dev": {
+          "metrics": {
+            "document_recall@1": {
+              "ci95": {
+                "high": 0.9333333333333333,
+                "low": 0.4666666666666667
+              },
+              "mean": 0.7333333333333333,
+              "n": 15
+            },
+            "document_recall@10": {
+              "ci95": {
+                "high": 1.0,
+                "low": 1.0
+              },
+              "mean": 1.0,
+              "n": 15
+            },
+            "document_recall@3": {
+              "ci95": {
+                "high": 1.0,
+                "low": 1.0
+              },
+              "mean": 1.0,
+              "n": 15
+            },
+            "document_recall@5": {
+              "ci95": {
+                "high": 1.0,
+                "low": 1.0
+              },
+              "mean": 1.0,
+              "n": 15
+            },
+            "mrr": {
+              "ci95": {
+                "high": 0.7224999999999985,
+                "low": 0.39999999999999997
+              },
+              "mean": 0.5555555555555554,
+              "n": 15
+            },
+            "recall@1": {
+              "ci95": {
+                "high": 0.6,
+                "low": 0.13333333333333333
+              },
+              "mean": 0.3333333333333333,
+              "n": 15
+            },
+            "recall@10": {
+              "ci95": {
+                "high": 1.0,
+                "low": 1.0
+              },
+              "mean": 1.0,
+              "n": 15
+            },
+            "recall@3": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.8
+              },
+              "mean": 0.9333333333333333,
+              "n": 15
+            },
+            "recall@5": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.8
+              },
+              "mean": 0.9333333333333333,
+              "n": 15
+            }
+          },
+          "n_documents_indexed": 4,
+          "n_gold_retrievable": 15,
+          "n_items": 15,
+          "n_query_mismatches": 0,
+          "n_segments_indexed": 121
+        },
+        "test": {
+          "metrics": {
+            "document_recall@1": {
+              "ci95": {
+                "high": 0.7333333333333333,
+                "low": 0.2
+              },
+              "mean": 0.4666666666666667,
+              "n": 15
+            },
+            "document_recall@10": {
+              "ci95": {
+                "high": 1.0,
+                "low": 1.0
+              },
+              "mean": 1.0,
+              "n": 15
+            },
+            "document_recall@3": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.8
+              },
+              "mean": 0.9333333333333333,
+              "n": 15
+            },
+            "document_recall@5": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.8
+              },
+              "mean": 0.9333333333333333,
+              "n": 15
+            },
+            "mrr": {
+              "ci95": {
+                "high": 0.6688888888888889,
+                "low": 0.35772222222222216
+              },
+              "mean": 0.5022222222222222,
+              "n": 15
+            },
+            "recall@1": {
+              "ci95": {
+                "high": 0.5333333333333333,
+                "low": 0.06666666666666667
+              },
+              "mean": 0.26666666666666666,
+              "n": 15
+            },
+            "recall@10": {
+              "ci95": {
+                "high": 1.0,
+                "low": 1.0
+              },
+              "mean": 1.0,
+              "n": 15
+            },
+            "recall@3": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.6
+              },
+              "mean": 0.8,
+              "n": 15
+            },
+            "recall@5": {
+              "ci95": {
+                "high": 1.0,
+                "low": 0.6666666666666666
+              },
+              "mean": 0.8666666666666667,
+              "n": 15
+            }
+          },
+          "n_documents_indexed": 4,
+          "n_gold_retrievable": 15,
+          "n_items": 15,
+          "n_query_mismatches": 0,
+          "n_segments_indexed": 121
+        }
+      }
+    }
+  },
+  "bm25": {
+    "b": 0.75,
+    "expansion": "SYNONYMS full-group (unchanged)",
+    "k1": 1.5
+  },
+  "bootstrap_n": 2000,
+  "corpus_note": "Current local stores hold 4 documents for v3 and 8 for the v4 full corpus after the Chen2020 article text and supplement were untracked. The committed v3/v4 recall figures were produced with 6 and 10 documents; the re-measured numbers here describe the current local corpus and are not directly comparable with them.",
+  "generated": "2026-11-19T07:48:18.104953+00:00",
+  "label_source": {
+    "v3": "results/p5/benchmark_v3/retrieval_recall_audit.json",
+    "v4_full": "data/private_v4/results/retrieval_recall_full_audit.json",
+    "v4_small": "data/private_v4/results/retrieval_recall_audit.json"
+  },
+  "n_configurations_logged": 6,
+  "seed": 20261119
+}

@@ -1,0 +1,6 @@
+{"b": 0.75, "configuration": "v3/full/dev", "generated": "2026-11-19T07:48:18.267038+00:00", "k1": 1.5, "n_gold_retrievable": 11, "n_items": 18, "seed": 20261119, "status": "ok"}
+{"b": 0.75, "configuration": "v3/full/test", "generated": "2026-11-19T07:48:18.397881+00:00", "k1": 1.5, "n_gold_retrievable": 11, "n_items": 19, "seed": 20261119, "status": "ok"}
+{"b": 0.75, "configuration": "v4/small/dev", "generated": "2026-11-19T07:48:18.503819+00:00", "k1": 1.5, "n_gold_retrievable": 15, "n_items": 15, "seed": 20261119, "status": "ok"}
+{"b": 0.75, "configuration": "v4/small/test", "generated": "2026-11-19T07:48:18.639189+00:00", "k1": 1.5, "n_gold_retrievable": 15, "n_items": 15, "seed": 20261119, "status": "ok"}
+{"b": 0.75, "configuration": "v4/full/dev", "generated": "2026-11-19T07:48:18.732593+00:00", "k1": 1.5, "n_gold_retrievable": 15, "n_items": 15, "seed": 20261119, "status": "ok"}
+{"b": 0.75, "configuration": "v4/full/test", "generated": "2026-11-19T07:48:18.820910+00:00", "k1": 1.5, "n_gold_retrievable": 15, "n_items": 15, "seed": 20261119, "status": "ok"}

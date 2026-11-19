@@ -1,0 +1,89 @@
+{
+  "benchmarks": {
+    "v3": {
+      "dev": [
+        "E-docs-kokam-capacity",
+        "E-docs-sei-abstain",
+        "E10-particle-radii-list",
+        "E11-bruggeman-theoretical",
+        "E12-j0-pos-eis",
+        "E13-transference",
+        "E15-volume-fractions-table",
+        "E2-msmr-neg-j0",
+        "E7-supp-datasheet-abstain",
+        "P5-D2-sei-j0-arrhenius",
+        "P5-D3-lfp-cs-max-comsol",
+        "P5-D4-lfp-sigma-D-comsol",
+        "P5-D6-abstain-transference",
+        "P5-G2-symmetry-factor-assumption",
+        "P5-L1-thickness-table",
+        "P5-L2-porosity-table",
+        "P5-L6-electrolyte-diffusivity-table",
+        "V2-conductivity-prose"
+      ],
+      "seed": 20261119,
+      "test": [
+        "E1-msmr-pos-j0",
+        "E3-msmr-4th-reaction-placeholder",
+        "E4-supp-sep-porosity",
+        "E8-table-diffusivities",
+        "E9-max-concentration-pos",
+        "P5-D1-lfp-j0-vs-temperature",
+        "P5-D5-radius-and-cell-area",
+        "P5-DRC-rct-vs-temperature",
+        "P5-G3-abstain-capacity-confidential",
+        "P5-L3-exchange-current-table",
+        "P5-L4-solid-diffusivity-table",
+        "P5-L5-transference-literature",
+        "P5-L7-reference-system-temperature",
+        "P5-L8-abstain-tortuosity-exponent",
+        "V1-porosity-prose",
+        "V3-rated-capacity-prose",
+        "V4-isothermal-temperature",
+        "V5-reaction-rates",
+        "V6-abstain-sem"
+      ]
+    },
+    "v4": {
+      "dev": [
+        "V4-A2",
+        "V4-A3",
+        "V4-A4",
+        "V4-A7",
+        "V4-A9",
+        "V4-B1",
+        "V4-B3",
+        "V4-C2",
+        "V4-C4",
+        "V4-C5",
+        "V4-D2",
+        "V4-D3",
+        "V4-E4",
+        "V4-E5",
+        "V4-E6"
+      ],
+      "seed": 20261119,
+      "test": [
+        "V4-A1",
+        "V4-A5",
+        "V4-A6",
+        "V4-A8",
+        "V4-B2",
+        "V4-B4",
+        "V4-B5",
+        "V4-C1",
+        "V4-C3",
+        "V4-C6",
+        "V4-C7",
+        "V4-D1",
+        "V4-E1",
+        "V4-E2",
+        "V4-E3"
+      ]
+    }
+  },
+  "generated": "2026-11-19T07:47:00.451363+00:00",
+  "method": "stratified by (document_id, parameter_type); seeded sha256 order, alternating dev/test",
+  "parameter_type_source": "declared facets / parameter name only; no probe or gold label",
+  "seed": 20261119
+}

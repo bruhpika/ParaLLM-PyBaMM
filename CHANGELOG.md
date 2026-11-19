@@ -12,6 +12,35 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Retrieval improvement — evaluation protocol and BM25 baseline
+
+- No retrieval code changed. Froze a stratified dev/test split of v3 (37) and
+  v4 (30) by document × parameter type, seed **20261119**, in the committed
+  `configs/retrieval/dev_test_split.json` (v3 18/19, v4 15/15).
+  `benchmarks/v2/evaluate_retrieval.py` measures recall@1/3/5/10, MRR and
+  **document-level** recall separately, with 95% bootstrap CIs over items
+  (`numpy.random.default_rng`, n=2000), and appends every configuration tried
+  (successes and failures) to `results/v2/retrieval_improvement/config_log.jsonl`
+  (6 entries so far). Gold labels are taken from the frozen audit files only
+  *after* retrieval; queries matched those audits on all measured items
+  (0 mismatches). v4 per-item rows stay private.
+- **Measured baseline** (`results/v2/retrieval_improvement/baseline.{json,md}`):
+  v3 full dev/test recall@1/3/5/10 = 0.167/0.222/0.222/0.333 and
+  0.158/0.211/0.316/0.421; v4 small = 0.333/0.933/0.933/1.000 and
+  0.267/0.800/0.867/1.000; v4 full = 0.200/0.400/0.867/1.000 and
+  0.200/0.333/0.600/0.933. MRR and document recall are in the same files.
+  These differ from the older committed v3/v4 figures because the current
+  local stores have 4 (v3) and 8 (v4 full) documents after the Chen2020 text
+  and supplement were untracked; the baseline file states this explicitly.
+- **Leakage guard** (`tests/unit/test_retrieval_leakage.py`): AST check that the
+  query builders and `expand_query` never reference `probe`, `passage_probe`,
+  `gold*`, `target_document_id`, `document_id` or `notes`, plus a runtime item
+  whose forbidden attributes raise. Protocol tests cover split determinism,
+  balance, disjointness and bootstrap determinism (9 new tests).
+- Docs note that the v4 corpus is small/private and v3/v4 results are not
+  comparable. Verification: ruff clean; core scope 365 passed, 14 skipped,
+  3 deselected.
+
 ### Integration branch `integration/v0.2-cleanup`
 
 - Merged all eight task branches (A→B→C→D→E→1→2→3) with normal merge
