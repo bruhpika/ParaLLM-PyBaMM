@@ -1,0 +1,595 @@
+{
+  "aggregate": {
+    "all_fits_converged": true,
+    "ci_coverage": {
+      "negative": {
+        "available": false,
+        "n_runs": 18,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive": {
+        "available": false,
+        "n_runs": 18,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      }
+    },
+    "held_out_rmse_V": {
+      "baseline": {
+        "max": 0.00332791425155885,
+        "mean": 0.0025802081308393867,
+        "min": 0.0018639914962073414,
+        "std": 0.0003956039527862964
+      },
+      "negative_control": {
+        "max": 0.00332791425155885,
+        "mean": 0.0025802081308393867,
+        "min": 0.0018639914962073414,
+        "std": 0.0003956039527862964
+      },
+      "positive_control": {
+        "max": 0.0034921110767785575,
+        "mean": 0.0017979382370132333,
+        "min": 0.0009111542451682236,
+        "std": 0.0008188419269597662
+      }
+    },
+    "negative_does_not_beat_baseline": {
+      "count": 18,
+      "n": 18,
+      "rate": 1.0
+    },
+    "positive_beats_baseline": {
+      "count": 15,
+      "n": 18,
+      "rate": 0.8333333333333334
+    },
+    "prediction_reproduced": {
+      "count": 15,
+      "n": 18,
+      "rate": 0.8333333333333334
+    }
+  },
+  "design": {
+    "fit_uses_nominal_model": true,
+    "generation_atol": 1e-08,
+    "generation_rtol": 1e-06,
+    "generation_solver": "casadi-safe",
+    "generation_var_pts": {
+      "r_n": 10,
+      "r_p": 10,
+      "x_n": 12,
+      "x_p": 12,
+      "x_s": 12
+    },
+    "n_runs": 18,
+    "noise_levels_V": [
+      0.001,
+      0.002
+    ],
+    "noise_sources": [
+      "results/v2/synthetic_validation (V2.4, 1e-3 V)",
+      "configs/p2/recovery_single_1C.yaml (2e-3 V)"
+    ],
+    "seeds": [
+      20261117,
+      20261118,
+      20261119
+    ],
+    "truth_scales": [
+      0.75,
+      1.0,
+      1.25
+    ],
+    "truth_scaling": "start + scale * (recorded V2.4 truth - start)",
+    "unfitted_factor": 1.1,
+    "unfitted_parameter": "Positive particle diffusivity [m2.s-1]"
+  },
+  "environment": {
+    "packages": {
+      "numpy": "2.5.4",
+      "pybamm": "26.8.0.0",
+      "pybop": "26.10",
+      "scipy": "1.18.1"
+    },
+    "python": "3.12.16"
+  },
+  "fixed_truth_reference": {
+    "baseline_mean_V": 0.004554364361805817,
+    "negative_mean_V": 0.004554364361805817,
+    "note": "old fixed-truth V2.4 configuration (mismatch disabled)",
+    "positive_mean_V": 0.0009539528292804125,
+    "reproduced": true
+  },
+  "generated": "2026-11-19T05:48:34.168645+00:00",
+  "label": "SYNTHETIC \u2014 deliberately mismatched ground truth and synthetic measurements; not experimental validation (scientific rule 8)",
+  "per_run": [
+    {
+      "baseline_mean_V": 0.0022400905170003246,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.0022400905170003246,
+      "noise_sigma_V": 0.001,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.001183169719329707,
+      "prediction_reproduced": true,
+      "seed": 20261117,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7275,
+        "Negative particle diffusivity [m2.s-1]": 4.575e-14,
+        "Positive electrode active material volume fraction": 0.63875,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 0.75
+    },
+    {
+      "baseline_mean_V": 0.0024850278752611534,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.0024850278752611534,
+      "noise_sigma_V": 0.001,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.00197661930907887,
+      "prediction_reproduced": true,
+      "seed": 20261118,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7275,
+        "Negative particle diffusivity [m2.s-1]": 4.575e-14,
+        "Positive electrode active material volume fraction": 0.63875,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 0.75
+    },
+    {
+      "baseline_mean_V": 0.002155712968218458,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.002155712968218458,
+      "noise_sigma_V": 0.001,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0009671423036558978,
+      "prediction_reproduced": true,
+      "seed": 20261119,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7275,
+        "Negative particle diffusivity [m2.s-1]": 4.575e-14,
+        "Positive electrode active material volume fraction": 0.63875,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 0.75
+    },
+    {
+      "baseline_mean_V": 0.002804190866274182,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.002804190866274182,
+      "noise_sigma_V": 0.002,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0015494973547643725,
+      "prediction_reproduced": true,
+      "seed": 20261117,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7275,
+        "Negative particle diffusivity [m2.s-1]": 4.575e-14,
+        "Positive electrode active material volume fraction": 0.63875,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 0.75
+    },
+    {
+      "baseline_mean_V": 0.0033061137358334266,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.0033061137358334266,
+      "noise_sigma_V": 0.002,
+      "positive_beats_baseline": false,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.003443633398587393,
+      "prediction_reproduced": false,
+      "seed": 20261118,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7275,
+        "Negative particle diffusivity [m2.s-1]": 4.575e-14,
+        "Positive electrode active material volume fraction": 0.63875,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 0.75
+    },
+    {
+      "baseline_mean_V": 0.002821992891717983,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.002821992891717983,
+      "noise_sigma_V": 0.002,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0016927914725261952,
+      "prediction_reproduced": true,
+      "seed": 20261119,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7275,
+        "Negative particle diffusivity [m2.s-1]": 4.575e-14,
+        "Positive electrode active material volume fraction": 0.63875,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 0.75
+    },
+    {
+      "baseline_mean_V": 0.002305461250674052,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.002305461250674052,
+      "noise_sigma_V": 0.001,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.001179630976591553,
+      "prediction_reproduced": true,
+      "seed": 20261117,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.72,
+        "Negative particle diffusivity [m2.s-1]": 5e-14,
+        "Positive electrode active material volume fraction": 0.63,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.0
+    },
+    {
+      "baseline_mean_V": 0.0022329696552619684,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.0022329696552619684,
+      "noise_sigma_V": 0.001,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.001986496525067666,
+      "prediction_reproduced": true,
+      "seed": 20261118,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.72,
+        "Negative particle diffusivity [m2.s-1]": 5e-14,
+        "Positive electrode active material volume fraction": 0.63,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.0
+    },
+    {
+      "baseline_mean_V": 0.0018639914962073414,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.0018639914962073414,
+      "noise_sigma_V": 0.001,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0009326695985664994,
+      "prediction_reproduced": true,
+      "seed": 20261119,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.72,
+        "Negative particle diffusivity [m2.s-1]": 5e-14,
+        "Positive electrode active material volume fraction": 0.63,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.0
+    },
+    {
+      "baseline_mean_V": 0.0028693700615638304,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.0028693700615638304,
+      "noise_sigma_V": 0.002,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0015538982629947917,
+      "prediction_reproduced": true,
+      "seed": 20261117,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.72,
+        "Negative particle diffusivity [m2.s-1]": 5e-14,
+        "Positive electrode active material volume fraction": 0.63,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.0
+    },
+    {
+      "baseline_mean_V": 0.002916442096777678,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.002916442096777678,
+      "noise_sigma_V": 0.002,
+      "positive_beats_baseline": false,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0034642893572483426,
+      "prediction_reproduced": false,
+      "seed": 20261118,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.72,
+        "Negative particle diffusivity [m2.s-1]": 5e-14,
+        "Positive electrode active material volume fraction": 0.63,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.0
+    },
+    {
+      "baseline_mean_V": 0.002380802466278478,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.002380802466278478,
+      "noise_sigma_V": 0.002,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0016559664068472183,
+      "prediction_reproduced": true,
+      "seed": 20261119,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.72,
+        "Negative particle diffusivity [m2.s-1]": 5e-14,
+        "Positive electrode active material volume fraction": 0.63,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.0
+    },
+    {
+      "baseline_mean_V": 0.002834931740254803,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.002834931740254803,
+      "noise_sigma_V": 0.001,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0011803861402967576,
+      "prediction_reproduced": true,
+      "seed": 20261117,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7124999999999999,
+        "Negative particle diffusivity [m2.s-1]": 5.425e-14,
+        "Positive electrode active material volume fraction": 0.62125,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.25
+    },
+    {
+      "baseline_mean_V": 0.0024581915644785084,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.0024581915644785084,
+      "noise_sigma_V": 0.001,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.002003508609665368,
+      "prediction_reproduced": true,
+      "seed": 20261118,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7124999999999999,
+        "Negative particle diffusivity [m2.s-1]": 5.425e-14,
+        "Positive electrode active material volume fraction": 0.62125,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.25
+    },
+    {
+      "baseline_mean_V": 0.002167297295053234,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.002167297295053234,
+      "noise_sigma_V": 0.001,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0009111542451682236,
+      "prediction_reproduced": true,
+      "seed": 20261119,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7124999999999999,
+        "Negative particle diffusivity [m2.s-1]": 5.425e-14,
+        "Positive electrode active material volume fraction": 0.62125,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.25
+    },
+    {
+      "baseline_mean_V": 0.00332791425155885,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.00332791425155885,
+      "noise_sigma_V": 0.002,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0015615267882496389,
+      "prediction_reproduced": true,
+      "seed": 20261117,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7124999999999999,
+        "Negative particle diffusivity [m2.s-1]": 5.425e-14,
+        "Positive electrode active material volume fraction": 0.62125,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.25
+    },
+    {
+      "baseline_mean_V": 0.0028768184461854967,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.0028768184461854967,
+      "noise_sigma_V": 0.002,
+      "positive_beats_baseline": false,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0034921110767785575,
+      "prediction_reproduced": false,
+      "seed": 20261118,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7124999999999999,
+        "Negative particle diffusivity [m2.s-1]": 5.425e-14,
+        "Positive electrode active material volume fraction": 0.62125,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.25
+    },
+    {
+      "baseline_mean_V": 0.0023964271765092044,
+      "negative_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "negative_does_not_beat_baseline": true,
+      "negative_fit_success": true,
+      "negative_mean_V": 0.0023964271765092044,
+      "noise_sigma_V": 0.002,
+      "positive_beats_baseline": true,
+      "positive_ci_coverage": {
+        "available": false,
+        "reason": "PyBOP 26.10 SciPyMinimize/L-BFGS-B result exposes no covariance or standard errors; no CI was computed"
+      },
+      "positive_fit_success": true,
+      "positive_mean_V": 0.0016283967208211435,
+      "prediction_reproduced": true,
+      "seed": 20261119,
+      "truth": {
+        "Negative electrode active material volume fraction": 0.7124999999999999,
+        "Negative particle diffusivity [m2.s-1]": 5.425e-14,
+        "Positive electrode active material volume fraction": 0.62125,
+        "Positive particle diffusivity [m2.s-1]": 4.4000000000000005e-15
+      },
+      "truth_scale": 1.25
+    }
+  ],
+  "run_id": "synthetic_validation_v2.4_hardened_mismatch",
+  "scientific_note": "SYNTHETIC mismatch validation only: a different generating solver, tolerances and mesh plus an unfitted-parameter perturbation remove the inverse crime. This is NOT experimental validation and does not prove identifiability (scientific rules 7 and 8)."
+}
