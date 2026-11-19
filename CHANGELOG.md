@@ -12,6 +12,33 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### No global numpy RNG state (2026-11-19)
+
+- **Removed all `np.random.seed()` calls** from library code and the synthetic
+  benchmark. New `calibration/rng.py` provides `isolated_numpy_seed(seed)` (a
+  context manager that saves/restores `np.random.get_state()`) and
+  `legacy_seed(rng)` for third-party APIs that expose no generator argument.
+- `calibration/synthetic.py`: `generate_dataset` / `generate_datasets` accept an
+  explicit `rng: numpy.random.Generator`; a `default_rng` is derived from the
+  per-condition seed otherwise. `pybop.add_noise` (verified against PyBOP
+  26.10 to use global `np.random.normal`) runs under the isolated seed; the
+  historical bit stream is preserved and `rng_seed_used` is recorded.
+- `calibration/identifiability.py`: `sobol_indices` accepts an explicit `rng`;
+  SALib 1.6.0's `saltelli.sample` exposes no seed argument, so it runs under the
+  isolated seed. `benchmarks/identifiability/run_identifiability.py` wraps the
+  PINTS MCMC draw the same way.
+- **Tests**: `tests/unit/test_rng_isolation.py` (5 core tests: state restored on
+  success and on exception, explicit-generator reproducibility, SALib isolation
+  via a fake module) and 2 pybop-gated tests in `test_calibration_synthetic.py`
+  (global state unchanged, explicit generator reproducible). The existing
+  same-seed / different-condition-noise tests continue to pass.
+- **Characterization checked, not regenerated**: `test_char_p2_recovery.py`
+  produces byte-identical numeric values before (main `e43910f`) and after this
+  change in `.venv-ecosystem312` (estimate 0.7377946795097997, final_cost
+  3.986404e-04, etc.); only runtimes differ. The two characterization failures
+  are pre-existing on main. Verification: ruff clean; core scope 339 passed,
+  7 skipped (3 deselected); ecosystem scope 359 passed, 6 deselected.
+
 ### Retrieval arms (2026-11-19)
 
 - **Oracle vs real retrieval separated.** The probe-based evidence path is now

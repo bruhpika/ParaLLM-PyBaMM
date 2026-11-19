@@ -17,6 +17,8 @@ from typing import Any, Callable
 
 import numpy as np
 
+from .rng import isolated_numpy_seed, legacy_seed
+
 
 def finite_difference_jacobian(
     predict: Callable[[np.ndarray], np.ndarray],
@@ -163,11 +165,15 @@ def sobol_indices(
     param_names: list[str],
     n_samples: int = 64,
     seed: int = 0,
+    rng: np.random.Generator | None = None,
 ) -> dict[str, Any]:
     """Sobol sensitivity indices (SALib Saltelli) for a vector-valued model.
 
     model_fn maps parameter vector -> 1D observation vector; indices are
-    computed per observation component (e.g. per time point).
+    computed per observation component (e.g. per time point). ``rng`` is the
+    explicit generator; when omitted a ``default_rng`` is derived from ``seed``.
+    SALib 1.6.0 exposes no generator argument, so its legacy global draw runs
+    under an isolated seed and the caller's global state is restored.
     """
     from SALib.sample import saltelli
     from SALib.analyze import sobol
@@ -177,8 +183,10 @@ def sobol_indices(
         "names": list(param_names),
         "bounds": np.asarray(bounds, dtype=float).tolist(),
     }
-    np.random.seed(seed)
-    param_values = saltelli.sample(problem, n_samples, calc_second_order=False)
+    generator = rng if rng is not None else np.random.default_rng(seed)
+    legacy = seed if rng is None else legacy_seed(generator)
+    with isolated_numpy_seed(legacy):
+        param_values = saltelli.sample(problem, n_samples, calc_second_order=False)
     y = np.vstack([np.asarray(model_fn(p), dtype=float).reshape(-1) for p in param_values])
     n_obs = y.shape[1]
     s1 = np.zeros((n_obs, len(param_names)))

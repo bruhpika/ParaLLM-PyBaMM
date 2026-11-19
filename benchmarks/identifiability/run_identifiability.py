@@ -33,6 +33,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
+from pybamm_closed_loop.calibration.rng import isolated_numpy_seed  # noqa: E402
 from pybamm_closed_loop.calibration.fitting import (  # noqa: E402
     FitParameter,
     FitSpec,
@@ -318,8 +319,10 @@ def main() -> int:
             warm_up_iterations=int(cfg["mcmc"]["warm_up_iterations"]),
         )
         sampler = pybop.DifferentialEvolutionMCMC(log_pdf, options=options)
-        np.random.seed(int(cfg["mcmc"]["seed"]))  # PINTS samplers expose no seed
-        result = sampler.run()
+        # PINTS samplers expose no seed argument: isolate the legacy RNG so the
+        # caller's global state is restored after the run.
+        with isolated_numpy_seed(int(cfg["mcmc"]["seed"])):
+            result = sampler.run()
         summary = result.get_summary_statistics()
         samples = np.asarray(result.all_samples, dtype=float)
         return {

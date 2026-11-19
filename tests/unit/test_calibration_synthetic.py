@@ -68,6 +68,32 @@ def test_generation_metadata_records_ground_truth():
     assert ds.check()
 
 
+def _states_equal(a, b) -> bool:
+    return a[0] == b[0] and np.array_equal(a[1], b[1]) and a[2:] == b[2:]
+
+
+def test_generate_dataset_does_not_change_global_numpy_state():
+    spec = make_spec()
+    np.random.seed(2026)
+    before = np.random.get_state()
+    generate_dataset(spec, spec.conditions[0])
+    assert _states_equal(np.random.get_state(), before)
+
+
+def test_explicit_generator_is_reproducible():
+    spec = make_spec()
+    ds1, meta1 = generate_dataset(spec, spec.conditions[0], rng=np.random.default_rng(42))
+    ds2, meta2 = generate_dataset(spec, spec.conditions[0], rng=np.random.default_rng(42))
+    assert meta1 == meta2
+    assert np.array_equal(
+        np.asarray(ds1.data["Voltage [V]"]), np.asarray(ds2.data["Voltage [V]"])
+    )
+    np.random.seed(11)
+    before = np.random.get_state()
+    generate_dataset(spec, spec.conditions[0], rng=np.random.default_rng(42))
+    assert _states_equal(np.random.get_state(), before)
+
+
 def test_per_condition_noise_seeds_are_deterministic_and_independent():
     spec = make_spec(
         conditions=[
