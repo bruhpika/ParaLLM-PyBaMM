@@ -17,9 +17,11 @@ from typing import Any, Iterable, Mapping, Sequence
 import numpy as np
 
 MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
+MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"  # pinned HF commit
 MODEL_WEIGHT_BYTES = 90_868_376  # model.safetensors, HF API 2026-11-19
 MODEL_LICENCE = "apache-2.0"  # HF cardData licence / API tag
 CACHE_SUBDIR = "dense_retrieval"
+SPECIAL_TOKENS = 2  # tokenizer adds CLS/SEP; never truncate a segment silently
 
 
 class DenseUnavailable(RuntimeError):
@@ -38,6 +40,7 @@ def cache_path(
         Path(cache_dir)
         / CACHE_SUBDIR
         / safe_model_id(model_id)
+        / MODEL_REVISION
         / f"{document_id}_{content_sha256[:16]}.json"
     )
 
@@ -49,7 +52,11 @@ def load_cached(
     if not path.is_file():
         return None
     payload = json.loads(path.read_text())
-    if payload.get("model_id") != model_id or payload.get("sha256") != content_sha256:
+    if (
+        payload.get("model_id") != model_id
+        or payload.get("revision") != MODEL_REVISION
+        or payload.get("sha256") != content_sha256
+    ):
         return None
     return {str(k): [float(v) for v in vec] for k, vec in payload["vectors"].items()}
 
@@ -67,6 +74,7 @@ def save_cached(
         json.dumps(
             {
                 "model_id": model_id,
+                "revision": MODEL_REVISION,
                 "document_id": document_id,
                 "sha256": content_sha256,
                 "vectors": {str(k): list(map(float, v)) for k, v in vectors.items()},
@@ -95,13 +103,51 @@ class DenseEncoder:
                     f"(model {self.model_id}, {MODEL_WEIGHT_BYTES} bytes, "
                     f"licence {MODEL_LICENCE})"
                 ) from exc
-            self._model = SentenceTransformer(self.model_id)
+            self._model = SentenceTransformer(self.model_id, revision=MODEL_REVISION)
         return self._model
 
-    def encode(self, texts: Sequence[str]) -> np.ndarray:
-        return np.asarray(
-            self._load().encode(
-                list(texts),
+    def encode(
+        self, texts: Sequence[str], *, with_report: bool = False
+    ) -> np.ndarray | tuple[np.ndarray, dict[str, Any]]:
+        """Encode texts, splitting over-long segments explicitly (no truncation)."""
+        model = self._load()
+        tokenizer = getattr(model, "tokenizer", None)
+        if tokenizer is None:  # test doubles without a tokenizer
+            matrix = np.asarray(
+                model.encode(
+                    list(texts),
+                    batch_size=32,
+                    convert_to_numpy=True,
+                    normalize_embeddings=True,
+                    show_progress_bar=False,
+                ),
+                dtype=float,
+            )
+            return (matrix, {"chunked": 0, "n_texts": len(texts)}) if with_report else matrix
+
+        limit = int(getattr(model, "max_seq_length", 0) or tokenizer.model_max_length)
+        budget = max(1, limit - SPECIAL_TOKENS)
+        chunks: list[str] = []
+        owners: list[int] = []
+        n_chunked = 0
+        longest = 0
+        for idx, text in enumerate(texts):
+            ids = tokenizer.encode(str(text), add_special_tokens=False)
+            longest = max(longest, len(ids))
+            if len(ids) <= budget:
+                parts = [str(text)]
+            else:
+                n_chunked += 1
+                parts = [
+                    tokenizer.decode(ids[start : start + budget], skip_special_tokens=True)
+                    for start in range(0, len(ids), budget)
+                ]
+            for part in parts:
+                chunks.append(part)
+                owners.append(idx)
+        matrix = np.asarray(
+            model.encode(
+                chunks,
                 batch_size=32,
                 convert_to_numpy=True,
                 normalize_embeddings=True,
@@ -109,6 +155,21 @@ class DenseEncoder:
             ),
             dtype=float,
         )
+        pooled = np.zeros((len(texts), matrix.shape[1]), dtype=float)
+        for i, owner in enumerate(owners):
+            pooled[owner] += matrix[i]
+        norms = np.linalg.norm(pooled, axis=1, keepdims=True)
+        pooled = pooled / np.maximum(norms, 1e-12)
+        report = {
+            "n_texts": len(texts),
+            "n_chunked": n_chunked,
+            "fraction_chunked": n_chunked / len(texts) if texts else 0.0,
+            "max_seq_length": limit,
+            "token_budget": budget,
+            "longest_token_count": longest,
+            "handling": "explicit token-window chunking + mean pooling + renormalisation; no silent truncation",
+        }
+        return (pooled, report) if with_report else pooled
 
 
 def dense_search(

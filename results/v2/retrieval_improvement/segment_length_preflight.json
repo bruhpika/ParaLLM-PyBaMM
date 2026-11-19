@@ -1,0 +1,37 @@
+{
+  "corpora": {
+    "v3/full": {
+      "fraction_chunked": 0.24489795918367346,
+      "handling": "explicit token-window chunking + mean pooling + renormalisation; no silent truncation",
+      "longest_token_count": 2445,
+      "max_seq_length": 256,
+      "n_chunked": 48,
+      "n_texts": 196,
+      "token_budget": 254
+    },
+    "v4/full": {
+      "fraction_chunked": 0.334384858044164,
+      "handling": "explicit token-window chunking + mean pooling + renormalisation; no silent truncation",
+      "longest_token_count": 2450,
+      "max_seq_length": 256,
+      "n_chunked": 106,
+      "n_texts": 317,
+      "token_budget": 254
+    },
+    "v4/small": {
+      "fraction_chunked": 0.4793388429752066,
+      "handling": "explicit token-window chunking + mean pooling + renormalisation; no silent truncation",
+      "longest_token_count": 2450,
+      "max_seq_length": 256,
+      "n_chunked": 58,
+      "n_texts": 121,
+      "token_budget": 254
+    }
+  },
+  "generated": "2026-11-19T08:16:09.382707+00:00",
+  "handling": "over-length segments are split into token windows and their embeddings pooled; no silent truncation",
+  "max_seq_length": 256,
+  "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+  "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "token_budget": 254
+}

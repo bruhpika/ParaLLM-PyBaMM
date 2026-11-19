@@ -12,6 +12,36 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Retrieval improvement — dense/hybrid measurement (NULL RESULT)
+
+- Owner-approved setup completed under the stated conditions: fresh
+  `.venv-dense` (Python 3.12.16) with `torch==2.15.0+cpu` from the CPU-only
+  index and `sentence-transformers==5.7.0`; model
+  `sentence-transformers/all-MiniLM-L6-v2` pinned to HF commit
+  `1110a243fdf4706b3f48f1d95db1a4f5529b4d41` (90,868,376-byte safetensors,
+  apache-2.0). The revision is part of the embedding cache path and payload,
+  and is recorded in both run files.
+- **Segment-length preflight** (`results/v2/retrieval_improvement/segment_length_preflight.{json,md}`):
+  model max sequence length 256 (budget 254 after CLS/SEP). Over-length
+  fractions: v3/full 48/196 = 0.245, v4/small 58/121 = 0.479, v4/full
+  106/317 = 0.334 (longest 2450 tokens). Over-length segments are split into
+  token windows and pooled; nothing is silently truncated.
+- Dev was evaluated before test (`hybrid_dev.{json,md}`), test **once**
+  (`hybrid.{json,md}`), with BM25 leg using the committed tuned config
+  `b=0.5, k1=1.5`. All 36 configurations tried (6 TASK 1 baselines, 11 TASK 2
+  lexical variants + 1 TASK 2 test, 9 dense/hybrid dev + 9 test) are in
+  `results/v2/retrieval_improvement/config_log.jsonl`.
+- **Plain result: hybrid does not beat tuned BM25 on test.** Test
+  recall@1/3/5/10: v3/full BM25 0.158/0.263/0.368/0.421 vs hybrid
+  0.000/0.263/0.316/0.474; v4/small 0.333/0.800/0.933/1.000 vs
+  0.333/0.733/0.867/1.000; v4/full 0.267/0.533/0.867/0.933 vs
+  0.333/0.533/0.667/0.867. Dense alone is worse everywhere (e.g. v4/full
+  recall@1 0.067). Bootstrap CIs overlap. No tuning was performed after test;
+  this is a null result, not a failure to try hard enough.
+- The v4 corpus is small and private; v3 and v4 results are not comparable.
+  No further model or network downloads were made. Verification: ruff clean;
+  core scope 383 passed, 15 skipped, 3 deselected.
+
 ### Retrieval improvement — optional dense scaffolding (AWAITING OWNER APPROVAL)
 
 - Added an **optional** `retrieval-dense` extra in `pyproject.toml`

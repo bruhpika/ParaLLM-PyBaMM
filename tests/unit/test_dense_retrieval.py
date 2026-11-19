@@ -12,6 +12,7 @@ import pytest
 from pybamm_closed_loop.literature.dense import (
     MODEL_ID,
     MODEL_LICENCE,
+    MODEL_REVISION,
     MODEL_WEIGHT_BYTES,
     DenseEncoder,
     DenseUnavailable,
@@ -43,6 +44,7 @@ def test_cache_is_keyed_by_model_and_sha(tmp_path):
     sha = "a" * 64
     path = cache_path(tmp_path, MODEL_ID, "docA", sha)
     assert MODEL_ID.replace("/", "_") in str(path)
+    assert MODEL_REVISION in str(path)
     assert sha[:16] in path.name
     save_cached(tmp_path, MODEL_ID, "docA", sha, {"docA#0": [0.1, 0.2]})
     assert load_cached(tmp_path, MODEL_ID, "docA", sha) == {"docA#0": [0.1, 0.2]}
@@ -80,13 +82,45 @@ def test_fake_encoder_is_used_lazily(monkeypatch):
     monkeypatch.setitem(
         sys.modules,
         "sentence_transformers",
-        SimpleNamespace(SentenceTransformer=lambda _model_id: FakeModel()),
+        SimpleNamespace(SentenceTransformer=lambda _model_id, **_kwargs: FakeModel()),
     )
     encoder = DenseEncoder()
     assert calls == []
     result = encoder.encode(["x", "y"])
     assert result.shape == (2, 3)
     assert calls == [["x", "y"]]
+
+
+def test_long_segments_are_chunked_not_truncated(monkeypatch):
+    class FakeTokenizer:
+        model_max_length = 8
+
+        def encode(self, text, add_special_tokens=False):
+            return list(range(len(text)))
+
+        def decode(self, ids, skip_special_tokens=True):
+            return "x" * len(ids)
+
+    chunks: list[list[str]] = []
+
+    class FakeModel:
+        tokenizer = FakeTokenizer()
+        max_seq_length = 8
+
+        def encode(self, texts, **_kwargs):
+            chunks.append(list(texts))
+            return np.ones((len(texts), 3))
+
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        SimpleNamespace(SentenceTransformer=lambda _id, **_kwargs: FakeModel()),
+    )
+    matrix, report = DenseEncoder().encode(["long" * 10, "short"], with_report=True)
+    assert matrix.shape == (2, 3)
+    assert report["n_chunked"] == 1
+    assert report["token_budget"] == 6
+    assert all(len(c) <= 6 for c in chunks[0])
 
 
 def test_real_embedding_smoke():
