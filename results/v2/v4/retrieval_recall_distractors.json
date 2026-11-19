@@ -1,0 +1,43 @@
+{
+  "arm": "real retrieval (BM25)",
+  "benchmark": "v4",
+  "full_corpus": {
+    "description": "v4 private store plus every document in data/literature_store",
+    "documents": 10,
+    "evidence_k": 8,
+    "k_values": [
+      1,
+      3,
+      5,
+      10
+    ],
+    "n_items": 30,
+    "recall": {
+      "recall@1": 0.0,
+      "recall@10": 0.7666666666666667,
+      "recall@3": 0.16666666666666666,
+      "recall@5": 0.36666666666666664
+    }
+  },
+  "generated": "2026-11-19T05:52:41.248569+00:00",
+  "gold_label": "segment(s) containing the fixture probe, applied after retrieval",
+  "note": "Small-corpus recall overstates retrieval quality: with only the v4 papers indexed there are few distractors. The full corpus adds the other ingested papers and the PyBaMM documentation.",
+  "query_rule": "v4 parameter name and unit only",
+  "small_corpus": {
+    "documents": 4,
+    "evidence_k": 8,
+    "k_values": [
+      1,
+      3,
+      5,
+      10
+    ],
+    "n_items": 30,
+    "recall": {
+      "recall@1": 0.3,
+      "recall@10": 1.0,
+      "recall@3": 0.8666666666666667,
+      "recall@5": 0.9
+    }
+  }
+}

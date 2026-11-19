@@ -264,6 +264,22 @@ oracle-vs-real LLM extraction numbers are claimed. Existing compact/expanded/v25
 results are labelled `oracle-located (upper bound)` in the regenerated
 `summary.md`/`summary.json`.
 
+### 7.4 Distractor stress test — small-corpus recall overstates quality
+
+The numbers in §7.3 are measured on the **small** private store (4 documents,
+121 segments). `benchmarks/v2/report_retrieval_recall.py --benchmark v4 --stress`
+repeats the exact same queries with every ingested document added as a
+distractor (10 documents, 472 segments: the v4 store plus the other papers and
+the PyBaMM documentation in `data/literature_store`). Recall drops from
+0.300 / 0.867 / 0.900 / 1.000 to **0.000 / 0.167 / 0.367 / 0.767** at
+k = 1 / 3 / 5 / 10 (source:
+`results/v2/v4/retrieval_recall_distractors.md`). No model call is made; the
+probe is still only the post-retrieval evaluation label. **Small-corpus recall
+overstates retrieval quality**: with few distractors the same query is much
+easier, so the §7.3 figures are an easy-setting upper bound, not evidence that
+retrieval generalises. The full-corpus per-item audit remains private at
+`data/private_v4/results/retrieval_recall_full_audit.json`.
+
 ## 8. What this benchmark does and does not establish
 
 **Establishes:** whether a retrieval-grounded extractor can attach the right

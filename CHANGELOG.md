@@ -130,6 +130,27 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   and solver/mesh perturbation. Verification: ruff clean; core scope 339
   passed, 7 skipped, 3 deselected. The old `results/v2/synthetic_validation/`
   was not touched.
+### Retrieval distractor stress test (2026-11-19, no LLM)
+
+- `benchmarks/v2/report_retrieval_recall.py --benchmark v4 --stress` evaluates
+  the exact same 30 parameter-name/unit queries twice: against the small private
+  v4 store and against a full index containing **all** ingested documents
+  (v4 store + `data/literature_store`: 10 documents / 472 segments instead of
+  4 / 121). The probe remains a post-retrieval label only; no model call or API
+  key is involved. `--stress` writes only new `*_distractors` files and no
+  longer rewrites the committed small-corpus recall artifacts.
+- **Measured (source: `results/v2/v4/retrieval_recall_distractors.md`, generated
+  by the script):** recall@1/3/5/10 falls from 0.300 / 0.867 / 0.900 / 1.000
+  (small) to **0.000 / 0.167 / 0.367 / 0.767** (full). The full-corpus per-item
+  audit stays private at
+  `data/private_v4/results/retrieval_recall_full_audit.json`.
+- Added §7.4 to `docs/V2_PRIVATE_V4_BENCHMARK.md`: a short note that
+  small-corpus recall overstates retrieval quality because few distractors make
+  the query easy; the v4 figures are an easy-setting upper bound.
+- **Tests** (`tests/unit/test_retrieval_stress.py`, 3 new): side-by-side report
+  contents, v4-only flag, and a fake-store BM25 check that added distractors
+  lower recall. Verification: ruff clean; core scope 337 passed, 7 skipped,
+  3 deselected. No committed results file was modified.
 
 ### Retrieval arms (2026-11-19)
 
