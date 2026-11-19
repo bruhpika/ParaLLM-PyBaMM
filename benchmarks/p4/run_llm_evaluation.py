@@ -5,7 +5,11 @@ raw model outputs + metrics without any manual correction of model output.
 
 Usage:
   PYCL_LLM_API_KEY=... PYCL_LLM_MODEL=... \
-  .venv-ecosystem312/bin/python benchmarks/p4/run_llm_evaluation.py --arm all
+  .venv-ecosystem312/bin/python benchmarks/p4/run_llm_evaluation.py --arm all --live
+
+Live model calls require ``--live``; raw outputs are never overwritten unless
+``--overwrite`` is also given (otherwise a fresh timestamped directory is used).
+``--rescore``/``--replay`` re-score frozen raw outputs with no network or key.
 
 Arms:
   offline         deterministic non-LLM baseline (no API needed)
@@ -37,6 +41,12 @@ from pybamm_closed_loop.eval.benchmark_p4 import (  # noqa: E402
     load_items_v2,
     rescore_arm_from_raw,
     run_arm,
+)
+from pybamm_closed_loop.eval.run_guard import (  # noqa: E402
+    LiveRunPolicy,
+    add_live_guard_args,
+    client_for_live_run,
+    find_raw,
 )
 from pybamm_closed_loop.literature.extraction import (  # noqa: E402
     OfflineDeterministicExtractor,
@@ -107,7 +117,15 @@ def main() -> int:
         help="re-score existing raw_outputs_<arm>.jsonl deterministically "
         "instead of calling the model again (offline arm is re-run cheaply)",
     )
+    add_live_guard_args(ap)
     args = ap.parse_args()
+
+    policy = LiveRunPolicy(live=args.live, overwrite=args.overwrite)
+    replay = args.rescore or args.replay
+    arms = ["offline", "llm_rag", "llm_noretrieval"] if args.arm == "all" else [args.arm]
+    need_call = any(a.startswith("llm") for a in arms) and not replay
+    if need_call:
+        policy.ensure_allowed()
 
     store = DocumentStore(STORE_DIR)
     ensure_documents(store)
@@ -115,23 +133,23 @@ def main() -> int:
     if args.split != "all":
         items = [it for it in items if it.split == args.split]
 
-    arms = ["offline", "llm_rag", "llm_noretrieval"] if args.arm == "all" else [args.arm]
-    need_call = any(a.startswith("llm") for a in arms) and not args.rescore
     llm_client = None
     if need_call:
-        llm_client = OpenAICompatibleClient()
+        llm_client = client_for_live_run(policy, OpenAICompatibleClient, replay=False)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for arm in arms:
         print(f"=== running arm: {arm} ({len(items)} items) ===", flush=True)
-        raw_path = OUT_DIR / f"raw_outputs_{arm}.jsonl"
+        raw_name = f"raw_outputs_{arm}.jsonl"
+        raw_path = OUT_DIR / raw_name
 
-        # ---- rescore mode: deterministic re-scoring of frozen raw outputs
-        if args.rescore and arm != "offline":
-            if not raw_path.exists():
-                raise SystemExit(f"--rescore needs {raw_path.name}; run the arm first")
+        # ---- replay mode: deterministic re-scoring of frozen raw outputs
+        if replay and arm != "offline":
+            frozen = find_raw(OUT_DIR, raw_name)
+            if frozen is None:
+                raise SystemExit(f"--replay needs {raw_name}; run the arm first")
             raw_rows = [
-                json.loads(line) for line in raw_path.read_text().splitlines() if line.strip()
+                json.loads(line) for line in frozen.read_text().splitlines() if line.strip()
             ]
             report = rescore_arm_from_raw(items, store, raw_rows, arm=arm)
             report["run_metadata"] = dict(
@@ -142,7 +160,7 @@ def main() -> int:
                 split=args.split,
                 n_items=len(items),
                 rescored=True,
-                rescored_from=str(raw_path.relative_to(REPO_ROOT)),
+                rescored_from=str(frozen.relative_to(REPO_ROOT)),
             )
             (OUT_DIR / f"report_{arm}.json").write_text(
                 json.dumps(report, indent=2, sort_keys=True)
@@ -163,10 +181,9 @@ def main() -> int:
             if raw_path.exists():
                 raw_path.unlink()
         else:
-            if raw_path.exists():
-                # deliberate re-run guard: delete the file to re-run this arm
-                print(f"=== arm {arm}: {raw_path.name} exists, skipping (delete to re-run) ===", flush=True)
-                continue
+            # a live run never clobbers frozen raw outputs without --overwrite
+            raw_path = policy.raw_path(OUT_DIR, raw_name)
+            raw_path.parent.mkdir(parents=True, exist_ok=True)
             client = RetryClient(llm_client)  # transparent transport retries
 
         t0 = time.monotonic()
@@ -193,10 +210,15 @@ def main() -> int:
             timestamp=datetime.now(timezone.utc).isoformat(),
             provider=getattr(client, "name", arm),
             endpoint_host=(llm_client.base_url if llm_client else None),
-            model=(llm_client.model if llm_client else None),
             items_file=args.items,
             split=args.split,
             n_items=len(items),
+            raw_outputs=str(raw_path.relative_to(REPO_ROOT)),
+            **(
+                policy.metadata(model=llm_client.model, base_url=llm_client.base_url)
+                if llm_client
+                else {}
+            ),
         )
         (OUT_DIR / f"report_{arm}.json").write_text(json.dumps(report, indent=2, sort_keys=True))
         print(json.dumps(report["metrics"]["all"], indent=2))

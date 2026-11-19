@@ -16,7 +16,11 @@ Also runs deterministic offline references (``offline`` = oracle window,
 
 Usage:
   PYCL_LLM_API_KEY=... PYCL_LLM_BASE_URL=... PYCL_LLM_MODEL=... \
-  .venv-ecosystem312/bin/python benchmarks/p5/run_ablation.py --condition all --repeats 3
+  .venv-ecosystem312/bin/python benchmarks/p5/run_ablation.py --condition all --repeats 3 --live
+
+Live model calls require ``--live``; raw outputs are never overwritten unless
+``--overwrite`` is also given (otherwise a fresh timestamped directory is used).
+``--rescore``/``--replay`` re-score frozen raw outputs with no network or key.
 
 Outputs (results/p5/benchmark_v3/):
   raw_outputs_<condition>_r<k>.jsonl   verbatim model outputs per repeat
@@ -40,6 +44,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
+from pybamm_closed_loop.eval.run_guard import (  # noqa: E402
+    LiveRunPolicy,
+    add_live_guard_args,
+    client_for_live_run,
+    find_raw,
+)
 from pybamm_closed_loop.eval.benchmark_p5 import RobustLLMClient  # noqa: E402
 from pybamm_closed_loop.eval.benchmark_p5 import (  # noqa: E402
     CONDITIONS,
@@ -308,7 +318,11 @@ def main() -> int:
         help="backfill model/provider into old report/aggregate metadata from the "
         "preserved raw outputs (no model calls, no re-scoring)",
     )
+    add_live_guard_args(ap)
     args = ap.parse_args()
+
+    policy = LiveRunPolicy(live=args.live, overwrite=args.overwrite)
+    replay = args.rescore or args.replay
 
     if args.repair_metadata:
         n = _repair_metadata(OUT_DIR)
@@ -327,8 +341,14 @@ def main() -> int:
         items = [it for it in items if it.split == args.split]
 
     conditions = list(ALL_CONDITIONS) if args.condition == "all" else [args.condition]
-    needs_llm = any(c not in OFFLINE_CONDITIONS for c in conditions) and not args.rescore
-    llm_client = OpenAICompatibleClient() if needs_llm else None
+    needs_llm = any(c not in OFFLINE_CONDITIONS for c in conditions) and not replay
+    if needs_llm:
+        policy.ensure_allowed()
+    llm_client = (
+        client_for_live_run(policy, OpenAICompatibleClient, replay=False)
+        if needs_llm
+        else None
+    )
     retrieval_index = (
         BM25Index(store.segments())
         if any(c in ("retrieval_bm25_strict", "offline_bm25") for c in conditions)
@@ -340,16 +360,20 @@ def main() -> int:
         repeats = 1 if condition in OFFLINE_CONDITIONS else args.repeats
         reports: list[dict] = []
         for repeat in range(repeats):
-            raw_path = OUT_DIR / f"raw_outputs_{condition}_r{repeat}.jsonl"
-            if condition in OFFLINE_CONDITIONS:
-                raw_path = OUT_DIR / f"raw_outputs_{condition}.jsonl"
+            raw_name = (
+                f"raw_outputs_{condition}.jsonl"
+                if condition in OFFLINE_CONDITIONS
+                else f"raw_outputs_{condition}_r{repeat}.jsonl"
+            )
+            raw_path = OUT_DIR / raw_name
 
-            if args.rescore and condition not in OFFLINE_CONDITIONS:
-                if not raw_path.exists():
-                    raise SystemExit(f"--rescore needs {raw_path.name}")
+            if replay and condition not in OFFLINE_CONDITIONS:
+                frozen = find_raw(OUT_DIR, raw_name)
+                if frozen is None:
+                    raise SystemExit(f"--replay needs {raw_name}")
                 raw_rows = [
                     json.loads(line)
-                    for line in raw_path.read_text().splitlines()
+                    for line in frozen.read_text().splitlines()
                     if line.strip()
                 ]
                 report = rescore_from_raw(items, store, raw_rows, condition, repeat)
@@ -397,23 +421,15 @@ def main() -> int:
                         else None
                     ),
                     rescored=True,
-                    rescored_from=str(raw_path.relative_to(REPO_ROOT)),
+                    rescored_from=str(frozen.relative_to(REPO_ROOT)),
                 )
             else:
-                if (
-                    condition in OFFLINE_CONDITIONS
-                    and raw_path.exists()
-                    and not (OUT_DIR / f"report_{condition}_r{repeat}.json").exists()
-                ):
+                if condition in OFFLINE_CONDITIONS and raw_path.exists():
                     raw_path.unlink()
-                if raw_path.exists():
-                    print(
-                        f"=== {condition} r{repeat}: {raw_path.name} exists, "
-                        "skipping (delete to re-run) ===",
-                        flush=True,
-                    )
-                    reports.append(json.loads((OUT_DIR / f"report_{condition}_r{repeat}.json").read_text()))
-                    continue
+                elif condition not in OFFLINE_CONDITIONS and raw_path.exists():
+                    # live runs never clobber frozen raw outputs without --overwrite
+                    raw_path = policy.raw_path(OUT_DIR, raw_name)
+                    raw_path.parent.mkdir(parents=True, exist_ok=True)
                 if condition in OFFLINE_CONDITIONS:
                     client = OfflineDeterministicExtractor()
                 else:
@@ -460,6 +476,7 @@ def main() -> int:
                     items_file=args.items,
                     split=args.split,
                     n_items=len(items),
+                    raw_outputs=str(raw_path.relative_to(REPO_ROOT)),
                     temperature=0,
                     evidence_mode=args.evidence_mode,
                     evidence_source=report.get("evidence_source"),
@@ -467,6 +484,13 @@ def main() -> int:
                         args.retrieval_k
                         if report.get("evidence_source") == "retrieval"
                         else None
+                    ),
+                    **(
+                        policy.metadata(
+                            model=llm_client.model, base_url=llm_client.base_url
+                        )
+                        if llm_client
+                        else {}
                     ),
                 )
             (OUT_DIR / f"report_{condition}_r{repeat}.json").write_text(

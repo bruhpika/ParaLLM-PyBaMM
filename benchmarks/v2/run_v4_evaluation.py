@@ -28,7 +28,12 @@ aggregate summary is written to ``results/v2/v4/``.
 Usage:
     PYCL_LLM_API_KEY=... PYCL_LLM_BASE_URL=... PYCL_LLM_MODEL=... \
     .venv-ecosystem312/bin/python benchmarks/v2/run_v4_evaluation.py \
-        --modes compact expanded v25 --repeats 1
+        --modes compact expanded v25 --repeats 1 --live
+
+Live model calls require ``--live``; raw outputs are never overwritten unless
+``--overwrite`` is given (``--force`` remains an alias), otherwise a fresh
+timestamped directory is used. ``--rescore``/``--replay`` re-score frozen raw
+outputs with no network or API key.
 """
 
 from __future__ import annotations
@@ -45,6 +50,13 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
+from pybamm_closed_loop.eval.run_guard import (  # noqa: E402
+    LiveRunPolicy,
+    add_live_guard_args,
+    client_for_live_run,
+    find_raw,
+    git_commit,
+)
 from pybamm_closed_loop.eval.benchmark_p5 import RobustLLMClient  # noqa: E402
 from pybamm_closed_loop.eval.benchmark_p5 import _evidence_block  # noqa: E402
 from pybamm_closed_loop.eval.benchmark_v4 import (  # noqa: E402
@@ -401,7 +413,13 @@ def main() -> int:
         default=DEFAULT_RETRIEVAL_K,
         help="number of BM25 segments shown to the extractor in the retrieval arm",
     )
+    add_live_guard_args(ap)
     args = ap.parse_args()
+
+    policy = LiveRunPolicy(live=args.live, overwrite=args.force or args.overwrite)
+    replay = args.rescore or args.aggregate_only or args.replay
+    if not replay:
+        policy.ensure_allowed()
 
     items = load_items(args.items)
     out_dir = Path(args.out)
@@ -417,6 +435,7 @@ def main() -> int:
         "model": os.environ.get("PYCL_LLM_MODEL", "unknown"),
         "base_url": os.environ.get("PYCL_LLM_BASE_URL", "unknown"),
         "date": now[:10],
+        "git_commit": git_commit(REPO_ROOT) if not replay else None,
         "note": (
             "The extractor is held identical across evidence modes, so the arms are "
             "comparable with each other. Absolute numbers are NOT comparable with the "
@@ -432,21 +451,22 @@ def main() -> int:
         extractor["model"] = prev_ext.get("model", extractor["model"])
         extractor["base_url"] = prev_ext.get("base_url", extractor["base_url"])
         extractor["date"] = prev_ext.get("date", extractor["date"])
+        extractor["git_commit"] = prev_ext.get("git_commit", extractor["git_commit"])
     print(f"private v4 fixture: {len(items)} items", flush=True)
 
     summaries = {}
     arm_means: dict[str, dict] = {}
-    if args.rescore:
+    if args.rescore or args.replay:
         for mode in args.modes:
             tags = []
             for repeat in range(args.repeats):
                 tag = f"{mode}_r{repeat}"
-                raw_path = PRIVATE_RESULTS / f"raw_{tag}.jsonl"
-                if not raw_path.exists():
+                raw_path = find_raw(PRIVATE_RESULTS, f"raw_{tag}.jsonl")
+                if raw_path is None:
                     print(f"  [{tag}] raw file missing - skipped", flush=True)
                     continue
                 rows = rescore_from_raw(items, mode, repeat, raw_path)
-                (PRIVATE_RESULTS / f"rows_{tag}.json").write_text(
+                raw_path.with_name(f"rows_{tag}.json").write_text(
                     json.dumps(rows, indent=2, sort_keys=True)
                 )
                 summaries[tag] = aggregate(rows)
@@ -466,8 +486,8 @@ def main() -> int:
             tags = []
             for repeat in range(args.repeats):
                 tag = f"{mode}_r{repeat}"
-                rows_path = PRIVATE_RESULTS / f"rows_{tag}.json"
-                if not rows_path.exists():
+                rows_path = find_raw(PRIVATE_RESULTS, f"rows_{tag}.json")
+                if rows_path is None:
                     continue
                 rows = json.loads(rows_path.read_text())
                 summaries[tag] = aggregate(rows)
@@ -479,18 +499,19 @@ def main() -> int:
         return 0
 
     store = DocumentStore(STORE_DIR)
-    inner = OpenAICompatibleClient()
+    inner = client_for_live_run(policy, OpenAICompatibleClient, replay=False)
     client = RobustLLMClient(inner, attempts=6, backoff_s=10.0)
     retrieval_index = (
         BM25Index(store.segments())
         if any(_is_retrieval_mode(mode) for mode in args.modes)
         else None
     )
-    live_now = datetime.now(timezone.utc).isoformat()
+    live_meta = policy.metadata(model=inner.model, base_url=inner.base_url)
     extractor = {
-        "model": inner.model,
-        "base_url": inner.base_url,
-        "date": live_now[:10],
+        "model": live_meta["model"],
+        "base_url": live_meta["base_url"],
+        "date": live_meta["date"],
+        "git_commit": live_meta["git_commit"],
         "note": extractor["note"],
     }
     print(f"extractor: {extractor['model']} @ {extractor['base_url']}", flush=True)
@@ -498,12 +519,15 @@ def main() -> int:
     for mode in args.modes:
         for repeat in range(args.repeats):
             tag = f"{mode}_r{repeat}"
-            if not args.force and (PRIVATE_RESULTS / f"raw_{tag}.jsonl").exists():
-                print(f"  [{tag}] raw file exists - skipping (use --force to re-run)", flush=True)
-                rows = json.loads((PRIVATE_RESULTS / f"rows_{tag}.json").read_text())
-                summaries[tag] = aggregate(rows)
-                print(f"--- {tag}: {json.dumps(summaries[tag]['all'], sort_keys=True)}", flush=True)
-                continue
+            raw_name = f"raw_{tag}.jsonl"
+            raw_path = policy.raw_path(PRIVATE_RESULTS, raw_name)
+            rows_path = raw_path.with_name(f"rows_{tag}.json")
+            if raw_path.parent != PRIVATE_RESULTS:
+                raw_path.parent.mkdir(parents=True, exist_ok=True)
+                print(
+                    f"  [{tag}] raw file exists - writing to {raw_path.parent.name}/",
+                    flush=True,
+                )
             report = run_mode(
                 items,
                 store,
@@ -514,13 +538,10 @@ def main() -> int:
                 index=retrieval_index,
                 retrieval_k=args.retrieval_k,
             )
-            tag = f"{mode}_r{repeat}"
-            (PRIVATE_RESULTS / f"rows_{tag}.json").write_text(
-                json.dumps(report["rows"], indent=2, sort_keys=True)
-            )
-            (PRIVATE_RESULTS / f"raw_{tag}.jsonl").write_text(
+            raw_path.write_text(
                 "\n".join(json.dumps(r, sort_keys=True) for r in report["raw"]) + "\n"
             )
+            rows_path.write_text(json.dumps(report["rows"], indent=2, sort_keys=True))
             agg = aggregate(report["rows"])
             summaries[tag] = agg
             print(f"--- {tag}: {json.dumps(agg['all'], sort_keys=True)}", flush=True)
