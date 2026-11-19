@@ -12,6 +12,26 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Retrieval improvement — optional dense scaffolding (AWAITING OWNER APPROVAL)
+
+- Added an **optional** `retrieval-dense` extra in `pyproject.toml`
+  (`sentence-transformers>=3,<6`); the core install and CI are unchanged.
+  `literature/dense.py` imports nothing heavy on module import, loads weights
+  only inside `DenseEncoder`, caches embeddings per document keyed by model id
+  and the recorded document sha256, and provides deterministic cosine search,
+  reciprocal-rank fusion and hybrid ids. `benchmarks/v2/hybrid_retrieval.py`
+  evaluates bm25 / dense / hybrid with the frozen split and metrics, but
+  **refuses to run without an existing cache** and downloads nothing itself.
+- Model proposed for approval (metadata from the Hugging Face API, no weights
+  downloaded): `sentence-transformers/all-MiniLM-L6-v2`, `model.safetensors`
+  **90,868,376 bytes**, licence **apache-2.0**. The extra also pulls PyTorch
+  (not currently installed in either venv); that dependency footprint needs
+  approval too. No cross-encoder was downloaded or enabled.
+- **No dense/hybrid numbers were produced** — the comparison is blocked on the
+  owner's model-download approval. Tests use a fake encoder and skip the real
+  model smoke test when the extra is absent (8 tests: 7 pass, 1 skip).
+  Verification: ruff clean; core scope 382 passed, 15 skipped, 3 deselected.
+
 ### Retrieval improvement — cheap lexical ablation (dev-only tuning)
 
 - Added optional, declared-only lexical features in `literature/lexical.py`:

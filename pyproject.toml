@@ -29,6 +29,9 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.17"]
+# Optional dense/hybrid retrieval. NOT part of the core install or CI: the
+# embedding model weights are fetched only after owner approval.
+retrieval-dense = ["sentence-transformers>=3,<6"]
 # Ecosystem integration stack. Verified together on CPython 3.12.16 with
 # PyBaMM 26.8.0.0 (requirements/ecosystem-py312.lock). Bounds cap at majors
 # verified in that environment: pypdf 7.x and polars 2.x are NOT covered.
