@@ -12,6 +12,32 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Licence documentation reconciled (documentation only)
+
+- **Chen2020 article licence: UNVERIFIED.** The publisher URL
+  `https://iopscience.iop.org/article/10.1149/1945-7111/ab9050` returned HTTP
+  500 on 2026-11-19; the DOI resolver `https://doi.org/10.1149/1945-7111/ab9050`
+  returned citation metadata only (no licence statement). `docs/DATA_PROVENANCE.md`
+  now carries one statement with both URLs, the original text retrieval date
+  (2026-11-04) and the check date (2026-11-19), recording that Warwick's
+  repository lists CC BY-NC-ND 4.0 (per project context, not independently
+  verified) and that the file previously said "ECS ©".
+  `docs/LITERATURE_INGESTION.md` no longer asserts CC BY-NC-ND as verified.
+- **PyBaMM licence resolved to BSD 3-Clause** (the earlier "MIT" line in
+  `docs/DATA_PROVENANCE.md` was wrong). Verified from the installed pinned
+  version 26.8.0.0 in `.venv`:
+  `.venv/lib/python3.14/site-packages/pybamm-26.8.0.0.dist-info/licenses/LICENSE.txt`
+  begins "Copyright (c) 2018, the PyBaMM team. All rights reserved." and says
+  "Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:",
+  followed by the three BSD conditions; metadata classifier is
+  "License :: OSI Approved :: BSD License".
+- `README.md` gained the requested "Data and third-party licences" section
+  (per-document licence and tracked-vs-fetched status, MIT code-only sentence)
+  and a note that git history still holds the removed files, with purging left
+  to the owner. Verification: ruff clean; core scope 332 passed, 12 skipped,
+  3 deselected (no behavioural change).
+
 ### Licensing: fetch + verify the Chen2020 article locally (normal commit)
 
 - Untracked (normal `git rm`, no history rewrite):

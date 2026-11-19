@@ -162,14 +162,25 @@ pandas 3.1.1, pydantic 2.12.5 (ecosystem env). Lockfiles:
 `seed: null`; stochastic components record explicit seeds. LLM API keys are
 read from the environment and never written to artifacts.
 
-## Data, licenses & provenance
+## Data and third-party licences
 
-- **Software:** MIT (`LICENSE`) — applies to code only, not third-party
-  data/documents.
-- **Documents/datasets:** redistributed only where permitted (CC BY sources
-  archived with license evidence/sha256). The Chen2020 supplement PDF is **not
-  redistributed** (acquire separately); LG M50 sample data is gitignored and its
-  upstream license is UNRESOLVED. See `docs/DATA_PROVENANCE.md`.
+**The repository's MIT `LICENSE` covers PARALLM code only**, not third-party
+documents, papers or datasets. Source terms and provenance are recorded in
+`docs/DATA_PROVENANCE.md` and `data/raw_documents/p5_sources/acquisition_manifest.json`.
+
+| document / data | licence (evidence) | text in this repo |
+|---|---|---|
+| Chen2020 article, JES 167 080534 (doi `10.1149/1945-7111/ab9050`) | **UNVERIFIED** — publisher page unreachable (HTTP 500); Warwick repository lists CC BY-NC-ND 4.0 (not independently checked). See `docs/DATA_PROVENANCE.md` | **Not tracked** — supply the PDF and run `scripts/fetch_chen2020.py --pdf <path>`; the script verifies the sha256 before local ingest |
+| Chen2020 supplementary information | No licence evidence (ECS ©, permission unverified) | **Not tracked** — PDF and derived text/segments acquired locally; see `data/raw_documents/chen2020_supplement/ACQUISITION.md` |
+| Laue et al. 2021 | **CC BY 4.0** (licence quote + sha256 verified in the manifest) | Tracked PDF and derived text/segments |
+| Dessantis et al. 2023 | **CC BY 4.0** (verified) | Tracked PDF and derived text/segments |
+| Goussian et al. 2024 | **CC BY 4.0** (verified) | Tracked PDF and derived text/segments |
+| PyBaMM parameter-sets docs snapshot | PyBaMM code is **BSD 3-Clause** (verified from installed PyBaMM 26.8.0.0 `LICENSE.txt`); no explicit licence evidence for the docs snapshot | Tracked snapshot with source URL/retrieval metadata |
+| LG M50 sample data (PyProBE) | **UNRESOLVED** upstream licence | Gitignored, not in the repo |
+
+Git history still contains the previously tracked Chen2020 article and
+supplement full texts; the repository owner decides whether to purge that
+history. No history rewrite was performed here.
 
 ## Scientific limitations (read before citing results)
 

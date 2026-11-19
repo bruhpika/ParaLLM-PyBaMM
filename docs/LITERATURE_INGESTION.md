@@ -32,10 +32,17 @@ Guarantees:
    or table/figure caption, and the page when known. Extraction quotes are
    always substrings of a segment.
 
-The Chen2020 article (verified 2026-11-04, CC BY-NC-ND 4.0,
-DOI 10.1149/1945-7111/ab9050) is archived at
-`data/raw_documents/chen2020_jes_167_080534/` and is the reference document
-for the seeded registry.
+The Chen2020 article (DOI 10.1149/1945-7111/ab9050, text originally retrieved
+2026-11-04) is the reference document for the seeded registry. Its licence is
+**UNVERIFIED**: the publisher page
+`https://iopscience.iop.org/article/10.1149/1945-7111/ab9050` returned HTTP 500
+on 2026-11-19 and the DOI resolver returned citation metadata only, with no
+licence statement. The University of Warwick repository lists the published
+version as **CC BY-NC-ND 4.0** (per project context, not independently verified
+here); the single reconciled statement, with source URLs and retrieval dates,
+is in `docs/DATA_PROVENANCE.md`. The full text is no longer archived in-repo:
+supply the publisher PDF and run `scripts/fetch_chen2020.py --pdf <path>` to
+ingest it locally before running text-dependent fixtures.
 
 ## 2. Retrieval (Part C)
 
