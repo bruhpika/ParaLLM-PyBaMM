@@ -45,8 +45,9 @@ python3.12 -m venv .venv-ecosystem312 && .venv-ecosystem312/bin/pip install -r r
 
 ## Pull requests
 
-- Keep changes focused and documented. Preserve P0–P5 milestone history and
-  scientific behavior; do not introduce new scientific functionality in
+- Keep changes focused and documented. Preserve the shipped P0–P5 milestone
+  history and scientific behavior (PRD phases P0–P8 are archival; see
+  `docs/ROADMAP_V0.2.md` §9); do not introduce new scientific functionality in
   release-hardening PRs.
 - Update docs when behavior, configs, or reproducibility steps change.
 - Attribute third-party code and preserve original copyright notices.

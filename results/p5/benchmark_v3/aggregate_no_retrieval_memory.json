@@ -311,7 +311,9 @@
     {
       "condition": "no_retrieval_memory",
       "items_file": "data/eval/extraction_benchmark_v3.jsonl",
+      "model": "mimo-v2.6-flash",
       "n_items": 37,
+      "provider": "llm:openai-compatible:mimo-v2.6-flash",
       "repeat": 0,
       "rescored_from_partial": true,
       "split": "all"

@@ -232,7 +232,7 @@ with recorded rationale, and say which parameters your planned experiment can
 ever identify.** Positioning scan (with the nearest neighbouring work and an
 honest novelty statement): `docs/POSITIONING.md`.
 
-## What's next (v0.2 — proposal)
+## What's next (v0.2 — in progress)
 
 **Parameter assembly**: per-parameter dossiers (value + conditions + verified
 quote + conflicts + observability → a decision: `USE / FIX / CALIBRATE /
@@ -268,6 +268,11 @@ Plan, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
   **none** of the residual — association remains the open problem; the full
   arm regresses on cell identity (0.360 → 0.186); chemistry stays weak
   (≤0.178).
+  **Post-hoc revision (disclosed):** the v4 scorer (protocol-context fix) and
+  the fixture's chemistry gold labels were revised after the first v4 results
+  were seen; the benchmark was therefore **not pre-registered**. The aggregates
+  in `results/v2/v4/` are the re-scored numbers, and
+  `docs/V2_PRIVATE_V4_BENCHMARK.md` records the superseded values.
   Details: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
 - **Assembly layer (V2.1, rubric v2)** — auditable hand-set rubric with
   `cell_product` and `electrolyte` dimensions, conflict resolution, the

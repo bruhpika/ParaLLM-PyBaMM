@@ -81,6 +81,7 @@ def _condition_label(condition: str) -> str:
 
 
 def _model_from_provider(provider: str | None) -> str | None:
+    """Return the real model id encoded in a provider tag, if any."""
     if not provider or provider.startswith("deterministic"):
         return None
     parts = provider.split(":", 2)
@@ -89,14 +90,109 @@ def _model_from_provider(provider: str | None) -> str | None:
     return provider
 
 
+def _model_for_report(report: dict) -> str | None:
+    """Resolve the model from metadata, falling back to preserved raw outputs.
+
+    Rescored reports predate the ``run_metadata.model`` field, so the provider
+    tag recorded on each raw output is the authoritative fallback.
+    """
+    meta = report.get("run_metadata") or {}
+    if isinstance(meta, list):
+        meta = meta[0] if meta else {}
+    if isinstance(meta, dict):
+        if meta.get("model"):
+            return str(meta["model"])
+        model = _model_from_provider(meta.get("provider"))
+        if model:
+            return model
+    for row in report.get("raw_outputs") or []:
+        if isinstance(row, dict):
+            model = _model_from_provider(row.get("provider"))
+            if model:
+                return model
+    return None
+
+
+def _repair_metadata(out_dir: Path) -> int:
+    """Backfill provider/model into old report and aggregate metadata.
+
+    Only metadata fields are written; metrics, per-item rows and raw outputs
+    are left byte-for-byte unchanged.
+    """
+    repaired = 0
+    for report_path in sorted(out_dir.glob("report_*_r*.json")):
+        report = json.loads(report_path.read_text())
+        model = _model_for_report(report)
+        provider = next(
+            (
+                row.get("provider")
+                for row in report.get("raw_outputs") or []
+                if isinstance(row, dict) and row.get("provider")
+            ),
+            None,
+        )
+        meta = report.get("run_metadata")
+        if not isinstance(meta, dict):
+            meta = {}
+        changed = False
+        if model and not meta.get("model"):
+            meta["model"] = model
+            changed = True
+        if provider and not meta.get("provider"):
+            meta["provider"] = provider
+            changed = True
+        if changed:
+            report["run_metadata"] = meta
+            report_path.write_text(json.dumps(report, indent=2, sort_keys=True))
+            repaired += 1
+    for aggregate_path in sorted(out_dir.glob("aggregate_*.json")):
+        payload = json.loads(aggregate_path.read_text())
+        condition = payload["condition"]
+        metas = [
+            json.loads(path.read_text()).get("run_metadata", {})
+            for path in sorted(out_dir.glob(f"report_{condition}_r*.json"))
+        ]
+        if metas and payload.get("run_metadata") != metas:
+            payload["run_metadata"] = metas
+            aggregate_path.write_text(json.dumps(payload, indent=2, sort_keys=True))
+            repaired += 1
+    return repaired
+
+
+def _load_disk(out_dir: Path) -> dict[str, dict]:
+    """Load aggregates and backfill the model from per-repeat reports.
+
+    Older rescored aggregates carry an empty ``run_metadata.model``; the raw
+    outputs inside the reports still record the real provider/model.
+    """
+    disk: dict[str, dict] = {}
+    for path in sorted(out_dir.glob("aggregate_*.json")):
+        payload = json.loads(path.read_text())
+        condition = payload["condition"]
+        if _model_for_report(payload) is None:
+            for report_path in sorted(out_dir.glob(f"report_{condition}_r*.json")):
+                model = _model_for_report(json.loads(report_path.read_text()))
+                if model:
+                    meta = payload.get("run_metadata")
+                    if isinstance(meta, list) and meta:
+                        for entry in meta:
+                            if isinstance(entry, dict):
+                                entry.setdefault("model", model)
+                    else:
+                        payload["run_metadata"] = {"model": model}
+                    break
+        disk[condition] = payload
+    return disk
+
+
 def _write_summary(disk: dict[str, dict], items_path: str, repeats: int) -> None:
     lines = [
         "# P5 benchmark v3 - retrieval/knowledge ablation",
         "",
-        f"items: `{items_path}`; repeats per condition: {repeats}; "
+        f"items: `{items_path}`; repeats per condition (LLM): {repeats}; "
         f"generated {datetime.now(timezone.utc).isoformat()}",
         "",
-        "Means are over repeats; +/- is the population standard deviation.",
+        "Means +/- population std over repeats. v3 only (P4 not mixed).",
         "",
         f"- {ORACLE_LABEL}: evidence located from the fixture probe.",
         f"- {REAL_RETRIEVAL_LABEL}: query built from item facets only; BM25 over "
@@ -104,18 +200,20 @@ def _write_summary(disk: dict[str, dict], items_path: str, repeats: int) -> None
         "condition is used.",
         "",
     ]
+    labels = {cond: _condition_label(cond) for cond in disk}
     for cond, r in disk.items():
         meta = r.get("run_metadata") or {}
         if isinstance(meta, list):
             meta = meta[0] if meta else {}
-        model = meta.get("model")
+        model = meta.get("model") or _model_for_report(r)
         base_url = meta.get("base_url") or meta.get("endpoint_host")
         date = meta.get("date") or meta.get("timestamp")
+        repeats_for_cond = r.get("repeats", "?")
         lines.append(
-            f"- {_condition_label(cond)}: model={model or 'deterministic (no LLM)'} "
-            f"base_url={base_url or 'n/a'} date={date or 'n/a'}"
+            f"- {labels[cond]}: model={model or 'deterministic (no LLM)'} "
+            f"repeats={repeats_for_cond} base_url={base_url or 'n/a'} "
+            f"date={date or 'n/a'}"
         )
-    labels = {cond: _condition_label(cond) for cond in disk}
     lines += ["", "## all items (mean +/- std over repeats)", ""]
     header = "| metric | " + " | ".join(labels[c] for c in disk) + " |"
     lines += [header, "|---|" + "---|" * len(disk)]
@@ -151,7 +249,7 @@ def _write_summary(disk: dict[str, dict], items_path: str, repeats: int) -> None
                 )
             lines.append("| " + " | ".join(row) + " |")
 
-    lines += ["", "## provenance diagnostics (mean over repeats)", ""]
+    lines += ["", "## T4 provenance diagnostics (mean)", ""]
     keys = list(disk[next(iter(disk))]["aggregate"]["provenance"])
     lines += [
         "| check | " + " | ".join(labels[c] for c in disk) + " |",
@@ -198,7 +296,30 @@ def main() -> int:
         default=DEFAULT_RETRIEVAL_K,
         help="number of BM25 segments shown to the extractor (real-retrieval arms)",
     )
+    ap.add_argument(
+        "--summary-only",
+        action="store_true",
+        help="rebuild summary.md from existing aggregate_*.json (no model calls, "
+        "no re-scoring)",
+    )
+    ap.add_argument(
+        "--repair-metadata",
+        action="store_true",
+        help="backfill model/provider into old report/aggregate metadata from the "
+        "preserved raw outputs (no model calls, no re-scoring)",
+    )
     args = ap.parse_args()
+
+    if args.repair_metadata:
+        n = _repair_metadata(OUT_DIR)
+        print(f"repaired metadata in {n} file(s)")
+        return 0
+
+    if args.summary_only:
+        disk = _load_disk(OUT_DIR)
+        if disk:
+            _write_summary(disk, args.items, args.repeats)
+        return 0
 
     store = DocumentStore(STORE_DIR)
     items = load_items_v3(REPO_ROOT / args.items)
@@ -239,13 +360,13 @@ def main() -> int:
                         "run_metadata"
                     ) or {}
                 now = datetime.now(timezone.utc).isoformat()
-                provider = next(
-                    (
-                        row.get("provider")
-                        for row in raw_rows
-                        if row.get("provider")
-                    ),
-                    prev_meta.get("provider"),
+                providers = {
+                    row.get("provider") for row in raw_rows if row.get("provider")
+                }
+                provider = (
+                    providers.pop()
+                    if len(providers) == 1
+                    else next(iter(providers), prev_meta.get("provider"))
                 )
                 report["run_metadata"] = dict(
                     condition=condition,
@@ -368,10 +489,7 @@ def main() -> int:
             )
         )
 
-    disk: dict[str, dict] = {}
-    for path in sorted(OUT_DIR.glob("aggregate_*.json")):
-        payload = json.loads(path.read_text())
-        disk[payload["condition"]] = payload
+    disk = _load_disk(OUT_DIR)
     if disk:
         _write_summary(disk, args.items, args.repeats)
     return 0

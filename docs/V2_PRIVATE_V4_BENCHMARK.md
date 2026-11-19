@@ -327,7 +327,8 @@ of the follow-up direction:
   "specifications" attached to table claims — frontier models scored F1
   ≈ 0.59–0.63 (Bertillo et al., *TaDA*, VLDB Workshops 2025,
   <https://www.vldb.org/2025/Workshops/VLDB-Workshops-2025/TaDA/TaDA25_16.pdf>).
-  Our 0.256 was measured with a **free-tier lite model**. Whether the V2.5 gap
-  is an evidence-layer problem or an extractor-capability problem is therefore
+  Our 0.310 (best arm) was measured with a **free-tier lite model**. Whether
+  the V2.5 gap is an evidence-layer problem or an extractor-capability problem
+  is therefore
   an *open question* that only a controlled stronger-extractor re-run can
   settle (decision reserved for the project owner).

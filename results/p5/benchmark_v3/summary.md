@@ -1,17 +1,17 @@
 # P5 benchmark v3 - retrieval/knowledge ablation
 
-items: `data/eval/extraction_benchmark_v3.jsonl`; repeats per condition: 3; generated 2026-11-19T04:33:12.718486+00:00
+items: `data/eval/extraction_benchmark_v3.jsonl`; repeats per condition (LLM): 3; generated 2026-11-19T05:04:42.282550+00:00
 
-Means are over repeats; +/- is the population standard deviation.
+Means +/- population std over repeats. v3 only (P4 not mixed).
 
 - oracle-located (upper bound): evidence located from the fixture probe.
 - real retrieval (BM25): query built from item facets only; BM25 over the complete document store; no probe, target-document filter or gold condition is used.
 
-- no retrieval, memory permitted: model=deterministic (no LLM) base_url=n/a date=n/a
-- no retrieval, strict prompt: model=deterministic (no LLM) base_url=n/a date=n/a
-- deterministic offline (oracle-located (upper bound)): model=deterministic (no LLM) base_url=n/a date=2026-11-08T07:03:42.148048+00:00
-- deterministic offline (real retrieval (BM25)): model=deterministic (no LLM) base_url=n/a date=2026-11-19
-- oracle-located (upper bound): retrieval_strict: model=mimo-v2.6-flash base_url=n/a date=n/a
+- no retrieval, memory permitted: model=mimo-v2.6-flash repeats=3 base_url=n/a date=n/a
+- no retrieval, strict prompt: model=mimo-v2.6-flash repeats=3 base_url=n/a date=n/a
+- deterministic offline (oracle-located (upper bound)): model=deterministic (no LLM) repeats=1 base_url=n/a date=2026-11-08T07:03:42.148048+00:00
+- deterministic offline (real retrieval (BM25)): model=deterministic (no LLM) repeats=1 base_url=n/a date=2026-11-19
+- oracle-located (upper bound): retrieval_strict: model=mimo-v2.6-flash repeats=3 base_url=n/a date=n/a
 
 ## all items (mean +/- std over repeats)
 
@@ -52,7 +52,7 @@ Means are over repeats; +/- is the population standard deviation.
 | unit_accuracy | 0.572 +/- 0.234 | n/a | 1.000 +/- 0.000 | 0.818 +/- 0.000 | 0.926 +/- 0.052 |
 | value_extraction_accuracy | 0.589 +/- 0.068 | n/a | 0.900 +/- 0.000 | 0.636 +/- 0.000 | 0.926 +/- 0.052 |
 
-## provenance diagnostics (mean over repeats)
+## T4 provenance diagnostics (mean)
 
 | check | no retrieval, memory permitted | no retrieval, strict prompt | deterministic offline (oracle-located (upper bound)) | deterministic offline (real retrieval (BM25)) | oracle-located (upper bound): retrieval_strict |
 |---|---|---|---|---|---|
