@@ -43,6 +43,10 @@ from pybamm_closed_loop.literature.extraction import (  # noqa: E402
     OpenAICompatibleClient,
 )
 from pybamm_closed_loop.literature.ingest import DocumentStore  # noqa: E402
+from pybamm_closed_loop.literature.availability import (  # noqa: E402
+    SUPPLEMENT_MISSING_REASON,
+    without_supplement_items,
+)
 
 OUT_DIR = REPO_ROOT / "results/p4/benchmark_v2"
 STORE_DIR = REPO_ROOT / "data/literature_store"
@@ -73,6 +77,12 @@ def ensure_documents(store: DocumentStore) -> None:
     have = {d.document_id for d in store.documents()}
     for doc in DOCS:
         if doc["document_id"] in have:
+            continue
+        if "pdf" in doc and not doc["pdf"].is_file():
+            print(
+                f"=== SKIP {doc['document_id']}: {SUPPLEMENT_MISSING_REASON}",
+                flush=True,
+            )
             continue
         if "pdf" in doc:
             store.ingest_pdf(
@@ -111,7 +121,9 @@ def main() -> int:
 
     store = DocumentStore(STORE_DIR)
     ensure_documents(store)
-    items = load_items_v2(REPO_ROOT / args.items)
+    items = without_supplement_items(
+        load_items_v2(REPO_ROOT / args.items), STORE_DIR
+    )
     if args.split != "all":
         items = [it for it in items if it.split == args.split]
 

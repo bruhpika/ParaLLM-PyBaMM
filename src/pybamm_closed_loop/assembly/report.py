@@ -211,13 +211,15 @@ def verify_record_quotes(
     For every quoted source (operative and conflicts) whose document text is
     available, ``quote_verified`` is set from the verbatim checker
     (``verify_quote_in_evidence``). Quotes whose document is not in
-    ``doc_texts`` stay unchecked (``quote_verified`` remains None) — never
+    ``doc_texts`` stay unchecked (``quote_verified`` remains None) and carry
+    ``quote_verification_state = "source text not present locally"`` — never
     silently treated as verified. Inputs are not mutated (raw data is
     preserved); returns (stamped copies, statistics).
     """
     stamped = copy.deepcopy(list(records))
     stats = {"n_quotes": 0, "n_checked": 0, "n_verified": 0, "n_failed": 0,
-             "n_no_text": 0}
+             "n_no_text": 0,
+             "no_text_state": "source text not present locally"}
 
     def _stamp(source: Mapping[str, Any] | None) -> None:
         if not isinstance(source, dict):
@@ -230,9 +232,12 @@ def verify_record_quotes(
         text = doc_texts.get(doc_id) if doc_id else None
         if not text:
             stats["n_no_text"] += 1
+            source["quote_verified"] = None
+            source["quote_verification_state"] = "source text not present locally"
             return
         verified = verify_quote_in_evidence(quote, text)
         source["quote_verified"] = bool(verified)
+        source["quote_verification_state"] = "verified" if verified else "failed verbatim check"
         stats["n_checked"] += 1
         stats["n_verified" if verified else "n_failed"] += 1
 

@@ -31,6 +31,7 @@ from pybamm_closed_loop.literature.evidence import (  # noqa: E402
     document_conditions,
     extract_conditions,
 )
+from pybamm_closed_loop.literature.availability import without_supplement_items  # noqa: E402
 from pybamm_closed_loop.literature.ingest import DocumentStore  # noqa: E402
 
 CLASSES = ("temperature", "soc", "c_rate", "cell", "chemistry", "method")
@@ -45,11 +46,15 @@ def main() -> int:
     args = ap.parse_args()
 
     store = DocumentStore(REPO_ROOT / "data/literature_store")
-    items = [
-        json.loads(line)
-        for line in (REPO_ROOT / args.items).read_text().splitlines()
-        if line.strip()
-    ]
+    items = without_supplement_items(
+        [
+            json.loads(line)
+            for line in (REPO_ROOT / args.items).read_text().splitlines()
+            if line.strip()
+        ],
+        REPO_ROOT / "data/literature_store",
+        document_id_of=lambda it: it["document_id"],
+    )
 
     per_item = []
     counts = {

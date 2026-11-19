@@ -12,6 +12,34 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Licensing: untrack Chen2020 supplement derivatives (normal commit)
+
+- Untracked (normal `git rm`, no history rewrite):
+  `data/literature_store/raw/chen2020_supplement_s1.txt` and
+  `data/literature_store/segments/chen2020_supplement_s1.json`. Removed their
+  entry from `data/literature_store/documents.json`; verified with a command
+  that all other entries are byte-identical and the JSON is valid (5 entries).
+  The locally acquired, gitignored PDF is untouched.
+- `data/raw_documents/chen2020_supplement/ACQUISITION.md` now gives the obtain
+  path, an ingest command using the existing `DocumentStore.ingest_pdf`, and the
+  expected extracted-text sha256 `80f2c08bc079ebe63070d181a46a23e68f837cfdbacb6f657f7381bd062e81dd`
+  (recorded in `documents.json` before untracking). No PDF sha256 was recorded
+  anywhere in the repo or the Task F report, so it is an explicit owner TODO.
+- New `literature/availability.py` (`without_supplement_items`) drops the two
+  supplement fixture items with an explicit reason when the local text is
+  absent and keeps every check intact when present. Applied to P4, P5 v3, the
+  v3 recall report and the condition-coverage script; P4's `ensure_documents`
+  skips the missing supplement PDF instead of raising.
+- Quote verification now stamps
+  `quote_verification_state = "source text not present locally"` (with
+  `quote_verified = None`) when the source text is unavailable, and `"verified"`
+  / `"failed verbatim check"` otherwise; the manifest records `n_no_text` and
+  the same state string. No registry record cites the supplement (verified by
+  searching `data/registry/registry.json`), so no record was edited or deleted.
+- **Tests** (6 new): availability/filtering, P4 PDF-skip, and the three quote
+  verification states. Verification: ruff clean; core scope 340 passed,
+  7 skipped, 3 deselected. No results/ file was edited.
+
 ### Retrieval arms (2026-11-19)
 
 - **Oracle vs real retrieval separated.** The probe-based evidence path is now
