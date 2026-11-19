@@ -78,8 +78,9 @@ PyBaMM 26.8.0.0) on CPython 3.12.16.
 ```
 
 Expected outputs and limitations: `docs/QUICKSTART.md`. **The core scope above
-measured 334 passed, 7 skipped (3 characterization tests deselected) at the
-current HEAD, in the core `.venv` (CPython 3.14.8), using the command shown.**
+measured 356 passed, 14 skipped (3 characterization tests deselected) on the
+integrated `integration/v0.2-cleanup` branch, in the core `.venv`
+(CPython 3.14.8), using the command shown.**
 Coverage: benchmark tests are opt-in via `-m benchmark`.
 
 ## Results
@@ -125,7 +126,10 @@ comparison is claimed.
 | 10 | 0.486 | 1.000 |
 
 v4's higher recall is an **easy setting** (a three-paper corpus); it is not
-evidence that retrieval quality generalises.
+evidence that retrieval quality generalises. With all ingested documents added
+as distractors (10 documents instead of 4), v4 recall@k falls to
+**0.000 / 0.167 / 0.367 / 0.767** at k = 1 / 3 / 5 / 10
+(`results/v2/v4/retrieval_recall_distractors.md`).
 
 **v0.2 scientific results.** Applicability decision agreement **0.958** on 24
 *drafted, owner-unreviewed* cases (`results/v2/applicability/summary.md`).
@@ -133,7 +137,13 @@ Private v4: condition-field accuracy 0.144 / 0.294 / 0.310 and invented-conditio
 rate 0.067 / 0.200 / 0.058 for compact/expanded/v25 (`results/v2/v4/summary.md`).
 V2.4 held-out RMSE 4.4 ± 0.1 mV (baseline) → 1.1 ± 0.1 mV (positive control) →
 4.4 ± 0.1 mV (negative control), reproduced on 5/5 seeds — **SYNTHETIC**, not
-experimental validation (`results/v2/synthetic_validation/summary.md`).
+experimental validation (`results/v2/synthetic_validation/summary.md`). A harder
+mismatch run (different solver/tolerances/mesh, an unfitted-parameter
+perturbation, three drawn truths, two noise levels, 18 runs) gives held-out RMSE
+mean ± std [min, max] in V: baseline 0.0026 ± 0.0004 [0.0019, 0.0033], positive
+0.0018 ± 0.0008 [0.0009, 0.0035], negative 0.0026 ± 0.0004 [0.0019, 0.0033];
+positive beats baseline 15/18 and negative does not 18/18 — also **SYNTHETIC**
+(`results/v2/synthetic_validation_mismatch/summary.md`).
 
 ## Limitations
 
@@ -156,13 +166,6 @@ experimental validation (`results/v2/synthetic_validation/summary.md`).
 - The rubric is hand-set (no learned weights); expert labels are drafted and
   pending owner review, so agreement figures are provisional.
 
-## Data, licensing & provenance
-
-- **Software:** MIT (`LICENSE`) — code only, not third-party data/documents.
-- **Documents/datasets:** redistributed only where permitted (CC BY sources
-  archived with license evidence and sha256). The Chen2020 supplement PDF is
-  **not redistributed** (acquire separately); LG M50 sample data is gitignored
-  and its upstream license is **UNRESOLVED**. See `docs/DATA_PROVENANCE.md`.
 ## Data and third-party licences
 
 **The repository's MIT `LICENSE` covers PARALLM code only**, not third-party

@@ -12,6 +12,22 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Integration branch `integration/v0.2-cleanup`
+
+- Merged all eight task branches (A→B→C→D→E→1→2→3) with normal merge
+  commits; no history rewrite. Resolved overlapping CHANGELOG insertions by
+  keeping both entries, repaired the P3 runner import block and duplicated
+  `main()` created by the merge of the live-guard and local-ingest changes, and
+  removed the stale duplicate README licence section. The two P3 live-guard
+  tests skip explicitly when the locally fetched Chen2020 article text is
+  absent (no check is weakened when it is present).
+- README Results now also cites the distractor recall
+  (`results/v2/v4/retrieval_recall_distractors.md`) and the hardened synthetic
+  mismatch result (`results/v2/synthetic_validation_mismatch/summary.md`); the
+  core test count is the measured integrated value **356 passed, 14 skipped**.
+  Verification: ruff clean; core 356 passed / 14 skipped / 3 deselected;
+  ecosystem 375 passed / 8 skipped / 6 deselected.
+
 ### README rewritten for v0.2 (documentation only)
 
 - Replaced the marketing tagline with a scoped, non-overclaiming one; reframed

@@ -23,6 +23,7 @@ from pybamm_closed_loop.eval.run_guard import (  # noqa: E402
     find_raw,
     git_commit,
 )
+from pybamm_closed_loop.literature.availability import article_source_text_available  # noqa: E402
 from pybamm_closed_loop.literature.extraction import (  # noqa: E402
     OfflineDeterministicExtractor,
 )
@@ -149,6 +150,8 @@ def test_runners_refuse_live_without_flag(monkeypatch, relative, argv):
 
 def test_p3_live_run_redirects_raw_instead_of_clobbering(monkeypatch, tmp_path):
     """A live run with a fake client never overwrites frozen raw outputs."""
+    if not article_source_text_available():
+        pytest.skip("SKIP: Chen2020 article text not present locally")
     module = _load_runner("benchmarks/p3/run_extraction_benchmark.py")
     instances: list[FakeLiveClient] = []
 
@@ -200,6 +203,8 @@ def test_p3_live_run_redirects_raw_instead_of_clobbering(monkeypatch, tmp_path):
 
 def test_p3_replay_rescores_cached_raw_without_api_key(monkeypatch, tmp_path):
     """Replay re-scores frozen model output with no client, network or API key."""
+    if not article_source_text_available():
+        pytest.skip("SKIP: Chen2020 article text not present locally")
     module = _load_runner("benchmarks/p3/run_extraction_benchmark.py")
     store = DocumentStore(REPO_ROOT / "data/literature_store")
     from pybamm_closed_loop.eval.benchmark import load_items
