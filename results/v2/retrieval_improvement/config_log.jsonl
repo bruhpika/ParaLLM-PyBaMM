@@ -44,3 +44,9 @@
 {"bm25": {"b": 0.5, "k1": 1.5}, "configuration": "corpus_scaling/20_docs/test", "generated": "2026-11-19T08:26:46.914261+00:00", "n_items": 15, "n_segments": 557, "status": "ok"}
 {"bm25": {"b": 0.5, "k1": 1.5}, "configuration": "corpus_scaling/40_docs/dev", "generated": "2026-11-19T08:26:47.060196+00:00", "n_items": 15, "n_segments": 957, "status": "ok"}
 {"bm25": {"b": 0.5, "k1": 1.5}, "configuration": "corpus_scaling/40_docs/test", "generated": "2026-11-19T08:26:47.150627+00:00", "n_items": 15, "n_segments": 957, "status": "ok"}
+{"configuration": "offline_side_by_side/v3/oracle-located (upper bound)", "generated": "2026-11-19T09:02:19.835600+00:00", "note": "assembled from already-committed run files; no model call", "status": "ok"}
+{"configuration": "offline_side_by_side/v3/BM25 baseline", "generated": "2026-11-19T09:02:19.836132+00:00", "note": "assembled from already-committed run files; no model call", "status": "ok"}
+{"configuration": "offline_side_by_side/v3/BM25 tuned (b=0.5)", "generated": "2026-11-19T09:02:19.836261+00:00", "note": "assembled from already-committed run files; no model call", "status": "ok"}
+{"configuration": "offline_side_by_side/v4/oracle-located (upper bound)", "generated": "2026-11-19T09:02:19.836330+00:00", "note": "assembled from already-committed run files; no model call", "status": "ok"}
+{"configuration": "offline_side_by_side/v4/BM25 baseline", "generated": "2026-11-19T09:02:19.836380+00:00", "note": "assembled from already-committed run files; no model call", "status": "ok"}
+{"configuration": "offline_side_by_side/v4/BM25 tuned (b=0.5)", "generated": "2026-11-19T09:02:19.836422+00:00", "note": "assembled from already-committed run files; no model call", "status": "ok"}

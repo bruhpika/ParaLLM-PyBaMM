@@ -63,6 +63,8 @@ from pybamm_closed_loop.eval.retrieval_arms import (  # noqa: E402
     DEFAULT_RETRIEVAL_K,
     ORACLE_LABEL,
     REAL_RETRIEVAL_LABEL,
+    TUNED_RETRIEVAL_LABEL,
+    tuned_index,
 )
 from pybamm_closed_loop.literature.extraction import (  # noqa: E402
     OfflineDeterministicExtractor,
@@ -87,6 +89,7 @@ _CONDITION_LABELS = {
     "no_retrieval_memory": "no retrieval, memory permitted",
     "offline": f"deterministic offline ({ORACLE_LABEL})",
     "offline_bm25": f"deterministic offline ({REAL_RETRIEVAL_LABEL})",
+    "offline_bm25_tuned": f"deterministic offline ({TUNED_RETRIEVAL_LABEL})",
 }
 
 
@@ -356,9 +359,14 @@ def main() -> int:
         if needs_llm
         else None
     )
-    retrieval_index = (
-        BM25Index(store.segments())
-        if any(c in ("retrieval_bm25_strict", "offline_bm25") for c in conditions)
+    needs_retrieval = any(
+        c in ("retrieval_bm25_strict", "offline_bm25", "offline_bm25_tuned")
+        for c in conditions
+    )
+    retrieval_index = BM25Index(store.segments()) if needs_retrieval else None
+    tuned_retrieval_index = (
+        tuned_index(retrieval_index)
+        if any(c == "offline_bm25_tuned" for c in conditions)
         else None
     )
 
@@ -467,9 +475,10 @@ def main() -> int:
                         repeat_index=repeat,
                         on_progress=progress,
                         evidence_mode=args.evidence_mode,
-                        index=retrieval_index,
-                        retrieval_k=args.retrieval_k,
-                    )
+                         index=retrieval_index,
+                         tuned=tuned_retrieval_index,
+                         retrieval_k=args.retrieval_k,
+                     )
                 now = datetime.now(timezone.utc).isoformat()
                 report["run_metadata"] = dict(
                     condition=condition,

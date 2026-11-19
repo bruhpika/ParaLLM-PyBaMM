@@ -46,6 +46,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from types import SimpleNamespace
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "src"))
@@ -73,13 +74,17 @@ from pybamm_closed_loop.eval.retrieval_arms import (  # noqa: E402
     DEFAULT_RETRIEVAL_K,
     ORACLE_LABEL,
     REAL_RETRIEVAL_LABEL,
+    TUNED_RETRIEVAL_LABEL,
     retrieval_context_for_item,
+    tuned_index,
 )
 from pybamm_closed_loop.literature.extraction import (  # noqa: E402
+    OfflineDeterministicExtractor,
     OpenAICompatibleClient,
+    run_extraction,
 )
 from pybamm_closed_loop.literature.index import BM25Index  # noqa: E402
-from pybamm_closed_loop.literature.ingest import DocumentStore  # noqa: E402
+from pybamm_closed_loop.literature.ingest import DocumentStore, Segment  # noqa: E402
 
 PRIVATE_ROOT = REPO_ROOT / "data/private_v4"
 FIXTURE = PRIVATE_ROOT / "fixture/benchmark_v4.jsonl"
@@ -89,13 +94,20 @@ PUBLIC_RESULTS = REPO_ROOT / "results/v2/v4"
 
 ORACLE_MODES = ("compact", "expanded", "v25")
 RETRIEVAL_MODE = "retrieval"
+OFFLINE_TUNED_MODE = "offline_bm25_tuned"
+
+
+def _is_offline_mode(mode: str) -> bool:
+    return mode == OFFLINE_TUNED_MODE
 
 
 def _is_retrieval_mode(mode: str) -> bool:
-    return mode in (RETRIEVAL_MODE, "real_retrieval", "bm25")
+    return mode in (RETRIEVAL_MODE, "real_retrieval", "bm25", OFFLINE_TUNED_MODE)
 
 
 def _arm_label(mode: str) -> str:
+    if _is_offline_mode(mode):
+        return f"deterministic offline ({TUNED_RETRIEVAL_LABEL})"
     if _is_retrieval_mode(mode):
         return f"{REAL_RETRIEVAL_LABEL}: {mode}"
     return f"{ORACLE_LABEL}: {mode}"
@@ -115,7 +127,9 @@ def run_mode(
     sleep_s: float = 0.0,
     *,
     index: BM25Index | None = None,
+    tuned: BM25Index | None = None,
     retrieval_k: int = DEFAULT_RETRIEVAL_K,
+    offline_extract: bool = False,
 ) -> dict:
     prompt = build_v4_prompt()
     rows = []
@@ -124,9 +138,10 @@ def run_mode(
     t0 = time.monotonic()
     for idx, item in enumerate(items, start=1):
         retrieval_audit = None
+        context = None
         if _is_retrieval_mode(mode):
             context = retrieval_context_for_item(
-                item, store, k=retrieval_k, index=index
+                item, store, k=retrieval_k, index=tuned if _is_offline_mode(mode) else index
             )
             evidence = context.to_evidence_block()
             retrieval_audit = {
@@ -146,10 +161,32 @@ def run_mode(
             "for this passage.\n\n"
             f"EVIDENCE:\n{evidence}\n"
         )
-        try:
-            raw = client.complete(prompt, user_block)
-        except Exception as exc:  # transport failure -> recorded, not hidden
-            raw = f"__ERROR__ {type(exc).__name__}: {exc}"
+        if offline_extract and context is None:
+            context = SimpleNamespace(
+                facets={"parameter_names": [str(item.parameter.get("name") or "")]},
+                segments=[
+                    Segment(
+                        segment_id=f"{item.item_id}#oracle-passage",
+                        document_id=item.document_id,
+                        char_start=0,
+                        char_end=len(evidence),
+                        page=None,
+                        heading=None,
+                        text=evidence,
+                    )
+                ]
+            )
+        if offline_extract:
+            batch = run_extraction(
+                OfflineDeterministicExtractor(),
+                context,
+            )
+            raw = json.dumps([c.payload for c in batch.valid()])
+        else:
+            try:
+                raw = client.complete(prompt, user_block)
+            except Exception as exc:  # transport failure -> recorded, not hidden
+                raw = f"__ERROR__ {type(exc).__name__}: {exc}"
         if sleep_s:
             time.sleep(sleep_s)
         transport_error = raw.startswith("__ERROR__") if raw else True
@@ -390,6 +427,11 @@ def main() -> int:
     ap.add_argument("--out", default=str(PUBLIC_RESULTS))
     ap.add_argument("--force", action="store_true", help="re-run arms whose raw file exists")
     ap.add_argument(
+        "--offline-all",
+        action="store_true",
+        help="use the deterministic offline extractor for every requested arm",
+    )
+    ap.add_argument(
         "--aggregate-only",
         action="store_true",
         help="rebuild the public summary from the stored (private) per-repeat rows, "
@@ -418,8 +460,15 @@ def main() -> int:
 
     policy = LiveRunPolicy(live=args.live, overwrite=args.force or args.overwrite)
     replay = args.rescore or args.aggregate_only or args.replay
-    if not replay:
+    offline_only = args.offline_all or (
+        bool(args.modes) and all(_is_offline_mode(m) for m in args.modes)
+    )
+    if not replay and not offline_only:
         policy.ensure_allowed()
+    if not args.offline_all and offline_only and any(
+        not _is_offline_mode(m) for m in args.modes
+    ):
+        raise SystemExit("offline modes cannot be mixed with live modes")
 
     items = load_items(args.items)
     out_dir = Path(args.out)
@@ -499,29 +548,45 @@ def main() -> int:
         return 0
 
     store = DocumentStore(STORE_DIR)
-    inner = client_for_live_run(policy, OpenAICompatibleClient, replay=False)
-    client = RobustLLMClient(inner, attempts=6, backoff_s=10.0)
     retrieval_index = (
         BM25Index(store.segments())
         if any(_is_retrieval_mode(mode) for mode in args.modes)
         else None
     )
-    live_meta = policy.metadata(model=inner.model, base_url=inner.base_url)
-    extractor = {
-        "model": live_meta["model"],
-        "base_url": live_meta["base_url"],
-        "date": live_meta["date"],
-        "git_commit": live_meta["git_commit"],
-        "note": extractor["note"],
-    }
+    tuned_retrieval_index = (
+        tuned_index(retrieval_index)
+        if any(_is_offline_mode(mode) for mode in args.modes)
+        else None
+    )
+    if offline_only:
+        client = OfflineDeterministicExtractor()
+        extractor = {
+            "model": "deterministic (no LLM)",
+            "base_url": None,
+            "date": datetime.now(timezone.utc).date().isoformat(),
+            "git_commit": git_commit(REPO_ROOT),
+            "note": extractor["note"],
+        }
+    else:
+        inner = client_for_live_run(policy, OpenAICompatibleClient, replay=False)
+        client = RobustLLMClient(inner, attempts=6, backoff_s=10.0)
+        live_meta = policy.metadata(model=inner.model, base_url=inner.base_url)
+        extractor = {
+            "model": live_meta["model"],
+            "base_url": live_meta["base_url"],
+            "date": live_meta["date"],
+            "git_commit": live_meta["git_commit"],
+            "note": extractor["note"],
+        }
     print(f"extractor: {extractor['model']} @ {extractor['base_url']}", flush=True)
 
     for mode in args.modes:
         for repeat in range(args.repeats):
             tag = f"{mode}_r{repeat}"
-            raw_name = f"raw_{tag}.jsonl"
+            raw_name = f"raw_{'offline_' if args.offline_all else ''}{tag}.jsonl"
             raw_path = policy.raw_path(PRIVATE_RESULTS, raw_name)
-            rows_path = raw_path.with_name(f"rows_{tag}.json")
+            rows_name = f"rows_{'offline_' if args.offline_all else ''}{tag}.json"
+            rows_path = raw_path.with_name(rows_name)
             if raw_path.parent != PRIVATE_RESULTS:
                 raw_path.parent.mkdir(parents=True, exist_ok=True)
                 print(
@@ -536,7 +601,9 @@ def main() -> int:
                 repeat,
                 args.sleep,
                 index=retrieval_index,
+                tuned=tuned_retrieval_index,
                 retrieval_k=args.retrieval_k,
+                offline_extract=offline_only,
             )
             raw_path.write_text(
                 "\n".join(json.dumps(r, sort_keys=True) for r in report["raw"]) + "\n"

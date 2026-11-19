@@ -1,0 +1,84 @@
+{
+  "generated": "2026-11-19T09:02:19.484952+00:00",
+  "sources": {
+    "v3_bm25": "results/p5/benchmark_v3/aggregate_offline_bm25.json",
+    "v3_oracle": "results/p5/benchmark_v3/aggregate_offline.json",
+    "v3_tuned": "results/p5/benchmark_v3/report_offline_bm25_tuned_r0.json",
+    "v4_bm25": "results/v2/v4_offline_bm25/summary.json",
+    "v4_oracle": "results/v2/v4_offline_oracle/summary.json",
+    "v4_tuned": "results/v2/v4_offline_tuned/summary.json"
+  },
+  "v3": {
+    "BM25 baseline": {
+      "abstention_accuracy": 0.16666666666666666,
+      "condition_completeness": 0.0,
+      "false_extraction_rate": 0.19506369426751594,
+      "parameter_identification_accuracy": 0.8461538461538461,
+      "provenance_accuracy": 0.7727272727272727,
+      "qualifier_classification_accuracy": 0.6136363636363636,
+      "unit_accuracy": 0.6363636363636364,
+      "value_extraction_accuracy": 0.38636363636363635
+    },
+    "BM25 tuned (b=0.5)": {
+      "abstention_accuracy": 0.0,
+      "condition_completeness": 0.0,
+      "false_extraction_rate": 0.22807017543859648,
+      "parameter_identification_accuracy": 0.8064516129032258,
+      "provenance_accuracy": 0.68,
+      "qualifier_classification_accuracy": 0.64,
+      "unit_accuracy": 0.6,
+      "value_extraction_accuracy": 0.2
+    },
+    "oracle-located (upper bound)": {
+      "abstention_accuracy": 1.0,
+      "condition_completeness": 0.0,
+      "false_extraction_rate": 0.0,
+      "parameter_identification_accuracy": 0.5,
+      "provenance_accuracy": 1.0,
+      "qualifier_classification_accuracy": 0.11538461538461539,
+      "unit_accuracy": 0.7692307692307693,
+      "value_extraction_accuracy": 0.5
+    }
+  },
+  "v4": {
+    "BM25 baseline": {
+      "abstention_rate": 0.0,
+      "condition_field_accuracy": 0.2523809523809524,
+      "invented_condition_rate": 0.0,
+      "mean_dropped_conditions": 111.9,
+      "n_items": 30.0,
+      "parameter_unit_accuracy": 0.23333333333333334,
+      "parameter_value_accuracy": 0.5666666666666667,
+      "quote_in_evidence_rate": 1.0,
+      "raw_condition_field_accuracy": 0.2523809523809524,
+      "raw_invented_condition_rate": 0.0,
+      "value_found_rate": 0.5666666666666667
+    },
+    "BM25 tuned (b=0.5)": {
+      "abstention_rate": 0.0,
+      "condition_field_accuracy": 0.2571428571428571,
+      "invented_condition_rate": 0.0,
+      "mean_dropped_conditions": 118.8,
+      "n_items": 30.0,
+      "parameter_unit_accuracy": 0.23333333333333334,
+      "parameter_value_accuracy": 0.6333333333333333,
+      "quote_in_evidence_rate": 1.0,
+      "raw_condition_field_accuracy": 0.2571428571428571,
+      "raw_invented_condition_rate": 0.0,
+      "value_found_rate": 0.6333333333333333
+    },
+    "oracle-located (upper bound)": {
+      "abstention_rate": 0.3333333333333333,
+      "condition_field_accuracy": 0.18571428571428572,
+      "invented_condition_rate": 0.13333333333333333,
+      "mean_dropped_conditions": 4.1,
+      "n_items": 30.0,
+      "parameter_unit_accuracy": 0.2,
+      "parameter_value_accuracy": 0.26666666666666666,
+      "quote_in_evidence_rate": 1.0,
+      "raw_condition_field_accuracy": 0.18571428571428572,
+      "raw_invented_condition_rate": 0.13333333333333333,
+      "value_found_rate": 0.26666666666666666
+    }
+  }
+}

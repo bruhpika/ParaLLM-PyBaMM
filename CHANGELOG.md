@@ -12,6 +12,30 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Retrieval improvement — offline arm wiring and side-by-side
+
+- Added the selected retrieval configuration (tuned BM25 `b=0.5, k1=1.5`) as
+  clearly labelled **offline-only** arms: P5 condition `offline_bm25_tuned`
+  ("deterministic offline (real retrieval (BM25, tuned b=0.5))") and v4 mode
+  `offline_bm25_tuned` (same label). The v4 runner also accepts `--offline-all`
+  to run any requested mode with the deterministic extractor, so oracle and
+  baseline BM25 could be measured without a live call; no `--live` is needed
+  for those runs. Oracle arms remain labelled "oracle-located (upper bound)".
+- New result files only: `results/p5/benchmark_v3/{report,aggregate,raw_outputs}_offline_bm25_tuned*`,
+  `results/v2/v4_offline_{oracle,bm25,tuned}/`, and the script-generated
+  side-by-side table `results/v2/retrieval_improvement/offline_side_by_side.{json,md}`.
+  The committed `results/p5/benchmark_v3/summary.md` was restored after the
+  runner regenerated it; no existing results file was changed.
+- **v4 offline side-by-side (30 private items, same 8-document full store):**
+  parameter value accuracy oracle 0.267 → BM25 0.567 → tuned 0.633;
+  condition-field accuracy 0.186 → 0.252 → 0.257; invented-condition rate
+  0.133 → 0.000 → 0.000. v3's committed oracle/BM25 aggregates are 37 items
+  while the tuned arm covers only the 22 locally available items, so those
+  columns are explicitly marked **not comparable** in the table.
+- Tests for arm labels, tuned-index parameters and the nested aggregate parser
+  (3 new). Verification: ruff clean; core scope 389 passed, 15 skipped,
+  3 deselected. No LLM or live API call was made.
+
 ### Retrieval improvement — corpus-size scaling
 
 - `benchmarks/v2/corpus_scaling.py` reports v4 gold-passage recall vs corpus

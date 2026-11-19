@@ -48,7 +48,11 @@ from .benchmark_p4 import (
 )
 from .extraction_prompt_p5 import build_extraction_prompt_p5, extract_with_prompt
 from .provenance_p5 import ProvenanceReport, summarize, verify_candidate
-from .retrieval_arms import DEFAULT_RETRIEVAL_K, retrieval_context_for_item
+from .retrieval_arms import (
+    DEFAULT_RETRIEVAL_K,
+    retrieval_context_for_item,
+    tuned_index,
+)
 from ..literature.extraction import run_extraction
 from ..literature.index import BM25Index
 from ..literature.ingest import DocumentStore
@@ -379,7 +383,7 @@ CONDITIONS = (
     "no_retrieval_strict",
     "no_retrieval_memory",
 )
-OFFLINE_CONDITIONS = ("offline", "offline_bm25")
+OFFLINE_CONDITIONS = ("offline", "offline_bm25", "offline_bm25_tuned")
 
 _CONDITION_SPECS: dict[str, dict[str, Any]] = {
     "retrieval_strict": dict(
@@ -395,7 +399,11 @@ _CONDITION_SPECS: dict[str, dict[str, Any]] = {
         memory_permitted=True, use_evidence=False, evidence_source="none"
     ),
 }
-_OFFLINE_EVIDENCE_SOURCE = {"offline": "oracle", "offline_bm25": "retrieval"}
+_OFFLINE_EVIDENCE_SOURCE = {
+    "offline": "oracle",
+    "offline_bm25": "retrieval",
+    "offline_bm25_tuned": "retrieval_tuned",
+}
 
 
 EVIDENCE_MODES = ("compact", "expanded", "v25")
@@ -481,13 +489,14 @@ def _context_for_item(
     evidence_mode: str = "compact",
     *,
     index: BM25Index | None = None,
+    tuned: BM25Index | None = None,
     retrieval_k: int = DEFAULT_RETRIEVAL_K,
 ) -> RAGContext:
     """Build the evidence context for one item under an explicit source."""
     if evidence_source == "retrieval":
-        return retrieval_context_for_item(
-            item, store, k=retrieval_k, index=index
-        )
+        return retrieval_context_for_item(item, store, k=retrieval_k, index=index)
+    if evidence_source == "retrieval_tuned":
+        return retrieval_context_for_item(item, store, k=retrieval_k, index=tuned)
     if evidence_source != "oracle":
         raise ValueError(f"unknown evidence source {evidence_source!r}")
     facets = RetrievalFacets(**item.facets)
@@ -525,6 +534,7 @@ def _user_block(
     *,
     evidence_source: str = "oracle",
     index: BM25Index | None = None,
+    tuned: BM25Index | None = None,
     retrieval_k: int = DEFAULT_RETRIEVAL_K,
 ) -> str:
     """Prompt block for one item (oracle by default, explicit source opt-in)."""
@@ -536,6 +546,7 @@ def _user_block(
         evidence_source,
         evidence_mode,
         index=index,
+        tuned=tuned,
         retrieval_k=retrieval_k,
     ).to_prompt_block()
 
@@ -551,6 +562,7 @@ def run_condition(
     evidence_mode: str = "compact",
     *,
     index: BM25Index | None = None,
+    tuned: BM25Index | None = None,
     retrieval_k: int = DEFAULT_RETRIEVAL_K,
 ) -> dict[str, Any]:
     """One pass over ``items`` under one condition; raw outputs preserved."""
@@ -578,15 +590,18 @@ def run_condition(
         if spec["use_evidence"]:
             if spec["evidence_source"] == "retrieval" and retrieval_index is None:
                 retrieval_index = BM25Index(store.segments())
+            if spec["evidence_source"] == "retrieval_tuned" and tuned is None:
+                tuned = tuned_index(retrieval_index or BM25Index(store.segments()))
             context = _context_for_item(
                 item,
                 store,
                 spec["evidence_source"],
                 evidence_mode,
                 index=retrieval_index,
+                tuned=tuned,
                 retrieval_k=retrieval_k,
             )
-            if spec["evidence_source"] == "retrieval":
+            if spec["evidence_source"] in ("retrieval", "retrieval_tuned"):
                 retrieval_audits.append(
                     {
                         "item_id": item.item_id,

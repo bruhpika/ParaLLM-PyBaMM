@@ -27,8 +27,17 @@ from ..registry.textnorm import ascii_fold
 
 ORACLE_LABEL = "oracle-located (upper bound)"
 REAL_RETRIEVAL_LABEL = "real retrieval (BM25)"
+TUNED_RETRIEVAL_LABEL = "real retrieval (BM25, tuned b=0.5)"
 DEFAULT_RETRIEVAL_K = 8
 RECALL_KS: tuple[int, ...] = (1, 3, 5, 10)
+# Selected on v4/small dev only (configs/retrieval/lexical_config.json).
+TUNED_BM25_K1 = 1.5
+TUNED_BM25_B = 0.5
+
+
+def tuned_index(index: BM25Index) -> BM25Index:
+    """BM25 index with the dev-selected parameters, same segments."""
+    return BM25Index(index.segments, k1=TUNED_BM25_K1, b=TUNED_BM25_B)
 
 
 def query_from_facets(item: Any) -> str:
