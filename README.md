@@ -251,17 +251,20 @@ Plan, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 - **Private v4 condition benchmark** — 30 items over three CC BY papers,
   categories A–E; corpus, fixture and per-item results are **never published**
   (only the harness, the scorer and the aggregates). Frozen scorer: a gold
-  `not_stated` field is matched only when the extraction reports nothing there.
-  Result, 3 repeats/arm re-scored with the discipline pass (extractor
-  `gemini-flash-lite-latest`, free tier — **not** comparable with the v0.1/v3
-  numbers): condition-field accuracy **0.095 ± 0.010 → 0.251 ± 0.014 →
-  0.256 ± 0.023** [raw: 0.116 / 0.257 / 0.266] once the setup statements are
-  supplied; temperature 0.059 → 0.479 → 0.591, format 0.196 → 0.980 → 0.976.
-  **Negative findings (disclosed):** invented conditions **rise** with richer
-  evidence (0.411 → 0.500 → 0.439) and the discipline pass removed **none** of
-  them (every invented claim's token occurs somewhere in the evidence); the
-  full arm regresses on cell identity (0.360 → 0.186); chemistry and protocol
-  stay weak (≤0.178 / ≤0.091).
+  `not_stated` field is matched only when the extraction reports nothing
+  there, and a protocol claim must be *stated* (cue + non-abstention) — the
+  old rule counted the model's abstentions as invented conditions (94 of 110
+  claims; fixed 2026-11-19). Result, 3 repeats/arm, canonical run re-scored
+  (extractor `gemini-flash-lite-latest`, free tier — **not** comparable with
+  the v0.1/v3 numbers): condition-field accuracy **0.144 ± 0.016 →
+  0.294 ± 0.018 → 0.310 ± 0.022** once the setup statements are supplied;
+  temperature 0.059 → 0.479 → 0.591, format 0.196 → 0.980 → 0.976,
+  protocol 0.607 → 0.619 → 0.743. **Negative findings (disclosed):**
+  invented conditions **0.067 → 0.200 → 0.058** (structure helps: the v25
+  block drops invention below compact) and the discipline pass removed
+  **none** of the residual — association remains the open problem; the full
+  arm regresses on cell identity (0.360 → 0.186); chemistry stays weak
+  (≤0.178).
   Details: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
 - **Assembly layer (V2.1, rubric v2)** — auditable hand-set rubric with
   `cell_product` and `electrolyte` dimensions, conflict resolution, the

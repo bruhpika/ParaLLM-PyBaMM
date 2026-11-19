@@ -334,8 +334,39 @@ def _is_missing(value: Any) -> bool:
     return value is None or _norm(value) in ("", "unresolved", "not stated", "not_stated", "unknown")
 
 
+# A protocol claim in free-text context must be *stated*, not merely present
+# as words: an abstention ("measurement protocol are not stated") or a
+# context with no protocol cue at all (e.g. an SOC-only sentence) reports no
+# protocol. Treating any non-empty context as a protocol claim counted the
+# model's correct abstentions as invented conditions (measured scorer
+# false-positive: 94 of 110 invented claims were of this kind).
+_PROTOCOL_ABSTENTION_RE = re.compile(
+    r"(protocol[^.;]{0,40}not\s+(?:stated|given|reported|provided|known"
+    r"|available|mentioned)"
+    r"|no\s+(?:measurement\s+)?protocol"
+    r"|without\s+(?:a\s+)?(?:stated\s+)?protocol"
+    r"|protocol\s+(?:is\s+)?unknown)",
+    re.IGNORECASE,
+)
+_PROTOCOL_CUE_RE = re.compile(
+    r"(c/\d|c-rate|\b\d+(?:\.\d+)?\s*c\b|\bgitt\b|\beis\b|\bpeis\b"
+    r"|cc-?cv|galvanostatic|potentiostatic|\bpulse\b|\brest(?:ing)?\b"
+    r"|current\s+interrupt|\bocv\b|cut-?off|\bcharged\s+at\b"
+    r"|\bdischarged\s+at\b|charge\s+rate|discharge\s+rate"
+    r"|\bcycle(?:s|d)?\s+at\b)",
+    re.IGNORECASE,
+)
+
+
 def _context_slice(context: Any, fname: str) -> Any:
-    """Pull the SOC or protocol part out of the free-text context."""
+    """Pull the SOC or protocol part out of the free-text context.
+
+    ``protocol`` is only reported when the context actually states one: an
+    explicit abstention or a context without any protocol cue yields ``None``
+    (i.e. "not stated"). Caveat: a bare ``"25 C"`` temperature spelling can
+    read as a C-rate cue; the extraction prompt mandates Kelvin, so this is
+    accepted and documented rather than pattern-matched away.
+    """
     text = _norm(context)
     if not text:
         return None
@@ -345,7 +376,11 @@ def _context_slice(context: Any, fname: str) -> Any:
             return m.group(1)
         m = re.search(r"soc[^0-9]{0,12}(\d{1,3}(?:\.\d+)?)", text)
         return m.group(1) if m else None
-    # protocol: return the whole context; matching is keyword based
+    # protocol: claim only when stated (cue present, not negated)
+    if not _PROTOCOL_CUE_RE.search(text):
+        return None
+    if _PROTOCOL_ABSTENTION_RE.search(text):
+        return None
     return context
 
 

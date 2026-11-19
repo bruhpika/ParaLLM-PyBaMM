@@ -11,6 +11,7 @@ from pybamm_closed_loop.eval.benchmark_v4 import (
     CONDITION_FIELDS,
     NOT_STATED,
     V4Item,
+    _context_slice,
     aggregate,
     build_v4_prompt,
     coerce_candidates,
@@ -112,6 +113,35 @@ class TestFieldMatching:
         assert match_field("soc", "50", "no SOC stated") is False
 
 
+class TestProtocolContextSlice:
+    """The context reports a protocol only when one is actually stated."""
+
+    def test_abstention_reports_no_protocol(self):
+        ctx = (
+            "Experimental value from the table; temperature, SOC, and "
+            "measurement protocol are not stated in the evidence."
+        )
+        assert _context_slice(ctx, "protocol") is None
+
+    def test_context_without_protocol_cue_reports_none(self):
+        assert _context_slice("At 50% full cell SOC.", "protocol") is None
+        assert _context_slice("", "protocol") is None
+
+    def test_stated_protocol_is_reported(self):
+        ctx = "GITT with C/10 pulses, 2.5 min rest between pulses."
+        assert _context_slice(ctx, "protocol") == ctx
+        ctx2 = "measured at 0.5 C between 2.5 and 4.2 V cutoffs"
+        assert _context_slice(ctx2, "protocol") == ctx2
+
+    def test_negated_protocol_with_cue_reports_none(self):
+        ctx = "pulse protocol C/10 is not stated in the evidence"
+        assert _context_slice(ctx, "protocol") is None
+
+    def test_soc_branch_unchanged(self):
+        assert _context_slice("at 50 % SOC", "soc") == "50"
+        assert _context_slice("no SOC here", "soc") is None
+
+
 class TestScoring:
     def test_perfect_candidate(self):
         row = score_item(_item(), [_candidate()], abstained=False)
@@ -131,6 +161,18 @@ class TestScoring:
         cand = _candidate(context="measured at 50 % SOC; pulse protocol C/10")
         row = score_item(_item(), [cand], abstained=False)
         assert "soc" in row["invented_conditions"]
+
+    def test_abstaining_context_is_not_an_invented_protocol(self):
+        gold = dict(_item().gold_conditions)
+        gold["protocol"] = NOT_STATED
+        item = _item(gold_conditions=gold, not_stated_fields=("soc", "protocol"))
+        cand = _candidate(
+            context="Experimental value from the table; measurement protocol "
+            "is not stated in the evidence."
+        )
+        row = score_item(item, [cand], abstained=False)
+        assert row["fields"]["protocol"] is True
+        assert "protocol" not in row["invented_conditions"]
 
     def test_value_selection_prefers_value_matched_candidate(self):
         good = _candidate()

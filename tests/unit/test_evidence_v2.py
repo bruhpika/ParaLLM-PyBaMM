@@ -98,3 +98,43 @@ class TestDocumentConditions:
         a = document_conditions(raw, max_sentences=6).sentences
         b = document_conditions(raw, max_sentences=6).sentences
         assert a == b
+
+
+class TestEvidenceBlockSections:
+    """expanded/v25 blocks always carry the cell + setup sections.
+
+    This is the mechanism behind the v4 cell-identity condition (the table
+    block can list several cells; the cell-identification section names the
+    one the experiment used). Locked in here so a future edit cannot drop
+    the sections silently; the LLM-side effect of the v25 cell regression is
+    measured only on a live re-run.
+    """
+
+    TEXT = (
+        "The mean negative particle diffusivity is 9.61·10−15 m2 s−1 as "
+        "measured by GITT.\n\n"
+        "All experiments were performed at 25 °C with a state of charge "
+        "window of 50% between 2.5 and 4.2 V.\n\n"
+        "LG M50 21700 cylindrical cells were used throughout this study.\n"
+    )
+
+    def test_sections_present_in_expanded_and_v25(self, tmp_path):
+        from types import SimpleNamespace
+
+        from pybamm_closed_loop.eval.benchmark_p5 import _evidence_block
+        from pybamm_closed_loop.literature.ingest import DocumentStore
+
+        store = DocumentStore(tmp_path / "store")
+        store.ingest_text("doc1", self.TEXT)
+        item = SimpleNamespace(
+            item_id="T1", document_id="doc1", probe="9.61·10−15",
+            passage_probe=None,
+        )
+        for mode in ("expanded", "v25"):
+            block = _evidence_block(item, store, mode)
+            assert "CELL IDENTIFICATION" in block, mode
+            assert "LG M50" in block, mode
+            assert "EXPERIMENT CONDITIONS" in block, mode
+            assert "25 °C" in block, mode
+            # the probe window itself is present
+            assert "9.61·10−15" in block, mode

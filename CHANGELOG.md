@@ -174,6 +174,37 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   the report) instead of comparing `final_cost` blindly; the recovery benchmark
   prefers converged multi-start runs.
 
+### Fixed (2026-11-19)
+
+- **V2.4 multi-seed stability**: `run_stability()` + `--n-seeds` (default 5);
+  the synthetic validation's predicted pattern reproduces on **5/5 seeds**
+  (held-out RMSE baseline 4.4 ± 0.1 mV → positive control 1.1 ± 0.1 mV →
+  negative control 4.4 ± 0.1 mV, all fits converged) — closes the V2.6
+  "stable across repeats" gate item.
+- **V2.5 scorer false-positive — protocol claims from abstaining contexts**
+  (`eval/benchmark_v4.py`): any non-empty free-text context counted as a
+  protocol claim, so the model's explicit abstentions ("measurement protocol
+  are not stated") were scored as invented conditions — **94 of 110**
+  invented claims under the old rule. `_context_slice` now requires a
+  protocol cue (C-rate/GITT/EIS/pulse/rest/cutoffs/…) and rejects negated
+  claims; affects scoring and the `not_stated` discipline identically.
+  Offline re-score of the canonical run: invented rate **0.411 → 0.500 →
+  0.439 becomes 0.067 → 0.200 → 0.058**, protocol field **0.000/0.080/0.091
+  becomes 0.607/0.619/0.743**, condition accuracy **0.095/0.251/0.256
+  becomes 0.144/0.294/0.310** (abstentions now correctly matched). The old
+  numbers are superseded in `results/v2/v4/` and all docs.
+- **Private v4 raw-data discipline**: an unauthorised live re-run
+  (2026-11-17 14:03–14:49) had overwritten 8 of 9 raw files (one left with 12
+  rate-limit/DNS transport errors). The clobbered run is preserved untouched
+  under `data/private_v4/results_rogue_20261117/`; the canonical run was
+  restored md5-identical from the pre-chemfix backup and every subsequent
+  re-score runs against it (transport errors back to compact 0 / expanded 0 /
+  v25 6).
+- **Evidence-section lock-in test**: expanded/v25 evidence blocks always
+  carry the `CELL IDENTIFICATION` and `EXPERIMENT CONDITIONS` sections
+  (mechanism behind the v4 cell condition; the v25 cell regression's LLM-side
+  effect is measurable only on a live re-run, pending the extractor decision).
+
 ### Planned
 - **V2.1** Applicability & conflict engine — auditable, hand-set rubric; decision
   taxonomy `USE / FIX / CALIBRATE / MEASURE / REJECT`; rule-firing transcript;

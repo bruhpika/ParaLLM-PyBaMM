@@ -63,40 +63,52 @@ effect is visible. Cell identification evidence (`cell_tokens`,
 land with it. All nine raw runs were re-scored offline (`--rescore`, no model
 calls) against the current fixture.
 
-**LLM-side result on v4, re-scored** (extractor `gemini-flash-lite-latest`,
-free tier — *not* comparable with the v0.1/v3 numbers; arms comparable with
-each other; mean ± std over 3 repeats/arm; disciplined value with the raw
-value in brackets):
+**Also landed (fourth slice, 2026-11-19):** the **protocol context-scorer
+fix** — a free-text context now reports a protocol only when it states one
+(protocol cue + not an abstention), because treating any non-empty context as
+a claim scored the model's explicit abstentions as invented conditions (94 of
+110 invented claims under the old rule). Offline re-score of the canonical
+run; the old invented/protocol numbers are superseded (details:
+`docs/V2_PRIVATE_V4_BENCHMARK.md` §4/§7.1). An unauthorised live re-run that
+clobbered 8 of 9 raw files is preserved under
+`data/private_v4/results_rogue_20261117/`; the canonical run was restored
+from backup before re-scoring.
+
+**LLM-side result on v4, re-scored (canonical run)** (extractor
+`gemini-flash-lite-latest`, free tier — *not* comparable with the v0.1/v3
+numbers; arms comparable with each other; mean ± std over 3 repeats/arm;
+disciplined value with the raw value in brackets):
 
 | metric | compact | expanded | v25 |
 |---|---:|---:|---:|
-| condition-field accuracy | 0.095 ± 0.010 [0.116] | 0.251 ± 0.014 [0.257] | **0.256 ± 0.023** [0.266] |
+| condition-field accuracy | 0.144 ± 0.016 [0.165] | 0.294 ± 0.018 [0.300] | **0.310 ± 0.022** [0.320] |
 | value found | 0.389 ± 0.016 | 0.389 ± 0.042 | **0.583 ± 0.014** |
-| invented-condition rate | 0.411 ± 0.042 | **0.500 ± 0.027** | 0.439 ± 0.021 |
+| invented-condition rate | 0.067 ± 0.000 | 0.200 ± 0.000 | **0.058 ± 0.012** |
 | temperature / format / SOC | 0.059 / 0.196 / 0.374 | 0.479 / 0.980 / 0.461 | **0.591 / 0.976 / 0.515** |
-| chemistry / protocol | 0.000 / 0.000 | 0.178 / 0.080 | 0.143 / 0.091 |
+| chemistry / protocol | 0.000 / 0.607 | 0.178 / 0.619 | 0.143 / **0.743** |
 
 Transport errors excluded: compact 0, expanded 0, v25 6 (free-tier 503s).
 
 **Honest read of the discipline pass (measured, not assumed):**
-- It fires — on average 3.5–14.7 conditions per item are dropped for having no
+- It fires — on average 3.5–14.9 conditions per item are dropped for having no
   trace in the evidence — and quote verification passes for 0.991–1.000 of
   candidates.
-- It **did not reduce the invented-condition rate** (identical raw vs
-  disciplined in every arm): all 119 invented claims carry a token that *does*
-  occur somewhere in the richer evidence, so an evidence-trace check cannot
-  distinguish "condition of this value" from "number that appears elsewhere in
-  the passage". Countering invention needs condition↔value association, not a
-  trace check.
-- It slightly **lowered** condition-field accuracy (19 field verdicts changed,
-  all in the losing direction): the conservative trace check also rejects some
-  correct claims. Disclosed as `raw_*` metrics rather than hidden.
+- It still **did not reduce the invented-condition rate** (identical raw vs
+  disciplined in every arm): the surviving invented claims are cue-anchored
+  in the evidence, so an evidence-trace check cannot distinguish "condition of
+  this value" from "number that appears elsewhere in the passage". Countering
+  invention needs condition↔value association, not a trace check.
+- It slightly **lowered** condition-field accuracy (raw → disciplined:
+  0.165→0.144, 0.300→0.294, 0.320→0.310): the conservative trace check also
+  rejects some correct claims. Disclosed as `raw_*` metrics rather than hidden.
 
 **Still to do in V2.5:** the roadmap exit criterion (condition completeness
 ≥ 0.5 on the private v4, false extraction 0.000) is **not met** — current
-0.256 / 0.439. The remaining gap is chemistry (0.143), protocol (0.091) and
-the `v25` cell-identity regression (0.360 → 0.186), plus an association-level
-mechanism against invented conditions. Full design: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
+best arm 0.310 / 0.058. The remaining gap is chemistry (0.143), the `v25`
+cell-identity regression (0.360 → 0.186, mechanism locked by test — LLM-side
+effect measurable only on a live re-run), and an association-level mechanism
+against the residual invented claims (0.058–0.200). Full design:
+`docs/V2_PRIVATE_V4_BENCHMARK.md`.
 
 ## V2.1 — Applicability & conflict engine  *[first milestone — implemented; awaiting label review]*
 

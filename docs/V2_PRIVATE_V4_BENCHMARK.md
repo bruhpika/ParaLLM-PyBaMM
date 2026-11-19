@@ -66,6 +66,14 @@ locator. Every probe is a **verbatim** substring of the archived document
 - Temperature is compared numerically (1 K tolerance); SOC numerically when
   both sides are numeric; other fields by keyword matching, where gold
   alternatives are separated by `|` (any) and required tokens by `+` (all).
+- **Protocol claims must be stated, not merely present as words** (scorer
+  fix, 2026-11-19): a free-text context reports a protocol only when it
+  contains a protocol cue (C-rate, GITT/EIS, pulse, rest, CC-CV, cutoffs, …)
+  and is not an abstention ("measurement protocol are not stated"). Treating
+  any non-empty context as a protocol claim counted the model's correct
+  abstentions as invented conditions — a measured false-positive that was
+  **94 of 110** invented claims under the old rule (the earlier 0.41–0.50
+  invented rates are superseded by §7.1).
 - The system is **not** told which value is the target. The scorer looks for
   the candidate that carries a gold value **and** the best condition set, and
   reports that candidate's per-field verdicts. A correct value with wrong or
@@ -125,20 +133,20 @@ Consequences, stated plainly:
 
 See `results/v2/v4/summary.md` (aggregate only; per-item rows stay private).
 
-### 7.1 Result — 3 repeats per arm (extractor `gemini-flash-lite-latest`, re-scored with the discipline pass)
+### 7.1 Result — 3 repeats per arm (extractor `gemini-flash-lite-latest`, canonical run, re-scored with the discipline pass + protocol-scorer fix)
 
 Headline metrics (mean ± std over 3 repeats; raw = pre-discipline value in
 brackets):
 
 | metric | compact (v0.1) | expanded | v25 (full) |
 |---|---:|---:|---:|
-| condition-field accuracy | 0.095 ± 0.010 [0.116] | 0.251 ± 0.014 [0.257] | **0.256 ± 0.023** [0.266] |
+| condition-field accuracy | 0.144 ± 0.016 [0.165] | 0.294 ± 0.018 [0.300] | **0.310 ± 0.022** [0.320] |
 | value found | 0.389 ± 0.016 | 0.389 ± 0.042 | **0.583 ± 0.014** |
 | unit accuracy | 0.433 ± 0.027 | 0.367 ± 0.027 | 0.403 ± 0.024 |
-| **invented-condition rate** (raw = disciplined) | 0.411 ± 0.042 | **0.500 ± 0.027** | 0.439 ± 0.021 |
+| **invented-condition rate** (raw = disciplined) | 0.067 ± 0.000 | 0.200 ± 0.000 | **0.058 ± 0.012** |
 | abstention rate | 0.433 ± 0.047 | 0.444 ± 0.016 | 0.417 ± 0.014 |
 | quote-in-evidence rate | 0.991 ± 0.013 | 1.000 ± 0.000 | 1.000 ± 0.000 |
-| mean dropped conditions / item | 4.056 ± 0.507 | 3.478 ± 0.833 | 14.903 ± 2.541 |
+| mean dropped conditions / item | 3.656 ± 0.427 | 3.478 ± 0.833 | 14.903 ± 2.541 |
 
 Per condition field (disciplined, mean ± std over 3 repeats):
 
@@ -150,57 +158,79 @@ Per condition field (disciplined, mean ± std over 3 repeats):
 | temperature | 0.059 ± 0.005 | 0.479 ± 0.038 | **0.591 ± 0.040** |
 | SOC | 0.374 ± 0.029 | 0.461 ± 0.037 | **0.515 ± 0.053** |
 | method | 0.352 ± 0.026 | **0.620 ± 0.024** | 0.568 ± 0.164 |
-| protocol | 0.000 ± 0.000 | 0.080 ± 0.027 | 0.091 ± 0.090 |
+| protocol | 0.607 ± 0.046 | 0.619 ± 0.062 | **0.743 ± 0.082** |
 
 Transport errors excluded from scoring: compact 0, expanded 0, v25 6 (free-tier
 503s; they are counted, never scored as abstentions).
 
-Note on chemistry: the fixture's chemistry gold labels were corrected after the
-first published run; the re-score is against the corrected fixture, so the
-chemistry numbers here are **not** comparable with the earlier "0.000 in every
-arm" statement (which the raw rows before the correction produced).
+Superseded numbers: the previously published invented rates (0.411 / 0.500 /
+0.439), condition accuracies (0.095 / 0.251 / 0.256) and protocol field
+(0.000 / 0.080 / 0.091) came from the pre-fix scorer that counted abstaining
+contexts as protocol claims (§4) — corrected by offline re-score, same
+canonical raw run. The chemistry numbers are against the corrected fixture
+chemistry gold labels (the earlier "0.000 in every arm" statement came from
+the pre-correction fixture).
+
+**Data discipline note:** after the canonical run was committed, an
+unauthorised live re-run on 2026-11-17 14:03–14:49 overwrote 8 of 9 raw
+files (one with 12 rate-limit/DNS transport errors). The run is preserved
+untouched under `data/private_v4/results_rogue_20261117/`, and the canonical
+run was restored from the pre-chemfix backup (md5-identical to the state the
+committed numbers were produced from) before every re-score.
 
 ### 7.2 What the result says (and what it does not)
 
 **Supported — the V2.5 hypothesis holds for value-local conditions.**
 Supplying the document-level setup statements lifts the condition-field
-accuracy from **0.116 → 0.257 raw** (0.095 → 0.251 after the discipline pass),
+accuracy from **0.165 → 0.300 raw** (0.144 → 0.294 after the discipline pass),
 with the largest gains in temperature (0.059 → 0.479), format (0.196 → 0.980)
 and method (0.352 → 0.620). The full `v25` arm adds table-aware chunking and
 multi-window retrieval: temperature 0.591, SOC 0.515, and — notably — **the
 rate at which the correct value is found rises from 0.389 to 0.583**, i.e. the
 table context also helps *value* selection, not only conditions.
 
+**The protocol scorer false-positive (measured, fixed).** The previously
+published invented-condition rates (0.411 → 0.500 → 0.439) were dominated by a
+scorer bug: any non-empty free-text context counted as a protocol claim, so
+the model's explicit abstentions ("measurement protocol are not stated")
+were scored as invented conditions — **94 of 110** invented claims under the
+old rule. After the fix (§4) the rates are **0.067 → 0.200 → 0.058** and the
+protocol field rises from 0.000/0.080/0.091 to **0.607/0.619/0.743**. The
+remaining invented claims are genuine cue-anchored claims that are wrong.
+
 **The discipline pass: measured, and largely negative — disclosed as such.**
-- It fires as designed: 3.5–14.7 conditions per item are dropped for having no
-  trace in the evidence, and quote verification passes for 0.991–1.000 of
+- It fires as designed: 3.5–14.9 conditions per item are dropped for having
+  no trace in the evidence, and quote verification passes for 0.991–1.000 of
   candidates.
-- It **removed none of the invented conditions**: the invented-condition rate is
-  identical raw vs disciplined in every arm (0.411 → 0.500 → 0.439). Every
-  invented claim carries a token that *does* occur somewhere in the (richer)
+- It still **removed none of the invented conditions** (identical raw vs
+  disciplined in every arm): the surviving inventions are cue-anchored in the
   evidence, so an evidence-trace check cannot separate "condition under which
-  this value was measured" from "number that appears elsewhere in the passage".
-  Countering invention needs condition↔value association, not a trace check.
-- It slightly **lowered** condition-field accuracy (19 field verdicts changed
-  across all 264 scored rows, all in the losing direction): the conservative
-  trace check also rejects some correct claims. Both verdicts are reported
-  (`raw_*` metrics) so the trade-off stays visible.
+  this value was measured" from "number that appears elsewhere in the
+  passage". Countering the residual needs condition↔value association, not a
+  trace check.
+- It slightly **lowered** condition-field accuracy (raw 0.165/0.300/0.320 →
+  disciplined 0.144/0.294/0.310): the conservative trace check also rejects
+  some correct claims. Both verdicts are reported (`raw_*` metrics) so the
+  trade-off stays visible.
 
 **Negative findings (disclosed, not smoothed over).**
 - **Electrode chemistry stays weak** (0.000 compact → 0.178 expanded → 0.143
-  v25 after the fixture's chemistry gold labels were corrected): the system
-  attaches the chemistry far less reliably than format or temperature.
-- **Protocol stays near zero** (0.000 → 0.080 → 0.091): pulse current, pulse
-  duration and rest time are stated in the methods but are not recovered.
-- **More evidence, more invention.** The invented-condition rate *rises* with
-  the richer evidence (0.411 → 0.500 → 0.439) and the discipline pass does not
-  counter it (above). Evidence engineering alone trades completeness against
-  correctness; an association-level mechanism is still missing.
+  v25): the system attaches the chemistry far less reliably than format or
+  temperature.
+- **Genuine invention now tracks evidence structure, not evidence volume.**
+  After the scorer fix the invented rate is compact 0.067 → expanded 0.200 →
+  v25 0.058: richer windows raise genuine invention from compact to expanded,
+  but the structured `v25` block (table + cell/setup sections) drops it
+  **below** compact — structure helps correctness, volume alone does not.
 - **`v25` regresses on cell identity** (0.360 → 0.186, consistent across all
-  three repeats, so not noise). Hypothesis: the table-aware block and the
-  additional occurrence windows dilute the sentence that identifies the cell.
-  This is a concrete, testable follow-up (the table block should carry the cell
-  identity, not compete with it).
+  three repeats, so not noise). The cell-identification section is present in
+  every expanded/v25 block (locked in by test), so the remaining gap is
+  LLM-side association inside the block — hypothesis: the table-aware block
+  lists both cells and competes with the identification sentence. Measurable
+  only on a live re-run (pending the extractor decision).
+- **The discipline still cannot fix association** (above): the residual
+  invention problem is exactly the binding problem the cited literature
+  (§9) describes.
 
 **Not established.** These numbers come from a **free-tier model on a 30-item
 private fixture**; they are a diagnostic for the evidence layer, not a
@@ -208,7 +238,7 @@ capability claim, and they are **not comparable** with the v0.1/v3 results
 (different model, different fixture). The v0.1/v3 numbers remain the
 reference for extraction quality; v4 answers a different question. The
 roadmap's V2.5 exit criterion (condition completeness ≥ 0.5, false extraction
-0.000) is **not met** at 0.256 / 0.439.
+0.000) is **not met** at 0.310 / 0.058 (best arm / best arm).
 
 ## 8. What this benchmark does and does not establish
 
