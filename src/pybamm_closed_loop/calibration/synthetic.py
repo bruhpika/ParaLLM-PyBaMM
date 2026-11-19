@@ -57,6 +57,8 @@ class SyntheticSpec:
     noise_sigma_V: float
     seed: int
     description: str = ""
+    solver: Any | None = None
+    var_pts: dict[str, int] | None = None
 
     def validate(self) -> None:
         if not self.true_values:
@@ -111,7 +113,14 @@ def generate_dataset(
     model = _build_model(spec.model_name)
     pv = _true_parameter_values(spec)
     experiment = pybamm.Experiment(list(condition.steps))
-    solution = pybamm.Simulation(model, parameter_values=pv, experiment=experiment).solve()
+    sim = pybamm.Simulation(
+        model,
+        parameter_values=pv,
+        experiment=experiment,
+        solver=spec.solver,
+        var_pts=spec.var_pts,
+    )
+    solution = sim.solve()
     t = np.asarray(solution.t, dtype=float)
 
     # Per-condition noise seed, derived deterministically from spec.seed and
