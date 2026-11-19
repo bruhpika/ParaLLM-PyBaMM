@@ -2,8 +2,21 @@
 name = "parallm-pybamm"
 version = "0.1.0b1"
 description = "PARALLM: LLM-assisted, provenance-grounded parameterization for PyBaMM (research beta; parameters — not a problem anymore)"
+readme = "README.md"
+license = {file = "LICENSE"}
 requires-python = ">=3.10,<3.16"
 authors = [{name = "Harshith Bhardwaz Kenkary", email = "harshithkenkary@gmail.com"}]
+keywords = ["battery", "pybamm", "parameterization", "provenance", "electrochemistry"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 dependencies = [
     "pybamm==26.8.0.0",
     "numpy>=2,<3",
@@ -15,7 +28,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "ruff>=0.17"]
 # Ecosystem integration stack. Verified together on CPython 3.12.16 with
 # PyBaMM 26.8.0.0 (requirements/ecosystem-py312.lock). Bounds cap at majors
 # verified in that environment: pypdf 7.x and polars 2.x are NOT covered.

@@ -309,10 +309,20 @@ scientific decision-maker on a real parameter set.
 V2.2 ⏳ 17 traceability flags (backfill quotes or correct statuses). The two
 pending items are owner decisions; no engineering work can close them.
 
-## V2.7 — Product & community
+## V2.7 — Product & community  *[CI + packaging scaffolding landed; publish pending owner]*
 
 PyPI (`parallm-pybamm`), CI (3.10–3.12), docs site, examples gallery,
 positioning doc, conflict-resolution mini-benchmark (v4a, private answers).
+
+**Landed (2026-11-19):** `.github/workflows/ci.yml` — lint + test matrix on
+Python 3.10/3.11/3.12, an ecosystem job (pybop/pints/SALib stack on 3.12,
+runs the pybop-gated tests), and a package job that builds the sdist/wheel,
+installs the wheel into a clean venv and smoke-tests `parallm --help`.
+`pyproject.toml` now carries readme/license (MIT)/classifiers/keywords and
+`ruff` in the `dev` extra; `python -m build` verified locally (sdist + wheel)
+and the wheel verified installed from a clean venv. **Publishing to PyPI
+stays an owner action** (credentials + version decision); docs site, examples
+gallery and the v4a mini-benchmark remain open.
 
 ---
 

@@ -4,4 +4,4 @@ Phase P0 provides the PyBaMM simulation engine. Later phases add the parameter
 registry, validation, extraction, calibration and closed-loop modules.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.0b1"

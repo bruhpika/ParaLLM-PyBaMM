@@ -204,6 +204,14 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   carry the `CELL IDENTIFICATION` and `EXPERIMENT CONDITIONS` sections
   (mechanism behind the v4 cell condition; the v25 cell regression's LLM-side
   effect is measurable only on a live re-run, pending the extractor decision).
+- **V2.7 scaffolding — CI + packaging**: `.github/workflows/ci.yml` (lint +
+  test matrix on Python 3.10/3.11/3.12; ecosystem job for the pybop stack on
+  3.12; package job builds sdist/wheel, installs the wheel in a clean venv and
+  smoke-tests `parallm --help`). `pyproject.toml` gains readme/license
+  (MIT)/classifiers/keywords and `ruff` in `dev`; `python -m build` verified
+  locally; `__version__` synced to `0.1.0b1`. PyPI **publish** stays an owner
+  action (credentials + version decision); docs site, gallery and v4a remain
+  open.
 
 ### Planned
 - **V2.1** Applicability & conflict engine — auditable, hand-set rubric; decision
