@@ -1,7 +1,8 @@
 """Synthetic observation generation with recorded ground truth.
 
 Generates observations from a known parameter set via PyBaMM, adds controlled
-noise via pybop.add_noise under an explicit numpy seed, and returns
+noise via pybop.add_noise with an explicitly passed generator (isolated legacy
+state for the third-party call), and returns
 pybop.Dataset objects ready for fitting. Ground truth is always carried
 alongside the data - synthetic recovery is a method check, never experimental
 validation (scientific rule 8).
@@ -16,6 +17,8 @@ from typing import Any
 import numpy as np
 import pybamm
 import pybop
+
+from .rng import isolated_numpy_seed, legacy_seed
 
 # Parameters whose value is estimated; names must match PyBaMM keys exactly.
 
@@ -90,9 +93,17 @@ def _true_parameter_values(spec: SyntheticSpec) -> pybamm.ParameterValues:
 
 
 def generate_dataset(
-    spec: SyntheticSpec, condition: SyntheticCondition
+    spec: SyntheticSpec,
+    condition: SyntheticCondition,
+    *,
+    rng: np.random.Generator | None = None,
 ) -> tuple[pybop.Dataset, dict[str, Any]]:
     """Generate one noisy observation set from the ground-truth model.
+
+    ``rng``, when supplied, is the explicit source of randomness; otherwise a
+    ``default_rng`` is derived from the per-condition seed. ``pybop.add_noise``
+    only accepts numpy's legacy global RNG, so it is called under an isolated
+    seed and the caller's global state is restored afterwards.
 
     Returns (dataset, metadata) where metadata records truth, noise and seed.
     """
@@ -109,10 +120,14 @@ def generate_dataset(
     noise_seed = int(spec.seed) + zlib.crc32(condition.name.encode("utf-8")) % (
         2**31
     )
-    np.random.seed(noise_seed)
+    generator = rng if rng is not None else np.random.default_rng(noise_seed)
+    # Preserve the historical bit stream when no generator is injected: the
+    # default path seeds the isolated legacy RNG with the recorded noise_seed.
+    legacy = noise_seed if rng is None else legacy_seed(generator)
     voltage_clean = np.asarray(solution["Terminal voltage [V]"](t), dtype=float)
     current = np.asarray(solution["Current [A]"](t), dtype=float)
-    voltage_noisy = pybop.add_noise(voltage_clean, spec.noise_sigma_V)
+    with isolated_numpy_seed(legacy):
+        voltage_noisy = pybop.add_noise(voltage_clean, spec.noise_sigma_V)
 
     dataset = pybop.Dataset(
         {"Time [s]": t, "Current [A]": current, "Voltage [V]": np.asarray(voltage_noisy)}
@@ -124,6 +139,7 @@ def generate_dataset(
         "noise_sigma_V": spec.noise_sigma_V,
         "seed": spec.seed,
         "noise_seed": noise_seed,
+        "rng_seed_used": legacy,
         "n_points": int(t.size),
         "t_end_s": float(t[-1]),
         "voltage_clean_range_V": [float(voltage_clean.min()), float(voltage_clean.max())],
@@ -133,9 +149,11 @@ def generate_dataset(
 
 def generate_datasets(
     spec: SyntheticSpec,
+    *,
+    rng: np.random.Generator | None = None,
 ) -> list[tuple[str, pybop.Dataset, dict[str, Any]]]:
     """Generate one dataset per condition (independent deterministic noise per
-    condition, derived from spec.seed and the condition name)."""
+    condition, derived from spec.seed and the condition name, or from ``rng``)."""
     return [
-        (cond.name, *generate_dataset(spec, cond)) for cond in spec.conditions
+        (cond.name, *generate_dataset(spec, cond, rng=rng)) for cond in spec.conditions
     ]
