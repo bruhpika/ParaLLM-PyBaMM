@@ -43,12 +43,15 @@ checks, and simulation are explicit and deterministic.
 
 ## Headline benchmark (P5, v3 — 37 items, 3 repeats/arm, mean ± std)
 
-Retrieval-grounded vs knowledge-without-evidence vs strict no-evidence, same
-model/task/schema/rubric, **v3 only** (`mimo-v2.6-flash`, temp 0). Full
-eval-split and per-item consistency: `results/p5/benchmark_v3/summary.md`,
-`docs/BENCHMARK_RESULTS.md`.
+Oracle-located evidence (upper bound) vs knowledge-without-evidence vs strict
+no-evidence, same model/task/schema/rubric, **v3 only** (`mimo-v2.6-flash`,
+temp 0). The `retrieval + strict` arm was given the ±260-char window around
+the fixture's hand-written probe; it is **not** a real retrieval result. Real
+full-store BM25 recall is reported in
+`results/p5/benchmark_v3/retrieval_recall.md`. Full eval-split and per-item
+consistency: `results/p5/benchmark_v3/summary.md`, `docs/BENCHMARK_RESULTS.md`.
 
-| metric (all) | retrieval + strict | no retrieval, memory permitted | no retrieval, strict |
+| metric (all) | oracle-located retrieval + strict (upper bound) | no retrieval, memory permitted | no retrieval, strict |
 |---|---:|---:|---:|
 | parameter identification | **0.718 ± 0.009** | 0.378 ± 0.086 | 0.000 ± 0.000 |
 | value extraction (matched) | **0.946 ± 0.022** | 0.272 ± 0.083 | n/a |

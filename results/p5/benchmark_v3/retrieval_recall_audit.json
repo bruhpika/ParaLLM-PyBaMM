@@ -1,0 +1,1127 @@
+{
+  "benchmark": "v3",
+  "generated": "2026-11-19T04:24:28.750063+00:00",
+  "per_item": [
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00035"
+      ],
+      "item_id": "V1-porosity-prose",
+      "query": "electrolyte volume fraction porosity NMC graphite LG M50 21700 temperature 298.15 FIB-SEM",
+      "recall": {
+        "recall@1": 1.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00003",
+        "pybamm_parameter_sets_docs#seg00092",
+        "chen2020_jes_167_080534#seg00007",
+        "chen2020_supplement_s1#seg00017",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00107",
+        "chen2020_jes_167_080534#seg00065",
+        "pybamm_parameter_sets_docs#seg00087",
+        "chen2020_jes_167_080534#seg00052"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00042"
+      ],
+      "item_id": "V2-conductivity-prose",
+      "query": "electrode conductivity NMC graphite LG M50 21700 temperature 298.15 four-point probe",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 0.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00007",
+        "pybamm_parameter_sets_docs#seg00087",
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_supplement_s1#seg00017",
+        "chen2020_jes_167_080534#seg00107",
+        "chen2020_supplement_s1#seg00045",
+        "chen2020_jes_167_080534#seg00057",
+        "chen2020_jes_167_080534#seg00065"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00042"
+      ],
+      "item_id": "V3-rated-capacity-prose",
+      "query": "nominal cell capacity LG M50 21700 temperature 298.15",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "goussian2024_batteries10_00205",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "pybamm_parameter_sets_docs#seg00081",
+        "pybamm_parameter_sets_docs#seg00073",
+        "pybamm_parameter_sets_docs#seg00087",
+        "pybamm_parameter_sets_docs#seg00085",
+        "chen2020_jes_167_080534#seg00007",
+        "pybamm_parameter_sets_docs#seg00092",
+        "pybamm_parameter_sets_docs#seg00054",
+        "goussian2024_batteries10_00205#seg00014",
+        "chen2020_supplement_s1#seg00017"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00023"
+      ],
+      "item_id": "V4-isothermal-temperature",
+      "query": "temperature LG M50 21700 model isothermal",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "dessantis2023_batteries9_0146",
+        "goussian2024_batteries10_00205",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "pybamm_parameter_sets_docs#seg00073",
+        "pybamm_parameter_sets_docs#seg00087",
+        "pybamm_parameter_sets_docs#seg00085",
+        "chen2020_jes_167_080534#seg00007",
+        "pybamm_parameter_sets_docs#seg00092",
+        "pybamm_parameter_sets_docs#seg00054",
+        "chen2020_jes_167_080534#seg00107",
+        "dessantis2023_batteries9_0146#seg00014",
+        "goussian2024_batteries10_00205#seg00013"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00065"
+      ],
+      "item_id": "V5-reaction-rates",
+      "query": "reaction rate exchange current density NMC graphite LG M50 21700 temperature 298.15 soc 50% EIS",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 0.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "dessantis2023_batteries9_0146",
+        "laue2021_jappl_electrochem_51_1253"
+      ],
+      "retrieved_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00014",
+        "chen2020_jes_167_080534#seg00057",
+        "chen2020_jes_167_080534#seg00003",
+        "dessantis2023_batteries9_0146#seg00011",
+        "chen2020_jes_167_080534#seg00065",
+        "chen2020_jes_167_080534#seg00007",
+        "laue2021_jappl_electrochem_51_1253#seg00005",
+        "chen2020_supplement_s1#seg00045",
+        "dessantis2023_batteries9_0146#seg00015",
+        "chen2020_jes_167_080534#seg00042"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00007"
+      ],
+      "item_id": "V6-abstain-sem",
+      "query": "separator tortuosity exponent separator LG M50 21700 SEM",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_supplement_s1#seg00017",
+        "chen2020_supplement_s1#seg00022",
+        "chen2020_jes_167_080534#seg00007",
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_supplement_s1#seg00013",
+        "chen2020_jes_167_080534#seg00076",
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00107",
+        "pybamm_parameter_sets_docs#seg00073",
+        "pybamm_parameter_sets_docs#seg00087"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00052"
+      ],
+      "item_id": "E8-table-diffusivities",
+      "query": "solid phase lithium diffusivity particle diffusivity NMC graphite LG M50 21700 temperature 298.15 GITT",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00052",
+        "chen2020_jes_167_080534#seg00057",
+        "chen2020_jes_167_080534#seg00107",
+        "chen2020_jes_167_080534#seg00007",
+        "pybamm_parameter_sets_docs#seg00087",
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00077",
+        "chen2020_supplement_s1#seg00017"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00042"
+      ],
+      "item_id": "E9-max-concentration-pos",
+      "query": "maximum concentration NMC LG M50 21700 temperature 298.15",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00007",
+        "pybamm_parameter_sets_docs#seg00073",
+        "chen2020_jes_167_080534#seg00107",
+        "pybamm_parameter_sets_docs#seg00087",
+        "pybamm_parameter_sets_docs#seg00085",
+        "chen2020_supplement_s1#seg00012",
+        "pybamm_parameter_sets_docs#seg00092"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00035"
+      ],
+      "item_id": "E10-particle-radii-list",
+      "query": "particle radius NMC graphite silicon LG M50 21700 temperature 298.15 SEM",
+      "recall": {
+        "recall@1": 1.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_supplement_s1#seg00017",
+        "chen2020_supplement_s1#seg00022",
+        "chen2020_jes_167_080534#seg00007",
+        "pybamm_parameter_sets_docs#seg00087",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00107",
+        "chen2020_jes_167_080534#seg00057",
+        "chen2020_supplement_s1#seg00013"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00099"
+      ],
+      "item_id": "E11-bruggeman-theoretical",
+      "query": "Bruggeman coefficient tortuosity exponent NMC graphite separator LG M50 21700 temperature 298.15",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "pybamm_parameter_sets_docs#seg00087",
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00107",
+        "chen2020_jes_167_080534#seg00057",
+        "chen2020_jes_167_080534#seg00007",
+        "chen2020_supplement_s1#seg00017",
+        "chen2020_supplement_s1#seg00045",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00052"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00057"
+      ],
+      "item_id": "E12-j0-pos-eis",
+      "query": "exchange current density NMC LG M50 21700 temperature 298.15 soc 50% EIS",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "dessantis2023_batteries9_0146",
+        "laue2021_jappl_electrochem_51_1253"
+      ],
+      "retrieved_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00014",
+        "chen2020_jes_167_080534#seg00057",
+        "dessantis2023_batteries9_0146#seg00011",
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00065",
+        "chen2020_jes_167_080534#seg00007",
+        "laue2021_jappl_electrochem_51_1253#seg00009",
+        "dessantis2023_batteries9_0146#seg00007",
+        "laue2021_jappl_electrochem_51_1253#seg00010",
+        "dessantis2023_batteries9_0146#seg00005"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00065"
+      ],
+      "item_id": "E13-transference",
+      "query": "cation transference number LG M50 21700 temperature 298.15 electrolyte_concentration 1 mol dm-3",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "dessantis2023_batteries9_0146",
+        "goussian2024_batteries10_00205",
+        "laue2021_jappl_electrochem_51_1253",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "pybamm_parameter_sets_docs#seg00092",
+        "chen2020_jes_167_080534#seg00065",
+        "chen2020_jes_167_080534#seg00007",
+        "goussian2024_batteries10_00205#seg00003",
+        "chen2020_jes_167_080534#seg00003",
+        "dessantis2023_batteries9_0146#seg00005",
+        "chen2020_jes_167_080534#seg00107",
+        "laue2021_jappl_electrochem_51_1253#seg00005",
+        "laue2021_jappl_electrochem_51_1253#seg00001",
+        "dessantis2023_batteries9_0146#seg00023"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_jes_167_080534#seg00075"
+      ],
+      "item_id": "E15-volume-fractions-table",
+      "query": "active material volume fraction NMC graphite LG M50 21700 temperature 298.15",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00035",
+        "pybamm_parameter_sets_docs#seg00087",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00052",
+        "chen2020_supplement_s1#seg00017",
+        "chen2020_jes_167_080534#seg00007",
+        "chen2020_jes_167_080534#seg00107",
+        "chen2020_jes_167_080534#seg00057",
+        "chen2020_supplement_s1#seg00045"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_supplement_s1#seg00033"
+      ],
+      "item_id": "E4-supp-sep-porosity",
+      "query": "separator porosity electrolyte volume fraction separator LG M50 21700 temperature 298.15 FIB-SEM",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "dessantis2023_batteries9_0146",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00035",
+        "pybamm_parameter_sets_docs#seg00092",
+        "chen2020_jes_167_080534#seg00007",
+        "chen2020_supplement_s1#seg00017",
+        "dessantis2023_batteries9_0146#seg00005",
+        "chen2020_supplement_s1#seg00022",
+        "chen2020_supplement_s1#seg00013",
+        "chen2020_jes_167_080534#seg00107",
+        "dessantis2023_batteries9_0146#seg00003",
+        "pybamm_parameter_sets_docs#seg00094"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "chen2020_supplement_s1#seg00009"
+      ],
+      "item_id": "E7-supp-datasheet-abstain",
+      "query": "nominal capacity cell capacity LG M50 21700",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "pybamm_parameter_sets_docs#seg00081",
+        "chen2020_jes_167_080534#seg00003",
+        "pybamm_parameter_sets_docs#seg00073",
+        "pybamm_parameter_sets_docs#seg00087",
+        "pybamm_parameter_sets_docs#seg00085",
+        "pybamm_parameter_sets_docs#seg00092",
+        "pybamm_parameter_sets_docs#seg00054",
+        "chen2020_supplement_s1#seg00017",
+        "chen2020_jes_167_080534#seg00007",
+        "chen2020_jes_167_080534#seg00107"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "pybamm_parameter_sets_docs#seg00075"
+      ],
+      "item_id": "E1-msmr-pos-j0",
+      "query": "reference exchange current density NMC622 graphite MSMR example",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 0.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "dessantis2023_batteries9_0146",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00014",
+        "chen2020_jes_167_080534#seg00057",
+        "dessantis2023_batteries9_0146#seg00011",
+        "pybamm_parameter_sets_docs#seg00071",
+        "pybamm_parameter_sets_docs#seg00075",
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_supplement_s1#seg00045",
+        "chen2020_jes_167_080534#seg00065",
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00042"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "pybamm_parameter_sets_docs#seg00075"
+      ],
+      "item_id": "E2-msmr-neg-j0",
+      "query": "reference exchange current density graphite MSMR example",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 0.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "dessantis2023_batteries9_0146",
+        "goussian2024_batteries10_00205",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00014",
+        "dessantis2023_batteries9_0146#seg00011",
+        "chen2020_jes_167_080534#seg00057",
+        "pybamm_parameter_sets_docs#seg00075",
+        "chen2020_jes_167_080534#seg00065",
+        "chen2020_supplement_s1#seg00045",
+        "pybamm_parameter_sets_docs#seg00071",
+        "chen2020_jes_167_080534#seg00003",
+        "goussian2024_batteries10_00205#seg00004",
+        "chen2020_jes_167_080534#seg00063"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "pybamm_parameter_sets_docs#seg00075"
+      ],
+      "item_id": "E3-msmr-4th-reaction-placeholder",
+      "query": "exchange current density symmetry factor NMC622 MSMR example",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "dessantis2023_batteries9_0146",
+        "goussian2024_batteries10_00205",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00057",
+        "pybamm_parameter_sets_docs#seg00075",
+        "dessantis2023_batteries9_0146#seg00014",
+        "dessantis2023_batteries9_0146#seg00011",
+        "pybamm_parameter_sets_docs#seg00071",
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_supplement_s1#seg00045",
+        "chen2020_jes_167_080534#seg00065",
+        "chen2020_jes_167_080534#seg00035",
+        "goussian2024_batteries10_00205#seg00004"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "pybamm_parameter_sets_docs#seg00057"
+      ],
+      "item_id": "E-docs-kokam-capacity",
+      "query": "cell capacity Kokam SLPB pouch",
+      "recall": {
+        "recall@1": 1.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "pybamm_parameter_sets_docs#seg00057",
+        "pybamm_parameter_sets_docs#seg00060",
+        "pybamm_parameter_sets_docs#seg00081",
+        "pybamm_parameter_sets_docs#seg00064",
+        "pybamm_parameter_sets_docs#seg00094",
+        "chen2020_jes_167_080534#seg00003",
+        "pybamm_parameter_sets_docs#seg00102",
+        "pybamm_parameter_sets_docs#seg00076",
+        "pybamm_parameter_sets_docs#seg00096",
+        "pybamm_parameter_sets_docs#seg00078"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "pybamm_parameter_sets_docs#seg00050"
+      ],
+      "item_id": "E-docs-sei-abstain",
+      "query": "SEI kinetic rate constant",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "dessantis2023_batteries9_0146",
+        "goussian2024_batteries10_00205",
+        "laue2021_jappl_electrochem_51_1253",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "goussian2024_batteries10_00205#seg00002",
+        "laue2021_jappl_electrochem_51_1253#seg00001",
+        "goussian2024_batteries10_00205#seg00003",
+        "pybamm_parameter_sets_docs#seg00105",
+        "dessantis2023_batteries9_0146#seg00023",
+        "laue2021_jappl_electrochem_51_1253#seg00004",
+        "goussian2024_batteries10_00205#seg00004",
+        "pybamm_parameter_sets_docs#seg00069",
+        "dessantis2023_batteries9_0146#seg00024",
+        "dessantis2023_batteries9_0146#seg00000"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "laue2021_jappl_electrochem_51_1253#seg00005"
+      ],
+      "item_id": "P5-L1-thickness-table",
+      "query": "electrode thickness separator thickness NMC111 graphite NMC111 graphite measured",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00044",
+        "chen2020_jes_167_080534#seg00052",
+        "chen2020_supplement_s1#seg00009",
+        "chen2020_jes_167_080534#seg00023",
+        "chen2020_jes_167_080534#seg00029",
+        "chen2020_supplement_s1#seg00045",
+        "chen2020_jes_167_080534#seg00007"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "laue2021_jappl_electrochem_51_1253#seg00005"
+      ],
+      "item_id": "P5-L2-porosity-table",
+      "query": "porosity electrode porosity NMC111 graphite separator NMC111 graphite measured",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00052",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00007",
+        "chen2020_jes_167_080534#seg00044",
+        "chen2020_jes_167_080534#seg00107",
+        "chen2020_jes_167_080534#seg00032",
+        "chen2020_jes_167_080534#seg00074",
+        "chen2020_jes_167_080534#seg00057"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "laue2021_jappl_electrochem_51_1253#seg00005"
+      ],
+      "item_id": "P5-L3-exchange-current-table",
+      "query": "exchange current density NMC111 graphite NMC111 graphite parameter estimation C-rate test",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "dessantis2023_batteries9_0146",
+        "goussian2024_batteries10_00205",
+        "laue2021_jappl_electrochem_51_1253"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00057",
+        "dessantis2023_batteries9_0146#seg00014",
+        "dessantis2023_batteries9_0146#seg00011",
+        "chen2020_supplement_s1#seg00045",
+        "chen2020_jes_167_080534#seg00065",
+        "chen2020_jes_167_080534#seg00003",
+        "goussian2024_batteries10_00205#seg00004",
+        "laue2021_jappl_electrochem_51_1253#seg00008",
+        "dessantis2023_batteries9_0146#seg00019",
+        "dessantis2023_batteries9_0146#seg00015"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "laue2021_jappl_electrochem_51_1253#seg00005"
+      ],
+      "item_id": "P5-L4-solid-diffusivity-table",
+      "query": "solid phase lithium diffusivity particle diffusivity NMC111 graphite NMC111 graphite parameter estimation C-rate test",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "laue2021_jappl_electrochem_51_1253"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00052",
+        "chen2020_jes_167_080534#seg00057",
+        "laue2021_jappl_electrochem_51_1253#seg00008",
+        "laue2021_jappl_electrochem_51_1253#seg00004",
+        "laue2021_jappl_electrochem_51_1253#seg00009",
+        "laue2021_jappl_electrochem_51_1253#seg00006",
+        "chen2020_jes_167_080534#seg00099",
+        "laue2021_jappl_electrochem_51_1253#seg00003"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "laue2021_jappl_electrochem_51_1253#seg00005"
+      ],
+      "item_id": "P5-L5-transference-literature",
+      "query": "cation transference number NMC111 graphite temperature 298.15 literature value",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "dessantis2023_batteries9_0146"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_supplement_s1#seg00045",
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00057",
+        "chen2020_jes_167_080534#seg00065",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00044",
+        "dessantis2023_batteries9_0146#seg00023",
+        "chen2020_jes_167_080534#seg00052",
+        "chen2020_jes_167_080534#seg00086"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "laue2021_jappl_electrochem_51_1253#seg00005"
+      ],
+      "item_id": "P5-L6-electrolyte-diffusivity-table",
+      "query": "electrolyte diffusivity electrolyte diffusion coefficient NMC111 graphite parameter estimation",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "laue2021_jappl_electrochem_51_1253",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00052",
+        "pybamm_parameter_sets_docs#seg00092",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00065",
+        "chen2020_jes_167_080534#seg00057",
+        "laue2021_jappl_electrochem_51_1253#seg00009",
+        "laue2021_jappl_electrochem_51_1253#seg00004",
+        "laue2021_jappl_electrochem_51_1253#seg00003"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "laue2021_jappl_electrochem_51_1253#seg00006"
+      ],
+      "item_id": "P5-L7-reference-system-temperature",
+      "query": "temperature reference temperature NMC111 graphite NMC111 graphite chamber 25 C three-electrode cell",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_supplement_s1#seg00045",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_jes_167_080534#seg00057",
+        "chen2020_jes_167_080534#seg00007",
+        "chen2020_jes_167_080534#seg00044",
+        "pybamm_parameter_sets_docs#seg00087",
+        "chen2020_jes_167_080534#seg00065",
+        "chen2020_jes_167_080534#seg00107"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "laue2021_jappl_electrochem_51_1253#seg00004"
+      ],
+      "item_id": "P5-L8-abstain-tortuosity-exponent",
+      "query": "tortuosity exponent bruggeman exponent separator NMC111 graphite",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00003",
+        "chen2020_jes_167_080534#seg00035",
+        "chen2020_jes_167_080534#seg00076",
+        "chen2020_jes_167_080534#seg00044",
+        "chen2020_jes_167_080534#seg00042",
+        "chen2020_supplement_s1#seg00045",
+        "chen2020_jes_167_080534#seg00107",
+        "chen2020_jes_167_080534#seg00052",
+        "pybamm_parameter_sets_docs#seg00087",
+        "pybamm_parameter_sets_docs#seg00072"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00014"
+      ],
+      "item_id": "P5-D1-lfp-j0-vs-temperature",
+      "query": "exchange current density LFP lithium metal Li-metal LFP soc 50% temperature [293.15, 333.15] EIS PEIS equivalent circuit fit",
+      "recall": {
+        "recall@1": 1.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "dessantis2023_batteries9_0146"
+      ],
+      "retrieved_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00014",
+        "dessantis2023_batteries9_0146#seg00011",
+        "chen2020_jes_167_080534#seg00057",
+        "dessantis2023_batteries9_0146#seg00013",
+        "dessantis2023_batteries9_0146#seg00007",
+        "dessantis2023_batteries9_0146#seg00023",
+        "dessantis2023_batteries9_0146#seg00005",
+        "dessantis2023_batteries9_0146#seg00022",
+        "dessantis2023_batteries9_0146#seg00008",
+        "chen2020_jes_167_080534#seg00065"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00005"
+      ],
+      "item_id": "P5-D2-sei-j0-arrhenius",
+      "query": "SEI exchange current density activation energy Li-metal LFP literature Arrhenius model",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "dessantis2023_batteries9_0146",
+        "goussian2024_batteries10_00205",
+        "laue2021_jappl_electrochem_51_1253"
+      ],
+      "retrieved_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00014",
+        "dessantis2023_batteries9_0146#seg00011",
+        "chen2020_jes_167_080534#seg00065",
+        "dessantis2023_batteries9_0146#seg00023",
+        "chen2020_jes_167_080534#seg00057",
+        "goussian2024_batteries10_00205#seg00002",
+        "dessantis2023_batteries9_0146#seg00000",
+        "goussian2024_batteries10_00205#seg00004",
+        "laue2021_jappl_electrochem_51_1253#seg00010",
+        "dessantis2023_batteries9_0146#seg00024"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00015"
+      ],
+      "item_id": "P5-D3-lfp-cs-max-comsol",
+      "query": "maximum concentration saturation concentration LFP Li-metal LFP temperature 293.15 COMSOL library",
+      "recall": {
+        "recall@1": 1.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "dessantis2023_batteries9_0146",
+        "goussian2024_batteries10_00205"
+      ],
+      "retrieved_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00015",
+        "goussian2024_batteries10_00205#seg00003",
+        "dessantis2023_batteries9_0146#seg00007",
+        "dessantis2023_batteries9_0146#seg00005",
+        "dessantis2023_batteries9_0146#seg00024",
+        "dessantis2023_batteries9_0146#seg00023",
+        "dessantis2023_batteries9_0146#seg00002",
+        "dessantis2023_batteries9_0146#seg00014",
+        "dessantis2023_batteries9_0146#seg00000",
+        "dessantis2023_batteries9_0146#seg00008"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00015"
+      ],
+      "item_id": "P5-D4-lfp-sigma-D-comsol",
+      "query": "electronic conductivity solid phase lithium diffusivity LFP Li-metal LFP temperature 293.15 COMSOL library",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "dessantis2023_batteries9_0146",
+        "goussian2024_batteries10_00205",
+        "laue2021_jappl_electrochem_51_1253"
+      ],
+      "retrieved_segment_ids": [
+        "chen2020_jes_167_080534#seg00077",
+        "goussian2024_batteries10_00205#seg00003",
+        "dessantis2023_batteries9_0146#seg00023",
+        "chen2020_jes_167_080534#seg00078",
+        "dessantis2023_batteries9_0146#seg00003",
+        "laue2021_jappl_electrochem_51_1253#seg00004",
+        "laue2021_jappl_electrochem_51_1253#seg00009",
+        "dessantis2023_batteries9_0146#seg00002",
+        "chen2020_jes_167_080534#seg00057",
+        "dessantis2023_batteries9_0146#seg00024"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00015"
+      ],
+      "item_id": "P5-D5-radius-and-cell-area",
+      "query": "particle radius cell area LFP Li-metal LFP temperature 293.15 FESEM coin cell",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "chen2020_supplement_s1",
+        "dessantis2023_batteries9_0146"
+      ],
+      "retrieved_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00007",
+        "dessantis2023_batteries9_0146#seg00005",
+        "chen2020_jes_167_080534#seg00035",
+        "dessantis2023_batteries9_0146#seg00008",
+        "chen2020_supplement_s1#seg00013",
+        "chen2020_supplement_s1#seg00022",
+        "dessantis2023_batteries9_0146#seg00023",
+        "chen2020_jes_167_080534#seg00073",
+        "dessantis2023_batteries9_0146#seg00013",
+        "chen2020_jes_167_080534#seg00031"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00014"
+      ],
+      "item_id": "P5-DRC-rct-vs-temperature",
+      "query": "charge transfer resistance LFP Li-metal LFP soc 50% temperature [293.15, 333.15] EIS PEIS ZView equivalent circuit",
+      "recall": {
+        "recall@1": 1.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "dessantis2023_batteries9_0146"
+      ],
+      "retrieved_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00014",
+        "dessantis2023_batteries9_0146#seg00011",
+        "chen2020_jes_167_080534#seg00057",
+        "dessantis2023_batteries9_0146#seg00007",
+        "dessantis2023_batteries9_0146#seg00013",
+        "dessantis2023_batteries9_0146#seg00005",
+        "dessantis2023_batteries9_0146#seg00023",
+        "dessantis2023_batteries9_0146#seg00008",
+        "dessantis2023_batteries9_0146#seg00022",
+        "chen2020_jes_167_080534#seg00065"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00005"
+      ],
+      "item_id": "P5-D6-abstain-transference",
+      "query": "cation transference number transference number Li-metal LFP",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 1.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "dessantis2023_batteries9_0146",
+        "laue2021_jappl_electrochem_51_1253"
+      ],
+      "retrieved_segment_ids": [
+        "dessantis2023_batteries9_0146#seg00024",
+        "dessantis2023_batteries9_0146#seg00002",
+        "dessantis2023_batteries9_0146#seg00023",
+        "chen2020_jes_167_080534#seg00086",
+        "dessantis2023_batteries9_0146#seg00008",
+        "dessantis2023_batteries9_0146#seg00000",
+        "dessantis2023_batteries9_0146#seg00001",
+        "dessantis2023_batteries9_0146#seg00005",
+        "dessantis2023_batteries9_0146#seg00007",
+        "laue2021_jappl_electrochem_51_1253#seg00003"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "goussian2024_batteries10_00205#seg00004"
+      ],
+      "item_id": "P5-G2-symmetry-factor-assumption",
+      "query": "charge transfer coefficient symmetry factor Butler-Volmer",
+      "recall": {
+        "recall@1": 1.0,
+        "recall@10": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "dessantis2023_batteries9_0146",
+        "goussian2024_batteries10_00205",
+        "laue2021_jappl_electrochem_51_1253",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "goussian2024_batteries10_00205#seg00004",
+        "chen2020_jes_167_080534#seg00057",
+        "chen2020_jes_167_080534#seg00016",
+        "dessantis2023_batteries9_0146#seg00004",
+        "dessantis2023_batteries9_0146#seg00011",
+        "goussian2024_batteries10_00205#seg00002",
+        "pybamm_parameter_sets_docs#seg00075",
+        "goussian2024_batteries10_00205#seg00003",
+        "dessantis2023_batteries9_0146#seg00014",
+        "laue2021_jappl_electrochem_51_1253#seg00003"
+      ]
+    },
+    {
+      "gold_segment_ids": [
+        "goussian2024_batteries10_00205#seg00020"
+      ],
+      "item_id": "P5-G3-abstain-capacity-confidential",
+      "query": "cell capacity nominal capacity",
+      "recall": {
+        "recall@1": 0.0,
+        "recall@10": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0
+      },
+      "retrieved_documents": [
+        "chen2020_jes_167_080534",
+        "dessantis2023_batteries9_0146",
+        "laue2021_jappl_electrochem_51_1253",
+        "pybamm_parameter_sets_docs"
+      ],
+      "retrieved_segment_ids": [
+        "pybamm_parameter_sets_docs#seg00081",
+        "pybamm_parameter_sets_docs#seg00082",
+        "dessantis2023_batteries9_0146#seg00017",
+        "chen2020_jes_167_080534#seg00042",
+        "dessantis2023_batteries9_0146#seg00000",
+        "dessantis2023_batteries9_0146#seg00019",
+        "laue2021_jappl_electrochem_51_1253#seg00007",
+        "dessantis2023_batteries9_0146#seg00021",
+        "dessantis2023_batteries9_0146#seg00002",
+        "pybamm_parameter_sets_docs#seg00123"
+      ]
+    }
+  ]
+}

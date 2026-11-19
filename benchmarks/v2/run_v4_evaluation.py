@@ -1,11 +1,16 @@
 """Run the PRIVATE v4 condition benchmark (V2.5 exit criterion).
 
-Compares the evidence modes on the same private fixture:
+Compares the evidence arms on the same private fixture:
 
-  compact   v0.1 behaviour: +/-260-character window around the probe
-  expanded  V2.5 slice 1: condition-aware window + document-level setup
-  v25       V2.5 full: table-aware chunking + top-k multi-window + document
-            level setup conditions
+  compact    ORACLE-LOCATED (UPPER BOUND): +/-260-character window around probe
+  expanded   ORACLE-LOCATED: condition-aware window + document-level setup
+  v25        ORACLE-LOCATED: expanded + table-aware chunking + top-k multi-window
+  retrieval  REAL RETRIEVAL: BM25 over the full store, query from parameter
+             name/unit only (no probe, target document or gold conditions)
+
+The first three arms search for the fixture's hand-written probe; they are an
+upper bound and are labelled as such in every output. Only ``retrieval`` is a
+retrieval result.
 
 Metrics (frozen scorer in ``eval/benchmark_v4.py``):
 
@@ -52,9 +57,16 @@ from pybamm_closed_loop.eval.benchmark_v4 import (  # noqa: E402
 from pybamm_closed_loop.eval.benchmark_p5 import (  # noqa: E402
     candidates_from_raw,
 )
+from pybamm_closed_loop.eval.retrieval_arms import (  # noqa: E402
+    DEFAULT_RETRIEVAL_K,
+    ORACLE_LABEL,
+    REAL_RETRIEVAL_LABEL,
+    retrieval_context_for_item,
+)
 from pybamm_closed_loop.literature.extraction import (  # noqa: E402
     OpenAICompatibleClient,
 )
+from pybamm_closed_loop.literature.index import BM25Index  # noqa: E402
 from pybamm_closed_loop.literature.ingest import DocumentStore  # noqa: E402
 
 PRIVATE_ROOT = REPO_ROOT / "data/private_v4"
@@ -63,14 +75,60 @@ STORE_DIR = PRIVATE_ROOT / "store"
 PRIVATE_RESULTS = PRIVATE_ROOT / "results"
 PUBLIC_RESULTS = REPO_ROOT / "results/v2/v4"
 
+ORACLE_MODES = ("compact", "expanded", "v25")
+RETRIEVAL_MODE = "retrieval"
 
-def run_mode(items, store, mode: str, client, repeat: int, sleep_s: float = 0.0) -> dict:
+
+def _is_retrieval_mode(mode: str) -> bool:
+    return mode in (RETRIEVAL_MODE, "real_retrieval", "bm25")
+
+
+def _arm_label(mode: str) -> str:
+    if _is_retrieval_mode(mode):
+        return f"{REAL_RETRIEVAL_LABEL}: {mode}"
+    return f"{ORACLE_LABEL}: {mode}"
+
+
+def _tag_label(tag: str) -> str:
+    mode = tag.rsplit("_r", 1)[0]
+    return f"{_arm_label(mode)} ({tag.rsplit('_r', 1)[-1]})"
+
+
+def run_mode(
+    items,
+    store,
+    mode: str,
+    client,
+    repeat: int,
+    sleep_s: float = 0.0,
+    *,
+    index: BM25Index | None = None,
+    retrieval_k: int = DEFAULT_RETRIEVAL_K,
+) -> dict:
     prompt = build_v4_prompt()
     rows = []
     raw_rows = []
+    retrieval_audits = []
     t0 = time.monotonic()
     for idx, item in enumerate(items, start=1):
-        evidence = _evidence_block(item, store, mode)
+        retrieval_audit = None
+        if _is_retrieval_mode(mode):
+            context = retrieval_context_for_item(
+                item, store, k=retrieval_k, index=index
+            )
+            evidence = context.to_evidence_block()
+            retrieval_audit = {
+                "item_id": item.item_id,
+                "query": context.query,
+                "retrieved_segment_ids": [
+                    segment.segment_id for segment in context.segments
+                ],
+                "retrieved_documents": list(context.retrieved_from),
+                "n_segments": len(context.segments),
+            }
+            retrieval_audits.append(retrieval_audit)
+        else:
+            evidence = _evidence_block(item, store, mode)
         user_block = (
             "QUERY: extract the parameter value and its experimental conditions "
             "for this passage.\n\n"
@@ -110,12 +168,25 @@ def run_mode(items, store, mode: str, client, repeat: int, sleep_s: float = 0.0)
                 "repeat": repeat,
                 "raw": raw,
                 "evidence": evidence,
+                "evidence_source": (
+                    "retrieval" if _is_retrieval_mode(mode) else "oracle"
+                ),
+                "retrieval": retrieval_audit,
             }
         )
         tag = ("ERROR" if transport_error else ("abstain" if not candidates else f"{len(candidates)} cand"))
         print(f"  [{mode} r{repeat}] {idx}/{len(items)} {item.item_id}: {tag} "
               f"({time.monotonic() - t0:.0f}s)", flush=True)
-    return {"mode": mode, "repeat": repeat, "rows": rows, "raw": raw_rows}
+    return {
+        "mode": mode,
+        "repeat": repeat,
+        "evidence_source": (
+            "retrieval" if _is_retrieval_mode(mode) else "oracle"
+        ),
+        "retrieval_audits": retrieval_audits,
+        "rows": rows,
+        "raw": raw_rows,
+    }
 
 
 def rescore_from_raw(items, mode: str, repeat: int, raw_path: Path) -> list[dict]:
@@ -211,9 +282,19 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
         },
         "repeats": args.repeats,
         "modes": args.modes,
+        "arm_labels": {mode: _arm_label(mode) for mode in args.modes},
+        "evidence_sources": {
+            mode: ("retrieval" if _is_retrieval_mode(mode) else "oracle")
+            for mode in args.modes
+        },
+        "retrieval_k": getattr(args, "retrieval_k", DEFAULT_RETRIEVAL_K),
         "summary": summaries,
         "arm_means": arm_means,
         "note": (
+            f"{ORACLE_LABEL}: the evidence is located from the fixture probe and is "
+            "an upper bound, not a retrieval result. "
+            f"{REAL_RETRIEVAL_LABEL}: the query uses only parameter name/unit and "
+            "BM25 searches the full store. "
             "Condition-field accuracy counts a gold 'not_stated' field as matched "
             "only when the extraction reports nothing there; invented conditions are "
             "always penalised. Per-item results stay private."
@@ -225,18 +306,24 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
         "# V2.5 — private v4 condition benchmark",
         "",
         f"extractor: `{extractor['model']}` @ `{extractor['base_url']}` "
+        f"date `{extractor.get('date', 'n/a')}` "
         "(identical across arms; not comparable with the v0.1/v3 numbers, which "
         "used a different model)",
         "",
         f"{len(items)} items (PRIVATE fixture, not published), categories: "
         + ", ".join(f"{k}={v}" for k, v in payload["categories"].items()),
         "",
+        f"- {ORACLE_LABEL}: compact/expanded/v25 locate evidence from the probe; "
+        "upper bound, not retrieval.",
+        f"- {REAL_RETRIEVAL_LABEL}: query from parameter name/unit only; full-store "
+        "BM25; no probe, target document or gold condition used.",
+        "",
     ]
     if arm_means:
         lines += [
             "## Arms (mean +/- std over repeats)",
             "",
-            "| metric | " + " | ".join(arm_means) + " |",
+            "| metric | " + " | ".join(_arm_label(m) for m in arm_means) + " |",
             "|---|" + "---|" * len(arm_means),
         ]
         for metric in _METRICS:
@@ -250,7 +337,7 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
             "",
             "## Per condition field (mean +/- std over repeats)",
             "",
-            "| field | " + " | ".join(arm_means) + " |",
+            "| field | " + " | ".join(_arm_label(m) for m in arm_means) + " |",
             "|---|" + "---|" * len(arm_means),
         ]
         for fname in ("chemistry", "cell", "format", "temperature_k", "soc", "method", "protocol"):
@@ -263,7 +350,11 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
         lines += ["", "transport errors excluded from scoring: "
                   + ", ".join(f"{m}={arm_means[m].get('n_transport_errors')}" for m in arm_means), ""]
     lines += ["", "Per-repeat summaries:"]
-    lines += ["", "| metric | " + " | ".join(summaries) + " |", "|---|" + "---|" * len(summaries)]
+    lines += [
+        "",
+        "| metric | " + " | ".join(_tag_label(t) for t in summaries) + " |",
+        "|---|" + "---|" * len(summaries),
+    ]
     for metric in _METRICS:
         row = [metric]
         for tag in summaries:
@@ -275,7 +366,13 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--modes", nargs="+", default=["compact", "expanded", "v25"])
+    ap.add_argument(
+        "--modes",
+        nargs="+",
+        default=["compact", "expanded", "v25", RETRIEVAL_MODE],
+        help="evidence arms; compact/expanded/v25 are oracle-located upper bounds, "
+        "retrieval is real full-store BM25",
+    )
     ap.add_argument("--repeats", type=int, default=1)
     ap.add_argument("--items", default=str(FIXTURE))
     ap.add_argument("--out", default=str(PUBLIC_RESULTS))
@@ -298,6 +395,12 @@ def main() -> int:
         default=4.0,
         help="seconds between model calls (free-tier rate limits)",
     )
+    ap.add_argument(
+        "--retrieval-k",
+        type=int,
+        default=DEFAULT_RETRIEVAL_K,
+        help="number of BM25 segments shown to the extractor in the retrieval arm",
+    )
     args = ap.parse_args()
 
     items = load_items(args.items)
@@ -309,9 +412,11 @@ def main() -> int:
     # --rescore / --aggregate-only, so the client is only built when needed.
     # Re-score preserves the extractor recorded in the previous summary so the
     # arm stays labelled with the model that actually produced the raw outputs.
+    now = datetime.now(timezone.utc).isoformat()
     extractor = {
         "model": os.environ.get("PYCL_LLM_MODEL", "unknown"),
         "base_url": os.environ.get("PYCL_LLM_BASE_URL", "unknown"),
+        "date": now[:10],
         "note": (
             "The extractor is held identical across evidence modes, so the arms are "
             "comparable with each other. Absolute numbers are NOT comparable with the "
@@ -326,6 +431,7 @@ def main() -> int:
             prev_ext = {}
         extractor["model"] = prev_ext.get("model", extractor["model"])
         extractor["base_url"] = prev_ext.get("base_url", extractor["base_url"])
+        extractor["date"] = prev_ext.get("date", extractor["date"])
     print(f"private v4 fixture: {len(items)} items", flush=True)
 
     summaries = {}
@@ -375,9 +481,16 @@ def main() -> int:
     store = DocumentStore(STORE_DIR)
     inner = OpenAICompatibleClient()
     client = RobustLLMClient(inner, attempts=6, backoff_s=10.0)
+    retrieval_index = (
+        BM25Index(store.segments())
+        if any(_is_retrieval_mode(mode) for mode in args.modes)
+        else None
+    )
+    live_now = datetime.now(timezone.utc).isoformat()
     extractor = {
         "model": inner.model,
         "base_url": inner.base_url,
+        "date": live_now[:10],
         "note": extractor["note"],
     }
     print(f"extractor: {extractor['model']} @ {extractor['base_url']}", flush=True)
@@ -391,7 +504,16 @@ def main() -> int:
                 summaries[tag] = aggregate(rows)
                 print(f"--- {tag}: {json.dumps(summaries[tag]['all'], sort_keys=True)}", flush=True)
                 continue
-            report = run_mode(items, store, mode, client, repeat, args.sleep)
+            report = run_mode(
+                items,
+                store,
+                mode,
+                client,
+                repeat,
+                args.sleep,
+                index=retrieval_index,
+                retrieval_k=args.retrieval_k,
+            )
             tag = f"{mode}_r{repeat}"
             (PRIVATE_RESULTS / f"rows_{tag}.json").write_text(
                 json.dumps(report["rows"], indent=2, sort_keys=True)

@@ -26,15 +26,19 @@ Calibration and validation data must remain disjoint.
   tiers same-doc-dev/heldout, cross-document, other-cell-family; **6 abstention**
   items. v2 items preserved; v3 only (no P4/v2 aggregates mixed). See
   `docs/P5_BENCHMARK_EXPANSION.md`.
-- **Protocol:** 4 conditions (retrieval_strict, no_retrieval_memory,
-  no_retrieval_strict, offline reference), **3 repeated runs per LLM arm**
-  (offline n=1), same model/task/schema/frozen P4 rubric, temp 0,
-  `mimo-v2.6-flash` via OpenAI-compatible endpoint. **Raw model outputs preserved
-  verbatim** per repeat. Transient transport failures (2 retrieval repeats)
-  documented and resumed without overwriting originals
+- **Protocol:** 4 conditions (oracle-located `retrieval_strict`,
+  no_retrieval_memory, no_retrieval_strict, offline reference), **3 repeated
+  runs per LLM arm** (offline n=1), same model/task/schema/frozen P4 rubric,
+  temp 0, `mimo-v2.6-flash` via OpenAI-compatible endpoint. The `retrieval_strict`
+  arm was given a ±260-char window around the fixture probe: it is an
+  **oracle-located upper bound**, not a real retrieval result. **Raw model
+  outputs preserved verbatim** per repeat. Transient transport failures (2
+  oracle retrieval repeats) documented and resumed without overwriting originals
   (`raw_outputs_retrieval_strict_r0.partial_pre_incompleteread.jsonl`).
   Artifacts: `results/p5/benchmark_v3/` (`report_*`, `aggregate_*`,
-  `consistency_*`, `summary.md`).
+  `consistency_*`, `summary.md`). A real full-store BM25 arm is implemented as
+  `retrieval_bm25_strict` (LLM) and `offline_bm25` (deterministic);
+  gold-passage recall is in `results/p5/benchmark_v3/retrieval_recall.md`.
 - **Metrics (frozen P4 semantics):** parameter identification, value extraction,
   unit accuracy, provenance, condition completeness, qualifier classification,
   abstention accuracy, false extraction rate (value/unit/provenance/condition/
@@ -42,7 +46,7 @@ Calibration and validation data must remain disjoint.
 
 ### Aggregate (all 37, mean ± population std over repeats)
 
-| metric | retrieval_strict (n=3) | no_retrieval_memory (n=3) | no_retrieval_strict (n=3) | offline (n=1) |
+| metric | oracle-located retrieval_strict (n=3) | no_retrieval_memory (n=3) | no_retrieval_strict (n=3) | offline (n=1) |
 |---|---:|---:|---:|---:|
 | parameter identification | **0.718 ± 0.009** | 0.378 ± 0.086 | 0.000 ± 0.000 | 0.500 ± 0.000 |
 | value extraction | **0.946 ± 0.022** | 0.272 ± 0.083 | n/a | 0.500 ± 0.000 |
@@ -55,7 +59,7 @@ Calibration and validation data must remain disjoint.
 
 ### Held-out eval split (29 items, mean ± std)
 
-| metric | retrieval_strict | no_retrieval_memory | no_retrieval_strict | offline |
+| metric | oracle-located retrieval_strict | no_retrieval_memory | no_retrieval_strict | offline |
 |---|---:|---:|---:|---:|
 | parameter identification | **0.708 ± 0.012** | 0.392 ± 0.123 | 0.000 ± 0.000 | 0.400 ± 0.000 |
 | value extraction | **0.953 ± 0.017** | 0.197 ± 0.085 | n/a | 0.250 ± 0.000 |
@@ -83,6 +87,28 @@ Calibration and validation data must remain disjoint.
   under retrieval; larger under memory). Per-item: `consistency_*.json`.
   Consistently weak: E12-j0-pos-eis, P5-L3/L4/L6 table/scale parsing,
   V5-reaction-rates, E4-supp-sep-porosity.
+
+### Real BM25 retrieval (recall only; no LLM run yet)
+
+BM25 over the full document store, with the query built only from item facets
+(v3) or parameter name/unit (v4), finds the gold segment at:
+
+| benchmark | recall@1 | recall@3 | recall@5 | recall@10 |
+|---|---:|---:|---:|---:|
+| v3 (37 items) | 0.189 | 0.351 | 0.459 | 0.486 |
+| private v4 (30 items) | 0.300 | 0.867 | 0.900 | 1.000 |
+
+Sources: `results/p5/benchmark_v3/retrieval_recall.md`,
+`results/v2/v4/retrieval_recall.md`. The probe is used only as the
+post-retrieval evaluation label, never in the query or evidence selection.
+
+A deterministic offline side-by-side (no API, `results/p5/benchmark_v3/summary.md`)
+shows the cost of losing the oracle locator: parameter identification
+0.500 → 0.846, value extraction 0.500 → 0.386, provenance 1.000 → 0.773,
+false extraction 0.000 → 0.195, abstention 1.000 → 0.167 (oracle → real). The
+real-retrieval **LLM** arm (`retrieval_bm25_strict` / v4 `retrieval`) is
+implemented but has not been run; it requires a live model call and owner
+approval. These are not retrieval-quality claims about the LLM arm.
 
 ## 3. Real experimental validation — **not claimed**
 

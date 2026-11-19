@@ -20,10 +20,12 @@ No prompt/scoring/model/fixture change between repeats.
 
 | condition | evidence | knowledge | prompt |
 |---|---|---|---|
-| `retrieval_strict` | ±260-char archive passage | no (evidence only) | P5 strict |
+| `retrieval_strict` | **oracle-located (upper bound)**: ±260-char archive passage around probe | no (evidence only) | P5 strict |
+| `retrieval_bm25_strict` | **real retrieval (BM25)**: full-store query from facets | no (evidence only) | P5 strict |
 | `no_retrieval_strict` | none | no | P5 strict → must abstain |
 | `no_retrieval_memory` | none | **permitted** (marked) | P5 memory: `document_id=model_knowledge`, `quote=null`, method `model memory (unverified)` |
-| `offline` (reference) | passage | n/a | deterministic extractor |
+| `offline` (reference) | oracle-located passage | n/a | deterministic extractor |
+| `offline_bm25` (reference) | real BM25 passages | n/a | deterministic extractor |
 
 ## Aggregate metrics (all 37 items, mean ± pop std over repeats)
 
@@ -61,7 +63,24 @@ Held-out **eval split** (29 items), retrieval_strict: id 0.708±0.012, value
   all / 0.035 eval): many passages state parameter values without explicitly
   stating temperature + cell_config together, and rule 6 forbids inference.
 
-## Per-item consistency (retrieval_strict, 3 repeats)
+## Real BM25 retrieval (no LLM run)
+
+`benchmarks/v2/report_retrieval_recall.py --benchmark v3` measures gold-segment
+recall for the real-retrieval arm without any model call: recall@1 **0.189**,
+recall@3 **0.351**, recall@5 **0.459**, recall@10 **0.486** over 37 items
+(`results/p5/benchmark_v3/retrieval_recall.md`). The query uses only the
+`RetrievalFacets` fields; the probe labels the gold segment *after* retrieval.
+
+The deterministic offline side-by-side (no API) is in
+`results/p5/benchmark_v3/summary.md`: oracle → real gives parameter
+identification **0.500 → 0.846**, value extraction **0.500 → 0.386**,
+provenance **1.000 → 0.773**, false extraction **0.000 → 0.195**, abstention
+**1.000 → 0.167**. This is the offline extractor, not the LLM; it shows that
+removing the oracle locator changes both recall and error modes. The LLM arm
+`retrieval_bm25_strict` is implemented but has not been run (live API approval
+required), so no LLM oracle-vs-real extraction numbers are claimed.
+
+## Per-item consistency (oracle-located retrieval_strict, 3 repeats)
 
 15 metric-variances observed across 13 items; most are qualifier/condition/unit
 borderline cases. Consistently weak items: `E12-j0-pos-eis` (id 0.00, Rct-vs-j0

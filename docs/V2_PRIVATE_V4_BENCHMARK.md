@@ -116,7 +116,12 @@ runner and the offline re-score (`run_v4_evaluation.py --rescore`):
 
 ## 6. Extractor disclosure (important)
 
-The v0.1/v3 results were produced with `mimo-v2.6-flash`. The v4 arms were
+All v4 evidence modes (`compact`, `expanded`, `v25`) are **oracle-located
+(upper bounds)**: they search the fixture's hand-written `probe` in the raw
+text. They are not retrieval results. A real full-store BM25 arm (`retrieval`)
+builds the query from the item's parameter name and unit only; its gold-passage
+recall is reported below and no live LLM run has been made. The v0.1/v3 results
+were produced with `mimo-v2.6-flash`. The v4 arms were
 produced with **`gemini-flash-lite-latest` (free tier)** because the MiMo token
 plan was exhausted in this environment.
 
@@ -138,7 +143,7 @@ See `results/v2/v4/summary.md` (aggregate only; per-item rows stay private).
 Headline metrics (mean ± std over 3 repeats; raw = pre-discipline value in
 brackets):
 
-| metric | compact (v0.1) | expanded | v25 (full) |
+| metric | oracle compact (upper bound) | oracle expanded (upper bound) | oracle v25 (upper bound) |
 |---|---:|---:|---:|
 | condition-field accuracy | 0.144 ± 0.016 [0.165] | 0.294 ± 0.018 [0.300] | **0.310 ± 0.022** [0.320] |
 | value found | 0.389 ± 0.016 | 0.389 ± 0.042 | **0.583 ± 0.014** |
@@ -150,7 +155,7 @@ brackets):
 
 Per condition field (disciplined, mean ± std over 3 repeats):
 
-| field | compact | expanded | v25 |
+| field | oracle compact | oracle expanded | oracle v25 |
 |---|---:|---:|---:|
 | chemistry | **0.000 ± 0.000** | 0.178 ± 0.126 | 0.143 ± 0.027 |
 | cell | 0.196 ± 0.023 | **0.360 ± 0.010** | 0.186 ± 0.021 |
@@ -160,7 +165,7 @@ Per condition field (disciplined, mean ± std over 3 repeats):
 | method | 0.352 ± 0.026 | **0.620 ± 0.024** | 0.568 ± 0.164 |
 | protocol | 0.607 ± 0.046 | 0.619 ± 0.062 | **0.743 ± 0.082** |
 
-Transport errors excluded from scoring: compact 0, expanded 0, v25 6 (free-tier
+Transport errors excluded from scoring: oracle compact 0, oracle expanded 0, oracle v25 6 (free-tier
 503s; they are counted, never scored as abstentions).
 
 Superseded numbers: the previously published invented rates (0.411 / 0.500 /
@@ -239,6 +244,25 @@ capability claim, and they are **not comparable** with the v0.1/v3 results
 reference for extraction quality; v4 answers a different question. The
 roadmap's V2.5 exit criterion (condition completeness ≥ 0.5, false extraction
 0.000) is **not met** at 0.310 / 0.058 (best arm / best arm).
+
+### 7.3 Real BM25 retrieval arm (recall only)
+
+The oracle arms above locate evidence from the fixture's `probe`; they are
+upper bounds. `benchmarks/v2/report_retrieval_recall.py --benchmark v4` adds a
+real-retrieval arm that queries BM25 over the full four-document v4 store with
+only the parameter name and unit (no probe, target document, gold conditions,
+printed value or gold value). Gold-passage recall over the 30 private items is
+recall@1 **0.300**, recall@3 **0.867**, recall@5 **0.900**, recall@10 **1.000**
+(`results/v2/v4/retrieval_recall.md`). The per-item audit stays private under
+`data/private_v4/results/retrieval_recall_audit.json`; the public aggregate
+contains no fixture text.
+
+The LLM extraction arm `retrieval` is implemented in
+`benchmarks/v2/run_v4_evaluation.py` (and replayable via `--rescore`) but has
+**not been run**: it requires a live model call and owner approval. No
+oracle-vs-real LLM extraction numbers are claimed. Existing compact/expanded/v25
+results are labelled `oracle-located (upper bound)` in the regenerated
+`summary.md`/`summary.json`.
 
 ## 8. What this benchmark does and does not establish
 

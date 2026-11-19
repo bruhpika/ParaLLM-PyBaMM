@@ -3,12 +3,18 @@ conditions, with repeated runs.
 
 Conditions (Task 3 ablation; identical model, task, schema and rubric):
 
-  retrieval_strict      evidence = the +/-260-char archive passage,
-                        system prompt = P5 evidence-grounded rules
+  retrieval_strict      ORACLE-LOCATED (UPPER BOUND): a +/-260-char window
+                        around the fixture probe; the probe is the answer
+                        location, not a retrieval result
+  retrieval_bm25_strict REAL RETRIEVAL: BM25 query from the item facets over
+                        the complete document store (no probe/document filter)
   no_retrieval_strict   evidence = none, same strict prompt
   no_retrieval_memory   evidence = none, P5 prompt that PERMITS model
                         knowledge (must mark document_id="model_knowledge",
                         quote null - no fabricated provenance)
+
+The deterministic ``offline`` reference uses the oracle window by default;
+``offline_bm25`` uses the real-retrieval context for a no-API comparison.
 
 Each condition is run N times (default 3) because the model has shown
 run-to-run variance at temperature 0; raw outputs are preserved verbatim
@@ -42,7 +48,9 @@ from .benchmark_p4 import (
 )
 from .extraction_prompt_p5 import build_extraction_prompt_p5, extract_with_prompt
 from .provenance_p5 import ProvenanceReport, summarize, verify_candidate
+from .retrieval_arms import DEFAULT_RETRIEVAL_K, retrieval_context_for_item
 from ..literature.extraction import run_extraction
+from ..literature.index import BM25Index
 from ..literature.ingest import DocumentStore
 from ..literature.retrieval import RAGContext, RetrievalFacets, RetrievedSegment
 from ..registry.textnorm import ascii_fold
@@ -365,13 +373,29 @@ class RobustLLMClient:
 # ---------------------------------------------------------------------------
 # conditions
 # ---------------------------------------------------------------------------
-CONDITIONS = ("retrieval_strict", "no_retrieval_strict", "no_retrieval_memory")
+CONDITIONS = (
+    "retrieval_strict",
+    "retrieval_bm25_strict",
+    "no_retrieval_strict",
+    "no_retrieval_memory",
+)
+OFFLINE_CONDITIONS = ("offline", "offline_bm25")
 
 _CONDITION_SPECS: dict[str, dict[str, Any]] = {
-    "retrieval_strict": dict(memory_permitted=False, use_evidence=True),
-    "no_retrieval_strict": dict(memory_permitted=False, use_evidence=False),
-    "no_retrieval_memory": dict(memory_permitted=True, use_evidence=False),
+    "retrieval_strict": dict(
+        memory_permitted=False, use_evidence=True, evidence_source="oracle"
+    ),
+    "retrieval_bm25_strict": dict(
+        memory_permitted=False, use_evidence=True, evidence_source="retrieval"
+    ),
+    "no_retrieval_strict": dict(
+        memory_permitted=False, use_evidence=False, evidence_source="none"
+    ),
+    "no_retrieval_memory": dict(
+        memory_permitted=True, use_evidence=False, evidence_source="none"
+    ),
 }
+_OFFLINE_EVIDENCE_SOURCE = {"offline": "oracle", "offline_bm25": "retrieval"}
 
 
 EVIDENCE_MODES = ("compact", "expanded", "v25")
@@ -380,8 +404,12 @@ EVIDENCE_MODES = ("compact", "expanded", "v25")
 def _evidence_block(
     item: Any, store: DocumentStore, evidence_mode: str = "compact"
 ) -> str:
-    """Build the evidence text for one item (v3 or v4 fixture item)."""
-    """Build the evidence text for one item.
+    """ORACLE-LOCATED evidence (upper bound) for one v3/v4 item.
+
+    This function locates the evidence by searching for the fixture's
+    hand-written probe. That is useful as an upper bound but it is **not**
+    retrieval: the probe is the answer location. Real retrieval lives in
+    ``eval.retrieval_arms``.
 
     ``compact``  : the v0.1 behaviour — a strict +/-260-character window around
                    the probe. The committed v3 results were produced with this
@@ -390,6 +418,7 @@ def _evidence_block(
                    the probe plus the document-level experimental-setup
                    sentences (verbatim), clearly labelled as document-level
                    statements.
+    ``v25``      : expanded + table-aware chunking + deduplicated multi-window.
     """
     probe = getattr(item, "passage_probe", None) or item.probe
     if evidence_mode == "compact":
@@ -445,35 +474,70 @@ def _evidence_block(
     return text
 
 
+def _context_for_item(
+    item: BenchmarkItemP4,
+    store: DocumentStore,
+    evidence_source: str,
+    evidence_mode: str = "compact",
+    *,
+    index: BM25Index | None = None,
+    retrieval_k: int = DEFAULT_RETRIEVAL_K,
+) -> RAGContext:
+    """Build the evidence context for one item under an explicit source."""
+    if evidence_source == "retrieval":
+        return retrieval_context_for_item(
+            item, store, k=retrieval_k, index=index
+        )
+    if evidence_source != "oracle":
+        raise ValueError(f"unknown evidence source {evidence_source!r}")
+    facets = RetrievalFacets(**item.facets)
+    passage = _evidence_block(item, store, evidence_mode)
+    return RAGContext(
+        query=facets.query_text(),
+        facets=item.facets,
+        segments=[
+            RetrievedSegment(
+                segment_id=f"{item.item_id}#oracle-passage",
+                document_id=item.document_id,
+                page=None,
+                heading=None,
+                text=passage,
+                score=1.0,
+            )
+        ],
+        retrieved_from=[item.document_id],
+    )
+
+
+def _no_evidence_block(item: BenchmarkItemP4) -> str:
+    query = RetrievalFacets(**item.facets).query_text()
+    return (
+        f"QUERY: {query}\n\n"
+        "(No evidence passages are available in this condition.)\n"
+    )
+
+
 def _user_block(
     item: BenchmarkItemP4,
     store: DocumentStore,
     use_evidence: bool,
     evidence_mode: str = "compact",
+    *,
+    evidence_source: str = "oracle",
+    index: BM25Index | None = None,
+    retrieval_k: int = DEFAULT_RETRIEVAL_K,
 ) -> str:
-    facets = RetrievalFacets(**item.facets)
-    if use_evidence:
-        passage = _evidence_block(item, store, evidence_mode)
-        context = RAGContext(
-            query=facets.query_text(),
-            facets=item.facets,
-            segments=[
-                RetrievedSegment(
-                    segment_id=f"{item.item_id}#passage",
-                    document_id=item.document_id,
-                    page=None,
-                    heading=None,
-                    text=passage,
-                    score=1.0,
-                )
-            ],
-            retrieved_from=[item.document_id],
-        )
-        return context.to_prompt_block()
-    return (
-        f"QUERY: {facets.query_text()}\n\n"
-        "(No evidence passages are available in this condition.)\n"
-    )
+    """Prompt block for one item (oracle by default, explicit source opt-in)."""
+    if not use_evidence:
+        return _no_evidence_block(item)
+    return _context_for_item(
+        item,
+        store,
+        evidence_source,
+        evidence_mode,
+        index=index,
+        retrieval_k=retrieval_k,
+    ).to_prompt_block()
 
 
 def run_condition(
@@ -485,42 +549,68 @@ def run_condition(
     repeat_index: int = 0,
     on_progress: Any | None = None,
     evidence_mode: str = "compact",
+    *,
+    index: BM25Index | None = None,
+    retrieval_k: int = DEFAULT_RETRIEVAL_K,
 ) -> dict[str, Any]:
     """One pass over ``items`` under one condition; raw outputs preserved."""
-    if condition not in _CONDITION_SPECS and condition != "offline":
+    if condition not in _CONDITION_SPECS and condition not in OFFLINE_CONDITIONS:
         raise ValueError(f"unknown condition {condition!r}")
-    spec = _CONDITION_SPECS.get(condition, dict(memory_permitted=False, use_evidence=True))
+    if condition in OFFLINE_CONDITIONS:
+        spec = dict(
+            memory_permitted=False,
+            use_evidence=True,
+            evidence_source=_OFFLINE_EVIDENCE_SOURCE[condition],
+        )
+    else:
+        spec = _CONDITION_SPECS[condition]
     system_prompt = build_extraction_prompt_p5(memory_permitted=spec["memory_permitted"])
 
     per_item: list[dict[str, Any]] = []
     raw_outputs: list[dict[str, Any]] = []
     provenance_reports: list[ProvenanceReport] = []
+    retrieval_audits: list[dict[str, Any]] = []
+    retrieval_index = index
 
     for idx, item in enumerate(items):
         raw_doc_text = (store.raw_dir / f"{item.document_id}.txt").read_text()
-        if condition == "offline":
-            passage = _evidence_block(item, store, evidence_mode)
-            context = RAGContext(
-                query=RetrievalFacets(**item.facets).query_text(),
-                facets=item.facets,
-                segments=[
-                    RetrievedSegment(
-                        segment_id=f"{item.item_id}#passage",
-                        document_id=item.document_id,
-                        page=None,
-                        heading=None,
-                        text=passage,
-                        score=1.0,
-                    )
-                ],
-                retrieved_from=[item.document_id],
+        context: RAGContext | None = None
+        if spec["use_evidence"]:
+            if spec["evidence_source"] == "retrieval" and retrieval_index is None:
+                retrieval_index = BM25Index(store.segments())
+            context = _context_for_item(
+                item,
+                store,
+                spec["evidence_source"],
+                evidence_mode,
+                index=retrieval_index,
+                retrieval_k=retrieval_k,
             )
+            if spec["evidence_source"] == "retrieval":
+                retrieval_audits.append(
+                    {
+                        "item_id": item.item_id,
+                        "query": context.query,
+                        "retrieved_segment_ids": [
+                            segment.segment_id for segment in context.segments
+                        ],
+                        "retrieved_documents": list(context.retrieved_from),
+                        "n_segments": len(context.segments),
+                    }
+                )
+
+        if condition in OFFLINE_CONDITIONS:
+            assert context is not None
             batch = run_extraction(client, context)
             candidates = [c.payload for c in batch.valid()]
             abstained = batch.abstained or not candidates
             raw_content = None
         else:
-            user_block = _user_block(item, store, spec["use_evidence"], evidence_mode)
+            user_block = (
+                context.to_prompt_block()
+                if context is not None
+                else _no_evidence_block(item)
+            )
             candidates, abstained, raw_content = extract_with_prompt(
                 client, system_prompt, user_block
             )
@@ -532,6 +622,7 @@ def run_condition(
             provider=getattr(client, "name", condition),
             raw=raw_content,
             n_candidates=len(candidates),
+            evidence_source=spec["evidence_source"],
         )
         raw_outputs.append(row)
         if raw_sink is not None:
@@ -549,6 +640,9 @@ def run_condition(
     return dict(
         condition=condition,
         repeat=repeat_index,
+        evidence_source=spec["evidence_source"],
+        retrieval_k=retrieval_k if spec["evidence_source"] == "retrieval" else None,
+        retrieval_audits=retrieval_audits,
         per_item=per_item,
         raw_outputs=raw_outputs,
         provenance_summary=summarize(provenance_reports),

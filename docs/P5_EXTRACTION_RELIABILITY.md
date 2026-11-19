@@ -69,7 +69,7 @@ non-zero false-extraction/unsupported counts and zero provenance (see T3).
 ## Weakest-metric movement (P4 → P5, not a direct apples-to-apples claim)
 
 P4 `llm_rag` eval (v2, 14 eval items, single canonical run): condition 0.000,
-qualifier 0.588, provenance 0.706, unit 0.941. P5 `retrieval_strict` eval (v3,
+qualifier 0.588, provenance 0.706, unit 0.941. P5 oracle-located `retrieval_strict` eval (v3,
 29 eval items, 3 repeats, mean±std): condition **0.035±0.001**, qualifier
 **0.776±0.019**, provenance **0.953±0.017** (matched-candidate rule), unit
 **0.938±0.024**; false extraction **0.000±0.000**. **Condition completeness

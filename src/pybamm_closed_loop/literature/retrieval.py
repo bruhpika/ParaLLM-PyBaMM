@@ -67,14 +67,22 @@ class RAGContext:
     segments: list[RetrievedSegment]
     retrieved_from: list[str]  # document ids
 
-    def to_prompt_block(self) -> str:
-        """Text block handed to the LLM: ONLY these passages are evidence."""
-        lines = [f"QUERY: {self.query}", ""]
+    def to_evidence_block(self) -> str:
+        """Only the retrieved passages, with provenance headers (no rule text)."""
+        lines: list[str] = []
         for i, seg in enumerate(self.segments):
             loc = f"page {seg.page}" if seg.page is not None else "no page structure"
-            lines.append(f"[EVIDENCE {i + 1}] document={seg.document_id} {loc} heading={seg.heading!r}")
+            lines.append(
+                f"[EVIDENCE {i + 1}] document={seg.document_id} {loc} "
+                f"heading={seg.heading!r}"
+            )
             lines.append(seg.text.strip())
             lines.append("")
+        return "\n".join(lines).rstrip()
+
+    def to_prompt_block(self) -> str:
+        """Text block handed to the LLM: ONLY these passages are evidence."""
+        lines = [f"QUERY: {self.query}", "", self.to_evidence_block(), ""]
         lines.append(
             "RULE: extract ONLY statements supported by the evidence above; "
             "otherwise return UNRESOLVED for the missing fields."

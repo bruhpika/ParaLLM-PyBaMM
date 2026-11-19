@@ -39,7 +39,7 @@ exchange current, |corr|>0.8 in P2) limit what voltage data can identify.
 
 Benchmark v3 (37 items, 8 dev/29 eval, 6 abstention, 6 docs, v3 only) was run
 with 3 repeats per LLM arm (mean ± std). Grounded retrieval
-(`retrieval_strict`, n=3, all/eval) achieved value 0.946±0.022 / 0.953±0.017,
+(oracle-located `retrieval_strict`, n=3, all/eval) achieved value 0.946±0.022 / 0.953±0.017,
 provenance 0.928±0.026 / 0.929±0.001, qualifier 0.741±0.033 / 0.776±0.019,
 false extraction 0.000, abstention 1.000; strict no-evidence abstained on all
 items. **However:**

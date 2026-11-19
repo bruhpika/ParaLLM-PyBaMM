@@ -91,6 +91,48 @@ def test_synonym_expansion():
     assert "size" in terms  # via particle_radius alias group
 
 
+def test_query_expansion_is_deduplicated():
+    terms = expand_query("particle radius particle")
+    assert len(terms) == len(set(terms))
+    assert terms.count("particle") == 1
+    assert terms.count("radius") == 1
+
+
+def test_inverted_index_matches_naive_bm25(tmp_path):
+    import math
+    from collections import Counter
+
+    from pybamm_closed_loop.literature.index import tokenize
+
+    store = DocumentStore(tmp_path)
+    store.ingest_text("docA", TEXT_A)
+    store.ingest_text("docB", TEXT_B)
+    segments = store.segments()
+    index = BM25Index(segments)
+    query = "electrolyte diffusivity Nyman particle radius"
+    terms = expand_query(query)
+    n = len(segments)
+    docs_tokens = [tokenize(s.text) for s in segments]
+    doc_len = [len(t) for t in docs_tokens]
+    avgdl = sum(doc_len) / n
+    df = Counter(term for toks in docs_tokens for term in set(toks))
+    expected = [0.0] * n
+    for term in terms:
+        if df[term] == 0:
+            continue
+        idf = math.log(1 + (n - df[term] + 0.5) / (df[term] + 0.5))
+        for i, toks in enumerate(docs_tokens):
+            tf = toks.count(term)
+            if tf == 0:
+                continue
+            denom = tf + 1.5 * (1 - 0.75 + 0.75 * doc_len[i] / avgdl)
+            expected[i] += idf * (tf * (1.5 + 1)) / denom
+    expected_order = [i for i in sorted(range(n), key=lambda i: expected[i], reverse=True) if expected[i] > 0]
+    actual = index.search(query, k=n)
+    assert [seg.segment_id for seg, _ in actual] == [segments[i].segment_id for i in expected_order]
+    assert [score for _, score in actual] == pytest.approx([expected[i] for i in expected_order])
+
+
 def test_rag_context_only_contains_retrieved_passages(tmp_path):
     store = DocumentStore(tmp_path)
     store.ingest_text("docA", TEXT_A)

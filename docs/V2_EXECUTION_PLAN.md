@@ -79,7 +79,7 @@ from backup before re-scoring.
 numbers; arms comparable with each other; mean ± std over 3 repeats/arm;
 disciplined value with the raw value in brackets):
 
-| metric | compact | expanded | v25 |
+| metric | oracle compact (upper bound) | oracle expanded (upper bound) | oracle v25 (upper bound) |
 |---|---:|---:|---:|
 | condition-field accuracy | 0.144 ± 0.016 [0.165] | 0.294 ± 0.018 [0.300] | **0.310 ± 0.022** [0.320] |
 | value found | 0.389 ± 0.016 | 0.389 ± 0.042 | **0.583 ± 0.014** |
@@ -87,7 +87,7 @@ disciplined value with the raw value in brackets):
 | temperature / format / SOC | 0.059 / 0.196 / 0.374 | 0.479 / 0.980 / 0.461 | **0.591 / 0.976 / 0.515** |
 | chemistry / protocol | 0.000 / 0.607 | 0.178 / 0.619 | 0.143 / **0.743** |
 
-Transport errors excluded: compact 0, expanded 0, v25 6 (free-tier 503s).
+Transport errors excluded: oracle compact 0, oracle expanded 0, oracle v25 6 (free-tier 503s).
 
 **Honest read of the discipline pass (measured, not assumed):**
 - It fires — on average 3.5–14.9 conditions per item are dropped for having no

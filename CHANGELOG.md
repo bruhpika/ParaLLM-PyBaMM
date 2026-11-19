@@ -10,6 +10,30 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Retrieval arms (2026-11-19)
+
+- **Oracle vs real retrieval separated.** The probe-based evidence path is now
+  labelled **oracle-located (upper bound)** in the harness, public summaries and
+  docs; it is not described as retrieval. Added a real BM25 arm that queries the
+  complete document store from v3 `RetrievalFacets` or v4 parameter name/unit
+  only — no probe, target document, printed/gold value or gold condition enters
+  the query or evidence selection.
+- **BM25 indexing:** deduplicated expanded terms and added an inverted index
+  without changing ranking on the existing tests; tightened multi-word alias
+  triggering so a generic shared token cannot expand an unrelated synonym group.
+- **Recall reporting:** new no-API script
+  `benchmarks/v2/report_retrieval_recall.py` (gold probe used only as a
+  post-retrieval label). v3 recall@1/3/5/10 = **0.189 / 0.351 / 0.459 / 0.486**;
+  private v4 = **0.300 / 0.867 / 0.900 / 1.000**. Per-item v4 audit remains
+  private; public aggregates are in `results/{p5/benchmark_v3,v2/v4}/retrieval_recall.*`.
+- **End-to-end side-by-side:** added `offline_bm25` (deterministic extractor,
+  no API) and the LLM `retrieval_bm25_strict` / v4 `retrieval` arms. Replay is
+  offline via `--rescore` and records model, base URL and date in run metadata.
+  The deterministic v3 oracle→real comparison shows value extraction
+  **0.500 → 0.386**, provenance **1.000 → 0.773**, false extraction
+  **0.000 → 0.195**. The LLM real-retrieval arms are implemented but **not run**
+  (no live API call made); no LLM oracle-vs-real extraction numbers are claimed.
+
 ### Landed so far (2026-11-17)
 
 - **V2.5 (third slice) — verification pass + `not_stated` discipline**

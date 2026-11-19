@@ -77,25 +77,38 @@ def expand_query(query: str) -> list[str]:
 
     When a group is triggered, all of its aliases are added (full-group
     expansion), so e.g. 'particle radius' also retrieves 'particle size'.
+    Duplicate terms are removed while preserving first-occurrence order so a
+    synonym listed twice cannot silently double-weight a query term.
     """
     q_tokens = set(tokenize(query))
-    terms = list(q_tokens)
+    terms = tokenize(query)
     folded = ascii_fold(query.lower())
+
+    def alias_matches(alias: str) -> bool:
+        a_tokens = tokenize(alias)
+        if alias in folded:
+            return True
+        if len(a_tokens) == 1:
+            return a_tokens[0] in q_tokens
+        # A multi-word alias needs all of its tokens. Triggering on any one
+        # shared token made "electrolyte diffusivity" expand to porosity merely
+        # because both phrases contain "electrolyte".
+        return bool(a_tokens) and set(a_tokens) <= q_tokens
+
     for _key, aliases in SYNONYMS.items():
-        triggered = False
-        for alias in aliases:
-            a_tokens = tokenize(alias)
-            if set(a_tokens) & q_tokens or alias in folded:
-                triggered = True
-                break
-        if triggered:
+        if any(alias_matches(alias) for alias in aliases):
             for alias in aliases:
                 terms.extend(tokenize(alias))
-    return terms
+    return list(dict.fromkeys(terms))
 
 
 class BM25Index:
-    """Deterministic BM25 over a list of segments (k1=1.5, b=0.75)."""
+    """Deterministic BM25 over a list of segments (k1=1.5, b=0.75).
+
+    An inverted index (term -> [(segment index, term frequency)]) keeps the
+    scoring formula unchanged while only visiting documents that contain each
+    query term.
+    """
 
     def __init__(self, segments: list[Segment], k1: float = 1.5, b: float = 0.75):
         self.segments = segments
@@ -104,9 +117,13 @@ class BM25Index:
         self._docs_tokens: list[list[str]] = [tokenize(s.text) for s in segments]
         self._doc_len: list[int] = [len(t) for t in self._docs_tokens]
         self._avgdl = (sum(self._doc_len) / len(self._doc_len)) if segments else 0.0
-        self._df: Counter[str] = Counter()
-        for toks in self._docs_tokens:
-            self._df.update(set(toks))
+        self._postings: dict[str, list[tuple[int, int]]] = {}
+        for i, toks in enumerate(self._docs_tokens):
+            for term, tf in Counter(toks).items():
+                self._postings.setdefault(term, []).append((i, tf))
+        self._df: Counter[str] = Counter(
+            {term: len(postings) for term, postings in self._postings.items()}
+        )
 
     def search(self, query: str, k: int = 8) -> list[tuple[Segment, float]]:
         terms = expand_query(query)
@@ -115,15 +132,15 @@ class BM25Index:
         n = len(self.segments)
         scores: list[float] = [0.0] * n
         for term in terms:
-            df = self._df.get(term, 0)
-            if df == 0:
+            postings = self._postings.get(term)
+            if not postings:
                 continue
+            df = self._df[term]
             idf = math.log(1 + (n - df + 0.5) / (df + 0.5))
-            for i, toks in enumerate(self._docs_tokens):
-                tf = toks.count(term)
-                if tf == 0:
-                    continue
-                denom = tf + self.k1 * (1 - self.b + self.b * self._doc_len[i] / (self._avgdl or 1))
+            for i, tf in postings:
+                denom = tf + self.k1 * (
+                    1 - self.b + self.b * self._doc_len[i] / (self._avgdl or 1)
+                )
                 scores[i] += idf * (tf * (self.k1 + 1)) / denom
         ranked = sorted(range(n), key=lambda i: scores[i], reverse=True)
         return [(self.segments[i], scores[i]) for i in ranked[:k] if scores[i] > 0]
