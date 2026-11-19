@@ -29,7 +29,10 @@ from pybamm_closed_loop.eval.retrieval_arms import (  # noqa: E402
     REAL_RETRIEVAL_LABEL,
     evaluate_recall,
 )
-from pybamm_closed_loop.literature.availability import without_supplement_items  # noqa: E402
+from pybamm_closed_loop.literature.availability import (  # noqa: E402
+    without_article_items,
+    without_supplement_items,
+)
 from pybamm_closed_loop.literature.index import BM25Index  # noqa: E402
 from pybamm_closed_loop.literature.ingest import DocumentStore  # noqa: E402
 
@@ -86,7 +89,9 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.benchmark == "v3":
-        items = without_supplement_items(load_items_v3(V3_ITEMS), V3_STORE)
+        items = without_article_items(
+            without_supplement_items(load_items_v3(V3_ITEMS), V3_STORE), V3_STORE
+        )
         store = DocumentStore(V3_STORE)
         out_dir = V3_OUT
         query_rule = "v3 RetrievalFacets (parameter names, materials, cell, conditions, techniques)"

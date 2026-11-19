@@ -12,6 +12,44 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Licensing: fetch + verify the Chen2020 article locally (normal commit)
+
+- Untracked (normal `git rm`, no history rewrite):
+  `data/raw_documents/chen2020_jes_167_080534/chen2020_jes_167_080534_fulltext.txt`,
+  `data/literature_store/raw/chen2020_jes_167_080534.txt`,
+  `data/literature_store/segments/chen2020_jes_167_080534.json`. Removed the
+  article entry from `documents.json`; a command confirmed the remaining four
+  entries are byte-identical and the JSON is valid. Added all four local paths
+  to `.gitignore` (PDF, standalone text, raw text, segments).
+- Added `scripts/fetch_chen2020.py`: the owner supplies a PDF path (no download
+  or scraping); the script reads the expected sha256 from
+  `docs/DATA_PROVENANCE.md`, refuses to ingest on a mismatch or while the hash
+  is owner-to-fill, and otherwise uses `DocumentStore.ingest_pdf`. No PDF hash
+  was recorded in the repo or the Task F report, so
+  `docs/DATA_PROVENANCE.md` carries `Chen2020 article PDF sha256: TODO (owner to
+  fill)` and the script refuses until it is a real 64-hex value. The previously
+  tracked text hash `dffc1f9f…` is recorded for checking the regenerated text.
+- `literature/availability.py` gained article equivalents of the supplement
+  skip helpers; P4/P5-v3/v3-recall/condition-coverage now drop article items
+  with a printed reason when the local text is absent, and P3's runner exits
+  with a clear skip message. Tests requiring the archived text skip explicitly
+  (module-level where applicable): `tests/integration/test_p3_pipeline.py`,
+  `tests/integration/test_p4_pipeline.py`,
+  `tests/characterization/test_char_p3_offline.py`, two tests in
+  `tests/unit/test_evidence_v2.py`, and
+  `tests/integration/test_assembly_report.py::test_cli_over_real_registry`.
+  No check is weakened when the text is present.
+- **Minimal verbatim spans kept (unchanged, counted locally):** 6 probes in
+  `data/eval/extraction_benchmark_v1.jsonl`, 13 in `extraction_benchmark_v2.jsonl`
+  and 13 in `extraction_benchmark_v3.jsonl` (article items), plus 36 verbatim
+  registry quotes across 29 records in `data/registry/registry.json`. No gold
+  label or fixture was edited; no new spans were hand-created.
+- `docs/BENCHMARK_RESULTS.md` §5 states that committed numbers require the
+  local ingest and gives the exact commands. **Tests** (6 new): hash parsing,
+  owner-TODO/mismatch refusal, verified ingest via a fake store, no network
+  imports, and article-item filtering. Verification: ruff clean; core scope
+  332 passed, 12 skipped (the five additional skips above), 3 deselected.
+
 ### Licensing: untrack Chen2020 supplement derivatives (normal commit)
 
 - Untracked (normal `git rm`, no history rewrite):

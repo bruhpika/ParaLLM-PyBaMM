@@ -23,6 +23,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pybamm_closed_loop.eval.benchmark import load_items, run_benchmark  # noqa: E402
+from pybamm_closed_loop.literature.availability import (  # noqa: E402
+    ARTICLE_MISSING_REASON,
+    article_source_text_available,
+)
 from pybamm_closed_loop.literature.extraction import (  # noqa: E402
     OfflineDeterministicExtractor,
     OpenAICompatibleClient,
@@ -42,6 +46,8 @@ def main() -> int:
     ap.add_argument("--out", default="results/p3")
     ap.add_argument("--items", default="data/eval/extraction_benchmark_v1.jsonl")
     args = ap.parse_args()
+    if not article_source_text_available():
+        raise SystemExit(f"SKIP P3 benchmark: {ARTICLE_MISSING_REASON}")
 
     store = DocumentStore(REPO_ROOT / "data/literature_store")
     if DOC_ID not in {d.document_id for d in store.documents()}:

@@ -18,6 +18,19 @@ def _raw(doc: str) -> str:
     return (RAW / f"{doc}.txt").read_text()
 
 
+def _article_raw() -> str:
+    import pytest
+
+    from pybamm_closed_loop.literature.availability import (
+        ARTICLE_MISSING_REASON,
+        article_text_available,
+    )
+
+    if not article_text_available(ROOT / "data/literature_store"):
+        pytest.skip(f"SKIP: {ARTICLE_MISSING_REASON}")
+    return _raw("chen2020_jes_167_080534")
+
+
 class TestConditionExtraction:
     def test_temperature_celsius_to_kelvin(self):
         facts = extract_conditions("The cell was tested in a chamber at 25 °C.")
@@ -80,7 +93,7 @@ class TestEvidenceWindow:
 
 class TestDocumentConditions:
     def test_finds_setup_statements_in_real_document(self):
-        raw = _raw("chen2020_jes_167_080534")
+        raw = _article_raw()
         doc_conditions = document_conditions(raw, max_sentences=8)
         coverage = doc_conditions.coverage()
         assert coverage["temperature"] is True
@@ -88,7 +101,7 @@ class TestDocumentConditions:
         assert coverage["chemistry"] is True
 
     def test_statements_are_verbatim(self):
-        raw = _raw("chen2020_jes_167_080534")
+        raw = _article_raw()
         doc_conditions = document_conditions(raw, max_sentences=8)
         for sentence in doc_conditions.sentences:
             assert sentence in raw

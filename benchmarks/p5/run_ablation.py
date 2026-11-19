@@ -58,7 +58,10 @@ from pybamm_closed_loop.literature.extraction import (  # noqa: E402
     OfflineDeterministicExtractor,
     OpenAICompatibleClient,
 )
-from pybamm_closed_loop.literature.availability import without_supplement_items  # noqa: E402
+from pybamm_closed_loop.literature.availability import (  # noqa: E402
+    without_article_items,
+    without_supplement_items,
+)
 from pybamm_closed_loop.literature.index import BM25Index  # noqa: E402
 from pybamm_closed_loop.literature.ingest import DocumentStore  # noqa: E402
 
@@ -323,8 +326,9 @@ def main() -> int:
         return 0
 
     store = DocumentStore(STORE_DIR)
-    items = without_supplement_items(
-        load_items_v3(REPO_ROOT / args.items), STORE_DIR
+    items = without_article_items(
+        without_supplement_items(load_items_v3(REPO_ROOT / args.items), STORE_DIR),
+        STORE_DIR,
     )
     if args.split != "all":
         items = [it for it in items if it.split == args.split]

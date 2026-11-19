@@ -45,6 +45,7 @@ from pybamm_closed_loop.literature.extraction import (  # noqa: E402
 from pybamm_closed_loop.literature.ingest import DocumentStore  # noqa: E402
 from pybamm_closed_loop.literature.availability import (  # noqa: E402
     SUPPLEMENT_MISSING_REASON,
+    without_article_items,
     without_supplement_items,
 )
 
@@ -121,8 +122,9 @@ def main() -> int:
 
     store = DocumentStore(STORE_DIR)
     ensure_documents(store)
-    items = without_supplement_items(
-        load_items_v2(REPO_ROOT / args.items), STORE_DIR
+    items = without_article_items(
+        without_supplement_items(load_items_v2(REPO_ROOT / args.items), STORE_DIR),
+        STORE_DIR,
     )
     if args.split != "all":
         items = [it for it in items if it.split == args.split]

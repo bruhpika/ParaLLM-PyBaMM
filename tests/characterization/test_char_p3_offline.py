@@ -19,6 +19,14 @@ import pytest
 
 pytest.importorskip("pybamm")
 
+from pybamm_closed_loop.literature.availability import (
+    ARTICLE_MISSING_REASON,
+    article_source_text_available,
+)
+
+if not article_source_text_available():
+    pytest.skip(f"SKIP: {ARTICLE_MISSING_REASON}", allow_module_level=True)
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BASE_DIR = Path(__file__).resolve().parents[1] / "baselines"
 
