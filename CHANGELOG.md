@@ -12,6 +12,35 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Live-run guard and raw-output safety (2026-11-19)
+
+- **Live model calls are now opt-in.** All four runners that can construct a
+  model client (`benchmarks/p3/run_extraction_benchmark.py`, `p4/run_llm_evaluation.py`,
+  `p5/run_ablation.py`, `v2/run_v4_evaluation.py`) refuse to run a live arm
+  without `--live`; they exit with a clear message before any client is built.
+  `--rescore`/`--replay` (and p5's `--summary-only`/`--repair-metadata`, v4's
+  `--aggregate-only`) stay network-free and need no API key. Offline arms are
+  unaffected. No live API call was made while implementing this.
+- **Raw outputs are never silently clobbered.** Shared `eval/run_guard.py`:
+  `LiveRunPolicy.raw_path()` redirects a live run to a fresh `live_<UTC-stamp>/`
+  directory when the target raw file already exists and `--overwrite` was not
+  given; `find_raw()` lets replay locate either the original or a redirected
+  file. `--force` on v4 remains an alias for `--overwrite`.
+- **Live run metadata records the exact model id, base URL, date and git
+  commit** (`LiveRunPolicy.metadata()` uses `git rev-parse HEAD`; `None` outside
+  a checkout). Added to P3/P4/P5 run metadata and the v4 `extractor` block; the
+  raw path actually used is recorded for traceability.
+- **Replay is available for every model-calling runner.** P3 gained a verbatim
+  raw-output cache and `rescore_benchmark()` (`eval/benchmark.py`) so its
+  `--replay` re-scores frozen extractions with no client, network or key; P4/P5/v4
+  accept `--replay` as an alias of `--rescore`.
+- **Tests** (`tests/unit/test_live_run_guard.py`, 13 new): fake clients prove no
+  client is constructed or called without `--live` in any runner; redirected vs
+  overwritten raw paths; metadata fields; replay without an API key; and a live
+  P3 run with a fake client proving a second run creates a timestamped directory
+  instead of clobbering. Verification: ruff clean; core scope 347 passed,
+  7 skipped (3 characterization deselected), core `.venv` CPython 3.14.8.
+
 ### Retrieval arms (2026-11-19)
 
 - **Oracle vs real retrieval separated.** The probe-based evidence path is now

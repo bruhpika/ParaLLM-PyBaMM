@@ -25,6 +25,7 @@ from typing import Any
 
 from ..literature.extraction import (
     ExtractionBatch,
+    ExtractionCandidate,
     OfflineDeterministicExtractor,
     run_extraction,
 )
@@ -128,18 +129,12 @@ def resolve_passage(store: DocumentStore, document_id: str, probe: str) -> str:
     return raw[lo:hi]
 
 
-def run_benchmark(
+def _build_batches(
     items: list[BenchmarkItem],
     store: DocumentStore,
-    client: Any | None = None,
-) -> dict[str, Any]:
-    client = client or OfflineDeterministicExtractor()
-    per_item: list[dict[str, Any]] = []
-    totals = dict(
-        gold_params=0, identified=0, value_ok=0, unit_ok=0, conditions_ok=0,
-        provenance_ok=0, extractions=0, false_extractions=0,
-        abstain_items=0, abstain_correct=0,
-    )
+    client: Any,
+) -> list[ExtractionBatch]:
+    batches: list[ExtractionBatch] = []
     for item in items:
         passage = resolve_passage(store, item.document_id, item.passage_probe)
         facets = RetrievalFacets(**item.facets)
@@ -160,7 +155,42 @@ def run_benchmark(
             ],
             retrieved_from=[item.document_id],
         )
-        batch: ExtractionBatch = run_extraction(client, context)
+        batches.append(run_extraction(client, context))
+    return batches
+
+
+def batch_to_row(item_id: str, batch: ExtractionBatch) -> dict[str, Any]:
+    """Serialize a frozen extraction batch for replay (no model output is edited)."""
+    return dict(
+        item_id=item_id,
+        candidates=[c.to_dict() for c in batch.candidates],
+        abstained=batch.abstained,
+        abstain_reason=batch.abstain_reason,
+        provider=batch.provider,
+    )
+
+
+def row_to_batch(row: dict[str, Any]) -> ExtractionBatch:
+    return ExtractionBatch(
+        candidates=[ExtractionCandidate(**c) for c in row["candidates"]],
+        abstained=row["abstained"],
+        abstain_reason=row.get("abstain_reason"),
+        provider=row.get("provider", "unknown"),
+    )
+
+
+def _score(
+    items: list[BenchmarkItem],
+    store: DocumentStore,
+    batches: list[ExtractionBatch],
+) -> dict[str, Any]:
+    per_item: list[dict[str, Any]] = []
+    totals = dict(
+        gold_params=0, identified=0, value_ok=0, unit_ok=0, conditions_ok=0,
+        provenance_ok=0, extractions=0, false_extractions=0,
+        abstain_items=0, abstain_correct=0,
+    )
+    for item, batch in zip(items, batches):
         extracted = batch.valid()
         totals["extractions"] += len(extracted)
 
@@ -248,12 +278,48 @@ def run_benchmark(
             )
         )
     metrics = _metrics(totals)
+    providers = {b.provider for b in batches if b.provider and b.provider != "unknown"}
     return dict(
-        provider=getattr(client, "name", "unknown"),
+        provider=next(iter(providers)) if len(providers) == 1 else "unknown",
         metrics=metrics,
         totals=totals,
         per_item=per_item,
     )
+
+
+def run_benchmark(
+    items: list[BenchmarkItem],
+    store: DocumentStore,
+    client: Any | None = None,
+    raw_sink: Any | None = None,
+) -> dict[str, Any]:
+    """Run the benchmark; optionally freeze verbatim model batches to ``raw_sink``.
+
+    The sink receives one JSON line per item (item id + unmodified extraction
+    batch) so a later replay can re-score without any client or network call.
+    """
+    client = client or OfflineDeterministicExtractor()
+    batches = _build_batches(items, store, client)
+    if raw_sink is not None:
+        for item, batch in zip(items, batches):
+            raw_sink.write(json.dumps(batch_to_row(item.item_id, batch)) + "\n")
+    report = _score(items, store, batches)
+    report["provider"] = getattr(client, "name", "unknown")
+    return report
+
+
+def rescore_benchmark(
+    items: list[BenchmarkItem],
+    store: DocumentStore,
+    raw_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Re-score frozen raw batches with no client, no network and no API key."""
+    by_id = {row["item_id"]: row for row in raw_rows}
+    missing = [item.item_id for item in items if item.item_id not in by_id]
+    if missing:
+        raise ValueError(f"raw outputs missing for items: {missing}")
+    batches = [row_to_batch(by_id[item.item_id]) for item in items]
+    return _score(items, store, batches)
 
 
 def _extracted_canonical_unit(unit: str) -> str:
