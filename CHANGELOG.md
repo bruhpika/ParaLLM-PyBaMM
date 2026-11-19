@@ -1,7 +1,9 @@
 # Changelog
 
-All notable changes to PARALLM are documented here. The project follows the
-milestone plan (P0–P8); scientific behavior is versioned conservatively and
+All notable changes to PARALLM are documented here. The project retains the
+PRD phase names (P0–P8) for historical mapping; the *shipped* v0.1 feature set
+is milestones P0–P5, and v0.2 work is tracked as V2.x (see
+`docs/ROADMAP_V0.2.md` §9). Scientific behavior is versioned conservatively and
 documented with provenance.
 
 ## [Unreleased] — v0.2 "Parameter Assembly" (in execution)
@@ -27,13 +29,17 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   identification evidence (`cell_tokens`, `cell_identification_sentences`) and
   the SOC numeric false-positive fix (`50` inside `INR21700-50E`).
 - **Private v4 re-scored** (same raw outputs, corrected fixture chemistry gold
-  labels, discipline pass): condition-field accuracy **0.095 ± 0.010 (compact)
-  → 0.251 ± 0.014 (expanded) → 0.256 ± 0.023 (v25)** [raw 0.116 / 0.257 /
-  0.266]; value found 0.389 → 0.389 → 0.583; invented conditions still rise
-  with richer evidence (0.411 → 0.500 → 0.439). The earlier "chemistry never
-  recovered" finding reflects the pre-correction fixture; corrected chemistry is
-  0.000 / 0.178 / 0.143. Roadmap exit criterion (≥0.5 completeness, false
-  extraction 0.000) **not met**. Aggregates: `results/v2/v4/`.
+  labels, discipline pass; canonical source of truth
+  `results/v2/v4/summary.md`): condition-field accuracy **0.144 ± 0.016
+  (compact) → 0.294 ± 0.018 (expanded) → 0.310 ± 0.022 (v25)** [raw,
+  pre-discipline: 0.165 / 0.300 / 0.320]; value found 0.389 → 0.389 → 0.583;
+  invented conditions **0.067 → 0.200 → 0.058** (richer windows raise
+  invention from compact to expanded; the v25 table context lowers it below
+  compact). The earlier "chemistry never recovered" finding reflects the
+  pre-correction fixture; corrected chemistry is 0.000 / 0.178 / 0.143.
+  Roadmap exit criterion (≥0.5 completeness, false extraction 0.000) **not
+  met**. The pre-scorer-fix numbers are superseded (see 2026-11-19 below).
+  Aggregates: `results/v2/v4/`.
 - **V2.1 — applicability rubric v2** (`assembly/rubric.py`,
   `configs/v2/rubric_v2.yaml`): new `cell_product` and `electrolyte`
   dimensions (sum still 1.00; `ELECTROLYTE_WEIGHTS` variant for
@@ -115,15 +121,18 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   are coerced to numbers by a deterministic rule applied to every arm.
 - **V2.5 evidence layer, second slice**: table-aware chunking (caption/header/
   footnotes with the rows), top-k de-duplicated multi-window retrieval.
-- **Private v4 result**, 3 repeats/arm (extractor `gemini-flash-lite-latest`,
-  free tier; arms comparable with each other, **not** with the v0.1/v3 numbers):
+- **Private v4 first-pass result** (superseded by the 2026-11-17 re-score and
+  the 2026-11-19 scorer fix; current numbers in the 2026-11-17 entry),
+  3 repeats/arm (extractor `gemini-flash-lite-latest`, free tier; arms
+  comparable with each other, **not** with the v0.1/v3 numbers):
   condition-field accuracy **0.111 ± 0.009 (compact) → 0.240 ± 0.004 (expanded)
   → 0.249 ± 0.022 (v25)**; value found 0.389 → 0.389 → 0.583; temperature
   0.059 → 0.479 → 0.591; format 0.219 → 0.980 → 0.976. Negative findings
   disclosed: **chemistry never recovered (0.000 in every arm — later corrected
   with the fixture's chemistry gold labels, see 2026-11-17)**, protocol ≤ 0.091,
   `v25` regresses on cell identity (0.360 → 0.186), and invented conditions
-  **rise** with richer evidence (0.411 → 0.500 → 0.439). Design + results:
+  **rise** with richer evidence under the pre-fix scorer (0.411 → 0.500 →
+  0.439; superseded — current 0.067 → 0.200 → 0.058). Design + results:
   `docs/V2_PRIVATE_V4_BENCHMARK.md`.
 
 ### Landed so far (2026-11-08)
@@ -224,25 +233,46 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   as check annotations (JUnit XML) so red runs are diagnosable without log
   access.
 
-### Planned
-- **V2.1** Applicability & conflict engine — auditable, hand-set rubric; decision
-  taxonomy `USE / FIX / CALIBRATE / MEASURE / REJECT`; rule-firing transcript;
+### Documentation (2026-11-19)
+
+- **Stale v4 numbers and status contradictions fixed**: the 2026-11-17 entry
+  now quotes the canonical re-scored aggregate (`results/v2/v4/summary.md`:
+  condition accuracy 0.144 / 0.294 / 0.310, invented 0.067 / 0.200 / 0.058);
+  the v0.2 execution plan and the private-v4 write-up no longer cite the
+  superseded 0.256 / 0.439 values. Milestone naming is reconciled (PRD phases
+  P0–P8 vs shipped milestones P0–P5), the v0.2 "proposal / not implemented"
+  labels are corrected, and the package description drops the marketing
+  tagline. README now discloses that the v4 scorer and the fixture's chemistry
+  gold labels were revised *after* the first results were seen (not
+  pre-registered). The P5 v3 summary records the real extractor
+  (`mimo-v2.6-flash`) for the no-retrieval arms instead of
+  "deterministic (no LLM)", falling back to the provider tags in the preserved
+  raw outputs when older run metadata is empty. No result value changed.
+
+### Planned (v0.2 original scope; status as of 2026-11-19)
+- **V2.1** Applicability & conflict engine — **landed** (expert-label review
+  pending owner): auditable, hand-set rubric; decision taxonomy
+  `USE / FIX / CALIBRATE / MEASURE / REJECT`; rule-firing transcript;
   conflicts preserved with alternatives.
-- **V2.2** Parameter assembly report + CLI/API (`parallm assemble`) → per-parameter
-  dossier, set summary, JSON/Markdown/PyBaMM export.
-- **V2.3** Observability join — per-parameter identifiability (FIM/Sobol from P2)
-  → fit/fix/measure action matrix.
-- **V2.4** Synthetic end-to-end validation (assemble → calibrate → validate on
-  held-out rates) with a negative control; labelled *synthetic*, never
-  experimental.
-- **V2.5** Evidence engineering (P8′, replaces fine-tuning) — multi-window
-  retrieval, table-aware chunking, condition-window expansion, verification pass;
-  target: condition completeness ≥0.5 on a **private v4** with false extraction
-  still 0.000.
-- **V2.6** Closed loop (P7) — parameter-targeted: flagged field → targeted
-  evidence request → retrieval → extraction → validation → approval → recalibrate.
-- **V2.7** Product/community — PyPI (`parallm-pybamm`), CI (3.10–3.12), docs
-  site, examples gallery, conflict-resolution mini-benchmark (v4a).
+- **V2.2** Parameter assembly report + CLI/API (`parallm assemble`) — **landed**
+  (17 traceability flags pending owner decision): per-parameter dossier, set
+  summary, JSON/Markdown/PyBaMM export.
+- **V2.3** Observability join — **landed; acceptance met**: per-parameter
+  identifiability (FIM/Sobol from P2) → fit/fix/measure action matrix.
+- **V2.4** Synthetic end-to-end validation — **landed; acceptance met**
+  (assemble → calibrate → validate on held-out rates) with a negative control;
+  labelled *synthetic*, never experimental.
+- **V2.5** Evidence engineering (P8′, replaces fine-tuning) — **slices landed;
+  exit criterion not met**: multi-window retrieval, table-aware chunking,
+  condition-window expansion, verification pass; target: condition completeness
+  ≥0.5 on a **private v4** with false extraction still 0.000 (current best arm
+  0.310 / 0.058).
+- **V2.6** Closed loop (P7) — **gated, not started**: parameter-targeted flagged
+  field → targeted evidence request → retrieval → extraction → validation →
+  approval → recalibrate.
+- **V2.7** Product/community — **CI + packaging landed; open**: PyPI publish
+  (`parallm-pybamm`; owner action), docs site, examples gallery,
+  conflict-resolution mini-benchmark (v4a).
 
 ### Decisions (2026-11-08)
 D1 auditable hand-set rubric · D2 LG M50 only (multi-chemistry → TODO) ·

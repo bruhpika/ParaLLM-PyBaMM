@@ -1,11 +1,11 @@
 # P5 benchmark v3 - retrieval/knowledge ablation
 
-items: `data/eval/extraction_benchmark_v3.jsonl`; repeats per condition (LLM): 3; generated 2026-11-08T11:58:20.377524+00:00
+items: `data/eval/extraction_benchmark_v3.jsonl`; repeats per condition (LLM): 3; generated 2026-11-19T04:04:21.524012+00:00
 
 Means +/- population std over repeats. v3 only (P4 not mixed).
 
-- `no_retrieval_memory`: model=deterministic (no LLM) repeats=3
-- `no_retrieval_strict`: model=deterministic (no LLM) repeats=3
+- `no_retrieval_memory`: model=mimo-v2.6-flash repeats=3
+- `no_retrieval_strict`: model=mimo-v2.6-flash repeats=3
 - `offline`: model=deterministic (no LLM) repeats=1
 - `retrieval_strict`: model=mimo-v2.6-flash repeats=3
 

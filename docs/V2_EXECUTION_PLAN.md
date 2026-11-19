@@ -340,11 +340,11 @@ decision logic is built on top of them.
 retrieval/recalibration loop over an unreliable decision layer is an automated
 way of producing incorrect results.
 
-**Milestone status (2026-11-17):** V2.1 ✅ implemented (agreement 0.958 vs
+**Milestone status (2026-11-19):** V2.1 ✅ implemented (agreement 0.958 vs
 drafted labels, review pending) · V2.2 ✅ implemented (traceability 79/96,
 17 flags pending owner) · V2.3 ✅ acceptance met · V2.4 ✅ acceptance met ·
-V2.5 ⏳ exit criterion not met (0.256 / 0.439 vs ≥0.5 / 0.000; blocked on an
-extractor decision) · V2.6 gated · V2.7 not started.
+V2.5 ⏳ exit criterion not met (0.310 / 0.058 vs ≥0.5 / 0.000; blocked on an
+extractor decision) · V2.6 gated · V2.7 CI/packaging landed; publish pending.
 
 **TODO carried (not v0.2 scope):** multi-chemistry (LFP/graphite, NMC811,
 Li-metal); experimental dataset acquisition + licensing; observables beyond
