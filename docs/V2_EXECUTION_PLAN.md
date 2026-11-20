@@ -79,7 +79,10 @@ from backup before re-scoring.
 numbers; arms comparable with each other; mean ± std over 3 repeats/arm;
 disciplined value with the raw value in brackets):
 
-| metric | oracle compact (upper bound) | oracle expanded (upper bound) | oracle v25 (upper bound) |
+All three oracle arms are location oracles (probe window; NOT performance upper
+bounds; see `docs/V2_PRIVATE_V4_BENCHMARK.md` §7.5).
+
+| metric | oracle compact (probe window) | oracle expanded (probe window) | oracle v25 (probe window) |
 |---|---:|---:|---:|
 | condition-field accuracy | 0.144 ± 0.016 [0.165] | 0.294 ± 0.018 [0.300] | **0.310 ± 0.022** [0.320] |
 | value found | 0.389 ± 0.016 | 0.389 ± 0.042 | **0.583 ± 0.014** |

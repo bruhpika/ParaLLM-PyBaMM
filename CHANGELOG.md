@@ -23,9 +23,11 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   the git-ignored `data/private_v4/fixture/` is absent; the v3 split gate still
   runs. CI run 44710982968 is green on all five jobs.
 - README oracle label corrected to "location oracle, not a performance upper
-  bound" (561 vs 43,371/45,640 chars, ~81x), with the stale label removed from
-  current docs (historical CHANGELOG entries and generated results untouched).
-- Verification: ruff clean; core scope 396 passed, 15 skipped, 3 deselected.
+  bound" (561 vs 43,371/45,640 chars, ~81x); `ORACLE_LABEL` and current docs
+  now use the clarified wording, while historical CHANGELOG entries, the
+  superseded `offline_side_by_side.py` script and committed results remain
+  untouched.
+- Verification: ruff clean; core scope 397 passed, 15 skipped, 3 deselected.
 
 ### Remaining-tasks checklist (documentation only)
 

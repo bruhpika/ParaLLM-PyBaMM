@@ -2,15 +2,16 @@
 
 Compares the evidence arms on the same private fixture:
 
-  compact    ORACLE-LOCATED (UPPER BOUND): +/-260-character window around probe
+  compact    ORACLE-LOCATED (probe window; NOT a performance upper bound):
+             +/-260-character window around probe
   expanded   ORACLE-LOCATED: condition-aware window + document-level setup
   v25        ORACLE-LOCATED: expanded + table-aware chunking + top-k multi-window
   retrieval  REAL RETRIEVAL: BM25 over the full store, query from parameter
              name/unit only (no probe, target document or gold conditions)
 
-The first three arms search for the fixture's hand-written probe; they are an
-upper bound and are labelled as such in every output. Only ``retrieval`` is a
-retrieval result.
+The first three arms search for the fixture's hand-written probe; they are
+location oracles, not performance upper bounds, and are labelled as such in
+every output. Only ``retrieval`` is a retrieval result.
 
 Metrics (frozen scorer in ``eval/benchmark_v4.py``):
 
@@ -358,8 +359,9 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
         "summary": summaries,
         "arm_means": arm_means,
         "note": (
-            f"{ORACLE_LABEL}: the evidence is located from the fixture probe and is "
-            "an upper bound, not a retrieval result. "
+            f"{ORACLE_LABEL}: the evidence is located from the fixture probe; it "
+            "is a location oracle, not a retrieval result and not a performance "
+            "upper bound. "
             f"{REAL_RETRIEVAL_LABEL}: the query uses only parameter name/unit and "
             "BM25 searches the full store. "
             "Condition-field accuracy counts a gold 'not_stated' field as matched "
@@ -381,7 +383,7 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
         + ", ".join(f"{k}={v}" for k, v in payload["categories"].items()),
         "",
         f"- {ORACLE_LABEL}: compact/expanded/v25 locate evidence from the probe; "
-        "upper bound, not retrieval.",
+        "location oracle, not retrieval and not a performance upper bound.",
         f"- {REAL_RETRIEVAL_LABEL}: query from parameter name/unit only; full-store "
         "BM25; no probe, target document or gold condition used.",
         "",
@@ -437,8 +439,8 @@ def main() -> int:
         "--modes",
         nargs="+",
         default=["compact", "expanded", "v25", RETRIEVAL_MODE],
-        help="evidence arms; compact/expanded/v25 are oracle-located upper bounds, "
-        "retrieval is real full-store BM25",
+        help="evidence arms; compact/expanded/v25 are oracle-located (probe "
+        "window; not performance upper bounds), retrieval is real full-store BM25",
     )
     ap.add_argument("--repeats", type=int, default=1)
     ap.add_argument("--items", default=str(FIXTURE))

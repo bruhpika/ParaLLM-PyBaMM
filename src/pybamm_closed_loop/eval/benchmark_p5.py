@@ -416,12 +416,13 @@ EVIDENCE_MODES = ("compact", "expanded", "v25")
 def _evidence_block(
     item: Any, store: DocumentStore, evidence_mode: str = "compact"
 ) -> str:
-    """ORACLE-LOCATED evidence (upper bound) for one v3/v4 item.
+    """ORACLE-LOCATED evidence (probe window) for one v3/v4 item.
 
     This function locates the evidence by searching for the fixture's
-    hand-written probe. That is useful as an upper bound but it is **not**
-    retrieval: the probe is the answer location. Real retrieval lives in
-    ``eval.retrieval_arms``.
+    hand-written probe. That isolates the extraction step but is **not** a
+    performance upper bound (the probe window is much smaller than the BM25
+    8-segment block) and it is **not** retrieval: the probe is the answer
+    location. Real retrieval lives in ``eval.retrieval_arms``.
 
     ``compact``  : the v0.1 behaviour — a strict +/-260-character window around
                    the probe. The committed v3 results were produced with this

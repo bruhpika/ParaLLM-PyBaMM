@@ -64,6 +64,16 @@ v0.1.0-beta.1 is released (P0-P5). v0.2 is in progress. Milestone status from
 
 All branches were merged into `main` at commit `e2cc7ab` and pushed.
 
+### Post-handoff fixes (2026-11-20)
+
+- CI clean-checkout fix: v4 tests skip when the git-ignored private fixture is
+  absent (`85dc281`); all five jobs green (run 44710982968).
+- README oracle label corrected to "location oracle, not a performance upper
+  bound" (`3ea7724`).
+- Added the missing V2.4 held-out RMSE figure and its generator (`ad18a9c`).
+- Current docs and the `ORACLE_LABEL` constant now use the clarified label;
+  committed v4 summaries retain the pre-clarification wording.
+
 ### General engineering / licensing
 
 - `task/a-readme-v02`: README rewritten with sourced results and honest limitations.
@@ -108,7 +118,7 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 
 ## 5. Sourced numbers to reuse (do not re-derive by hand)
 
-- Core test scope: 392 passed, 15 skipped, 3 deselected (measured on `main`).
+- Core test scope: 397 passed, 15 skipped, 3 deselected (measured on `main`).
 - v3 BM25 gold-passage recall@1/3/5/10 = 0.189 / 0.351 / 0.459 / 0.486
   (`results/p5/benchmark_v3/retrieval_recall.md`).
 - v4 small recall = 0.300 / 0.867 / 0.900 / 1.000; full corpus =

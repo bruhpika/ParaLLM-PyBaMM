@@ -2,10 +2,11 @@
 
 Two evidence sources are deliberately kept apart:
 
-``oracle-located (upper bound)``
+``oracle-located (probe window; NOT a performance upper bound)``
     The existing benchmark path builds a window around the fixture's
-    hand-written probe. It is useful as an upper bound but it hands the model
-    the answer location, so it is *not* a retrieval result.
+    hand-written probe. It is useful as a location oracle but it hands the
+    model the answer location and only a small window, so it is *not* a
+    retrieval result and *not* a performance upper bound.
 
 ``real retrieval (BM25)``
     A query is built from the item's parameter description only, and BM25 runs
@@ -25,7 +26,7 @@ from ..literature.ingest import DocumentStore, validate_document_id
 from ..literature.retrieval import RAGContext, RetrievalFacets, RetrievedSegment
 from ..registry.textnorm import ascii_fold
 
-ORACLE_LABEL = "oracle-located (upper bound)"
+ORACLE_LABEL = "oracle-located (probe window; NOT a performance upper bound)"
 REAL_RETRIEVAL_LABEL = "real retrieval (BM25)"
 TUNED_RETRIEVAL_LABEL = "real retrieval (BM25, tuned b=0.5)"
 DEFAULT_RETRIEVAL_K = 8

@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from pybamm_closed_loop.eval.retrieval_arms import (
+    ORACLE_LABEL,
     evaluate_recall,
     gold_segment_ids,
     query_for_item,
@@ -67,6 +68,11 @@ def _v3_item(document_id="docA", probe="9.61e-15"):
             "techniques": ["GITT"],
         },
     )
+
+
+def test_oracle_label_is_a_location_oracle_not_an_upper_bound():
+    assert "probe window" in ORACLE_LABEL
+    assert "NOT a performance upper bound" in ORACLE_LABEL
 
 
 def test_v4_query_uses_only_parameter_name_and_unit():

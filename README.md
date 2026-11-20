@@ -78,9 +78,9 @@ PyBaMM 26.8.0.0) on CPython 3.12.16.
 ```
 
 Expected outputs and limitations: `docs/QUICKSTART.md`. **The core scope above
-measured 356 passed, 14 skipped (3 characterization tests deselected) on the
-integrated `integration/v0.2-cleanup` branch, in the core `.venv`
-(CPython 3.14.8), using the command shown.**
+measured 397 passed, 15 skipped (3 characterization tests deselected) on
+`main` (2026-11-20), in the core `.venv` (CPython 3.14.8), using the command
+shown.**
 Coverage: benchmark tests are opt-in via `-m benchmark`.
 
 ## Results

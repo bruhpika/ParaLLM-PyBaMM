@@ -20,12 +20,16 @@ No prompt/scoring/model/fixture change between repeats.
 
 | condition | evidence | knowledge | prompt |
 |---|---|---|---|
-| `retrieval_strict` | **oracle-located (upper bound)**: ±260-char archive passage around probe | no (evidence only) | P5 strict |
+| `retrieval_strict` | **oracle-located (probe window; NOT a performance upper bound)**: ±260-char archive passage around probe | no (evidence only) | P5 strict |
 | `retrieval_bm25_strict` | **real retrieval (BM25)**: full-store query from facets | no (evidence only) | P5 strict |
 | `no_retrieval_strict` | none | no | P5 strict → must abstain |
 | `no_retrieval_memory` | none | **permitted** (marked) | P5 memory: `document_id=model_knowledge`, `quote=null`, method `model memory (unverified)` |
 | `offline` (reference) | oracle-located passage | n/a | deterministic extractor |
 | `offline_bm25` (reference) | real BM25 passages | n/a | deterministic extractor |
+
+The oracle arm receives one small probe window; the BM25 arms receive the
+full-store top-k segments. Oracle accuracy is therefore a location-oracle
+result, not a performance ceiling.
 
 ## Aggregate metrics (all 37 items, mean ± pop std over repeats)
 

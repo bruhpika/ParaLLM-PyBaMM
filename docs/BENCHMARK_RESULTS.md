@@ -30,8 +30,10 @@ Calibration and validation data must remain disjoint.
   no_retrieval_memory, no_retrieval_strict, offline reference), **3 repeated
   runs per LLM arm** (offline n=1), same model/task/schema/frozen P4 rubric,
   temp 0, `mimo-v2.6-flash` via OpenAI-compatible endpoint. The `retrieval_strict`
-  arm was given a ±260-char window around the fixture probe: it is an
-  **oracle-located upper bound**, not a real retrieval result. **Raw model
+  arm was given a ±260-char window around the fixture probe: it is
+  **oracle-located (probe window; NOT a performance upper bound)**, not a real
+  retrieval result. The oracle window is much smaller than the BM25 evidence
+  block, so oracle accuracy is not a ceiling. **Raw model
   outputs preserved verbatim** per repeat. Transient transport failures (2
   oracle retrieval repeats) documented and resumed without overwriting originals
   (`raw_outputs_retrieval_strict_r0.partial_pre_incompleteread.jsonl`).

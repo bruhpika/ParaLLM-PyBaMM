@@ -117,8 +117,10 @@ runner and the offline re-score (`run_v4_evaluation.py --rescore`):
 ## 6. Extractor disclosure (important)
 
 All v4 evidence modes (`compact`, `expanded`, `v25`) are **oracle-located
-(upper bounds)**: they search the fixture's hand-written `probe` in the raw
-text. They are not retrieval results. A real full-store BM25 arm (`retrieval`)
+(probe window; NOT performance upper bounds)**: they search the fixture's
+hand-written `probe` in the raw text and receive a single small window, not the
+BM25 arms' 8-segment block. They are not retrieval results and oracle accuracy
+is not a ceiling (§7.5). A real full-store BM25 arm (`retrieval`)
 builds the query from the item's parameter name and unit only; its gold-passage
 recall is reported below and no live LLM run has been made. The v0.1/v3 results
 were produced with `mimo-v2.6-flash`. The v4 arms were
@@ -143,7 +145,7 @@ See `results/v2/v4/summary.md` (aggregate only; per-item rows stay private).
 Headline metrics (mean ± std over 3 repeats; raw = pre-discipline value in
 brackets):
 
-| metric | oracle compact (upper bound) | oracle expanded (upper bound) | oracle v25 (upper bound) |
+| metric | oracle compact (probe window) | oracle expanded (probe window) | oracle v25 (probe window) |
 |---|---:|---:|---:|
 | condition-field accuracy | 0.144 ± 0.016 [0.165] | 0.294 ± 0.018 [0.300] | **0.310 ± 0.022** [0.320] |
 | value found | 0.389 ± 0.016 | 0.389 ± 0.042 | **0.583 ± 0.014** |
@@ -248,7 +250,8 @@ roadmap's V2.5 exit criterion (condition completeness ≥ 0.5, false extraction
 ### 7.3 Real BM25 retrieval arm (recall only)
 
 The oracle arms above locate evidence from the fixture's `probe`; they are
-upper bounds. `benchmarks/v2/report_retrieval_recall.py --benchmark v4` adds a
+location oracles (probe window; NOT performance upper bounds; §7.5).
+`benchmarks/v2/report_retrieval_recall.py --benchmark v4` adds a
 real-retrieval arm that queries BM25 over the full four-document v4 store with
 only the parameter name and unit (no probe, target document, gold conditions,
 printed value or gold value). Gold-passage recall over the 30 private items is
@@ -261,8 +264,10 @@ The LLM extraction arm `retrieval` is implemented in
 `benchmarks/v2/run_v4_evaluation.py` (and replayable via `--rescore`) but has
 **not been run**: it requires a live model call and owner approval. No
 oracle-vs-real LLM extraction numbers are claimed. Existing compact/expanded/v25
-results are labelled `oracle-located (upper bound)` in the regenerated
-`summary.md`/`summary.json`.
+results are labelled `oracle-located (upper bound)` in the committed
+`summary.md`/`summary.json`; that wording predates the clarification and should
+be read as `oracle-located (probe window; NOT a performance upper bound)`. New
+runs emit the clarified label.
 
 ### 7.4 Distractor stress test — small-corpus recall overstates quality
 
