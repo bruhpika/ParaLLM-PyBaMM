@@ -290,7 +290,11 @@ fits converged):** held-out mean voltage RMSE **4.4 ± 0.1 mV baseline →
 1.1 ± 0.1 mV positive control (4× better) → 4.4 ± 0.1 mV negative control
 (unchanged)** — fitting the unobservable parameter gains nothing while the
 observable pair generalizes. **Prediction reproduced on 5/5 seeds** (the
-V2.6 "stable across repeats" gate item). Limitations: synthetic only
+V2.6 "stable across repeats" gate item). Figure (both the 5-seed stability
+panel and the 18-run mismatch panel):
+`results/v2/synthetic_validation/heldout_rmse.png`, regenerated from the
+committed reports by `scripts/plot_synthetic_validation.py`. Limitations:
+synthetic only
 (scientific rules 7/8 — not experimental validation, not proof of
 identifiability); the positive fit covers only the scalar-declarable
 observable pair (function-valued kinetics remain CALIBRATE in the matrix but

@@ -12,6 +12,21 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Synthetic-validation figure, CI clean-checkout fix and oracle-label sync
+
+- Added `scripts/plot_synthetic_validation.py` and unit tests; regenerated the
+  missing V2.4 headline figure
+  `results/v2/synthetic_validation/heldout_rmse.png` from the committed reports
+  (left: 5-seed 4.4 → 1.1 → 4.4 mV; right: 18-run mismatch). Labelled SYNTHETIC;
+  no simulation, model download or network access.
+- Fixed CI: the v4 dry-run planner and v4 split-coverage tests now skip when
+  the git-ignored `data/private_v4/fixture/` is absent; the v3 split gate still
+  runs. CI run 44710982968 is green on all five jobs.
+- README oracle label corrected to "location oracle, not a performance upper
+  bound" (561 vs 43,371/45,640 chars, ~81x), with the stale label removed from
+  current docs (historical CHANGELOG entries and generated results untouched).
+- Verification: ruff clean; core scope 396 passed, 15 skipped, 3 deselected.
+
 ### Remaining-tasks checklist (documentation only)
 
 - Added `docs/REMAINING_TASKS.md` with the owner decisions, gated engineering

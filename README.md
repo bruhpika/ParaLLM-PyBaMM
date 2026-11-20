@@ -142,7 +142,8 @@ Private v4: condition-field accuracy 0.144 / 0.294 / 0.310 and invented-conditio
 rate 0.067 / 0.200 / 0.058 for compact/expanded/v25 (`results/v2/v4/summary.md`).
 V2.4 held-out RMSE 4.4 ± 0.1 mV (baseline) → 1.1 ± 0.1 mV (positive control) →
 4.4 ± 0.1 mV (negative control), reproduced on 5/5 seeds — **SYNTHETIC**, not
-experimental validation (`results/v2/synthetic_validation/summary.md`). A harder
+experimental validation (`results/v2/synthetic_validation/summary.md`; figure
+`results/v2/synthetic_validation/heldout_rmse.png`). A harder
 mismatch run (different solver/tolerances/mesh, an unfitted-parameter
 perturbation, three drawn truths, two noise levels, 18 runs) gives held-out RMSE
 mean ± std [min, max] in V: baseline 0.0026 ± 0.0004 [0.0019, 0.0033], positive

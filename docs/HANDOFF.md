@@ -121,7 +121,9 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
   compact gets ~561 chars; BM25 arms get ~43-46k chars (~81x), same source.
 - Hybrid vs tuned BM25 on test: hybrid does not win; see `hybrid.md`.
 - Synthetic end-to-end mismatch: 15/18 positive beats baseline; 18/18 negative
-  does not (`results/v2/synthetic_validation_mismatch/summary.md`).
+  does not (`results/v2/synthetic_validation_mismatch/summary.md`). Figure for
+  both the 5-seed stability and 18-run mismatch panels:
+  `results/v2/synthetic_validation/heldout_rmse.png`.
 
 ## 6. Hard operating rules for the next agent
 
