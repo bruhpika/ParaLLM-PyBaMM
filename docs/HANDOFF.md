@@ -119,7 +119,7 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 
 ## 5. Sourced numbers to reuse (do not re-derive by hand)
 
-- Core test scope: 397 passed, 15 skipped, 3 deselected (measured on `main`).
+- Core test scope: 405 passed, 15 skipped, 3 deselected (measured on `main`).
 - v3 BM25 gold-passage recall@1/3/5/10 = 0.189 / 0.351 / 0.459 / 0.486
   (`results/p5/benchmark_v3/retrieval_recall.md`).
 - v4 small recall = 0.300 / 0.867 / 0.900 / 1.000; full corpus =
