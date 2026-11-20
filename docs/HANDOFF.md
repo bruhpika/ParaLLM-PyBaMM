@@ -59,7 +59,7 @@ v0.1.0-beta.1 is released (P0-P5). v0.2 is in progress. Milestone status from
   evidence-layer work was chosen (deterministic association-level mechanism).
 - V2.6 closed loop: hard-gated on the V2.5 exit criterion; not started.
 - V2.7 productisation: CI + packaging landed; docs site and examples gallery
-  in progress; PyPI publish and v4a remain open.
+  landed; PyPI publish and v4a remain open.
 
 ## 4. Completed work in this session
 

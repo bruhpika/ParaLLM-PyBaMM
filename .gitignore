@@ -36,3 +36,6 @@ results/private_v4/
 
 # Regenerable example outputs (see examples/README.md)
 examples/output/
+
+# Generated documentation site (mkdocs build)
+site/

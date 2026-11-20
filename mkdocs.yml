@@ -1,0 +1,76 @@
+site_name: PARALLM
+site_description: LLM-assisted, provenance-grounded parameterization for PyBaMM
+site_url: https://bruhpika.github.io/ParaLLM-PyBaMM/
+repo_url: https://github.com/bruhpika/ParaLLM-PyBaMM
+edit_uri: edit/main/docs/
+theme:
+  name: material
+  palette:
+    primary: white
+    accent: blue
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+nav:
+  - Home: index.md
+  - Getting started:
+      - Quickstart: QUICKSTART.md
+      - Installation: INSTALLATION.md
+      - Examples: examples.md
+  - Scientific scope:
+      - Positioning: POSITIONING.md
+      - Scientific limitations: SCIENTIFIC_LIMITATIONS.md
+      - Scientific validation: SCIENTIFIC_VALIDATION.md
+      - Data provenance: DATA_PROVENANCE.md
+  - Architecture:
+      - Architecture: ARCHITECTURE.md
+      - Revised architecture: REVISED_ARCHITECTURE.md
+      - Parameter registry: PARAMETER_REGISTRY.md
+      - Parameter selection: PARAMETER_SELECTION.md
+      - P0 baseline model: P0_BASELINE_MODEL.md
+  - Results:
+      - Benchmark results: BENCHMARK_RESULTS.md
+      - Literature benchmark: LITERATURE_BENCHMARK.md
+      - Literature ingestion: LITERATURE_INGESTION.md
+      - LLM extraction evaluation: LLM_EXTRACTION_EVALUATION.md
+      - Extraction methodology: EXTRACTION_METHODOLOGY.md
+      - Extraction reliability: P5_EXTRACTION_RELIABILITY.md
+      - Retrieval ablation: P5_RETRIEVAL_ABLATION.md
+      - Identifiability study: IDENTIFIABILITY_STUDY.md
+      - Synthetic recovery benchmark: SYNTHETIC_RECOVERY_BENCHMARK.md
+      - Experimental data audit: EXPERIMENTAL_DATA_AUDIT.md
+      - Experimental data requirements: EXPERIMENTAL_DATA_REQUIREMENTS.md
+  - Data:
+      - Dataset audit: DATASET_AUDIT.md
+      - Chen2020 discrepancy analysis: CHEN2020_DISCREPANCY_ANALYSIS.md
+      - P5 benchmark expansion: P5_BENCHMARK_EXPANSION.md
+      - P5 data acquisition: P5_DATA_ACQUISITION.md
+      - P5 real-data experiment design: P5_REAL_DATA_EXPERIMENT_DESIGN.md
+      - Real-data fitting feasibility: REAL_DATA_FITTING_FEASIBILITY.md
+      - Dependency compatibility: DEPENDENCY_COMPATIBILITY.md
+      - Ecosystem audit: ECOSYSTEM_AUDIT.md
+  - Roadmap:
+      - Development roadmap: DEVELOPMENT_ROADMAP.md
+      - Roadmap v0.2: ROADMAP_V0.2.md
+      - V2 execution plan: V2_EXECUTION_PLAN.md
+      - V2 private v4 benchmark: V2_PRIVATE_V4_BENCHMARK.md
+      - Integration plan: INTEGRATION_PLAN.md
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - tables
+  - toc:
+      permalink: true
+exclude_docs: |
+  internal/
+  HANDOFF.md
+  REMAINING_TASKS.md
+validation:
+  nav:
+    omitted_files: info
+  absolute_links: info
+  unrecognized_links: info

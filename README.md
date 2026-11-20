@@ -35,6 +35,9 @@ electrochemical constants; all numeric decision paths are deterministic.
 An optimization result is never treated as proof of identifiability, and
 synthetic recovery is never treated as experimental validation.
 
+Documentation site: https://bruhpika.github.io/ParaLLM-PyBaMM/ (MkDocs; source
+in `docs/`).
+
 ## Install
 
 Not published to PyPI. Package name: `parallm-pybamm` (Python 3.10–3.15 for the

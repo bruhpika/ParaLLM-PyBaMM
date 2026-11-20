@@ -12,6 +12,17 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### V2.7 docs site and examples gallery
+
+- Added the MkDocs documentation site (`mkdocs.yml`, `docs/index.md`,
+  `docs/examples.md`, `requirements/docs.txt`) and a GitHub Pages workflow
+  (`/.github/workflows/docs.yml`) that builds with `mkdocs build --strict`.
+- Added the examples gallery (`examples/`): three deterministic offline
+  examples with unit tests (v3 retrieval recall, synthetic-validation figure,
+  dossier assembly). Outputs are gitignored under `examples/output/`.
+- README links the documentation site. Verification: `mkdocs build --strict`
+  clean; ruff clean; core scope 400 passed, 15 skipped, 3 deselected.
+
 ### Owner decisions recorded (documentation only)
 
 - Owner decisions (2026-11-20) applied to `docs/REMAINING_TASKS.md` and
