@@ -95,6 +95,9 @@ applied below.
 - [ ] V2.6: open the closed loop only after the V2.5 exit criterion is met.
 - [ ] V2.7: PyPI publish (credentials + version decision). Docs site, examples
       gallery and the v4a mini-benchmark are landed.
+- [ ] Enable GitHub Pages (Settings -> Pages -> Source: GitHub Actions) so the
+      docs workflow can deploy. The build is green and the site artifact is
+      uploaded; deploy fails harmlessly until Pages is enabled.
 
 ## Prepared commands (do not run without approval)
 

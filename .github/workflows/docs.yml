@@ -33,6 +33,10 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    # Deploying to GitHub Pages requires the repository to have Pages enabled
+    # (Settings -> Pages -> Source: GitHub Actions). Until then this step fails
+    # harmlessly; the built site is still uploaded as a workflow artifact.
+    continue-on-error: true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
