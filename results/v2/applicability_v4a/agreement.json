@@ -1,0 +1,63 @@
+{
+  "benchmark": "v4a",
+  "generated": "2026-11-20T10:23:54.792735+00:00",
+  "gold_rule": "For a same-source conflict, adopt the source's operative (parameterized) value and preserve the competing value with its method. The decision is FIX when the operative value is ASSUMED or CALIBRATED and USE otherwise.",
+  "gold_rule_version": "v4a-gold-1",
+  "n_cases": 7,
+  "note": "Gold answers are drafted and kept private (data/private_v4/applicability_answers_v4a.jsonl).",
+  "rubric_version": "rubric-v2",
+  "split": {
+    "benchmark": "v4a",
+    "dev": [
+      "V4A-neg_max_concentration",
+      "V4A-neg_particle_diffusivity",
+      "V4A-pos_max_concentration",
+      "V4A-pos_particle_diffusivity"
+    ],
+    "rule": "sorted case_id, every 3rd -> test",
+    "seed": 20261119,
+    "test": [
+      "V4A-neg_bruggeman_electrolyte",
+      "V4A-pos_bruggeman_electrolyte",
+      "V4A-sep_bruggeman_electrolyte"
+    ]
+  },
+  "summary": {
+    "all": {
+      "decision_agreement": 1.0,
+      "full_agreement": 1.0,
+      "n_ambiguous": 0,
+      "n_cases": 7,
+      "n_mismatched_choice": 0,
+      "n_mismatched_decision": 0
+    },
+    "class:conflict": {
+      "decision_agreement": 1.0,
+      "full_agreement": 1.0,
+      "n_ambiguous": 0,
+      "n_cases": 7,
+      "n_mismatched_choice": 0,
+      "n_mismatched_decision": 0
+    },
+    "dev": {
+      "decision_agreement": 1.0,
+      "full_agreement": 1.0,
+      "n_ambiguous": 0,
+      "n_cases": 4,
+      "n_mismatched_choice": 0,
+      "n_mismatched_decision": 0
+    },
+    "label_status": {
+      "drafted": 7,
+      "reviewed": 0
+    },
+    "test": {
+      "decision_agreement": 1.0,
+      "full_agreement": 1.0,
+      "n_ambiguous": 0,
+      "n_cases": 3,
+      "n_mismatched_choice": 0,
+      "n_mismatched_decision": 0
+    }
+  }
+}

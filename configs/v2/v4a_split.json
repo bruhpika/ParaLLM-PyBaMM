@@ -1,0 +1,16 @@
+{
+  "benchmark": "v4a",
+  "dev": [
+    "V4A-neg_max_concentration",
+    "V4A-neg_particle_diffusivity",
+    "V4A-pos_max_concentration",
+    "V4A-pos_particle_diffusivity"
+  ],
+  "rule": "sorted case_id, every 3rd -> test",
+  "seed": 20261119,
+  "test": [
+    "V4A-neg_bruggeman_electrolyte",
+    "V4A-pos_bruggeman_electrolyte",
+    "V4A-sep_bruggeman_electrolyte"
+  ]
+}

@@ -328,8 +328,9 @@ installs the wheel into a clean venv and smoke-tests `parallm --help`.
 `pyproject.toml` now carries readme/license (MIT)/classifiers/keywords and
 `ruff` in the `dev` extra; `python -m build` verified locally (sdist + wheel)
 and the wheel verified installed from a clean venv. **Publishing to PyPI
-stays an owner action** (credentials + version decision); docs site, examples
-gallery and the v4a mini-benchmark remain open.
+stays an owner action** (credentials + version decision). Docs site
+(`mkdocs.yml` + GitHub Pages workflow), examples gallery (`examples/`) and
+the v4a applicability mini-benchmark (`docs/V4A_MINI_BENCHMARK.md`) landed.
 
 ---
 

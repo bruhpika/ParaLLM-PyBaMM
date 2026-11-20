@@ -93,9 +93,8 @@ applied below.
 - [ ] V2.5: implement the association-level condition<->value mechanism (owner
       delegated; evidence-layer route chosen).
 - [ ] V2.6: open the closed loop only after the V2.5 exit criterion is met.
-- [ ] V2.7: PyPI publish (credentials + version decision), docs site, examples
-      gallery, v4a mini-benchmark. Docs site and examples gallery are in
-      progress; v4a follows.
+- [ ] V2.7: PyPI publish (credentials + version decision). Docs site, examples
+      gallery and the v4a mini-benchmark are landed.
 
 ## Prepared commands (do not run without approval)
 

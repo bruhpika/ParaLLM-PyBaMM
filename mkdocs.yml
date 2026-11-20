@@ -39,6 +39,7 @@ nav:
       - Retrieval ablation: P5_RETRIEVAL_ABLATION.md
       - Identifiability study: IDENTIFIABILITY_STUDY.md
       - Synthetic recovery benchmark: SYNTHETIC_RECOVERY_BENCHMARK.md
+      - v4a applicability mini-benchmark: V4A_MINI_BENCHMARK.md
       - Experimental data audit: EXPERIMENTAL_DATA_AUDIT.md
       - Experimental data requirements: EXPERIMENTAL_DATA_REQUIREMENTS.md
   - Data:

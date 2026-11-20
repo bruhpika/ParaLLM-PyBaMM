@@ -12,6 +12,16 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### V2.7 v4a applicability mini-benchmark
+
+- Added the v4a conflict-resolution mini-benchmark (`docs/V4A_MINI_BENCHMARK.md`):
+  7 public same-source-conflict cases built deterministically from the
+  committed registry, a private drafted answer key, a frozen dev/test split
+  and a scorer that reports decision/choice agreement. Gold rule `v4a-gold-1`
+  is evidence-grounded (adopt the source's operative value), not an
+  independent expert judgement. Verification: ruff clean; core scope 405
+  passed, 15 skipped, 3 deselected.
+
 ### V2.7 docs site and examples gallery
 
 - Added the MkDocs documentation site (`mkdocs.yml`, `docs/index.md`,
