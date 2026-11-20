@@ -12,6 +12,13 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Remaining-tasks checklist (documentation only)
+
+- Added `docs/REMAINING_TASKS.md` with the owner decisions, gated engineering
+  items and prepared live commands; linked from `docs/HANDOFF.md`. No code or
+  results changed. Verification: ruff clean; core scope 392 passed,
+  15 skipped, 3 deselected.
+
 ### Retrieval improvement — oracle-label clarification and live-run planner
 
 - Measured evidence volume from the committed raw rows

@@ -4,6 +4,7 @@ This file is the single starting point for an agent continuing the project.
 It states the aim, scientific constraints, stack, current stage, completed
 work, sourced numbers, open decisions and next steps. Read the cited files
 before acting; every number here comes from a committed results file.
+The actionable checklist is in `docs/REMAINING_TASKS.md`.
 
 ## 1. Aim and scientific stance
 
