@@ -12,6 +12,34 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Retrieval improvement — oracle-label clarification and live-run planner
+
+- Measured evidence volume from the committed raw rows
+  (`results/v2/retrieval_improvement/offline_side_by_side_v2.{json,md}`,
+  script `benchmarks/v2/offline_side_by_side_v2.py`): oracle compact supplies
+  mean **561 chars** (one probe window), BM25 baseline **43,371 chars** and
+  tuned BM25 **45,640 chars** (8 segments each) — about **81x** more text.
+  The oracle arm is therefore a *location* oracle, **not a performance upper
+  bound** when evidence volume differs. The label is now
+  "oracle-located (probe window; NOT a performance upper bound)" in the new
+  results file and in `docs/V2_PRIVATE_V4_BENCHMARK.md` §7.5. The old
+  `offline_side_by_side.{json,md}` was left untouched.
+- **v4 side-by-side by split** (same new file): dev (n=15) value found
+  0.200 oracle / 0.400 BM25 / 0.533 tuned; condition accuracy 0.181 / 0.257 /
+  0.257. Test (n=15) value found 0.333 / 0.733 / 0.733; condition accuracy
+  0.190 / 0.248 / 0.257; invented conditions 0.133 / 0.000 / 0.000.
+- Added tuned LLM arms (`retrieval_bm25_tuned_strict` in P5,
+  `retrieval_tuned` in v4) and `benchmarks/v2/prepare_live_retrieval.py`,
+  which has **no model client**: `--dry-run` prints prompts, item/call counts
+  and char/4 token estimates. No live command was executed. Dry-run estimates
+  at the current checkout: v3 22 locally available items, 66 calls, ~158.5k
+  prompt tokens/run (~475.5k total); v4 30 items, 90 calls, ~366.2k tokens/run
+  (~1.099M total). The v3 live run needs the local Chen2020 article ingest
+  first, after which it covers 37 items / 111 calls; re-run the dry-run for
+  the exact post-ingest token estimate.
+- Tests for the clarified parser, arm wiring and planner (3 new).
+  Verification: ruff clean; core scope 392 passed, 15 skipped, 3 deselected.
+
 ### Retrieval improvement — offline arm wiring and side-by-side
 
 - Added the selected retrieval configuration (tuned BM25 `b=0.5, k1=1.5`) as

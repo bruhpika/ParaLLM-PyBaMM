@@ -280,6 +280,21 @@ easier, so the §7.3 figures are an easy-setting upper bound, not evidence that
 retrieval generalises. The full-corpus per-item audit remains private at
 `data/private_v4/results/retrieval_recall_full_audit.json`.
 
+### 7.5 Oracle is a location oracle, not a performance upper bound (offline arms)
+
+The offline end-to-end comparison in
+`results/v2/retrieval_improvement/offline_side_by_side_v2.md` shows the
+oracle-located `compact` arm finding the value for only 0.333 of 15 test
+items, versus 0.733 for both BM25 arms. This is **not** a contradiction: the
+oracle arm receives one ~561-character probe window, while each BM25 arm
+receives 8 segments (~43–46k characters, ~81x more text). The oracle label
+therefore means only "the gold passage was located using the probe"; it is
+**not a performance ceiling** when evidence volume differs. The clarified
+label is "oracle-located (probe window; NOT a performance upper bound)".
+Oracle-vs-BM25 value accuracy is not a like-for-like arm comparison; the
+BM25-vs-tuned-BM25 comparison is like-for-like (same 8-segment evidence
+volume, different `b`).
+
 ## 8. What this benchmark does and does not establish
 
 **Establishes:** whether a retrieval-grounded extractor can attach the right

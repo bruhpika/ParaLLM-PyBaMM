@@ -85,6 +85,7 @@ ALL_CONDITIONS = OFFLINE_CONDITIONS + CONDITIONS
 _CONDITION_LABELS = {
     "retrieval_strict": f"{ORACLE_LABEL}: retrieval_strict",
     "retrieval_bm25_strict": f"{REAL_RETRIEVAL_LABEL}: retrieval_bm25_strict",
+    "retrieval_bm25_tuned_strict": f"{TUNED_RETRIEVAL_LABEL}: retrieval_bm25_tuned_strict",
     "no_retrieval_strict": "no retrieval, strict prompt",
     "no_retrieval_memory": "no retrieval, memory permitted",
     "offline": f"deterministic offline ({ORACLE_LABEL})",
@@ -360,13 +361,21 @@ def main() -> int:
         else None
     )
     needs_retrieval = any(
-        c in ("retrieval_bm25_strict", "offline_bm25", "offline_bm25_tuned")
+        c in (
+            "retrieval_bm25_strict",
+            "retrieval_bm25_tuned_strict",
+            "offline_bm25",
+            "offline_bm25_tuned",
+        )
         for c in conditions
     )
     retrieval_index = BM25Index(store.segments()) if needs_retrieval else None
     tuned_retrieval_index = (
         tuned_index(retrieval_index)
-        if any(c == "offline_bm25_tuned" for c in conditions)
+        if any(
+            c in ("offline_bm25_tuned", "retrieval_bm25_tuned_strict")
+            for c in conditions
+        )
         else None
     )
 

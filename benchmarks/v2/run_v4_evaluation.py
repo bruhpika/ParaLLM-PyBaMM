@@ -95,19 +95,32 @@ PUBLIC_RESULTS = REPO_ROOT / "results/v2/v4"
 ORACLE_MODES = ("compact", "expanded", "v25")
 RETRIEVAL_MODE = "retrieval"
 OFFLINE_TUNED_MODE = "offline_bm25_tuned"
+RETRIEVAL_TUNED_MODE = "retrieval_tuned"
 
 
 def _is_offline_mode(mode: str) -> bool:
     return mode == OFFLINE_TUNED_MODE
 
 
+def _is_tuned_retrieval_mode(mode: str) -> bool:
+    return mode == RETRIEVAL_TUNED_MODE
+
+
 def _is_retrieval_mode(mode: str) -> bool:
-    return mode in (RETRIEVAL_MODE, "real_retrieval", "bm25", OFFLINE_TUNED_MODE)
+    return mode in (
+        RETRIEVAL_MODE,
+        "real_retrieval",
+        "bm25",
+        OFFLINE_TUNED_MODE,
+        RETRIEVAL_TUNED_MODE,
+    )
 
 
 def _arm_label(mode: str) -> str:
     if _is_offline_mode(mode):
         return f"deterministic offline ({TUNED_RETRIEVAL_LABEL})"
+    if _is_tuned_retrieval_mode(mode):
+        return f"{TUNED_RETRIEVAL_LABEL}: {mode}"
     if _is_retrieval_mode(mode):
         return f"{REAL_RETRIEVAL_LABEL}: {mode}"
     return f"{ORACLE_LABEL}: {mode}"
@@ -141,7 +154,12 @@ def run_mode(
         context = None
         if _is_retrieval_mode(mode):
             context = retrieval_context_for_item(
-                item, store, k=retrieval_k, index=tuned if _is_offline_mode(mode) else index
+                item,
+                store,
+                k=retrieval_k,
+                index=tuned
+                if (_is_offline_mode(mode) or _is_tuned_retrieval_mode(mode))
+                else index,
             )
             evidence = context.to_evidence_block()
             retrieval_audit = {
@@ -555,7 +573,10 @@ def main() -> int:
     )
     tuned_retrieval_index = (
         tuned_index(retrieval_index)
-        if any(_is_offline_mode(mode) for mode in args.modes)
+        if any(
+            _is_offline_mode(mode) or _is_tuned_retrieval_mode(mode)
+            for mode in args.modes
+        )
         else None
     )
     if offline_only:

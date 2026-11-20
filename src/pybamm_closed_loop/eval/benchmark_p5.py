@@ -380,6 +380,7 @@ class RobustLLMClient:
 CONDITIONS = (
     "retrieval_strict",
     "retrieval_bm25_strict",
+    "retrieval_bm25_tuned_strict",
     "no_retrieval_strict",
     "no_retrieval_memory",
 )
@@ -391,6 +392,9 @@ _CONDITION_SPECS: dict[str, dict[str, Any]] = {
     ),
     "retrieval_bm25_strict": dict(
         memory_permitted=False, use_evidence=True, evidence_source="retrieval"
+    ),
+    "retrieval_bm25_tuned_strict": dict(
+        memory_permitted=False, use_evidence=True, evidence_source="retrieval_tuned"
     ),
     "no_retrieval_strict": dict(
         memory_permitted=False, use_evidence=False, evidence_source="none"

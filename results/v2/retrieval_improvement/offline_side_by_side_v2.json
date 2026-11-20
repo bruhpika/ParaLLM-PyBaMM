@@ -1,0 +1,168 @@
+{
+  "comparability_note": "oracle compact supplies one ~560-char probe window; BM25 supplies 8 segments (~43-46k chars). Not a matched evidence-volume comparison.",
+  "dev": {
+    "BM25 baseline": {
+      "abstention_rate": 0.0,
+      "condition_field_accuracy": 0.2571428571428571,
+      "invented_condition_rate": 0.0,
+      "mean_dropped_conditions": 107.2,
+      "n_items": 15,
+      "parameter_unit_accuracy": 0.13333333333333333,
+      "parameter_value_accuracy": 0.4,
+      "per_field_accuracy": {
+        "cell": 0.0,
+        "chemistry": 0.0,
+        "format": 0.0,
+        "method": 0.4666666666666667,
+        "protocol": 0.6,
+        "soc": 0.6666666666666666,
+        "temperature_k": 0.06666666666666667
+      },
+      "quote_in_evidence_rate": 1.0,
+      "raw_condition_field_accuracy": 0.2571428571428571,
+      "raw_invented_condition_rate": 0.0,
+      "value_found_rate": 0.4
+    },
+    "BM25 tuned (b=0.5)": {
+      "abstention_rate": 0.0,
+      "condition_field_accuracy": 0.2571428571428571,
+      "invented_condition_rate": 0.0,
+      "mean_dropped_conditions": 118.0,
+      "n_items": 15,
+      "parameter_unit_accuracy": 0.13333333333333333,
+      "parameter_value_accuracy": 0.5333333333333333,
+      "per_field_accuracy": {
+        "cell": 0.0,
+        "chemistry": 0.0,
+        "format": 0.0,
+        "method": 0.4666666666666667,
+        "protocol": 0.6,
+        "soc": 0.6666666666666666,
+        "temperature_k": 0.06666666666666667
+      },
+      "quote_in_evidence_rate": 1.0,
+      "raw_condition_field_accuracy": 0.2571428571428571,
+      "raw_invented_condition_rate": 0.0,
+      "value_found_rate": 0.5333333333333333
+    },
+    "oracle compact": {
+      "abstention_rate": 0.4,
+      "condition_field_accuracy": 0.18095238095238095,
+      "invented_condition_rate": 0.13333333333333333,
+      "mean_dropped_conditions": 3.6,
+      "n_items": 15,
+      "parameter_unit_accuracy": 0.06666666666666667,
+      "parameter_value_accuracy": 0.2,
+      "per_field_accuracy": {
+        "cell": 0.0,
+        "chemistry": 0.0,
+        "format": 0.0,
+        "method": 0.6666666666666666,
+        "protocol": 0.6666666666666666,
+        "soc": 0.6666666666666666,
+        "temperature_k": 0.1111111111111111
+      },
+      "quote_in_evidence_rate": 1.0,
+      "raw_condition_field_accuracy": 0.18095238095238095,
+      "raw_invented_condition_rate": 0.13333333333333333,
+      "value_found_rate": 0.2
+    }
+  },
+  "evidence_volume": {
+    "BM25 baseline": {
+      "max_chars": 55374.0,
+      "mean_chars": 43370.833333333336,
+      "median_chars": 44297.5,
+      "min_chars": 28196.0,
+      "n_items": 30
+    },
+    "BM25 tuned (b=0.5)": {
+      "max_chars": 54678.0,
+      "mean_chars": 45640.23333333333,
+      "median_chars": 44611.0,
+      "min_chars": 28196.0,
+      "n_items": 30
+    },
+    "oracle compact": {
+      "max_chars": 598.0,
+      "mean_chars": 561.0,
+      "median_chars": 564.5,
+      "min_chars": 527.0,
+      "n_items": 30
+    }
+  },
+  "generated": "2026-11-19T09:08:58.839146+00:00",
+  "n_items": {
+    "dev": 15,
+    "test": 15
+  },
+  "oracle_label": "oracle-located (probe window; NOT a performance upper bound)",
+  "test": {
+    "BM25 baseline": {
+      "abstention_rate": 0.0,
+      "condition_field_accuracy": 0.24761904761904763,
+      "invented_condition_rate": 0.0,
+      "mean_dropped_conditions": 116.6,
+      "n_items": 15,
+      "parameter_unit_accuracy": 0.3333333333333333,
+      "parameter_value_accuracy": 0.7333333333333333,
+      "per_field_accuracy": {
+        "cell": 0.06666666666666667,
+        "chemistry": 0.06666666666666667,
+        "format": 0.0,
+        "method": 0.3333333333333333,
+        "protocol": 0.6,
+        "soc": 0.6,
+        "temperature_k": 0.06666666666666667
+      },
+      "quote_in_evidence_rate": 1.0,
+      "raw_condition_field_accuracy": 0.24761904761904763,
+      "raw_invented_condition_rate": 0.0,
+      "value_found_rate": 0.7333333333333333
+    },
+    "BM25 tuned (b=0.5)": {
+      "abstention_rate": 0.0,
+      "condition_field_accuracy": 0.2571428571428571,
+      "invented_condition_rate": 0.0,
+      "mean_dropped_conditions": 119.6,
+      "n_items": 15,
+      "parameter_unit_accuracy": 0.3333333333333333,
+      "parameter_value_accuracy": 0.7333333333333333,
+      "per_field_accuracy": {
+        "cell": 0.06666666666666667,
+        "chemistry": 0.06666666666666667,
+        "format": 0.0,
+        "method": 0.3333333333333333,
+        "protocol": 0.6,
+        "soc": 0.6666666666666666,
+        "temperature_k": 0.06666666666666667
+      },
+      "quote_in_evidence_rate": 1.0,
+      "raw_condition_field_accuracy": 0.2571428571428571,
+      "raw_invented_condition_rate": 0.0,
+      "value_found_rate": 0.7333333333333333
+    },
+    "oracle compact": {
+      "abstention_rate": 0.26666666666666666,
+      "condition_field_accuracy": 0.19047619047619047,
+      "invented_condition_rate": 0.13333333333333333,
+      "mean_dropped_conditions": 4.6,
+      "n_items": 15,
+      "parameter_unit_accuracy": 0.3333333333333333,
+      "parameter_value_accuracy": 0.3333333333333333,
+      "per_field_accuracy": {
+        "cell": 0.0,
+        "chemistry": 0.0,
+        "format": 0.0,
+        "method": 0.45454545454545453,
+        "protocol": 0.8181818181818182,
+        "soc": 0.45454545454545453,
+        "temperature_k": 0.09090909090909091
+      },
+      "quote_in_evidence_rate": 1.0,
+      "raw_condition_field_accuracy": 0.19047619047619047,
+      "raw_invented_condition_rate": 0.13333333333333333,
+      "value_found_rate": 0.3333333333333333
+    }
+  }
+}
