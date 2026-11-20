@@ -86,17 +86,22 @@ Coverage: benchmark tests are opt-in via `-m benchmark`.
 ## Results
 
 Every number in this section is from a committed file under `results/`, cited
-next to it. **`oracle-located` is an upper bound, not retrieval**: evidence is
-located using the fixture's probe. Real BM25 retrieval builds its query only
-from item facets (v3) or parameter name/unit (v4) and searches the complete
-document store; no probe, target-document filter or gold condition enters the
-query or evidence selection.
+next to it. **`oracle-located` is a location oracle, not retrieval and not a
+performance upper bound**: evidence is located using the fixture's probe, but
+the arm sees only a single small probe window. In the v4 offline side-by-side
+the oracle compact arm supplies a mean **561 chars** against **43,371** (BM25
+baseline) and **45,640** (tuned BM25) — about **81x less evidence** — so oracle
+value accuracy is not a ceiling
+(`results/v2/retrieval_improvement/offline_side_by_side_v2.md`). Real BM25
+retrieval builds its query only from item facets (v3) or parameter name/unit
+(v4) and searches the complete document store; no probe, target-document filter
+or gold condition enters the query or evidence selection.
 
 **v3 — oracle-located vs real BM25, same deterministic extractor** (37 items,
 all split; source `results/p5/benchmark_v3/summary.md`, "deterministic offline"
 rows):
 
-| metric | oracle-located (upper bound) | real retrieval (BM25) |
+| metric | oracle-located (probe window; not an upper bound) | real retrieval (BM25) |
 |---|---:|---:|
 | parameter identification | 0.500 | 0.846 |
 | value extraction | 0.500 | 0.386 |
