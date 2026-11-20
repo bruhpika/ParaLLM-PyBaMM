@@ -47,18 +47,19 @@ eligible, licensed dataset passes the audit.
 v0.1.0-beta.1 is released (P0-P5). v0.2 is in progress. Milestone status from
 `docs/ROADMAP_V0.2.md` and `docs/V2_EXECUTION_PLAN.md`:
 
-- V2.1 applicability engine: implemented; 24 expert labels are **drafted**,
-  owner review pending; agreement 0.958 is provisional
-  (`results/v2/applicability/summary.md`).
+- V2.1 applicability engine: implemented; 24 expert labels are **owner-approved**
+  (2026-11-20); agreement 0.958 (`results/v2/applicability/summary.md`).
 - V2.2 dossier/assembly CLI: implemented; 36/36 recorded quotes verify;
-  traceability 79/96, 17 flagged records need owner decision.
+  traceability 79/96, 17 flagged records need the Chen2020 article PDF (see
+  `docs/REMAINING_TASKS.md` item 1).
 - V2.3 identifiability join: done; V2.4 synthetic end-to-end validation: done.
 - V2.5 evidence engineering: **exit criterion not met** (best condition
   accuracy 0.310, invented 0.058 vs target >=0.5 / 0.000;
-  `results/v2/v4/summary.md`); blocked on the owner's extractor decision.
-- V2.6 closed loop: hard-gated on V2.1/V2.2 owner decisions; not started.
-- V2.7 productisation: CI + packaging landed; PyPI publish, docs site,
-  gallery and v4a remain open.
+  `results/v2/v4/summary.md`); owner delegated the extractor decision and
+  evidence-layer work was chosen (deterministic association-level mechanism).
+- V2.6 closed loop: hard-gated on the V2.5 exit criterion; not started.
+- V2.7 productisation: CI + packaging landed; docs site and examples gallery
+  in progress; PyPI publish and v4a remain open.
 
 ## 4. Completed work in this session
 
@@ -155,18 +156,20 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 
 ## 7. Open owner decisions (blocking)
 
+Owner decisions recorded 2026-11-20 are applied in
+`docs/REMAINING_TASKS.md`. Remaining open:
+
 1. Fill the Chen2020 publisher-PDF sha256 TODO in `docs/DATA_PROVENANCE.md`
    (line with `Chen2020 article PDF sha256:`); `scripts/fetch_chen2020.py`
    refuses until a real 64-hex value is present. Supplement PDF hash TODO in
    `data/raw_documents/chen2020_supplement/ACQUISITION.md`.
 2. Article licence remains UNVERIFIED; decide whether to seek a citable
    publisher statement or keep the fetched-only policy.
-3. Review 24 drafted applicability labels; resolve 17 traceability flags.
-4. Make the V2.5 extractor decision (evidence-layer vs stronger extractor).
-5. Approve (or reject) the prepared live LLM+BM25 runs in section 8.
-6. Decide whether to purge git history of removed third-party texts.
-7. PyPI publish credentials/version; docs site, gallery, v4a; Zenodo dataset
-   eligibility for independent validation.
+
+Recorded decisions: the 24 drafted applicability labels are owner-approved;
+V2.5 continues with evidence-layer work; the prepared live runs are approved
+but blocked on `PYCL_LLM_*` env vars; git history is retained (no rewrite);
+Zenodo 4032561 is not eligible as independent validation.
 
 ## 8. Next step: prepared live runs (DO NOT RUN without approval)
 

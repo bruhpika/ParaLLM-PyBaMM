@@ -2,7 +2,8 @@
 
 Checklist of what is left after the retrieval-improvement programme and the
 post-handoff fixes (2026-11-20; see `docs/HANDOFF.md` §4). Owner items are
-decisions, not engineering work.
+decisions, not engineering work. Owner decisions recorded 2026-11-20 are
+applied below.
 
 ## Owner decisions (blocking)
 
@@ -12,7 +13,8 @@ decisions, not engineering work.
       `docs/DATA_PROVENANCE.md`. No hash was invented. The publisher PDF is
       **not in the repository** and is not present locally
       (`data/raw_documents/chen2020_jes_167_080534/` is absent); the owner must
-      supply the acquired PDF and record its verified 64-hex sha256.
+      supply the acquired PDF and record its verified 64-hex sha256. The agent
+      cannot fetch it (fetch-free policy; no verified URL).
 - [ ] Then ingest with `scripts/fetch_chen2020.py --pdf <path>` (verifies the
       hash first; output is gitignored). Required before any v3 live run;
       without it v3 fixtures drop 15 items (22 of 37 locally available).
@@ -29,18 +31,19 @@ decisions, not engineering work.
 
 ### 3. Applicability labels
 
-- [ ] Review the 24 drafted applicability labels; the 0.958 agreement in
-      `results/v2/applicability/summary.md` is provisional until signed off
-      (closes V2.1).
+- [x] Owner approved the 24 drafted applicability labels (2026-11-20). The
+      0.958 agreement in `results/v2/applicability/summary.md` is now final;
+      the case-set regeneration and V2.1 close-out are pending.
 
 ### 4. Traceability flags (17)
 
 - [ ] Resolve the 17 traceability flags (backfill quotes or correct statuses).
+      Owner preference: backfill verbatim quotes from the article PDF (item 1).
       All 17 carry `LITERATURE_DERIVED` values with no recorded quote and cite
       the Chen2020 article (Tables II / Table VII / section "Electrochemical
-      properties and parameterization"); the article text is absent, so
-      backfilling requires the PDF (item 1) or an explicit status correction.
-      Deterministic list from `parallm assemble` over the committed registry:
+      properties and parameterization"); the article text is absent, so this
+      is blocked on item 1. Deterministic list from `parallm assemble` over the
+      committed registry:
       `cell_electrode_height`, `cell_electrode_width`,
       `electrolyte_conductivity`, `electrolyte_diffusivity`,
       `initial_electrolyte_concentration`, `neg_current_collector_thickness`,
@@ -53,25 +56,27 @@ decisions, not engineering work.
 
 ### 5. V2.5 extractor decision
 
-- [ ] Make the V2.5 extractor decision: evidence-layer work vs a controlled
-      stronger-extractor re-run. Current exit criterion is not met
-      (0.310 / 0.058 vs target >= 0.5 / 0.000).
+- [x] Owner delegated; decision recorded: continue with **evidence-layer work**
+      (deterministic association-level condition<->value mechanism). A
+      stronger-extractor re-run is rejected because it would require live
+      model calls and risks tuning on the test split.
 
 ### 6. Live LLM + tuned-BM25 runs
 
-- [ ] Approve or reject the prepared TASK 6 live runs. If approved, run with
-      `--live`, report the side-by-side, and do not tune on test. The v3 run
-      requires the article ingest first (item 1).
+- [x] Owner approved the prepared TASK 6 live runs. Execution is blocked on
+      `PYCL_LLM_API_KEY`, `PYCL_LLM_MODEL`, `PYCL_LLM_BASE_URL` (none set).
+      The v3 run additionally requires the article ingest first (item 1).
 
 ### 7. Git history purge
 
-- [ ] Decide whether to purge git history of the removed Chen2020 article and
-      supplement full texts. No history rewrite was performed.
+- [x] Decision recorded: **retain git history** (no rewrite). This is a hard
+      operating rule; the removed Chen2020 full texts stay in history.
 
 ### 8. Zenodo eligibility
 
-- [ ] Decide Zenodo record 4032561 eligibility for independent validation; no
-      real-data claim is made until then.
+- [x] Decision recorded: Zenodo record 4032561 is **not eligible** as
+      independent validation (near-match, not a verified held-out set). No
+      real-data claim is made.
 
 ## Engineering (gated or follow-up)
 
@@ -85,12 +90,12 @@ decisions, not engineering work.
       milestone.
 - [ ] After the live runs: report oracle vs BM25 baseline vs tuned BM25
       extraction side-by-side from committed results files.
-- [ ] V2.5: implement the association-level condition<->value mechanism once
-      the extractor decision is made.
-- [ ] V2.6: open the closed loop only after V2.1/V2.2 owner items and the V2.5
-      exit criterion are met.
+- [ ] V2.5: implement the association-level condition<->value mechanism (owner
+      delegated; evidence-layer route chosen).
+- [ ] V2.6: open the closed loop only after the V2.5 exit criterion is met.
 - [ ] V2.7: PyPI publish (credentials + version decision), docs site, examples
-      gallery, v4a mini-benchmark.
+      gallery, v4a mini-benchmark. Docs site and examples gallery are in
+      progress; v4a follows.
 
 ## Prepared commands (do not run without approval)
 

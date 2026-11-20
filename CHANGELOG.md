@@ -12,6 +12,15 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Owner decisions recorded (documentation only)
+
+- Owner decisions (2026-11-20) applied to `docs/REMAINING_TASKS.md` and
+  `docs/HANDOFF.md`: the 24 drafted applicability labels are approved; V2.5
+  continues with evidence-layer work; the prepared live runs are approved but
+  blocked on `PYCL_LLM_*` env vars; git history is retained (no rewrite);
+  Zenodo 4032561 is not eligible as independent validation. The Chen2020
+  article PDF and licence remain open. No code or results changed.
+
 ### Remaining-tasks checklist refreshed with decision evidence (documentation only)
 
 - `docs/REMAINING_TASKS.md` now carries the exact owner-decision evidence:
