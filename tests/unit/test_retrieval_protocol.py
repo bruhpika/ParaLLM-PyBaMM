@@ -6,7 +6,10 @@ import importlib.util
 import json
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
+PRIVATE_V4_ITEMS = REPO_ROOT / "data/private_v4/fixture/benchmark_v4.jsonl"
 _SPEC = importlib.util.spec_from_file_location(
     "evaluate_retrieval", REPO_ROOT / "benchmarks/v2/evaluate_retrieval.py"
 )
@@ -51,20 +54,33 @@ def test_bootstrap_ci_is_deterministic_and_brackets_values():
     assert 0.0 <= a["low"] <= a["high"] <= 1.0
 
 
-def test_committed_split_covers_all_fixture_items():
+def _assert_split_matches(split, bench, loader, path, n):
+    ids = {str(it.item_id) for it in loader(path)}
+    s = split["benchmarks"][bench]
+    assert len(s["dev"]) + len(s["test"]) == n
+    assert set(s["dev"]) | set(s["test"]) == ids
+    assert not set(s["dev"]) & set(s["test"])
+
+
+def test_committed_split_covers_v3_items():
     split = json.loads(
         (REPO_ROOT / "configs/retrieval/dev_test_split.json").read_text()
     )
     from pybamm_closed_loop.eval.benchmark_p5 import load_items_v3
+
+    _assert_split_matches(
+        split, "v3", load_items_v3, REPO_ROOT / "data/eval/extraction_benchmark_v3.jsonl", 37
+    )
+    assert split["seed"] == MOD.SEED
+
+
+@pytest.mark.skipif(
+    not PRIVATE_V4_ITEMS.exists(), reason="private v4 fixture not present in this checkout"
+)
+def test_committed_split_covers_private_v4_items():
+    split = json.loads(
+        (REPO_ROOT / "configs/retrieval/dev_test_split.json").read_text()
+    )
     from pybamm_closed_loop.eval.benchmark_v4 import load_items
 
-    for bench, loader, path, n in (
-        ("v3", load_items_v3, REPO_ROOT / "data/eval/extraction_benchmark_v3.jsonl", 37),
-        ("v4", load_items, REPO_ROOT / "data/private_v4/fixture/benchmark_v4.jsonl", 30),
-    ):
-        ids = {str(it.item_id) for it in loader(path)}
-        s = split["benchmarks"][bench]
-        assert len(s["dev"]) + len(s["test"]) == n
-        assert set(s["dev"]) | set(s["test"]) == ids
-        assert not set(s["dev"]) & set(s["test"])
-    assert split["seed"] == MOD.SEED
+    _assert_split_matches(split, "v4", load_items, PRIVATE_V4_ITEMS, 30)

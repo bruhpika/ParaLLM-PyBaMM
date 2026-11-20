@@ -5,7 +5,10 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
+V4_ITEMS = REPO_ROOT / "data/private_v4/fixture/benchmark_v4.jsonl"
 _PATH = REPO_ROOT / "benchmarks/v2/prepare_live_retrieval.py"
 _SPEC = importlib.util.spec_from_file_location("prepare_live_retrieval", _PATH)
 assert _SPEC and _SPEC.loader
@@ -20,6 +23,9 @@ def test_planner_has_no_model_client():
     assert "requests" not in source
 
 
+@pytest.mark.skipif(
+    not V4_ITEMS.exists(), reason="private v4 fixture not present in this checkout"
+)
 def test_dry_run_counts_match_items_and_repeats():
     plan = MOD._plan("v4", 3, show_prompts=False)
     assert plan["items"] == 30
