@@ -12,6 +12,13 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Remaining-tasks checklist refreshed with decision evidence (documentation only)
+
+- `docs/REMAINING_TASKS.md` now carries the exact owner-decision evidence:
+  the Chen2020 article PDF is absent, the supplement PDF sha256 is computed for
+  owner confirmation, the 17 traceability parameters are listed, and the live
+  run call counts are stated. No code or results changed.
+
 ### Synthetic-validation figure, CI clean-checkout fix and oracle-label sync
 
 - Added `scripts/plot_synthetic_validation.py` and unit tests; regenerated the
