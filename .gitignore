@@ -33,3 +33,6 @@ data/private_v4/
 # Private per-item result rows (applicability cases, v4 per-item scores).
 # Only aggregate summaries under results/v2/ are public.
 results/private_v4/
+
+# Regenerable example outputs (see examples/README.md)
+examples/output/
