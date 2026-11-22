@@ -81,7 +81,7 @@ PyBaMM 26.8.0.0) on CPython 3.12.16.
 ```
 
 Expected outputs and limitations: `docs/QUICKSTART.md`. **The core scope above
-measured 440 passed, 15 skipped (3 characterization tests deselected) on
+measured 462 passed, 8 skipped (3 characterization tests deselected) on
 `main` (2026-11-22), in the core `.venv` (CPython 3.14.8), using the command
 shown.**
 Coverage: benchmark tests are opt-in via `-m benchmark`.
@@ -190,7 +190,7 @@ documents, papers or datasets. Source terms and provenance are recorded in
 
 | document / data | licence (evidence) | text in this repo |
 |---|---|---|
-| Chen2020 article, JES 167 080534 (doi `10.1149/1945-7111/ab9050`) | **UNVERIFIED** — publisher page unreachable (HTTP 500); Warwick repository lists CC BY-NC-ND 4.0 (not independently checked). See `docs/DATA_PROVENANCE.md` | **Not tracked** — supply the PDF and run `scripts/fetch_chen2020.py --pdf <path>`; the script verifies the sha256 before local ingest |
+| Chen2020 article, JES 167 080534 (doi `10.1149/1945-7111/ab9050`) | **CC BY-NC-ND 4.0** (verified in the PDF text, 2026-11-22; verbatim statement in `docs/DATA_PROVENANCE.md`) | **Not tracked** — supply the PDF and run `scripts/fetch_chen2020.py --pdf <path>`; the script verifies the sha256 before local ingest |
 | Chen2020 supplementary information | No licence evidence (ECS ©, permission unverified) | **Not tracked** — PDF and derived text/segments acquired locally; see `data/raw_documents/chen2020_supplement/ACQUISITION.md` |
 | Laue et al. 2021 | **CC BY 4.0** (licence quote + sha256 verified in the manifest) | Tracked PDF and derived text/segments |
 | Dessantis et al. 2023 | **CC BY 4.0** (verified) | Tracked PDF and derived text/segments |

@@ -148,6 +148,7 @@ SPEC: dict[str, dict[str, Any]] = {
         ),
         paper=_paper(
             "12e-6", "m", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_VII,
+            probe=S.PROBE_CC_THICKNESS,
             method="measured at teardown with an incremental length gauge (Heidenhain)",
             conditions=dict(cell="LG M50 21700, disassembled in Ar glovebox (<1 ppm O2/H2O), electrodes soaked in DMC and dried at 50 C under vacuum"),
             uncertainty_note="Table II reports 11.7 um for the copper foil; Table VII rounds to 12e-6 m",
@@ -165,6 +166,7 @@ SPEC: dict[str, dict[str, Any]] = {
         ),
         paper=_paper(
             "16e-6", "m", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_VII,
+            probe=S.PROBE_CC_THICKNESS,
             method="measured at teardown with an incremental length gauge (Heidenhain)",
             conditions=dict(cell="LG M50 21700, disassembled in Ar glovebox (<1 ppm O2/H2O), electrodes soaked in DMC and dried at 50 C under vacuum"),
             uncertainty_note="Table II reports 16.3 um for the aluminium foil; Table VII rounds to 16e-6 m",
@@ -179,6 +181,7 @@ SPEC: dict[str, dict[str, Any]] = {
         definition="Single-sided graphite-SiOx coating thickness of the negative electrode (current collector to separator).",
         paper=_paper(
             "85.2e-6", "m", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_II,
+            probe=S.PROBE_SINGLE_SIDED_THICKNESS,
             method="measured with an incremental length gauge (Heidenhain) at different positions on the delaminated lamina",
             conditions=dict(cell="LG M50 21700, disassembled, double-sided electrode delaminated on one side"),
         ),
@@ -189,6 +192,7 @@ SPEC: dict[str, dict[str, Any]] = {
         definition="Single-sided NMC coating thickness of the positive electrode (current collector to separator).",
         paper=_paper(
             "75.6e-6", "m", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_II,
+            probe=S.PROBE_SINGLE_SIDED_THICKNESS,
             method="measured with an incremental length gauge (Heidenhain) at different positions on the delaminated lamina",
             conditions=dict(cell="LG M50 21700, disassembled, double-sided electrode delaminated on one side"),
         ),
@@ -199,6 +203,7 @@ SPEC: dict[str, dict[str, Any]] = {
         definition="Ceramic-coated polyolefin separator thickness between the electrodes.",
         paper=_paper(
             "12e-6", "m", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_II,
+            probe=S.PROBE_SEPARATOR_THICKNESS,
             method="measured with an incremental length gauge (Heidenhain)",
             conditions=dict(cell="LG M50 21700, disassembled"),
             uncertainty_note="paper text: 'ca. 12 um, this approximation was due to a non-uniform thickness at different parts of the separator'",
@@ -216,6 +221,7 @@ SPEC: dict[str, dict[str, Any]] = {
         ),
         paper=_paper(
             "1.58", "m", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_II,
+            probe=S.PROBE_T7_ELECTRODE_LENGTH_ROW,
             method="Vernier caliper and foil-layer lengths at teardown (Table II: 79/79 cm per side for the positive electrode)",
             conditions=dict(cell="LG M50 21700"),
         ),
@@ -232,6 +238,7 @@ SPEC: dict[str, dict[str, Any]] = {
         ),
         paper=_paper(
             "6.5e-2", "m", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_II,
+            probe=S.PROBE_T7_ELECTRODE_WIDTH_ROW,
             method="Vernier caliper at teardown",
             conditions=dict(cell="LG M50 21700"),
         ),
@@ -245,6 +252,7 @@ SPEC: dict[str, dict[str, Any]] = {
         ),
         paper=_paper(
             "5.86e-6", "m", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_II,
+            probe=S.PROBE_PARTICLE_RADII,
             method="SEM top-down image particle-size analysis (ImageJ); particles assumed spherical",
             conditions=dict(cell="LG M50 21700, extracted electrodes", temperature_k=298.15),
             uncertainty_note=(
@@ -261,6 +269,7 @@ SPEC: dict[str, dict[str, Any]] = {
         definition="Mean radius of the NMC 811 active-material particles of the positive electrode (near-spherical).",
         paper=_paper(
             "5.22e-6", "m", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_II,
+            probe=S.PROBE_PARTICLE_RADII,
             method="SEM top-down image particle-size analysis (ImageJ); particles assumed spherical",
             conditions=dict(cell="LG M50 21700, extracted electrodes", temperature_k=298.15),
         ),
@@ -301,6 +310,7 @@ SPEC: dict[str, dict[str, Any]] = {
         definition="Electrolyte (pore) volume fraction of the ceramic-coated polyolefin separator.",
         paper=_paper(
             "47", "%", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_II,
+            probe=S.PROBE_T2_ELECTROLYTE_VF_ROW,
             method="physical/porosimetry analysis of the extracted separator (paper Table II row 'Electrolyte volume fraction')",
             conditions=dict(cell="LG M50 21700, extracted separator"),
         ),
@@ -317,6 +327,7 @@ SPEC: dict[str, dict[str, Any]] = {
         ),
         paper=_paper(
             "75", "%", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_II,
+            probe=S.PROBE_T7_AM_FRACTION_ROW,
             method="derived from electrode mass/loading and theoretical crystal densities (paper assumes 100% active material; binder and conductive additive omitted)",
             conditions=dict(cell="LG M50 21700, extracted electrodes"),
             uncertainty_note=(
@@ -350,6 +361,7 @@ SPEC: dict[str, dict[str, Any]] = {
         ),
         paper=_paper(
             "66.5", "%", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_II,
+            probe=S.PROBE_T7_AM_FRACTION_ROW,
             method="derived from electrode mass/loading and theoretical crystal densities (paper assumes 100% active material; binder and conductive additive omitted)",
             conditions=dict(cell="LG M50 21700, extracted electrodes"),
             uncertainty_note=(
@@ -617,6 +629,7 @@ SPEC: dict[str, dict[str, Any]] = {
         definition="Open-circuit potential of the NMC 811 positive electrode vs Li/Li+ as a function of stoichiometry (interpolated data function in PyBaMM).",
         paper=_paper(
             "see Fig. 12 or 8", "V", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_VII,
+            probe=S.PROBE_T7_OCP_ROW,
             method="GITT-OCV (half-cell and three-electrode; relaxation limit dE/dt < 0.1 mV/h); PyBaMM carries an interpolated fit of the measured curve",
             conditions=dict(cell="NMC half cell and three-electrode full cell", temperature_k=298.15),
             kind=PS.LITERATURE_DERIVED,
@@ -732,6 +745,7 @@ SPEC: dict[str, dict[str, Any]] = {
         definition="Concentration-dependent diffusion coefficient of Li+ in the electrolyte (fitted expression, not a scalar).",
         paper=_paper(
             "see 23", "m2 s-1", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_VII,
+            probe=S.PROBE_T7_DIFFUSIVITY_ROW,
             method="fitted expression from Nyman et al. 2008 (electrolyte R&D 281: 1 mol dm-3 LiPF6 in EC:EMC 3:7); the exact electrolyte of the commercial cell is unknown",
             conditions=dict(electrolyte="1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V), 1 wt% VC", temperature_k=298.15),
             kind=PS.LITERATURE_DERIVED,
@@ -748,6 +762,7 @@ SPEC: dict[str, dict[str, Any]] = {
         definition="Concentration-dependent ionic conductivity of the electrolyte (fitted expression, not a scalar).",
         paper=_paper(
             "see 24", "S m-1", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_VII,
+            probe=S.PROBE_T7_CONDUCTIVITY_ROW,
             method="fitted expression from Nyman et al. 2008 (electrolyte R&D 281)",
             conditions=dict(electrolyte="1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V), 1 wt% VC", temperature_k=298.15),
             kind=PS.LITERATURE_DERIVED,
@@ -784,6 +799,7 @@ SPEC: dict[str, dict[str, Any]] = {
         definition="Initial bulk Li+ concentration in the electrolyte (1 mol dm-3 LiPF6).",
         paper=_paper(
             1000, "mol m-3", S.LOC_TABLE_VII + "; " + S.CAP_TABLE_VII,
+            probe=S.PROBE_ELECTROLYTE_COMPOSITION,
             method="experimental electrolyte composition (R&D 281); the exact commercial electrolyte is unknown",
             conditions=dict(electrolyte="1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V), 1 wt% VC"),
             kind=PS.LITERATURE_DERIVED,
@@ -857,6 +873,7 @@ SPEC: dict[str, dict[str, Any]] = {
         definition="Terminal open-circuit voltage at 100% SOC (manufacturer reference).",
         paper=_paper(
             4.2, "V", S.LOC_ECHEM,
+            probe=S.PROBE_OCV_CITED_RANGE,
             method="manufacturer SOC definition",
             conditions=dict(cell="LG M50 21700"),
             kind=PS.LITERATURE_DERIVED,

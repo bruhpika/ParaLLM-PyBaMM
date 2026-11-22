@@ -9,25 +9,28 @@ applied below.
 
 ### 1. Chen2020 article PDF sha256 and ingest
 
-- [ ] Fill the `Chen2020 article PDF sha256:` TODO in
-      `docs/DATA_PROVENANCE.md`. No hash was invented. The publisher PDF is
-      **not in the repository** and is not present locally
-      (`data/raw_documents/chen2020_jes_167_080534/` is absent); the owner must
-      supply the acquired PDF and record its verified 64-hex sha256. The agent
-      cannot fetch it (fetch-free policy; no verified URL).
-- [ ] Then ingest with `scripts/fetch_chen2020.py --pdf <path>` (verifies the
-      hash first; output is gitignored). Required before any v3 live run;
-      without it v3 fixtures drop 15 items (22 of 37 locally available).
-- [ ] Supplement PDF hash: `data/raw_documents/chen2020_supplement/
-      JES_167_8_080534_suppdata.pdf` exists locally; computed sha256 (owner to
-      confirm the acquired copy before it is recorded in
-      `data/raw_documents/chen2020_supplement/ACQUISITION.md`):
+- [x] **Resolved 2026-11-22.** Owner supplied the publisher PDF
+      (`chen2020/…Chen_2020_J._Electrochem._Soc._167_080534.pdf`) and
+      confirmed the hash:
+      `99d8f38a383e367aba5a8c3de74fdaf6ca9051842b0ddd75ca3ef1a238afb551`.
+      Recorded in `docs/DATA_PROVENANCE.md`; ingested with
+      `scripts/fetch_chen2020.py` (hash verified). The recorded text extract
+      `dffc1f9f…` is not reproducible from this PDF by pypdf/pdftotext; the
+      historical extract is restored from git history as the corpus of record
+      (disclosed in `docs/DATA_PROVENANCE.md`).
+- [x] Supplement PDF hash recorded in
+      `data/raw_documents/chen2020_supplement/ACQUISITION.md` (owner-confirmed
+      2026-11-22):
       `ab629418ba0edc3f81122354e3fc7b02b58f1bbe8bb0a86073f8ea7b1a05f022`.
 
 ### 2. Chen2020 article licence
 
-- [ ] Resolve the Chen2020 article licence: currently **UNVERIFIED** (publisher
-      page HTTP 500; Warwick lists CC BY-NC-ND 4.0, not independently checked).
+- [x] **Verified 2026-11-22** from the PDF's own first page: **CC BY-NC-ND
+      4.0** (verbatim statement in `docs/DATA_PROVENANCE.md`). This confirms
+      the Warwick repository listing and supersedes the "ECS ©" assumption.
+- [ ] Owner decision (non-blocking): keep the fetched-only redistribution
+      policy or switch to unmodified non-commercial redistribution with
+      citation (both permitted; current policy stays until the owner decides).
 
 ### 3. Applicability labels
 
@@ -38,13 +41,14 @@ applied below.
 
 ### 4. Traceability flags (17)
 
-- [ ] Resolve the 17 traceability flags (backfill quotes or correct statuses).
-      Owner preference: backfill verbatim quotes from the article PDF (item 1).
-      All 17 carry `LITERATURE_DERIVED` values with no recorded quote and cite
-      the Chen2020 article (Tables II / Table VII / section "Electrochemical
-      properties and parameterization"); the article text is absent, so this
-      is blocked on item 1. Deterministic list from `parallm assemble` over the
-      committed registry:
+- [x] **Resolved 2026-11-22.** The 17 verbatim quotes were backfilled from the
+      archived article text with the deterministic seed extractor
+      (`scripts/backfill_chen2020_quotes.py`; probes in
+      `registry/sources.py`, revision-logged in `revisions.jsonl`; values,
+      units, conditions and statuses untouched). `parallm assemble` now
+      reports **traceability ok=96 / warn=0 / fail=0** and **53/53** recorded
+      quotes verify against the archive. The flagged set (recorded for the
+      audit trail) was:
       `cell_electrode_height`, `cell_electrode_width`,
       `electrolyte_conductivity`, `electrolyte_diffusivity`,
       `initial_electrolyte_concentration`, `neg_current_collector_thickness`,
@@ -96,6 +100,13 @@ applied below.
       "probe window; NOT a performance upper bound" (f3403c5).
 - [x] `docs/HANDOFF.md` and `CHANGELOG.md` updated after each completed
       milestone.
+- [x] V2.2 quote backfill: 17 verbatim quotes carved from the archived
+      article text (`scripts/backfill_chen2020_quotes.py`), traceability
+      96/96, 53/53 quotes verify (2026-11-22).
+- [x] Path-bug fixes: `scripts/fetch_chen2020.py` and
+      `literature/availability.py` resolved `REPO_ROOT` one level too high
+      (`parents[2]` → `parents[1]`/`parents[3]`); `article_source_text_available`
+      silently returned False before the fix.
 - [ ] After the live runs: report oracle vs BM25 baseline vs tuned BM25
       extraction side-by-side from committed results files.
 - [x] V2.5: association-level condition<->value mechanism implemented,
@@ -122,6 +133,6 @@ export PYCL_LLM_API_KEY=... PYCL_LLM_MODEL=... PYCL_LLM_BASE_URL=...
   --modes retrieval_tuned --repeats 3 --live
 ```
 
-Dry-run estimates: v3 22 local items / 66 calls; v4 30 items / 90 calls. After
-the article ingest, v3 covers 37 items / 111 calls. No model call or download
-has been made for these runs.
+Dry-run estimates (article text ingested 2026-11-22): v3 covers 37 items /
+111 calls; v4 30 items / 90 calls. No model call or download has been made
+for these runs.

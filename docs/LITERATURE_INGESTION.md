@@ -34,14 +34,13 @@ Guarantees:
 
 The Chen2020 article (DOI 10.1149/1945-7111/ab9050, text originally retrieved
 2026-11-04) is the reference document for the seeded registry. Its licence is
-**UNVERIFIED**: the publisher page
-`https://iopscience.iop.org/article/10.1149/1945-7111/ab9050` returned HTTP 500
-on 2026-11-19 and the DOI resolver returned citation metadata only, with no
-licence statement. The University of Warwick repository lists the published
-version as **CC BY-NC-ND 4.0** (per project context, not independently verified
-here); the single reconciled statement, with source URLs and retrieval dates,
-is in `docs/DATA_PROVENANCE.md`. The full text is no longer archived in-repo:
-supply the publisher PDF and run `scripts/fetch_chen2020.py --pdf <path>` to
+**verified CC BY-NC-ND 4.0** from the article PDF's own first page
+(2026-11-22; verbatim statement in `docs/DATA_PROVENANCE.md`), which confirms
+the University of Warwick repository listing and supersedes the earlier
+"UNVERIFIED / ECS ©" status (the publisher page returned HTTP 500 on
+2026-11-19 and the DOI resolver returned citation metadata only). The full
+text is no longer archived in-repo: supply the publisher PDF and run
+`scripts/fetch_chen2020.py --pdf <path>` to
 ingest it locally before running text-dependent fixtures.
 
 ## 2. Retrieval (Part C)

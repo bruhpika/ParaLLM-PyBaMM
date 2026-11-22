@@ -50,9 +50,9 @@ v0.1.0-beta.1 is released (P0-P5). v0.2 is in progress. Milestone status from
 - V2.1 applicability engine: implemented; 24 expert labels are **owner-approved**
   (2026-11-20) with `reviewed_by`/`reviewed_on` recorded on every case;
   agreement 0.958 is final (`results/v2/applicability/summary.md`).
-- V2.2 dossier/assembly CLI: implemented; 36/36 recorded quotes verify;
-  traceability 79/96, 17 flagged records need the Chen2020 article PDF (see
-  `docs/REMAINING_TASKS.md` item 1).
+- V2.2 dossier/assembly CLI: implemented; **traceability 96/96** (the 17
+  flagged quotes were backfilled 2026-11-22 from the archived article text;
+  53/53 recorded quotes verify; `scripts/backfill_chen2020_quotes.py`).
 - V2.3 identifiability join: done; V2.4 synthetic end-to-end validation: done.
 - V2.5 evidence engineering: **exit criterion not met** (best condition
   accuracy 0.310 vs target >=0.5; invented 0.044 vs 0.000;
@@ -103,6 +103,32 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 - 34 unit tests (`tests/unit/test_association.py`); full core suite 440
   passed / 15 skipped.
 
+### V2.2 quote backfill + provenance close-out (2026-11-22)
+
+- Owner confirmed the Chen2020 PDF sha256
+  (`99d8f38a383e367aba5a8c3de74fdaf6ca9051842b0ddd75ca3ef1a238afb551`)
+  and the supplement sha256; both recorded (`docs/DATA_PROVENANCE.md`,
+  `data/raw_documents/chen2020_supplement/ACQUISITION.md`). The PDF is
+  ingested locally via `scripts/fetch_chen2020.py` (hash-verified).
+- **Licence verified** from the PDF's own first page: **CC BY-NC-ND 4.0**
+  (verbatim statement recorded; supersedes the "ECS ©" assumption).
+- **Text-extract discrepancy (disclosed):** the pypdf extraction of this PDF
+  (sha `4c1bc8cd…`) does not reproduce the recorded text extract
+  (`dffc1f9f…`); the historical extract is retained in git history and
+  restored as the corpus of record (store + quote-verification archive).
+  Details in `docs/DATA_PROVENANCE.md`.
+- **17 traceability quotes backfilled** deterministically
+  (`scripts/backfill_chen2020_quotes.py`, probes in `registry/sources.py`,
+  revision-logged; values/units/conditions/statuses untouched):
+  `parallm assemble` reports **ok=96 / warn=0 / fail=0** and 53/53 quotes
+  verify.
+- Path-bug fixes: `scripts/fetch_chen2020.py` (`parents[2]` → `parents[1]`)
+  and `literature/availability.py` (`parents[2]` → `parents[3]`; the article
+  availability check silently returned False before the fix, so dependent
+  tests had always skipped).
+- 6 new unit tests (`tests/unit/test_backfill_chen2020_quotes.py`); the
+  real-registry integration test now runs instead of skipping.
+
 ### General engineering / licensing
 
 - `task/a-readme-v02`: README rewritten with sourced results and honest limitations.
@@ -147,8 +173,10 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 
 ## 5. Sourced numbers to reuse (do not re-derive by hand)
 
-- Core test scope: 440 passed, 15 skipped, 3 deselected (measured on `main`,
+- Core test scope: 462 passed, 8 skipped, 3 deselected (measured on `main`,
   2026-11-22).
+- V2.2 traceability: ok=96 / warn=0 / fail=0; 53/53 recorded quotes verify
+  (`reports/assembly/manifest.json` after `parallm assemble`).
 - v3 BM25 gold-passage recall@1/3/5/10 = 0.189 / 0.351 / 0.459 / 0.486
   (`results/p5/benchmark_v3/retrieval_recall.md`).
 - v4 small recall = 0.300 / 0.867 / 0.900 / 1.000; full corpus =
@@ -189,20 +217,24 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 ## 7. Open owner decisions (blocking)
 
 Owner decisions recorded 2026-11-20 are applied in
-`docs/REMAINING_TASKS.md`. Remaining open:
+`docs/REMAINING_TASKS.md`. The 2026-11-22 hash confirmation closed items 1
+and 3; the licence is verified from the PDF. Remaining open:
 
-1. Fill the Chen2020 publisher-PDF sha256 TODO in `docs/DATA_PROVENANCE.md`
-   (line with `Chen2020 article PDF sha256:`); `scripts/fetch_chen2020.py`
-   refuses until a real 64-hex value is present. Supplement PDF hash TODO in
-   `data/raw_documents/chen2020_supplement/ACQUISITION.md`.
-2. Article licence remains UNVERIFIED; decide whether to seek a citable
-   publisher statement or keep the fetched-only policy.
+1. **Redistribution policy** for the Chen2020 article (non-blocking): the PDF
+   states CC BY-NC-ND 4.0 (verified 2026-11-22, verbatim statement in
+   `docs/DATA_PROVENANCE.md`), which permits unmodified non-commercial
+   redistribution with citation. The repo keeps the conservative fetched-only
+   policy until the owner decides otherwise.
 
 Recorded decisions: the 24 applicability labels are owner-approved and the
 review metadata is recorded; V2.5 continues with evidence-layer work; the
 prepared live runs are approved but blocked on `PYCL_LLM_*` env vars; git
 history is retained (no rewrite); Zenodo 4032561 is not eligible as independent
-validation.
+validation; the Chen2020 PDF sha256
+(`99d8f38a383e367aba5a8c3de74fdaf6ca9051842b0ddd75ca3ef1a238afb551`) and
+supplement sha256
+(`ab629418ba0edc3f81122354e3fc7b02b58f1bbe8bb0a86073f8ea7b1a05f022`) are
+owner-confirmed and recorded.
 
 ## 8. Next step: prepared live runs (DO NOT RUN without approval)
 

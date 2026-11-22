@@ -109,6 +109,34 @@ PROBE_GITT_LIMITS = (
 )
 PROBE_CITED_CAPACITY = "is cited to be 5 Ah"
 
+# Verbatim anchors for the geometry / table-carried values (V2.2 quote
+# backfill, 2026-11-22). Multi-line probes are exact table-row blocks of the
+# archived text; the quote is the row with its label and printed values.
+PROBE_CC_THICKNESS = "current collector thickness was measured"
+PROBE_SINGLE_SIDED_THICKNESS = (
+    "single sided thicknesses of the positive and negative electrode laminae "
+    "are 75.6 μm and 85.2 μm respectively"
+)
+PROBE_SEPARATOR_THICKNESS = (
+    "ceramic coated polymer with a thickness ca. 12 μm, this approximation was "
+    "due to a non-uniform thickness at different parts of the separator"
+)
+PROBE_PARTICLE_RADII = (
+    "average particle radii for NMC, graphite and silicon are 5.22, 5.86 and "
+    "1.52 μm respectively"
+)
+PROBE_OCV_CITED_RANGE = "2.5–4.2 V is cited to be 5 Ah"
+PROBE_ELECTROLYTE_COMPOSITION = "This electrolyte contains 1 mol dm"
+PROBE_T7_ELECTRODE_LENGTH_ROW = "Electrode length\nm\n1.58"
+PROBE_T7_ELECTRODE_WIDTH_ROW = "Electrode width\nm\n6.5·10−2"
+PROBE_T7_AM_FRACTION_ROW = "Active material volume fraction ()\n%\n66.5\n—\n75"
+PROBE_T7_OCP_ROW = (
+    "Open Circuit Voltages ()\nV\nsee Fig. 12 or 8\n\n—\nsee Fig. 12 or 9"
+)
+PROBE_T7_DIFFUSIVITY_ROW = "Electrolyte ionic diffusivity ()\nm2 s−1\n \nSee 23"
+PROBE_T7_CONDUCTIVITY_ROW = "Electrolyte ionic conductivity ()\nS m−1\n \nSee 24"
+PROBE_T2_ELECTROLYTE_VF_ROW = "Electrolyte volume fraction\n%\n33.5\n25\n47"
+
 # Exact table-VII rows as retrieved (paper value per column pos|sep|neg);
 # printed units preserved verbatim.
 TABLE_VII_ROWS: dict[str, dict[str, str | None]] = {

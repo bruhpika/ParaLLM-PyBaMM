@@ -21,7 +21,7 @@ from datetime import date
 from pathlib import Path
 from typing import Sequence
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from pybamm_closed_loop.literature.ingest import DocumentStore  # noqa: E402

@@ -24,28 +24,39 @@ recorded license evidence.
 | Dessantis et al. 2023 (Batteries 9:146) | `data/raw_documents/dessantis2023_batteries9_0146/` | **CC BY 4.0** (verified) | same |
 | Goussian et al. 2024 (Batteries 10:205) | `data/raw_documents/goussian2024_batteries10_00205/` | **CC BY 4.0** (verified) | same; no numeric cell parameters (data confidential) |
 | PyBaMM parameter-sets documentation snapshot | `data/raw_documents/pybamm_parameter_sets_docs/` | PyBaMM project docs (PyBaMM code is **BSD 3-Clause**, verified below; the docs snapshot itself has no explicit licence evidence recorded) | ingested text snapshot |
-| Chen2020 **text** extract (article) | not tracked; fetch + verify locally via `scripts/fetch_chen2020.py` | **UNVERIFIED** — see the single statement below; the publisher page was unreachable | raw text and segments were removed from git tracking; regenerate locally from an owner-supplied PDF |
+| Chen2020 **text** extract (article) | not tracked; fetch + verify locally via `scripts/fetch_chen2020.py` | **CC BY-NC-ND 4.0** (verified in the PDF text, 2026-11-22; see the single statement below) | raw text and segments were removed from git tracking; regenerate locally from an owner-supplied PDF |
 | Benchmark fixtures & derived results | `data/eval/`, `results/p4/`, `results/p5/`, `data/registry/` | produced by this project (MIT, subject to underlying source terms noted per item) | include recorded provenance/qualifiers; raw model outputs preserved |
 
 License evidence and sha256: `data/raw_documents/p5_sources/acquisition_manifest.json`.
 
-### Chen2020 article licence — single statement (UNVERIFIED)
+### Chen2020 article licence — single statement (VERIFIED 2026-11-22)
 
-- **Status: UNVERIFIED.** No exact publisher licence statement text was
-  obtained from this environment.
-- Publisher URL checked: `https://iopscience.iop.org/article/10.1149/1945-7111/ab9050`
-  (HTTP 500 on 2026-11-19). DOI resolver
-  `https://doi.org/10.1149/1945-7111/ab9050` returned only citation metadata
-  (`Chen, C.-H., ... Journal of the Electrochemical Society, 167(8), 80534`),
-  with no licence statement.
-- Conflicting secondary statements are recorded, not adopted: the University
-  of Warwick repository lists the published version as **CC BY-NC-ND 4.0**
-  (per project context; not independently verified here); this file previously
-  said "ECS ©" and `docs/LITERATURE_INGESTION.md` said "CC BY-NC-ND 4.0".
+- **Status: verified** from the article PDF's own first page (p. 2 of the
+  owner-supplied file, sha256 pinned below). Verbatim statement:
+
+  > © 2020 The Author(s). Published on behalf of The Electrochemical Society
+  > by IOP Publishing Limited. This is an open access article distributed
+  > under the terms of the Creative Commons Attribution Non-Commercial No
+  > Derivatives 4.0 License (CC BY-NC-ND,
+  > http://creativecommons.org/licenses/by-nc-nd/4.0/), which permits
+  > non-commercial reuse, distribution, and reproduction in any medium,
+  > provided the original work is not changed in any way and is properly
+  > cited. For permission for commercial reuse, please email:
+  > oa@electrochem.org. [DOI: 10.1149/1945-7111/ab9050]
+
+- This resolves the earlier conflicting secondary statements: the University
+  of Warwick repository's **CC BY-NC-ND 4.0** listing is confirmed by the
+  document itself; the "ECS ©" phrasing (an all-rights-reserved assumption in
+  earlier files) is superseded. The publisher-page check of **2026-11-19**
+  (HTTP 500; DOI resolver returned citation metadata only) is retained as
+  historical record.
+- **Redistribution policy: unchanged.** The text stays **not redistributed**
+  in this repository (fetched and verified locally). CC BY-NC-ND 4.0 would
+  permit unmodified non-commercial redistribution with citation, but changing
+  the distribution policy is an owner decision (`docs/REMAINING_TASKS.md`
+  item 2).
 - The article text was originally retrieved **2026-11-04** (recorded in
-  `documents.json` before untracking); the licence check above was attempted
-  **2026-11-19**. Because the licence is UNVERIFIED, the text is not
-  redistributed — it is fetched and verified locally.
+  `documents.json` before untracking).
 
 ### Local fetch of the Chen2020 article (no automatic download)
 
@@ -54,10 +65,29 @@ yourself and run `scripts/fetch_chen2020.py --pdf <path>`; the script verifies
 the checksum before ingesting into `data/literature_store/` with the existing
 ingest code. The generated raw text/segments and any local PDF are gitignored.
 
-Chen2020 article PDF sha256: TODO (owner to fill) — no sha256 for the publisher
-PDF is recorded in this repository or in the Task F licensing report. Do not
-invent one; `scripts/fetch_chen2020.py` refuses to ingest until this line holds
-a 64-hex value. The sha256 of the previously tracked **text extract** was
+**Text-extract discrepancy (recorded 2026-11-22, disclosed not smoothed).**
+The pypdf extraction of the owner-supplied PDF hashes to
+`4c1bc8cd66ea471623dd54a88b4daec8a4ee4647c3735601803bfe23e834316c`
+and does **not** reproduce the recorded text extract
+`dffc1f9f532b9b899ce83caabcec711db154204db355f77e5a714d4ae28e07da`
+(the difference is inline-formula glyph handling: the historical extract drops
+equation glyphs; `pdftotext` variants do not reproduce it either). The
+historical extract is the corpus of record — every committed v3 result and
+every registry quote was produced against it — and is retained in git history
+(raw blob `10f00ec297f12fc36dd9e837efa888707222d513`, segments blob
+`98b528dc600caf1c25ee0fe3f7702dffe70c4f5b`). It is restored locally as
+`data/literature_store/raw/chen2020_jes_167_080534.txt` (content sha256
+`dffc1f9f…`, recorded in `documents.json`) and as the standalone
+`data/raw_documents/chen2020_jes_167_080534/chen2020_jes_167_080534_fulltext.txt`
+used for quote verification. Re-running `scripts/fetch_chen2020.py` after the
+restoration is refused by the store's immutability guard (same document id,
+different content) — that refusal is the intended protection.
+
+Chen2020 article PDF sha256: 99d8f38a383e367aba5a8c3de74fdaf6ca9051842b0ddd75ca3ef1a238afb551
+(owner-supplied publisher PDF; hash computed 2026-11-22 and confirmed by the
+project owner). `scripts/fetch_chen2020.py` verifies the supplied file against
+this value before ingesting. The sha256 of the previously tracked **text
+extract** was
 `dffc1f9f532b9b899ce83caabcec711db154204db355f77e5a714d4ae28e07da`
 (recorded in `data/literature_store/documents.json` before untracking) and can
 be used to check the regenerated text.

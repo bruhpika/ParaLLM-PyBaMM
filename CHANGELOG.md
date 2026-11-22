@@ -12,6 +12,41 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### V2.2 traceability close-out (owner-confirmed provenance)
+
+- Recorded the owner-confirmed Chen2020 article PDF sha256
+  (`99d8f38a383e367aba5a8c3de74fdaf6ca9051842b0ddd75ca3ef1a238afb551`)
+  in `docs/DATA_PROVENANCE.md` and the supplement PDF sha256
+  (`ab629418ba0edc3f81122354e3fc7b02b58f1bbe8bb0a86073f8ea7b1a05f022`)
+  in `data/raw_documents/chen2020_supplement/ACQUISITION.md`; the
+  owner-supplied PDF was ingested locally with `scripts/fetch_chen2020.py`
+  (hash-verified; not redistributed).
+- **Licence verified** from the article PDF's own first page: **CC BY-NC-ND
+  4.0** (verbatim statement recorded in `docs/DATA_PROVENANCE.md`), resolving
+  the earlier UNVERIFIED status; the redistribution policy stays fetched-only
+  pending an owner decision.
+- **Text-extract discrepancy (disclosed):** the pypdf extraction of the
+  owner-supplied PDF (`4c1bc8cd…`) does not reproduce the recorded text
+  extract (`dffc1f9f…`; inline-formula glyph handling; `pdftotext` variants
+  also fail). The historical extract — the corpus of record behind every
+  committed v3 result and registry quote — is retained in git history and
+  restored locally as the store corpus and quote-verification archive.
+- **17 traceability flags closed** by backfilling verbatim quotes from the
+  archived article text (`scripts/backfill_chen2020_quotes.py` + probes in
+  `registry/sources.py`; deterministic `extract_quote`, re-verified before
+  write, revision-logged in `revisions.jsonl`; values/units/conditions/
+  statuses untouched). `parallm assemble` now reports **traceability
+  ok=96 / warn=0 / fail=0** and **53/53** recorded quotes verify. A fresh
+  seed reproduces the quotes (the probes are part of the seed specs).
+- Path-bug fixes: `scripts/fetch_chen2020.py` resolved `REPO_ROOT` one level
+  too high (`parents[2]` → `parents[1]`), and `literature/availability.py`
+  likewise (`parents[2]` → `parents[3]`) — `article_source_text_available()`
+  had silently always returned False, so article-dependent tests skipped.
+- Verification: ruff clean; `mkdocs build --strict` clean; core scope 462
+  passed, 8 skipped, 3 deselected (6 new unit tests in
+  `tests/unit/test_backfill_chen2020_quotes.py`; the real-registry
+  integration test now runs instead of skipping).
+
 ### V2.5 association discipline (condition↔value association)
 
 - Added the deterministic **association discipline** for v4 condition scoring

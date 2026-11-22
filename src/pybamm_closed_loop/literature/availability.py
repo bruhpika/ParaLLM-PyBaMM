@@ -11,7 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 SUPPLEMENT_DOCUMENT_ID = "chen2020_supplement_s1"
 SUPPLEMENT_RAW_FILENAME = f"{SUPPLEMENT_DOCUMENT_ID}.txt"

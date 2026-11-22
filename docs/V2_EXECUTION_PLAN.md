@@ -232,7 +232,7 @@ V2.3 (the taxonomy in the roadmap is unchanged; V2.1 emits a subset).
 
 ---
 
-## V2.2 — Dossier & assembly report  *[implemented; traceability acceptance partially met]*
+## V2.2 — Dossier & assembly report  *[implemented; acceptance met 2026-11-22]*
 
 The **per-parameter dossier is the central artifact** (9 mandatory fields,
 roadmap §2.1): selected parameter and units · original literature value ·
@@ -260,12 +260,14 @@ export + a reproducibility manifest (`cli.py`; entry point `parallm`).
 - reproducible report (manifest records versions, rubric version, registry +
   config SHA-256, quote-verification counts) — met;
 - all 9 fields in every dossier — met (tested);
-- traceability: **79/96 ok, 17 fail** — *not yet met*: 17 parameters carry
-  `LITERATURE_DERIVED` values with no recorded quote (they cite tables/PyBaMM
-  defaults as locators). All 36 quotes that *are* recorded verify against the
-  archive (0 failures). The 17 flagged parameters need either backfilled
-  quotes or an explicit status correction — an owner decision, listed in
-  `report.json` `traceability`.
+- traceability: **96/96 ok — met (2026-11-22).** The 17 parameters that
+  carried `LITERATURE_DERIVED` values with no recorded quote were closed by
+  backfilling verbatim quotes from the owner-supplied article PDF
+  (`scripts/backfill_chen2020_quotes.py`; deterministic seed extractor,
+  revision-logged, values/units/conditions/statuses untouched). All 53
+  recorded quotes verify against the archive (0 failures). Owner inputs:
+  article PDF sha256 confirmed and licence verified **CC BY-NC-ND 4.0** from
+  the PDF's own first page.
 
 ## V2.3 — Identifiability assessment (observability join)  *[implemented; acceptance met]*
 
@@ -388,8 +390,8 @@ retrieval/recalibration loop over an unreliable decision layer is an automated
 way of producing incorrect results.
 
 **Milestone status (2026-11-22):** V2.1 ✅ implemented (agreement 0.958 vs
-owner-reviewed labels) · V2.2 ✅ implemented (traceability 79/96,
-17 flags pending owner) · V2.3 ✅ acceptance met · V2.4 ✅ acceptance met ·
+owner-reviewed labels) · V2.2 ✅ acceptance met (traceability 96/96 after the
+verbatim-quote backfill) · V2.3 ✅ acceptance met · V2.4 ✅ acceptance met ·
 V2.5 ⏳ exit criterion not met (0.310 / 0.044 vs ≥0.5 / 0.000; association
 discipline landed 2026-11-22, invented rate 0.108 → 0.044; blocked on an
 extractor decision) · V2.6 gated · V2.7 CI/packaging landed; publish pending.

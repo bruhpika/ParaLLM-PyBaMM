@@ -45,9 +45,12 @@ Compare the locally generated
 `data/literature_store/raw/chen2020_supplement_s1.txt` against this value before
 reproducing supplement-derived benchmark items.
 
-No sha256 for the supplementary **PDF** was recorded in the repository or in
-the Task F licensing report. **TODO (owner to fill):** record the expected PDF
-sha256 here after the owner verifies an acquired copy.
+Supplementary **PDF** sha256:
+`ab629418ba0edc3f81122354e3fc7b02b58f1bbe8bb0a86073f8ea7b1a05f022`
+(computed 2026-11-22 from the locally acquired
+`JES_167_8_080534_suppdata.pdf` and confirmed by the project owner). Verify an
+acquired copy against this value before ingesting or reproducing
+supplement-derived benchmark items.
 
 The benchmark fixture items and recorded extraction results derived from the
 supplement remain in-repo as research artifacts with provenance; the source
