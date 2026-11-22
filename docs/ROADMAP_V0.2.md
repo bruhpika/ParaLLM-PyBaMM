@@ -247,9 +247,10 @@ has been reviewed by the scientific decision-maker on a real parameter set.
 report) and V2.4 ✅ (prediction reproduced on **5/5 seeds** — repeat stability
 confirmed). V2.2 ✅ (traceability **96/96** after the 2026-11-22 verbatim-quote
 backfill from the owner-supplied article PDF). All four gate milestones now
-meet their exit criteria; **starting V2.6 remains an owner decision** (the
-working plan additionally tracks the V2.5 exit criterion before the loop is
-opened — `docs/REMAINING_TASKS.md`).
+meet their exit criteria; **V2.6 is held by owner decision (2026-11-22)**
+until the V2.5 exit criterion closes (≥0.5 completeness / 0.000 invented;
+current best 0.310 / 0.044 — `docs/REMAINING_TASKS.md`). No V2.6
+implementation starts before that.
 
 Rationale: an automated loop that repeatedly retrieves evidence and recalibrates
 an incorrect parameter is not a scientific instrument — it is an automated way of

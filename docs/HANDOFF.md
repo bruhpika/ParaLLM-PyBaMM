@@ -221,9 +221,10 @@ Owner decisions recorded 2026-11-20 are applied in
 licence verification, redistribution policy) closed the provenance items.
 Remaining open:
 
-1. **V2.6 go-ahead** — all four gate milestones (V2.1–V2.4) meet their exit
-   criteria; starting the closed loop is an owner call (the working plan also
-   tracks the V2.5 exit criterion first).
+1. **V2.6 held** — owner decision 2026-11-22: do not start the closed loop
+   until the V2.5 exit criterion is met (0.310 / 0.044 vs ≥0.5 / 0.000).
+   All four gate milestones (V2.1–V2.4) meet their exit criteria; no V2.6
+   implementation starts before the V2.5 close.
 2. **Live runs** — approved in principle; execution needs `PYCL_LLM_API_KEY`,
    `PYCL_LLM_MODEL`, `PYCL_LLM_BASE_URL` in the environment.
 3. **PyPI publish** — credentials + version decision.

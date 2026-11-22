@@ -12,6 +12,13 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Milestone decisions (2026-11-22)
+
+- **V2.6 held (owner):** the closed loop does not start until the V2.5 exit
+  criterion closes (≥0.5 completeness / 0.000 invented; current best
+  0.310 / 0.044), even though all four gate milestones (V2.1–V2.4) now meet
+  their exit criteria. No V2.6 implementation starts before then.
+
 ### V2.2 traceability close-out (owner-confirmed provenance)
 
 - Recorded the owner-confirmed Chen2020 article PDF sha256

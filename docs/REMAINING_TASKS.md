@@ -115,7 +115,11 @@ applied below.
       see `docs/V2_PRIVATE_V4_BENCHMARK.md` §4.2/§7.6.
 - [ ] V2.5 exit criterion: condition completeness ≥ 0.5 with invented 0.000
       (current best 0.310 / 0.044) — needs a live extractor re-run decision.
-- [ ] V2.6: open the closed loop only after the V2.5 exit criterion is met.
+- [x] **V2.6 held (owner decision 2026-11-22):** although the four gate
+      milestones (V2.1–V2.4) meet their exit criteria, the closed loop stays
+      gated until the **V2.5 exit criterion** is met (condition completeness
+      ≥0.5, invented 0.000; current best 0.310 / 0.044). No V2.6 work starts
+      until then.
 - [ ] V2.7: PyPI publish (credentials + version decision). Docs site, examples
       gallery and the v4a mini-benchmark are landed.
 - [ ] Enable GitHub Pages (Settings -> Pages -> Source: GitHub Actions) so the
