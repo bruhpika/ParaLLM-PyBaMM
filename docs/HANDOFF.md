@@ -55,9 +55,12 @@ v0.1.0-beta.1 is released (P0-P5). v0.2 is in progress. Milestone status from
   `docs/REMAINING_TASKS.md` item 1).
 - V2.3 identifiability join: done; V2.4 synthetic end-to-end validation: done.
 - V2.5 evidence engineering: **exit criterion not met** (best condition
-  accuracy 0.310, invented 0.058 vs target >=0.5 / 0.000;
+  accuracy 0.310 vs target >=0.5; invented 0.044 vs 0.000;
   `results/v2/v4/summary.md`); owner delegated the extractor decision and
-  evidence-layer work was chosen (deterministic association-level mechanism).
+  evidence-layer work was chosen. The deterministic **association discipline**
+  landed 2026-11-22 (invented rate 0.108 → 0.044 on all 30 items, dev/test
+  split evaluated properly; `results/v2/v4_association*/`, design
+  `docs/V2_PRIVATE_V4_BENCHMARK.md` §4.2/§7.6).
 - V2.6 closed loop: hard-gated on the V2.5 exit criterion; not started.
 - V2.7 productisation: CI + packaging landed; docs site, examples gallery and
   the v4a applicability mini-benchmark landed; PyPI publish remains open.
@@ -78,6 +81,27 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 - V2.1 close-out: the 24 applicability cases now carry owner review metadata
   (`reviewed_by="owner"`, `reviewed_on="2026-11-20"`); the agreement summary
   reports 24 reviewed / 0 drafted and the 0.958 figure is final.
+
+### V2.5 association discipline (2026-11-22)
+
+- `eval/association.py`: conditions must be supported **inside the local scope
+  of the candidate's verified quote** (table row + caption/column-header, or
+  quote sentence + one adjacent condition sentence); document fallback only
+  for temperature/cell/chemistry/format from explicitly global statements;
+  SOC/protocol value-local (protocol may use the document's GITT C/10 only
+  when the candidate's method names GITT); `Experiment` column labels are
+  never methods. Every verdict records scope + rule.
+- Runner: `--discipline {trace,association}` (trace default) and
+  `--split {all,dev,test}` in `benchmarks/v2/run_v4_evaluation.py`; private
+  rows written to `--private-out`. `trace` re-score reproduces the committed
+  canonical metrics **exactly** (regression checked).
+- Results (mean over 3 repeats, frozen raw outputs, no model calls):
+  invented-condition rate 0.108 → **0.044** (all 30), 0.096 → 0.022 (dev),
+  0.120 → **0.067** (test half, rules frozen on dev, test evaluated once);
+  condition accuracy flat (0.249 → 0.254), method accuracy up (0.51 → 0.58).
+  Trade-offs disclosed in `docs/SCIENTIFIC_LIMITATIONS.md` §4c.
+- 34 unit tests (`tests/unit/test_association.py`); full core suite 440
+  passed / 15 skipped.
 
 ### General engineering / licensing
 
@@ -123,12 +147,16 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 
 ## 5. Sourced numbers to reuse (do not re-derive by hand)
 
-- Core test scope: 406 passed, 15 skipped, 3 deselected (measured on `main`).
+- Core test scope: 440 passed, 15 skipped, 3 deselected (measured on `main`,
+  2026-11-22).
 - v3 BM25 gold-passage recall@1/3/5/10 = 0.189 / 0.351 / 0.459 / 0.486
   (`results/p5/benchmark_v3/retrieval_recall.md`).
 - v4 small recall = 0.300 / 0.867 / 0.900 / 1.000; full corpus =
   0.000 / 0.167 / 0.367 / 0.767
   (`results/v2/v4/retrieval_recall_distractors.md`).
+- v4 association discipline: invented rate 0.108 → 0.044 (all 30), 0.120 →
+  0.067 (test split); condition accuracy 0.249 → 0.254
+  (`results/v2/v4_association/summary.md`, `results/v2/v4_association_test/summary.md`).
 - v4 offline test split (n=15): value found oracle 0.333, BM25 0.733, tuned
   0.733; condition accuracy 0.190 / 0.248 / 0.257
   (`results/v2/retrieval_improvement/offline_side_by_side_v2.md`).

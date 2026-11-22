@@ -81,8 +81,8 @@ PyBaMM 26.8.0.0) on CPython 3.12.16.
 ```
 
 Expected outputs and limitations: `docs/QUICKSTART.md`. **The core scope above
-measured 406 passed, 15 skipped (3 characterization tests deselected) on
-`main` (2026-11-20), in the core `.venv` (CPython 3.14.8), using the command
+measured 440 passed, 15 skipped (3 characterization tests deselected) on
+`main` (2026-11-22), in the core `.venv` (CPython 3.14.8), using the command
 shown.**
 Coverage: benchmark tests are opt-in via `-m benchmark`.
 
@@ -143,6 +143,12 @@ as distractors (10 documents instead of 4), v4 recall@k falls to
 **owner-reviewed** cases (2026-11-20; `results/v2/applicability/summary.md`).
 Private v4: condition-field accuracy 0.144 / 0.294 / 0.310 and invented-condition
 rate 0.067 / 0.200 / 0.058 for compact/expanded/v25 (`results/v2/v4/summary.md`).
+The deterministic **association discipline** (conditions must be supported in
+the value's local scope, not just somewhere in the passage) halves the
+invented rate — 0.108 → **0.044** on all 30 items, 0.120 → 0.067 on the held-out
+test half (rules frozen on dev, test evaluated once) — with condition accuracy
+flat (`results/v2/v4_association*/summary.md`; design
+`docs/V2_PRIVATE_V4_BENCHMARK.md` §4.2/§7.6).
 V2.4 held-out RMSE 4.4 ± 0.1 mV (baseline) → 1.1 ± 0.1 mV (positive control) →
 4.4 ± 0.1 mV (negative control), reproduced on 5/5 seeds — **SYNTHETIC**, not
 experimental validation (`results/v2/synthetic_validation/summary.md`; figure

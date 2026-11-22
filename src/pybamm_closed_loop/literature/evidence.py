@@ -87,6 +87,78 @@ class ConditionFacts:
         }
 
 
+def _norm_text(text: Any) -> str:
+    """Lower-case, unify minus signs, collapse whitespace (scorer-compatible)."""
+    return " ".join(str(text or "").lower().replace("−", "-").split())
+
+
+def condition_in_text(text: str, field_name: str, value: Any) -> bool:
+    """Is a stated condition traceable in ``text``?
+
+    This is the shared, deterministic trace check used by the v4 scorer and by
+    the association discipline. It only accepts a condition when a matching
+    trace (a number, a keyword) is present; it never infers.
+    """
+    if value is None:
+        return False
+    needle = _norm_text(value)
+    if not needle:
+        return False
+
+    if field_name == "temperature_k":
+        facts = extract_conditions(text)
+        if facts.temperature_k is None:
+            return False
+        try:
+            target = float(value)
+        except (TypeError, ValueError):
+            return False
+        return abs(facts.temperature_k - target) <= 1.0
+
+    if field_name in ("chemistry", "cell", "format", "method"):
+        haystack = _norm_text(text)
+        # "-" separates tokens too ("INR21700-50E" -> "inr21700", "50e")
+        tokens = [t for t in re.split(r"[^a-z0-9.+]+", needle) if len(t) > 2]
+        if not tokens:
+            return False
+        if field_name == "cell":
+            # the generic product words carry no discriminating information; the
+            # distinguishing token (e.g. "50e" vs "30t") must be present
+            generic = {
+                "inr21700", "21700", "18650", "cell", "cells", "cylindrical",
+                "coin", "pouch", "type", "samsung", "graphite", "anode", "cathode",
+                "full", "half", "laboratory", "commercial", "high", "energy",
+                "power",
+            }
+            specific = [t for t in tokens if t not in generic]
+            if specific:
+                tokens = specific
+        for token in tokens:
+            if token in haystack:
+                continue
+            if field_name == "chemistry" and token in haystack:
+                continue
+            return False
+        return True
+
+    # SOC / protocol: the stated numbers or keywords must occur in the text.
+    # Numbers must appear as standalone tokens (word-ish boundaries): a bare
+    # substring check would match "50" inside "INR21700-50E" and wrongly
+    # confirm a SOC the source never states.
+    haystack = _norm_text(text)
+    numbers = re.findall(r"\d+(?:[.,]\d+)?", needle)
+    if numbers:
+        for n in numbers:
+            number = _norm_text(n).replace(",", ".")
+            if re.search(rf"(?<![\w.]){re.escape(number)}(?![\w])", haystack.replace(",", ".")):
+                return True
+        return False
+    keywords = [t for t in re.split(r"[^a-z0-9.+-]+", needle) if len(t) > 2]
+    if not keywords:
+        return False
+    return any(k in haystack for k in keywords)
+
+
 def extract_conditions(text: str) -> ConditionFacts:
     """Extract the conditions stated in a window (deterministic, verbatim)."""
     facts = ConditionFacts()

@@ -106,6 +106,44 @@ runner and the offline re-score (`run_v4_evaluation.py --rescore`):
    verdict (`raw_condition_field_accuracy`, `raw_invented_condition_rate`), so
    the discipline's effect is measured, not assumed.
 
+### 4.2 Association discipline (opt-in, `--discipline association`, 2026-11-22)
+
+The trace rule of §4.1 is *necessary but not sufficient*: a number that occurs
+in another table row, another sentence, or the document-level setup still
+counts as a trace. The association discipline adds a deterministic **local
+scope** around each candidate's verified quote
+(`eval/association.py`); a condition must be supported *there*:
+
+- **Table scope** — when the quote lies in a detected table, the scope is the
+  quote's row plus the table caption, the column-header region (including the
+  cell-product line, e.g. `High energy (HE): INR21700 –50E …`) and footnotes.
+  Other rows are excluded.
+- **Sentence scope** — otherwise the quote's sentence plus at most one
+  adjacent, same-paragraph condition-bearing sentence (a `…:` run-in before,
+  or a condition-cue sentence after). Blank-line-separated sentences are not
+  adjacent.
+- **Document-level fallback** — only for `temperature_k`, `cell`, `chemistry`
+  and `format`, and only from explicitly global statements: the
+  `EXPERIMENT CONDITIONS` block, table caption/column-header regions, and
+  `all experiments`-style sentences. `soc` and `protocol` are always
+  value-local; the single exception lets `protocol` use the document's
+  `GITT … C/10` statement when the candidate's method names GITT.
+- **Method rules** — an `Experiment` column label is not a method (a table
+  column heading is not a technique), and only recognised method families
+  (EIS/impedance, GITT, Arrhenius, CIM, simulation/model, DVA, ICA, CV, pulse,
+  fit) are accepted. `Simulation` is allowed: simulation/model is the gold
+  method for the simulation-column values.
+- **Scoring-neutral** — `trace` remains the default; a full re-score with
+  `trace` reproduces the committed canonical numbers exactly (regression
+  checked). Every decision records scope + rule (`association_rule_counts`,
+  `association_fallback_rate` = share of quotes not locatable, which fall back
+  to the trace rule; measured 0.000–0.050).
+
+**Protocol (frozen before the test evaluation).** Rules were developed on the
+dev half of the seeded split only (`configs/retrieval/dev_test_split.json`,
+seed 20261119, 15 dev / 15 test items), then applied **once** to the test
+half. Raw outputs are frozen: this is an offline re-score, no model calls.
+
 ## 5. Arms
 
 | arm | evidence |
@@ -237,7 +275,8 @@ remaining invented claims are genuine cue-anchored claims that are wrong.
   only on a live re-run (pending the extractor decision).
 - **The discipline still cannot fix association** (above): the residual
   invention problem is exactly the binding problem the cited literature
-  (§9) describes.
+  (§9) describes. The association discipline of §4.2/§7.6 is the follow-up:
+  it halves the invented rate (0.108 → 0.044) with flat condition accuracy.
 
 **Not established.** These numbers come from a **free-tier model on a 30-item
 private fixture**; they are a diagnostic for the evidence layer, not a
@@ -245,7 +284,7 @@ capability claim, and they are **not comparable** with the v0.1/v3 results
 (different model, different fixture). The v0.1/v3 numbers remain the
 reference for extraction quality; v4 answers a different question. The
 roadmap's V2.5 exit criterion (condition completeness ≥ 0.5, false extraction
-0.000) is **not met** at 0.310 / 0.058 (best arm / best arm).
+0.000) is **not met** at 0.310 / 0.044 (best arm / best arm; §7.6).
 
 ### 7.3 Real BM25 retrieval arm (recall only)
 
@@ -299,6 +338,56 @@ label is "oracle-located (probe window; NOT a performance upper bound)".
 Oracle-vs-BM25 value accuracy is not a like-for-like arm comparison; the
 BM25-vs-tuned-BM25 comparison is like-for-like (same 8-segment evidence
 volume, different `b`).
+
+### 7.6 Association discipline — dev/test evaluation (2026-11-22)
+
+`--discipline association` (§4.2) re-scored offline from the frozen raw
+outputs; rules frozen after the dev half, then applied once to the test half.
+Mean over 3 repeats, `trace` (canonical behaviour) vs `association`:
+
+| metric | dev trace | dev assoc | test trace | test assoc | all-30 trace | all-30 assoc |
+|---|---:|---:|---:|---:|---:|---:|
+| **invented-condition rate** | 0.096 | **0.022** | 0.120 | **0.067** | 0.108 | **0.044** |
+| condition-field accuracy | 0.226 | 0.234 | 0.273 | 0.275 | 0.249 | 0.254 |
+| method accuracy | 0.51 | **0.65** | 0.52 | 0.53 | 0.51 | **0.58** |
+| protocol / SOC | 0.66 / 0.49 | 0.66 / 0.49 | 0.65 / 0.42 | 0.65 / 0.45 | 0.66 / 0.45 | 0.66 / 0.46 |
+| temperature / format / cell | 0.35 / 0.74 / 0.38 | flat | 0.40 / 0.70 / 0.15 | flat | 0.38 / 0.72 / 0.25 | flat |
+| chemistry | 0.12 | 0.11 | 0.09 | 0.08 | 0.11 | 0.09 |
+| scope fallback rate | — | 0.000 | — | 0.000–0.050 | — | 0.000 |
+
+Reading (mean over repeats, same raw outputs, so the only variable is the
+discipline):
+
+- **The invented-condition rate halves or better** on every split. The
+  mechanism is exactly what §7.2 predicted: cue-anchored inventions (`50%`
+  from another row, `C/10` from a different measurement, `Experiment` column
+  labels) no longer survive because the local scope does not contain them.
+  The dominant rules are `column_label_not_method` (the `Experiment` /
+  `Simulation` column-heading habit) and `not_in_local_scope_{method,soc}`.
+- **Condition accuracy is flat** (±0.01): the discipline is not trading
+  correctness for abstention at the aggregate level. Method accuracy rises
+  (0.51 → 0.58 all-30) because dropping a column label converts a wrong claim
+  into a correct `not_stated` wherever the gold says `not_stated`.
+- **Residual trade-offs, disclosed:** chemistry dips slightly (0.11 → 0.09;
+  a claim like `graphite-SiOx` needs every token in scope, and `SiOx` is not
+  in the evidence), and in the `v25` arm the strict local-method rule drops
+  some correct method claims whose technique is named in a *different* window
+  of the multi-window block (test method accuracy 0.625 → 0.500 for v25_r1).
+- **E3-type protocol association works as designed:** the document's
+  `GITT … C/10` statement attaches to GITT-method values but not to EIS
+  values, so the A6-style protocol inventions disappear while the GITT C/10
+  protocol of E3-type items keeps scoring.
+- **Not a cure-all:** the best arm still misses the V2.5 exit criterion
+  (condition completeness 0.310, invented 0.044, vs ≥0.5 / 0.000), and the
+  discipline is a post-hoc filter — it prevents *scoring* wrong associations,
+  it does not make the extractor abstain. Both are measured and reported.
+
+Artifacts: `results/v2/v4_association/` (all 30),
+`results/v2/v4_association_dev/`, `results/v2/v4_association_test/`, with
+`trace` baselines in `results/v2/v4_trace_all/`, `results/v2/v4_trace_dev/`,
+`results/v2/v4_trace_test/`; private per-item rows in
+`data/private_v4/results_association*/`; the all-30 `trace` re-run reproduces
+the committed `results/v2/v4/` metrics exactly.
 
 ## 8. What this benchmark does and does not establish
 

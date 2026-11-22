@@ -12,6 +12,40 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### V2.5 association discipline (condition↔value association)
+
+- Added the deterministic **association discipline** for v4 condition scoring
+  (`src/pybamm_closed_loop/eval/association.py`, opt-in
+  `--discipline association`; `trace` stays the default and reproduces the
+  committed canonical metrics exactly, regression checked). A condition must
+  be supported inside the **local scope of the candidate's verified quote** —
+  the table row plus table caption/column-header region, or the quote sentence
+  plus one adjacent condition-bearing sentence — instead of merely occurring
+  somewhere in the evidence. Document-level fallback is allowed only for
+  temperature/cell/chemistry/format and only from explicitly global
+  statements (the `EXPERIMENT CONDITIONS` block, table caption/column-header
+  regions, `all experiments`-style sentences); SOC and protocol stay
+  value-local (the document's GITT C/10 statement may attach to a
+  GITT-method value only). `Experiment` column labels are rejected as
+  methods; only recognised method families are accepted. Every verdict
+  records scope + rule (`association_rule_counts`,
+  `association_fallback_rate`).
+- Runner: `benchmarks/v2/run_v4_evaluation.py` gains `--discipline
+  {trace,association}`, `--split {all,dev,test}` (seeded split in
+  `configs/retrieval/dev_test_split.json`) and `--private-out`. The shared
+  trace matcher moved to `literature/evidence.py::condition_in_text`
+  (behaviour unchanged).
+- Offline re-score of the frozen raw outputs (no model calls), rules frozen on
+  the dev half then the test half evaluated once: invented-condition rate
+  0.108 → **0.044** (all 30), 0.096 → 0.022 (dev), 0.120 → **0.067** (test);
+  condition-field accuracy flat (0.249 → 0.254); method accuracy 0.51 → 0.58.
+  Trade-offs (chemistry 0.11 → 0.09; strict local-method rule in the `v25`
+  multi-window arm) are disclosed in `docs/SCIENTIFIC_LIMITATIONS.md` §4c.
+  Results: `results/v2/v4_association{,_dev,_test}/`, trace baselines
+  `results/v2/v4_trace_all|_dev|_test/`; design
+  `docs/V2_PRIVATE_V4_BENCHMARK.md` §4.2/§7.6. Verification: ruff clean;
+  34 new unit tests; core scope 440 passed, 15 skipped, 3 deselected.
+
 ### V2.1 owner-reviewed applicability labels
 
 - Recorded the owner's 2026-11-20 approval on all 24 applicability cases

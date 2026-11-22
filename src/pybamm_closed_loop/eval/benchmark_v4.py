@@ -453,6 +453,10 @@ def aggregate(rows: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
             if vals:
                 per_field[fname] = sum(1 for v in vals if v) / len(vals)
         invented = sum(len(r.get("invented_conditions", [])) for r in subset)
+        rule_counts: dict[str, int] = {}
+        for r in subset:
+            for rule, count in (r.get("association_rule_counts") or {}).items():
+                rule_counts[rule] = rule_counts.get(rule, 0) + count
         return {
             "n_items": n,
             "condition_field_accuracy": hits / total if total else float("nan"),
@@ -470,6 +474,10 @@ def aggregate(rows: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
             "quote_in_evidence_rate": _mean_optional(
                 [r.get("quote_in_evidence_rate") for r in subset]
             ),
+            "association_fallback_rate": _mean_optional(
+                [r.get("association_fallback_rate") for r in subset]
+            ),
+            "association_rule_counts": rule_counts,
             "raw_condition_field_accuracy": (
                 sum(r.get("raw_field_hits", 0) for r in subset) / total
                 if total
@@ -643,67 +651,9 @@ def evidence_support(
     it only accepts a condition when a matching trace (a number, a keyword)
     is present in the evidence text.
     """
-    from ..literature.evidence import extract_conditions
+    from ..literature.evidence import condition_in_text
 
-    if value is None:
-        return False
-    text = _norm(value)
-    if not text:
-        return False
-
-    if field_name == "temperature_k":
-        facts = extract_conditions(evidence_text)
-        candidates = [facts.temperature_k]
-        if facts.temperature_k is None:
-            return False
-        try:
-            target = float(value)
-        except (TypeError, ValueError):
-            return False
-        return any(c is not None and abs(c - target) <= 1.0 for c in candidates)
-
-    if field_name in ("chemistry", "cell", "format", "method"):
-        haystack = _norm(evidence_text)
-        # "-" separates tokens too ("INR21700-50E" -> "inr21700", "50e")
-        tokens = [t for t in re.split(r"[^a-z0-9.+]+", text) if len(t) > 2]
-        if not tokens:
-            return False
-        if field_name == "cell":
-            # the generic product words carry no discriminating information; the
-            # distinguishing token (e.g. "50e" vs "30t") must be present
-            generic = {
-                "inr21700", "21700", "18650", "cell", "cells", "cylindrical",
-                "coin", "pouch", "type", "samsung", "graphite", "anode", "cathode",
-                "full", "half", "laboratory", "commercial", "high", "energy",
-                "power",
-            }
-            specific = [t for t in tokens if t not in generic]
-            if specific:
-                tokens = specific
-        for token in tokens:
-            if token in haystack:
-                continue
-            if field_name == "chemistry" and token in haystack:
-                continue
-            return False
-        return True
-
-    # SOC / protocol: the stated numbers or keywords must occur in the evidence.
-    # Numbers must appear as standalone tokens (word-ish boundaries): a bare
-    # substring check would match "50" inside "INR21700-50E" and wrongly
-    # confirm a SOC the source never states.
-    haystack = _norm(evidence_text)
-    numbers = re.findall(r"\d+(?:[.,]\d+)?", text)
-    if numbers:
-        for n in numbers:
-            needle = _norm(n).replace(",", ".")
-            if re.search(rf"(?<![\w.]){re.escape(needle)}(?![\w])", haystack.replace(",", ".")):
-                return True
-        return False
-    keywords = [t for t in re.split(r"[^a-z0-9.+-]+", text) if len(t) > 2]
-    if not keywords:
-        return False
-    return any(k in haystack for k in keywords)
+    return condition_in_text(evidence_text, field_name, value)
 
 
 def enforce_not_stated(
@@ -777,12 +727,26 @@ def score_with_discipline(
     candidates: Sequence[Mapping[str, Any]],
     transport_error: bool,
     n_coerced: int = 0,
+    discipline: str = "trace",
 ) -> dict[str, Any]:
-    """Score one item after applying the verification + `not_stated` discipline."""
-    cleaned, stats = apply_discipline(evidence_text, candidates)
+    """Score one item after applying the deterministic discipline.
+
+    ``discipline="trace"`` (default) applies the v0.1 verification +
+    ``not_stated`` rules; ``discipline="association"`` additionally requires
+    each condition to be supported *inside the local scope of the quote*.
+    """
+    if discipline == "association":
+        from .association import apply_association_discipline
+
+        cleaned, stats = apply_association_discipline(evidence_text, candidates)
+    elif discipline == "trace":
+        cleaned, stats = apply_discipline(evidence_text, candidates)
+    else:
+        raise ValueError(f"unknown discipline {discipline!r}")
     row = score_item(item, cleaned, abstained=not cleaned)
     row["transport_error"] = transport_error
     row["n_coerced"] = n_coerced
+    row["discipline"] = discipline
     row["evidence_chars"] = len(evidence_text)
     row.update(stats)
     row_raw = score_item(item, candidates, abstained=not candidates)

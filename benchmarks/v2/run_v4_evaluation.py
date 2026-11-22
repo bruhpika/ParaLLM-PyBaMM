@@ -144,6 +144,7 @@ def run_mode(
     tuned: BM25Index | None = None,
     retrieval_k: int = DEFAULT_RETRIEVAL_K,
     offline_extract: bool = False,
+    discipline: str = "trace",
 ) -> dict:
     prompt = build_v4_prompt()
     rows = []
@@ -223,10 +224,11 @@ def run_mode(
                 if isinstance(c.get("value"), (int, float))
                 and not isinstance(c.get("value"), bool)
             ]
-        # verification pass + deterministic `not_stated` discipline (shared
-        # with the offline re-score path so both arms apply the same rules)
+        # verification pass + deterministic discipline (shared with the
+        # offline re-score path so both apply the identical rules)
         row = score_with_discipline(
-            item, evidence, candidates, transport_error, n_coerced
+            item, evidence, candidates, transport_error, n_coerced,
+            discipline=discipline,
         )
         rows.append(row)
         raw_rows.append(
@@ -257,7 +259,9 @@ def run_mode(
     }
 
 
-def rescore_from_raw(items, mode: str, repeat: int, raw_path: Path) -> list[dict]:
+def rescore_from_raw(
+    items, mode: str, repeat: int, raw_path: Path, *, discipline: str = "trace"
+) -> list[dict]:
     """Re-score preserved raw outputs with the discipline pass — no model calls.
 
     The raw file stores {item_id, raw, evidence}; evidence is reused verbatim
@@ -286,7 +290,10 @@ def rescore_from_raw(items, mode: str, repeat: int, raw_path: Path) -> list[dict
                 and not isinstance(c.get("value"), bool)
             ]
         rows.append(
-            score_with_discipline(item, evidence, candidates, transport_error, n_coerced)
+            score_with_discipline(
+                item, evidence, candidates, transport_error, n_coerced,
+                discipline=discipline,
+            )
         )
     return rows
 
@@ -344,6 +351,8 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
         "extractor": extractor,
         "fixture": "PRIVATE v4 (30 items; fixture not published)",
         "n_items": len(items),
+        "discipline": getattr(args, "discipline", "trace"),
+        "split": getattr(args, "split", "all"),
         "categories": {
             c: sum(1 for i in items if i.category == c)
             for c in sorted({i.category for i in items})
@@ -381,6 +390,9 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
         "",
         f"{len(items)} items (PRIVATE fixture, not published), categories: "
         + ", ".join(f"{k}={v}" for k, v in payload["categories"].items()),
+        "",
+        f"discipline: `{payload['discipline']}` (split: {payload['split']}); "
+        "deterministic post-extraction rules, identical for every arm.",
         "",
         f"- {ORACLE_LABEL}: compact/expanded/v25 locate evidence from the probe; "
         "location oracle, not retrieval and not a performance upper bound.",
@@ -430,6 +442,34 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
             v = summaries[tag]["all"].get(metric, float("nan"))
             row.append("n/a" if v != v else f"{v:.3f}")
         lines.append("| " + " | ".join(row) + " |")
+    if payload.get("discipline") == "association":
+        lines += [
+            "",
+            "## Association discipline",
+            "",
+            "Fallback rate = share of candidates whose quote could not be located "
+            "and which therefore fell back to the evidence-wide trace check "
+            "(lower is better). Rule counts tally unsupported field decisions.",
+            "",
+            "| tag | fallback rate |",
+            "|---|---|",
+        ]
+        for tag in summaries:
+            v = summaries[tag]["all"].get("association_fallback_rate")
+            shown = "n/a" if v is None or v != v else f"{v:.3f}"
+            lines.append(f"| {tag} | {shown} |")
+        rule_counts: dict[str, int] = {}
+        for tag in summaries:
+            for rule, count in (
+                summaries[tag]["all"].get("association_rule_counts") or {}
+            ).items():
+                rule_counts[rule] = rule_counts.get(rule, 0) + count
+        if rule_counts:
+            lines += ["", "rule counts (unsupported field decisions):", ""]
+            for rule, count in sorted(
+                rule_counts.items(), key=lambda kv: (-kv[1], kv[0])
+            ):
+                lines.append(f"- `{rule}`: {count}")
     (out_dir / "summary.md").write_text("\n".join(lines) + "\n")
 
 
@@ -475,6 +515,27 @@ def main() -> int:
         default=DEFAULT_RETRIEVAL_K,
         help="number of BM25 segments shown to the extractor in the retrieval arm",
     )
+    ap.add_argument(
+        "--discipline",
+        choices=("trace", "association"),
+        default="trace",
+        help="deterministic post-extraction discipline: trace (default, "
+        "evidence-wide condition trace) or association (value-local scope; "
+        "new discipline, no model calls)",
+    )
+    ap.add_argument(
+        "--split",
+        choices=("all", "dev", "test"),
+        default="all",
+        help="restrict scoring to the v4 dev/test split (configs/retrieval/"
+        "dev_test_split.json); default all 30 items",
+    )
+    ap.add_argument(
+        "--private-out",
+        default=None,
+        help="directory for the private rows_*.json (default: data/private_v4/"
+        "results, next to the frozen raw outputs)",
+    )
     add_live_guard_args(ap)
     args = ap.parse_args()
 
@@ -491,8 +552,25 @@ def main() -> int:
         raise SystemExit("offline modes cannot be mixed with live modes")
 
     items = load_items(args.items)
+    if args.split != "all":
+        split_path = REPO_ROOT / "configs/retrieval/dev_test_split.json"
+        split_doc = json.loads(split_path.read_text())["benchmarks"]["v4"]
+        wanted = set(split_doc[args.split])
+        n_before = len(items)
+        items = [item for item in items if item.item_id in wanted]
+        if not items:
+            raise SystemExit(
+                f"split {args.split!r} matched no items from {split_doc[args.split]}"
+            )
+        print(
+            f"v4 split {args.split}: {len(items)}/{n_before} items "
+            f"(seed {split_doc['seed']})",
+            flush=True,
+        )
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
+    rows_dir = Path(args.private_out) if args.private_out else PRIVATE_RESULTS
+    rows_dir.mkdir(parents=True, exist_ok=True)
     PRIVATE_RESULTS.mkdir(parents=True, exist_ok=True)
 
     # extractor disclosure for the public summary; no model calls on
@@ -534,8 +612,10 @@ def main() -> int:
                 if raw_path is None:
                     print(f"  [{tag}] raw file missing - skipped", flush=True)
                     continue
-                rows = rescore_from_raw(items, mode, repeat, raw_path)
-                raw_path.with_name(f"rows_{tag}.json").write_text(
+                rows = rescore_from_raw(
+                    items, mode, repeat, raw_path, discipline=args.discipline
+                )
+                (rows_dir / f"rows_{tag}.json").write_text(
                     json.dumps(rows, indent=2, sort_keys=True)
                 )
                 summaries[tag] = aggregate(rows)
@@ -555,7 +635,7 @@ def main() -> int:
             tags = []
             for repeat in range(args.repeats):
                 tag = f"{mode}_r{repeat}"
-                rows_path = find_raw(PRIVATE_RESULTS, f"rows_{tag}.json")
+                rows_path = find_raw(rows_dir, f"rows_{tag}.json")
                 if rows_path is None:
                     continue
                 rows = json.loads(rows_path.read_text())
@@ -627,6 +707,7 @@ def main() -> int:
                 tuned=tuned_retrieval_index,
                 retrieval_k=args.retrieval_k,
                 offline_extract=offline_only,
+                discipline=args.discipline,
             )
             raw_path.write_text(
                 "\n".join(json.dumps(r, sort_keys=True) for r in report["raw"]) + "\n"
@@ -642,6 +723,8 @@ def main() -> int:
         "extractor": extractor,
         "fixture": "PRIVATE v4 (30 items; fixture not published)",
         "n_items": len(items),
+        "discipline": args.discipline,
+        "split": args.split,
         "categories": {
             c: sum(1 for i in items if i.category == c)
             for c in sorted({i.category for i in items})
@@ -666,6 +749,8 @@ def main() -> int:
         "",
         f"{len(items)} items (PRIVATE fixture, not published), categories: "
         + ", ".join(f"{k}={v}" for k, v in payload["categories"].items()),
+        "",
+        f"discipline: `{payload['discipline']}` (split: {payload['split']})",
         "",
         "| metric | " + " | ".join(summaries) + " |",
         "|---|" + "---|" * len(summaries),

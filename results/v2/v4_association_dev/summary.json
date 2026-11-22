@@ -1,0 +1,1666 @@
+{
+  "arm_labels": {
+    "compact": "oracle-located (probe window; NOT a performance upper bound): compact",
+    "expanded": "oracle-located (probe window; NOT a performance upper bound): expanded",
+    "v25": "oracle-located (probe window; NOT a performance upper bound): v25"
+  },
+  "arm_means": {
+    "compact": {
+      "abstention_rate": {
+        "mean": 0.48888888888888893,
+        "n": 3,
+        "std": 0.0831479419283098
+      },
+      "condition_field_accuracy": {
+        "mean": 0.14285714285714288,
+        "n": 3,
+        "std": 0.015552315827194784
+      },
+      "invented_condition_rate": {
+        "mean": 0.022222222222222223,
+        "n": 3,
+        "std": 0.03142696805273545
+      },
+      "mean_dropped_conditions": {
+        "mean": 1.9111111111111112,
+        "n": 3,
+        "std": 0.24545246704860582
+      },
+      "n_transport_errors": 0,
+      "parameter_unit_accuracy": {
+        "mean": 0.39999999999999997,
+        "n": 3,
+        "std": 0.054433105395181744
+      },
+      "parameter_value_accuracy": {
+        "mean": 0.37777777777777777,
+        "n": 3,
+        "std": 0.03142696805273546
+      },
+      "per_field": {
+        "cell": {
+          "mean": 0.26851851851851855,
+          "n": 3,
+          "std": 0.047213143644377634
+        },
+        "chemistry": {
+          "mean": 0.0,
+          "n": 3,
+          "std": 0.0
+        },
+        "format": {
+          "mean": 0.26851851851851855,
+          "n": 3,
+          "std": 0.047213143644377634
+        },
+        "method": {
+          "mean": 0.4444444444444444,
+          "n": 3,
+          "std": 0.07856742013183862
+        },
+        "protocol": {
+          "mean": 0.6574074074074074,
+          "n": 3,
+          "std": 0.07965115988002432
+        },
+        "soc": {
+          "mean": 0.34722222222222215,
+          "n": 3,
+          "std": 0.019641855032959663
+        },
+        "temperature_k": {
+          "mean": 0.0,
+          "n": 3,
+          "std": 0.0
+        }
+      },
+      "quote_in_evidence_rate": {
+        "mean": 1.0,
+        "n": 3,
+        "std": 0.0
+      },
+      "raw_condition_field_accuracy": {
+        "mean": 0.1523809523809524,
+        "n": 3,
+        "std": 0.020573779994945588
+      },
+      "raw_invented_condition_rate": {
+        "mean": 0.06666666666666667,
+        "n": 3,
+        "std": 0.0
+      },
+      "value_found_rate": {
+        "mean": 0.37777777777777777,
+        "n": 3,
+        "std": 0.03142696805273546
+      }
+    },
+    "expanded": {
+      "abstention_rate": {
+        "mean": 0.5333333333333333,
+        "n": 3,
+        "std": 0.0
+      },
+      "condition_field_accuracy": {
+        "mean": 0.2920634920634921,
+        "n": 3,
+        "std": 0.016187363535215184
+      },
+      "invented_condition_rate": {
+        "mean": 0.022222222222222223,
+        "n": 3,
+        "std": 0.03142696805273545
+      },
+      "mean_dropped_conditions": {
+        "mean": 9.28888888888889,
+        "n": 3,
+        "std": 3.184375435400205
+      },
+      "n_transport_errors": 0,
+      "parameter_unit_accuracy": {
+        "mean": 0.2888888888888889,
+        "n": 3,
+        "std": 0.06285393610547088
+      },
+      "parameter_value_accuracy": {
+        "mean": 0.3111111111111111,
+        "n": 3,
+        "std": 0.08314794192830981
+      },
+      "per_field": {
+        "cell": {
+          "mean": 0.5714285714285714,
+          "n": 3,
+          "std": 0.0
+        },
+        "chemistry": {
+          "mean": 0.23809523809523805,
+          "n": 3,
+          "std": 0.24281045302822785
+        },
+        "format": {
+          "mean": 0.9523809523809524,
+          "n": 3,
+          "std": 0.0673435029701474
+        },
+        "method": {
+          "mean": 0.8571428571428571,
+          "n": 3,
+          "std": 0.0
+        },
+        "protocol": {
+          "mean": 0.6666666666666666,
+          "n": 3,
+          "std": 0.0673435029701474
+        },
+        "soc": {
+          "mean": 0.5714285714285714,
+          "n": 3,
+          "std": 0.0
+        },
+        "temperature_k": {
+          "mean": 0.5238095238095238,
+          "n": 3,
+          "std": 0.06734350297014738
+        }
+      },
+      "quote_in_evidence_rate": {
+        "mean": 1.0,
+        "n": 3,
+        "std": 0.0
+      },
+      "raw_condition_field_accuracy": {
+        "mean": 0.27619047619047615,
+        "n": 3,
+        "std": 0.013468700594029482
+      },
+      "raw_invented_condition_rate": {
+        "mean": 0.15555555555555556,
+        "n": 3,
+        "std": 0.031426968052735454
+      },
+      "value_found_rate": {
+        "mean": 0.3111111111111111,
+        "n": 3,
+        "std": 0.08314794192830981
+      }
+    },
+    "v25": {
+      "abstention_rate": {
+        "mean": 0.5,
+        "n": 3,
+        "std": 0.02721655269759086
+      },
+      "condition_field_accuracy": {
+        "mean": 0.26746031746031745,
+        "n": 3,
+        "std": 0.021676984577377243
+      },
+      "invented_condition_rate": {
+        "mean": 0.022222222222222223,
+        "n": 3,
+        "std": 0.03142696805273545
+      },
+      "mean_dropped_conditions": {
+        "mean": 4.5055555555555555,
+        "n": 3,
+        "std": 1.9776685363088964
+      },
+      "n_transport_errors": 3,
+      "parameter_unit_accuracy": {
+        "mean": 0.35555555555555557,
+        "n": 3,
+        "std": 0.03142696805273546
+      },
+      "parameter_value_accuracy": {
+        "mean": 0.5,
+        "n": 3,
+        "std": 0.02721655269759086
+      },
+      "per_field": {
+        "cell": {
+          "mean": 0.2896825396825397,
+          "n": 3,
+          "std": 0.034136211377153274
+        },
+        "chemistry": {
+          "mean": 0.08928571428571429,
+          "n": 3,
+          "std": 0.06355403721447209
+        },
+        "format": {
+          "mean": 1.0,
+          "n": 3,
+          "std": 0.0
+        },
+        "method": {
+          "mean": 0.6349206349206349,
+          "n": 3,
+          "std": 0.14329738162910946
+        },
+        "protocol": {
+          "mean": 0.6626984126984127,
+          "n": 3,
+          "std": 0.07295546155099301
+        },
+        "soc": {
+          "mean": 0.5376984126984127,
+          "n": 3,
+          "std": 0.12143764879443932
+        },
+        "temperature_k": {
+          "mean": 0.5376984126984127,
+          "n": 3,
+          "std": 0.12143764879443932
+        }
+      },
+      "quote_in_evidence_rate": {
+        "mean": 1.0,
+        "n": 3,
+        "std": 0.0
+      },
+      "raw_condition_field_accuracy": {
+        "mean": 0.26825396825396824,
+        "n": 3,
+        "std": 0.0302004723657785
+      },
+      "raw_invented_condition_rate": {
+        "mean": 0.06666666666666667,
+        "n": 3,
+        "std": 0.05443310539518174
+      },
+      "value_found_rate": {
+        "mean": 0.5,
+        "n": 3,
+        "std": 0.02721655269759086
+      }
+    }
+  },
+  "categories": {
+    "A": 5,
+    "B": 2,
+    "C": 3,
+    "D": 2,
+    "E": 3
+  },
+  "discipline": "association",
+  "evidence_sources": {
+    "compact": "oracle",
+    "expanded": "oracle",
+    "v25": "oracle"
+  },
+  "extractor": {
+    "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+    "date": "2026-11-19",
+    "git_commit": null,
+    "model": "gemini-flash-lite-latest",
+    "note": "The extractor is held identical across evidence modes, so the arms are comparable with each other. Absolute numbers are NOT comparable with the v0.1/v3 results, which used a different (cloud) model."
+  },
+  "fixture": "PRIVATE v4 (30 items; fixture not published)",
+  "generated": "2026-11-22T16:23:44.049182+00:00",
+  "modes": [
+    "compact",
+    "expanded",
+    "v25"
+  ],
+  "n_items": 15,
+  "note": "oracle-located (probe window; NOT a performance upper bound): the evidence is located from the fixture probe; it is a location oracle, not a retrieval result and not a performance upper bound. real retrieval (BM25): the query uses only parameter name/unit and BM25 searches the full store. Condition-field accuracy counts a gold 'not_stated' field as matched only when the extraction reports nothing there; invented conditions are always penalised. Per-item results stay private.",
+  "repeats": 3,
+  "retrieval_k": 8,
+  "split": "dev",
+  "summary": {
+    "compact_r0": {
+      "all": {
+        "abstention_rate": 0.6,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 15,
+          "not_in_local_scope_method": 9
+        },
+        "condition_field_accuracy": 0.12380952380952381,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 1.6,
+        "n_items": 15,
+        "parameter_unit_accuracy": 0.3333333333333333,
+        "parameter_value_accuracy": 0.3333333333333333,
+        "per_field_accuracy": {
+          "cell": 0.3333333333333333,
+          "chemistry": 0.0,
+          "format": 0.3333333333333333,
+          "method": 0.5,
+          "protocol": 0.6666666666666666,
+          "soc": 0.3333333333333333,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.12380952380952381,
+        "raw_invented_condition_rate": 0.06666666666666667,
+        "value_found_rate": 0.3333333333333333
+      },
+      "category:A": {
+        "abstention_rate": 0.6,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 11,
+          "not_in_local_scope_method": 3
+        },
+        "condition_field_accuracy": 0.14285714285714285,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 2.8,
+        "n_items": 5,
+        "parameter_unit_accuracy": 0.4,
+        "parameter_value_accuracy": 0.4,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.0,
+          "format": 0.5,
+          "method": 0.5,
+          "protocol": 0.5,
+          "soc": 0.5,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.11428571428571428,
+        "raw_invented_condition_rate": 0.2,
+        "value_found_rate": 0.4
+      },
+      "category:B": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 4,
+          "not_in_local_scope_method": 2
+        },
+        "condition_field_accuracy": 0.21428571428571427,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 3.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.5,
+        "parameter_value_accuracy": 0.5,
+        "per_field_accuracy": {
+          "cell": 1.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 0.0,
+          "soc": 0.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.21428571428571427,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.5
+      },
+      "category:C": {
+        "abstention_rate": 0.3333333333333333,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 4
+        },
+        "condition_field_accuracy": 0.09523809523809523,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 1.3333333333333333,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.6666666666666666,
+        "parameter_value_accuracy": 0.6666666666666666,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 0.0,
+          "method": 0.0,
+          "protocol": 1.0,
+          "soc": 0.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.14285714285714285,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.6666666666666666
+      },
+      "category:D": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.21428571428571427,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 0.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 1.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.21428571428571427,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "category:E": {
+        "abstention_rate": 1.0,
+        "association_fallback_rate": NaN,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.0,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {},
+        "quote_in_evidence_rate": NaN,
+        "raw_condition_field_accuracy": 0.0,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "n_transport_errors": 0
+    },
+    "compact_r1": {
+      "all": {
+        "abstention_rate": 0.4,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 13,
+          "not_in_local_scope_chemistry": 1,
+          "not_in_local_scope_method": 12,
+          "not_in_local_scope_protocol": 7
+        },
+        "condition_field_accuracy": 0.14285714285714285,
+        "invented_condition_rate": 0.06666666666666667,
+        "mean_dropped_conditions": 2.2,
+        "n_items": 15,
+        "parameter_unit_accuracy": 0.4666666666666667,
+        "parameter_value_accuracy": 0.4,
+        "per_field_accuracy": {
+          "cell": 0.2222222222222222,
+          "chemistry": 0.0,
+          "format": 0.2222222222222222,
+          "method": 0.3333333333333333,
+          "protocol": 0.5555555555555556,
+          "soc": 0.3333333333333333,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.1619047619047619,
+        "raw_invented_condition_rate": 0.06666666666666667,
+        "value_found_rate": 0.4
+      },
+      "category:A": {
+        "abstention_rate": 0.6,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 9,
+          "not_in_local_scope_protocol": 3
+        },
+        "condition_field_accuracy": 0.14285714285714285,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 2.4,
+        "n_items": 5,
+        "parameter_unit_accuracy": 0.4,
+        "parameter_value_accuracy": 0.4,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.0,
+          "format": 0.5,
+          "method": 0.5,
+          "protocol": 0.5,
+          "soc": 0.5,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.14285714285714285,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.4
+      },
+      "category:B": {
+        "abstention_rate": 0.0,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 4
+        },
+        "condition_field_accuracy": 0.2857142857142857,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 2.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.5,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.0,
+          "format": 0.5,
+          "method": 0.5,
+          "protocol": 0.5,
+          "soc": 0.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.2857142857142857,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "category:C": {
+        "abstention_rate": 0.0,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 8,
+          "not_in_local_scope_protocol": 4
+        },
+        "condition_field_accuracy": 0.09523809523809523,
+        "invented_condition_rate": 0.3333333333333333,
+        "mean_dropped_conditions": 4.0,
+        "n_items": 3,
+        "parameter_unit_accuracy": 1.0,
+        "parameter_value_accuracy": 1.0,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 0.0,
+          "method": 0.0,
+          "protocol": 0.6666666666666666,
+          "soc": 0.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.19047619047619047,
+        "raw_invented_condition_rate": 0.3333333333333333,
+        "value_found_rate": 1.0
+      },
+      "category:D": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_chemistry": 1
+        },
+        "condition_field_accuracy": 0.21428571428571427,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.5,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 0.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 1.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.21428571428571427,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "category:E": {
+        "abstention_rate": 0.6666666666666666,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 4
+        },
+        "condition_field_accuracy": 0.047619047619047616,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 1.3333333333333333,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.3333333333333333,
+        "parameter_value_accuracy": 0.3333333333333333,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 0.0,
+          "method": 0.0,
+          "protocol": 0.0,
+          "soc": 1.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.047619047619047616,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.3333333333333333
+      },
+      "n_transport_errors": 0
+    },
+    "compact_r2": {
+      "all": {
+        "abstention_rate": 0.4666666666666667,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 15,
+          "not_in_local_scope_chemistry": 1,
+          "not_in_local_scope_method": 13
+        },
+        "condition_field_accuracy": 0.1619047619047619,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 1.9333333333333333,
+        "n_items": 15,
+        "parameter_unit_accuracy": 0.4,
+        "parameter_value_accuracy": 0.4,
+        "per_field_accuracy": {
+          "cell": 0.25,
+          "chemistry": 0.0,
+          "format": 0.25,
+          "method": 0.5,
+          "protocol": 0.75,
+          "soc": 0.375,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.17142857142857143,
+        "raw_invented_condition_rate": 0.06666666666666667,
+        "value_found_rate": 0.4
+      },
+      "category:A": {
+        "abstention_rate": 0.6,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 11,
+          "not_in_local_scope_method": 3
+        },
+        "condition_field_accuracy": 0.14285714285714285,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 2.8,
+        "n_items": 5,
+        "parameter_unit_accuracy": 0.4,
+        "parameter_value_accuracy": 0.4,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.0,
+          "format": 0.5,
+          "method": 0.5,
+          "protocol": 0.5,
+          "soc": 0.5,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.11428571428571428,
+        "raw_invented_condition_rate": 0.2,
+        "value_found_rate": 0.4
+      },
+      "category:B": {
+        "abstention_rate": 0.0,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 4,
+          "not_in_local_scope_method": 2
+        },
+        "condition_field_accuracy": 0.42857142857142855,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 3.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.5,
+        "parameter_value_accuracy": 0.5,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.0,
+          "format": 0.5,
+          "method": 1.0,
+          "protocol": 0.5,
+          "soc": 0.5,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.42857142857142855,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.5
+      },
+      "category:C": {
+        "abstention_rate": 0.0,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 8
+        },
+        "condition_field_accuracy": 0.14285714285714285,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 2.6666666666666665,
+        "n_items": 3,
+        "parameter_unit_accuracy": 1.0,
+        "parameter_value_accuracy": 1.0,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 0.0,
+          "method": 0.0,
+          "protocol": 1.0,
+          "soc": 0.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.23809523809523808,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 1.0
+      },
+      "category:D": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_chemistry": 1
+        },
+        "condition_field_accuracy": 0.21428571428571427,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.5,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 0.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 1.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.21428571428571427,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "category:E": {
+        "abstention_rate": 1.0,
+        "association_fallback_rate": NaN,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.0,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {},
+        "quote_in_evidence_rate": NaN,
+        "raw_condition_field_accuracy": 0.0,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "n_transport_errors": 0
+    },
+    "expanded_r0": {
+      "all": {
+        "abstention_rate": 0.5333333333333333,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 72,
+          "not_in_local_scope_chemistry": 3,
+          "not_in_local_scope_method": 64
+        },
+        "condition_field_accuracy": 0.3142857142857143,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 9.266666666666667,
+        "n_items": 15,
+        "parameter_unit_accuracy": 0.3333333333333333,
+        "parameter_value_accuracy": 0.4,
+        "per_field_accuracy": {
+          "cell": 0.5714285714285714,
+          "chemistry": 0.5714285714285714,
+          "format": 0.8571428571428571,
+          "method": 0.8571428571428571,
+          "protocol": 0.7142857142857143,
+          "soc": 0.5714285714285714,
+          "temperature_k": 0.5714285714285714
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.29523809523809524,
+        "raw_invented_condition_rate": 0.13333333333333333,
+        "value_found_rate": 0.4
+      },
+      "category:A": {
+        "abstention_rate": 0.4,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 54,
+          "not_in_local_scope_chemistry": 2,
+          "not_in_local_scope_method": 48
+        },
+        "condition_field_accuracy": 0.5142857142857142,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 20.8,
+        "n_items": 5,
+        "parameter_unit_accuracy": 0.6,
+        "parameter_value_accuracy": 0.6,
+        "per_field_accuracy": {
+          "cell": 1.0,
+          "chemistry": 1.0,
+          "format": 1.0,
+          "method": 0.6666666666666666,
+          "protocol": 0.6666666666666666,
+          "soc": 0.6666666666666666,
+          "temperature_k": 1.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.45714285714285713,
+        "raw_invented_condition_rate": 0.4,
+        "value_found_rate": 0.6
+      },
+      "category:B": {
+        "abstention_rate": 0.0,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 18,
+          "not_in_local_scope_chemistry": 1,
+          "not_in_local_scope_method": 16
+        },
+        "condition_field_accuracy": 0.5,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 17.5,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.5,
+        "parameter_value_accuracy": 1.0,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.5,
+          "format": 0.5,
+          "method": 1.0,
+          "protocol": 0.5,
+          "soc": 0.5,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.5,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 1.0
+      },
+      "category:C": {
+        "abstention_rate": 0.6666666666666666,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.19047619047619047,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.3333333333333333,
+        "parameter_value_accuracy": 0.3333333333333333,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 0.0,
+          "temperature_k": 1.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.19047619047619047,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.3333333333333333
+      },
+      "category:D": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.2857142857142857,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 1.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.2857142857142857,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "category:E": {
+        "abstention_rate": 1.0,
+        "association_fallback_rate": NaN,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.0,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {},
+        "quote_in_evidence_rate": NaN,
+        "raw_condition_field_accuracy": 0.0,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "n_transport_errors": 0
+    },
+    "expanded_r1": {
+      "all": {
+        "abstention_rate": 0.5333333333333333,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 75,
+          "not_in_local_scope_chemistry": 54,
+          "not_in_local_scope_method": 67,
+          "not_in_local_scope_protocol": 2
+        },
+        "condition_field_accuracy": 0.2761904761904762,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 13.2,
+        "n_items": 15,
+        "parameter_unit_accuracy": 0.3333333333333333,
+        "parameter_value_accuracy": 0.3333333333333333,
+        "per_field_accuracy": {
+          "cell": 0.5714285714285714,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 0.8571428571428571,
+          "protocol": 0.7142857142857143,
+          "soc": 0.5714285714285714,
+          "temperature_k": 0.42857142857142855
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.26666666666666666,
+        "raw_invented_condition_rate": 0.13333333333333333,
+        "value_found_rate": 0.3333333333333333
+      },
+      "category:A": {
+        "abstention_rate": 0.4,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 54,
+          "not_in_local_scope_chemistry": 24,
+          "not_in_local_scope_method": 48,
+          "not_in_local_scope_protocol": 1
+        },
+        "condition_field_accuracy": 0.37142857142857144,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 25.4,
+        "n_items": 5,
+        "parameter_unit_accuracy": 0.6,
+        "parameter_value_accuracy": 0.6,
+        "per_field_accuracy": {
+          "cell": 1.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 0.6666666666666666,
+          "protocol": 0.6666666666666666,
+          "soc": 0.6666666666666666,
+          "temperature_k": 0.3333333333333333
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.3142857142857143,
+        "raw_invented_condition_rate": 0.4,
+        "value_found_rate": 0.6
+      },
+      "category:B": {
+        "abstention_rate": 0.0,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 21,
+          "not_in_local_scope_chemistry": 30,
+          "not_in_local_scope_method": 19
+        },
+        "condition_field_accuracy": 0.5714285714285714,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 35.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.5,
+        "parameter_value_accuracy": 0.5,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 0.5,
+          "soc": 0.5,
+          "temperature_k": 0.5
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.6428571428571429,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.5
+      },
+      "category:C": {
+        "abstention_rate": 0.6666666666666666,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_protocol": 1
+        },
+        "condition_field_accuracy": 0.19047619047619047,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.3333333333333333,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.3333333333333333,
+        "parameter_value_accuracy": 0.3333333333333333,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 0.0,
+          "temperature_k": 1.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.19047619047619047,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.3333333333333333
+      },
+      "category:D": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.2857142857142857,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 1.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.2857142857142857,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "category:E": {
+        "abstention_rate": 1.0,
+        "association_fallback_rate": NaN,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.0,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {},
+        "quote_in_evidence_rate": NaN,
+        "raw_condition_field_accuracy": 0.0,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "n_transport_errors": 0
+    },
+    "expanded_r2": {
+      "all": {
+        "abstention_rate": 0.5333333333333333,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 40,
+          "not_in_local_scope_chemistry": 5,
+          "not_in_local_scope_method": 32,
+          "not_in_local_scope_protocol": 4
+        },
+        "condition_field_accuracy": 0.2857142857142857,
+        "invented_condition_rate": 0.06666666666666667,
+        "mean_dropped_conditions": 5.4,
+        "n_items": 15,
+        "parameter_unit_accuracy": 0.2,
+        "parameter_value_accuracy": 0.2,
+        "per_field_accuracy": {
+          "cell": 0.5714285714285714,
+          "chemistry": 0.14285714285714285,
+          "format": 1.0,
+          "method": 0.8571428571428571,
+          "protocol": 0.5714285714285714,
+          "soc": 0.5714285714285714,
+          "temperature_k": 0.5714285714285714
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.26666666666666666,
+        "raw_invented_condition_rate": 0.2,
+        "value_found_rate": 0.2
+      },
+      "category:A": {
+        "abstention_rate": 0.4,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 22,
+          "not_in_local_scope_chemistry": 5,
+          "not_in_local_scope_method": 16
+        },
+        "condition_field_accuracy": 0.42857142857142855,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 8.6,
+        "n_items": 5,
+        "parameter_unit_accuracy": 0.2,
+        "parameter_value_accuracy": 0.2,
+        "per_field_accuracy": {
+          "cell": 1.0,
+          "chemistry": 0.3333333333333333,
+          "format": 1.0,
+          "method": 0.6666666666666666,
+          "protocol": 0.6666666666666666,
+          "soc": 0.6666666666666666,
+          "temperature_k": 0.6666666666666666
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.37142857142857144,
+        "raw_invented_condition_rate": 0.4,
+        "value_found_rate": 0.2
+      },
+      "category:B": {
+        "abstention_rate": 0.0,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 18,
+          "not_in_local_scope_method": 16
+        },
+        "condition_field_accuracy": 0.5,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 17.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.5,
+        "parameter_value_accuracy": 0.5,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 0.5,
+          "soc": 0.5,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.5,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.5
+      },
+      "category:C": {
+        "abstention_rate": 0.6666666666666666,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_protocol": 4
+        },
+        "condition_field_accuracy": 0.14285714285714285,
+        "invented_condition_rate": 0.3333333333333333,
+        "mean_dropped_conditions": 1.3333333333333333,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.3333333333333333,
+        "parameter_value_accuracy": 0.3333333333333333,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 0.0,
+          "soc": 0.0,
+          "temperature_k": 1.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.14285714285714285,
+        "raw_invented_condition_rate": 0.3333333333333333,
+        "value_found_rate": 0.3333333333333333
+      },
+      "category:D": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.35714285714285715,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 1.0,
+          "temperature_k": 1.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.35714285714285715,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "category:E": {
+        "abstention_rate": 1.0,
+        "association_fallback_rate": NaN,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.0,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {},
+        "quote_in_evidence_rate": NaN,
+        "raw_condition_field_accuracy": 0.0,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "n_transport_errors": 0
+    },
+    "v25_r0": {
+      "all": {
+        "abstention_rate": 0.4666666666666667,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 10,
+          "not_in_local_scope_method": 20,
+          "not_in_local_scope_soc": 10
+        },
+        "condition_field_accuracy": 0.2571428571428571,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 2.6666666666666665,
+        "n_items": 15,
+        "parameter_unit_accuracy": 0.4,
+        "parameter_value_accuracy": 0.5333333333333333,
+        "per_field_accuracy": {
+          "cell": 0.25,
+          "chemistry": 0.125,
+          "format": 1.0,
+          "method": 0.5,
+          "protocol": 0.75,
+          "soc": 0.375,
+          "temperature_k": 0.375
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.2571428571428571,
+        "raw_invented_condition_rate": 0.06666666666666667,
+        "value_found_rate": 0.5333333333333333
+      },
+      "category:A": {
+        "abstention_rate": 0.4,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 10
+        },
+        "condition_field_accuracy": 0.34285714285714286,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 2.0,
+        "n_items": 5,
+        "parameter_unit_accuracy": 0.6,
+        "parameter_value_accuracy": 0.6,
+        "per_field_accuracy": {
+          "cell": 0.3333333333333333,
+          "chemistry": 0.3333333333333333,
+          "format": 1.0,
+          "method": 0.6666666666666666,
+          "protocol": 0.6666666666666666,
+          "soc": 0.6666666666666666,
+          "temperature_k": 0.3333333333333333
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.3142857142857143,
+        "raw_invented_condition_rate": 0.2,
+        "value_found_rate": 0.6
+      },
+      "category:B": {
+        "abstention_rate": 0.0,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 2
+        },
+        "condition_field_accuracy": 0.42857142857142855,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 1.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.5,
+        "parameter_value_accuracy": 1.0,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 0.5,
+          "protocol": 0.5,
+          "soc": 0.0,
+          "temperature_k": 0.5
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.42857142857142855,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 1.0
+      },
+      "category:C": {
+        "abstention_rate": 0.3333333333333333,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 8
+        },
+        "condition_field_accuracy": 0.23809523809523808,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 2.6666666666666665,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.6666666666666666,
+        "parameter_value_accuracy": 0.6666666666666666,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 0.0,
+          "protocol": 1.0,
+          "soc": 0.0,
+          "temperature_k": 0.5
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.2857142857142857,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.6666666666666666
+      },
+      "category:D": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 10,
+          "not_in_local_scope_soc": 10
+        },
+        "condition_field_accuracy": 0.2857142857142857,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 10.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.5,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 1.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.2857142857142857,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.5
+      },
+      "category:E": {
+        "abstention_rate": 1.0,
+        "association_fallback_rate": NaN,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.0,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {},
+        "quote_in_evidence_rate": NaN,
+        "raw_condition_field_accuracy": 0.0,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "n_transport_errors": 0
+    },
+    "v25_r1": {
+      "all": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 18,
+          "not_in_local_scope_method": 58,
+          "not_in_local_scope_soc": 11
+        },
+        "condition_field_accuracy": 0.2976190476190476,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 7.25,
+        "n_items": 12,
+        "parameter_unit_accuracy": 0.3333333333333333,
+        "parameter_value_accuracy": 0.5,
+        "per_field_accuracy": {
+          "cell": 0.3333333333333333,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 0.8333333333333334,
+          "protocol": 0.6666666666666666,
+          "soc": 0.6666666666666666,
+          "temperature_k": 0.6666666666666666
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.30952380952380953,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.5
+      },
+      "category:A": {
+        "abstention_rate": 0.4,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 32,
+          "not_in_local_scope_soc": 11
+        },
+        "condition_field_accuracy": 0.37142857142857144,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 8.6,
+        "n_items": 5,
+        "parameter_unit_accuracy": 0.6,
+        "parameter_value_accuracy": 0.6,
+        "per_field_accuracy": {
+          "cell": 0.3333333333333333,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 0.6666666666666666,
+          "protocol": 0.6666666666666666,
+          "soc": 0.6666666666666666,
+          "temperature_k": 1.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.4,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.6
+      },
+      "category:B": {
+        "abstention_rate": 0.0,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "column_label_not_method": 18,
+          "not_in_local_scope_method": 26
+        },
+        "condition_field_accuracy": 0.5714285714285714,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 22.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.5,
+        "parameter_value_accuracy": 1.0,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 0.5,
+          "soc": 0.5,
+          "temperature_k": 0.5
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.5714285714285714,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 1.0
+      },
+      "category:D": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.2857142857142857,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.5,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 1.0,
+          "temperature_k": 0.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.2857142857142857,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.5
+      },
+      "category:E": {
+        "abstention_rate": 1.0,
+        "association_fallback_rate": NaN,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.0,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {},
+        "quote_in_evidence_rate": NaN,
+        "raw_condition_field_accuracy": 0.0,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "n_transport_errors": 3
+    },
+    "v25_r2": {
+      "all": {
+        "abstention_rate": 0.5333333333333333,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 50,
+          "not_in_local_scope_soc": 4
+        },
+        "condition_field_accuracy": 0.24761904761904763,
+        "invented_condition_rate": 0.06666666666666667,
+        "mean_dropped_conditions": 3.6,
+        "n_items": 15,
+        "parameter_unit_accuracy": 0.3333333333333333,
+        "parameter_value_accuracy": 0.4666666666666667,
+        "per_field_accuracy": {
+          "cell": 0.2857142857142857,
+          "chemistry": 0.14285714285714285,
+          "format": 1.0,
+          "method": 0.5714285714285714,
+          "protocol": 0.5714285714285714,
+          "soc": 0.5714285714285714,
+          "temperature_k": 0.5714285714285714
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.23809523809523808,
+        "raw_invented_condition_rate": 0.13333333333333333,
+        "value_found_rate": 0.4666666666666667
+      },
+      "category:A": {
+        "abstention_rate": 0.4,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.34285714285714286,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 5,
+        "parameter_unit_accuracy": 0.6,
+        "parameter_value_accuracy": 0.6,
+        "per_field_accuracy": {
+          "cell": 0.3333333333333333,
+          "chemistry": 0.3333333333333333,
+          "format": 1.0,
+          "method": 0.6666666666666666,
+          "protocol": 0.6666666666666666,
+          "soc": 0.6666666666666666,
+          "temperature_k": 0.3333333333333333
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.34285714285714286,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.6
+      },
+      "category:B": {
+        "abstention_rate": 0.0,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 44,
+          "not_in_local_scope_soc": 2
+        },
+        "condition_field_accuracy": 0.35714285714285715,
+        "invented_condition_rate": 0.5,
+        "mean_dropped_conditions": 23.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.5,
+        "parameter_value_accuracy": 1.0,
+        "per_field_accuracy": {
+          "cell": 0.5,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 0.5,
+          "protocol": 0.0,
+          "soc": 0.0,
+          "temperature_k": 0.5
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.2857142857142857,
+        "raw_invented_condition_rate": 1.0,
+        "value_found_rate": 1.0
+      },
+      "category:C": {
+        "abstention_rate": 0.6666666666666666,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 4
+        },
+        "condition_field_accuracy": 0.19047619047619047,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 1.3333333333333333,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.3333333333333333,
+        "parameter_value_accuracy": 0.3333333333333333,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 0.0,
+          "protocol": 1.0,
+          "soc": 1.0,
+          "temperature_k": 1.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.19047619047619047,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.3333333333333333
+      },
+      "category:D": {
+        "abstention_rate": 0.5,
+        "association_fallback_rate": 0.0,
+        "association_rule_counts": {
+          "not_in_local_scope_method": 2,
+          "not_in_local_scope_soc": 2
+        },
+        "condition_field_accuracy": 0.35714285714285715,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 2.0,
+        "n_items": 2,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.5,
+        "per_field_accuracy": {
+          "cell": 0.0,
+          "chemistry": 0.0,
+          "format": 1.0,
+          "method": 1.0,
+          "protocol": 1.0,
+          "soc": 1.0,
+          "temperature_k": 1.0
+        },
+        "quote_in_evidence_rate": 1.0,
+        "raw_condition_field_accuracy": 0.35714285714285715,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.5
+      },
+      "category:E": {
+        "abstention_rate": 1.0,
+        "association_fallback_rate": NaN,
+        "association_rule_counts": {},
+        "condition_field_accuracy": 0.0,
+        "invented_condition_rate": 0.0,
+        "mean_dropped_conditions": 0.0,
+        "n_items": 3,
+        "parameter_unit_accuracy": 0.0,
+        "parameter_value_accuracy": 0.0,
+        "per_field_accuracy": {},
+        "quote_in_evidence_rate": NaN,
+        "raw_condition_field_accuracy": 0.0,
+        "raw_invented_condition_rate": 0.0,
+        "value_found_rate": 0.0
+      },
+      "n_transport_errors": 0
+    }
+  }
+}

@@ -61,6 +61,13 @@ applied below.
       (deterministic association-level condition<->value mechanism). A
       stronger-extractor re-run is rejected because it would require live
       model calls and risks tuning on the test split.
+- [x] Association mechanism **implemented and evaluated (2026-11-22)**:
+      `eval/association.py`, opt-in `--discipline association` (`trace` stays
+      default and reproduces the canonical numbers exactly). Invented-condition
+      rate 0.108 → 0.044 (all 30), 0.096 → 0.022 (dev), 0.120 → 0.067 (test;
+      rules frozen on dev, test evaluated once), condition accuracy flat,
+      method accuracy up. The V2.5 exit criterion itself (≥0.5 completeness,
+      0.000 invented) is still **not** met (0.310 / 0.044).
 
 ### 6. Live LLM + tuned-BM25 runs
 
@@ -91,8 +98,11 @@ applied below.
       milestone.
 - [ ] After the live runs: report oracle vs BM25 baseline vs tuned BM25
       extraction side-by-side from committed results files.
-- [ ] V2.5: implement the association-level condition<->value mechanism (owner
-      delegated; evidence-layer route chosen).
+- [x] V2.5: association-level condition<->value mechanism implemented,
+      unit-tested and evaluated offline on the dev/test split (2026-11-22);
+      see `docs/V2_PRIVATE_V4_BENCHMARK.md` §4.2/§7.6.
+- [ ] V2.5 exit criterion: condition completeness ≥ 0.5 with invented 0.000
+      (current best 0.310 / 0.044) — needs a live extractor re-run decision.
 - [ ] V2.6: open the closed loop only after the V2.5 exit criterion is met.
 - [ ] V2.7: PyPI publish (credentials + version decision). Docs site, examples
       gallery and the v4a mini-benchmark are landed.

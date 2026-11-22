@@ -25,7 +25,7 @@ Status legend: `[ ]` open · `[~]` in progress · `[x]` done
 
 ---
 
-## V2.5 — Evidence engineering (P8′)  *[slices landed; exit criterion not yet met]*
+## V2.5 — Evidence engineering (P8′)  *[five slices landed; exit criterion not yet met]*
 
 **Landed:** condition-aware evidence window (±900 chars around the probe, plus
 nearby condition-bearing sentences) and **document-level experimental-setup
@@ -74,6 +74,34 @@ clobbered 8 of 9 raw files is preserved under
 `data/private_v4/results_rogue_20261117/`; the canonical run was restored
 from backup before re-scoring.
 
+**Also landed (fifth slice, 2026-11-22):** the **association discipline**
+(`eval/association.py`, opt-in `--discipline association`; `trace` stays the
+default and is bit-identical to the committed canonical numbers — regression
+checked). A condition must now be supported *inside the local scope of the
+candidate's verified quote* — the table row (plus table caption / column
+header) or the quote sentence (plus one adjacent condition-bearing sentence) —
+not merely somewhere in the evidence. Document-level fallback is allowed only
+for temperature / cell / chemistry / format, and only from explicitly global
+statements (the `EXPERIMENT CONDITIONS` block, table caption/header regions,
+`all experiments`-style sentences). SOC and protocol are value-local (protocol
+may use the global GITT C/10 statement only when the candidate's method names
+GITT). `Experiment` column labels are never methods; only recognised method
+families are accepted. Every verdict records scope + rule
+(`association_rule_counts`, `association_fallback_rate`). Developed on the
+**dev half** of the seeded v4 split, then evaluated **once** on the test half
+(`configs/retrieval/dev_test_split.json`, seed 20261119); mean over 3 repeats:
+
+| metric (mean over repeats) | dev trace → assoc | test trace → assoc | all 30 trace → assoc |
+|---|---:|---:|---:|
+| invented-condition rate | 0.096 → **0.022** | 0.120 → **0.067** | 0.108 → **0.044** |
+| condition-field accuracy | 0.226 → 0.234 | 0.273 → 0.275 | 0.249 → 0.254 |
+| method accuracy | 0.51 → **0.65** | 0.52 → 0.53 | 0.51 → **0.58** |
+| protocol / SOC / temp / format / cell | flat (±0.02) | flat (±0.03) | flat (±0.02) |
+
+Artifacts: `results/v2/v4_association{,_dev,_test}/` (summaries),
+`data/private_v4/results_association*/` (private rows), 34 unit tests in
+`tests/unit/test_association.py`.
+
 **LLM-side result on v4, re-scored (canonical run)** (extractor
 `gemini-flash-lite-latest`, free tier — *not* comparable with the v0.1/v3
 numbers; arms comparable with each other; mean ± std over 3 repeats/arm;
@@ -92,26 +120,35 @@ bounds; see `docs/V2_PRIVATE_V4_BENCHMARK.md` §7.5).
 
 Transport errors excluded: oracle compact 0, oracle expanded 0, oracle v25 6 (free-tier 503s).
 
-**Honest read of the discipline pass (measured, not assumed):**
-- It fires — on average 3.5–14.9 conditions per item are dropped for having no
-  trace in the evidence — and quote verification passes for 0.991–1.000 of
-  candidates.
-- It still **did not reduce the invented-condition rate** (identical raw vs
-  disciplined in every arm): the surviving invented claims are cue-anchored
-  in the evidence, so an evidence-trace check cannot distinguish "condition of
-  this value" from "number that appears elsewhere in the passage". Countering
-  invention needs condition↔value association, not a trace check.
-- It slightly **lowered** condition-field accuracy (raw → disciplined:
-  0.165→0.144, 0.300→0.294, 0.320→0.310): the conservative trace check also
-  rejects some correct claims. Disclosed as `raw_*` metrics rather than hidden.
+**Honest read of the two discipline passes (measured, not assumed):**
+- The trace discipline fires — on average 3.5–14.9 conditions per item are
+  dropped for having no trace in the evidence — and quote verification passes
+  for 0.991–1.000 of candidates.
+- The trace discipline **did not reduce the invented-condition rate**
+  (identical raw vs disciplined in every arm): the surviving invented claims
+  are cue-anchored in the evidence, so an evidence-trace check cannot
+  distinguish "condition of this value" from "number that appears elsewhere in
+  the passage".
+- The **association discipline** does: invented-condition rate 0.108 → 0.044
+  on all 30 items (0.096 → 0.022 dev, 0.120 → 0.067 test) with condition-field
+  accuracy flat (0.249 → 0.254) and method accuracy up (0.51 → 0.58). It
+  changes the selected candidate in some items (the discipline drops
+  conditions, which changes the best-condition-set tie-break), so per-field
+  deltas are small and mixed (chemistry 0.11 → 0.09).
+- The trace discipline slightly **lowered** condition-field accuracy (raw →
+  disciplined: 0.165→0.144, 0.300→0.294, 0.320→0.310): the conservative trace
+  check also rejects some correct claims. Disclosed as `raw_*` metrics rather
+  than hidden.
 
 **Still to do in V2.5:** the roadmap exit criterion (condition completeness
 ≥ 0.5 on the private v4, false extraction 0.000) is **not met** — current
-best arm 0.310 / 0.058. The remaining gap is chemistry (0.143), the `v25`
-cell-identity regression (0.360 → 0.186, mechanism locked by test — LLM-side
-effect measurable only on a live re-run), and an association-level mechanism
-against the residual invented claims (0.058–0.200). Full design:
-`docs/V2_PRIVATE_V4_BENCHMARK.md`.
+best arm 0.310 / 0.044 (v25, association). The association-level mechanism
+against the residual invented claims is landed and measured; the remaining
+gap is chemistry (0.143 → 0.09), the `v25` cell-identity regression
+(0.360 → 0.186, mechanism locked by test — LLM-side effect measurable only on
+a live re-run), and a live extractor re-run to see whether the model itself
+can be made to abstain rather than relying on the post-hoc discipline. Full
+design: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
 
 ## V2.1 — Applicability & conflict engine  *[first milestone — implemented; owner-reviewed 2026-11-20]*
 
@@ -353,7 +390,8 @@ way of producing incorrect results.
 **Milestone status (2026-11-22):** V2.1 ✅ implemented (agreement 0.958 vs
 owner-reviewed labels) · V2.2 ✅ implemented (traceability 79/96,
 17 flags pending owner) · V2.3 ✅ acceptance met · V2.4 ✅ acceptance met ·
-V2.5 ⏳ exit criterion not met (0.310 / 0.058 vs ≥0.5 / 0.000; blocked on an
+V2.5 ⏳ exit criterion not met (0.310 / 0.044 vs ≥0.5 / 0.000; association
+discipline landed 2026-11-22, invented rate 0.108 → 0.044; blocked on an
 extractor decision) · V2.6 gated · V2.7 CI/packaging landed; publish pending.
 
 **TODO carried (not v0.2 scope):** multi-chemistry (LFP/graphite, NMC811,

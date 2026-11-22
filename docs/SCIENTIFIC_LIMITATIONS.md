@@ -76,6 +76,43 @@ appears:
   `REVIEW`; agreement computed only on decidable cases would overstate the
   rubric's usefulness.
 
+## 4c. Association discipline — what it can and cannot do
+
+The opt-in association discipline (`eval/association.py`) requires each
+extracted condition to be supported inside the value's local scope (table row
++ caption/column-header, or quote sentence + one adjacent condition sentence).
+Limitations, all measured or by construction:
+
+- **Text order, not layout.** The scope cannot see column geometry: a cell
+  product line naming both cells (`High energy (HE): …50E High power (HP):
+  …30T`) is legitimately attached to every row of that table, so a wrong-cell
+  claim that matches the other cell's name is not caught. Wrong claims score
+  wrong; they are just not silently promoted to `not_stated`.
+- **Heuristic table detection.** Tables are found by numeric runs and
+  captions; the caption/column-header region is recovered by extending at
+  most three lines above the body. An unusually tall header can be truncated
+  and its conditions then only reach the value through the document-level
+  fallback (temperature/cell/chemistry/format only).
+- **Fixed method vocabulary.** Only recognised method families are accepted
+  (EIS/impedance, GITT, Arrhenius, CIM, simulation/model, DVA, ICA, CV, pulse,
+  fit). A genuinely novel technique named in the local scope is dropped —
+  conservative against invention, hostile to recall.
+- **Post-hoc, not preventive.** The discipline stops wrong associations from
+  being *scored*; it does not make the extractor abstain. The raw
+  (`raw_invented_condition_rate`) numbers show what the model actually
+  claims.
+- **Gold-vs-evidence specificity.** Some gold cells are more specific than
+  the evidence text (e.g. `inr21700+50e` where the block only names
+  `LG M50 21700`); dropping the model's more specific naming can lose a
+  condition-accuracy point while being correct about what the evidence
+  states. Reported as flat aggregate accuracy (±0.01) with chemistry down
+  slightly (0.11 → 0.09).
+- **Evaluation hygiene.** Rules were developed on the dev half of the seeded
+  split and the test half evaluated once (seed 20261119); the fixture is 30
+  items from 3 CC BY papers, and the extractor is a free-tier model. The
+  numbers are a diagnostic for the evidence/association layer, not a
+  capability claim.
+
 ## 5. Scope, model, and parameter caveats
 
 - Target demonstrator: PyBaMM DFN, Chen2020 (LG M50 graphite/NMC), isothermal
