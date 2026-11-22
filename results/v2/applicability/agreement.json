@@ -33,16 +33,19 @@
       "n_mismatched_decision": 0
     },
     "label_status": {
-      "drafted": 24,
-      "reviewed": 0
+      "drafted": 0,
+      "reviewed": 24
     }
   },
-  "generated": "2026-11-17T02:47:37.406955+00:00",
+  "generated": "2026-11-22T15:38:25.192744+00:00",
   "label_status": {
-    "drafted": 24,
-    "reviewed": 0
+    "drafted": 0,
+    "reviewed": 24
   },
   "n_cases": 24,
-  "note": "Labels are drafted by the assistant until the project owner reviews them; agreement against drafted labels is not yet agreement with expert judgement.",
+  "note": "All labels were reviewed and approved by the project owner on 2026-11-20.",
+  "reviewed_on": [
+    "2026-11-20"
+  ],
   "rubric_version": "rubric-v2"
 }

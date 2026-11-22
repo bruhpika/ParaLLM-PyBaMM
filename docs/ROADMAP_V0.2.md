@@ -134,17 +134,17 @@ the axis on which we differ from the closest neighbour (see
 | item | status | evidence |
 |---|---|---|
 | **V2.5** evidence layer (condition-aware window + document-level setup + table-aware chunking + top-k multi-window + verification pass + `not_stated` discipline + protocol context-scorer fix) | **implemented and measured; roadmap exit criterion (≥0.5 completeness, false extraction 0.000) NOT met (best arm 0.310 / 0.058)** | `literature/evidence.py`, `eval/benchmark_v4.py`; deterministic coverage on v3: temperature availability **0.108 → 0.838**, SOC **0.108 → 0.757**, chemistry **0.243 → 0.838**, method **0.649 → 1.000**. Private v4 (30 items, categories A–E, 3 CC BY papers, fixture not published), 3 repeats/arm, canonical run re-scored offline: condition-field accuracy **0.144 ± 0.016 (compact) → 0.294 ± 0.018 (expanded) → 0.310 ± 0.022 (v25)** [raw, pre-discipline: 0.165 / 0.300 / 0.320], value found 0.389 → 0.389 → 0.583. Scorer fix (2026-11-19): abstaining contexts no longer count as protocol claims (they were 94 of 110 invented claims) — invented rate now **0.067 → 0.200 → 0.058** (superseding 0.411 → 0.500 → 0.439) and the protocol field rises 0.607/0.619/0.743; the discipline pass still removes **none** of the residual (cue-anchored) inventions — association remains the open problem. All v4 evidence modes are **oracle-located (probe window; NOT performance upper bounds)** (probe-based, not retrieval); real full-store BM25 recall is recall@1 0.300 / @3 0.867 / @5 0.900 / @10 1.000 (`results/v2/v4/retrieval_recall.md`), with the LLM retrieval arm implemented but not run. Design + results: `docs/V2_PRIVATE_V4_BENCHMARK.md` |
-| **V2.1** applicability & conflict engine (rubric v2: `cell_product` + `electrolyte` dimensions) | **implemented; expert-agreement benchmark run against drafted labels — pending owner label review** | `assembly/` package (rubric, resolution, dossier, gate); over the real 96-record registry: 96 dossiers, 7 same-source conflicts all resolved to the source's operative value with the alternative preserved, 0 spurious escalations. Expert-agreement case set built (24 private cases, §3.1): decision agreement **0.958** (≥80% threshold met), 1 mismatch (`APP-AMB-exchange-current-density`, ambiguous class 1/2). Labels are **drafted**, `reviewed_by` pending — the number is provisional until reviewed. Aggregates: `results/v2/applicability/` |
+| **V2.1** applicability & conflict engine (rubric v2: `cell_product` + `electrolyte` dimensions) | **implemented; expert-agreement benchmark run against owner-reviewed labels (2026-11-20); exit criterion met** | `assembly/` package (rubric, resolution, dossier, gate); over the real 96-record registry: 96 dossiers, 7 same-source conflicts all resolved to the source's operative value with the alternative preserved, 0 spurious escalations. Expert-agreement case set built (24 private cases, §3.1): decision agreement **0.958** (≥80% threshold met), 1 mismatch (`APP-AMB-exchange-current-density`, ambiguous class 1/2). Labels are **owner-reviewed** (`reviewed_by`/`reviewed_on` recorded; 24 reviewed, 0 drafted). Aggregates: `results/v2/applicability/` |
 | **V2.2** dossier | **implemented (CLI + manifest + traceability check); traceability acceptance 79/96, 17 flagged** | `parallm assemble` (`cli.py`): 9-field dossiers → JSON + Markdown + approved-only PyBaMM export + reproducibility manifest; deterministic quote verification (36/36 recorded quotes verify against the archive); `check_traceability` flags 17 parameters carrying `LITERATURE_DERIVED` values with no recorded quote (owner decision: backfill quotes or correct statuses) |
 | **V2.3** identifiability | **implemented; acceptance met** (P2 finding reproduced in the report) | `assembly/observability.py`: recorded P2 artifacts → per-parameter observability + fit/fix/measure action matrix + decision upgrades (CALIBRATE/MEASURE); 7/96 parameters assessed (6 CALIBRATE, 1 MEASURE/FIX), 89 explicitly `not_assessed` |
 | **V2.4** synthetic end-to-end validation | **implemented; acceptance met** (prediction reproduced on 5/5 seeds) | `benchmarks/v2/run_synthetic_validation.py` + `results/v2/synthetic_validation/`: deliberate mismatch, held-out rates, positive/negative controls — held-out RMSE 4.4 ± 0.1 mV (baseline) → 1.1 ± 0.1 mV (positive control) → 4.4 ± 0.1 mV (negative control, no gain), stable across 5 seeds; labelled SYNTHETIC; figure `results/v2/synthetic_validation/heldout_rmse.png` |
-| **V2.6** closed loop | **gated — not started** (see §4.2: V2.1/V2.2 pending owner items) | — |
+| **V2.6** closed loop | **gated — not started** (see §4.2: V2.2 pending owner item) | — |
 | **V2.7** productisation | **CI + packaging scaffolding landed; PyPI publish pending owner** (credentials + version decision) | `.github/workflows/ci.yml`: lint + test matrix on Python 3.10/3.11/3.12, ecosystem job (pybop stack on 3.12), and a package job (build sdist/wheel, install the wheel in a clean venv, smoke-test `parallm --help`). `pyproject.toml`: readme/license/classifiers/keywords added; `parallm` entry point verified from an installed wheel. CI excludes the `characterization`-tagged numeric gates (documented same-machine/same-venv baselines) and skips the private PyProBE sample when absent; pytest failures surface as check annotations. Docs site, examples gallery and the v4a mini-benchmark landed (`docs/V4A_MINI_BENCHMARK.md`) |
 
 Note the sequencing consequence: V2.1's rubric consumes the evidence produced by
-V2.5, so V2.1 is not accepted until the expanded evidence mode is the one it is
-evaluated with — and both remain open until their exit criteria are met (V2.5:
-completeness ≥0.5 on v4; V2.1: owner-reviewed labels).
+V2.5, so V2.1 is evaluated with the expanded evidence mode. V2.1 is now closed
+(owner-reviewed labels, 2026-11-20); V2.5 remains open until its exit criterion
+is met (completeness ≥0.5 on v4, false extraction 0.000).
 
 ## 3. Workstreams, exit criteria, dependencies
 
@@ -166,8 +166,9 @@ accuracy. Metric definition:
 
 The set must contain **ambiguous** cases whose expert answer is `REVIEW`; a
 rubric that never abstains would score well while being useless. Agreement is
-reported against *drafted* labels until the owner has reviewed them, and that
-status is stated wherever the number appears.
+reported with the status of the label set (drafted vs owner-reviewed); the
+current set is **owner-reviewed (2026-11-20)**, and that status is stated
+wherever the number appears.
 
 | ID | Workstream | Scope | Exit criterion (measurable) | Depends on |
 |---|---|---|---|---|
@@ -241,13 +242,13 @@ decisions as the dossier (V2.2), then make them scientifically meaningful
 criteria, the synthetic validation is stable across repeats, and the dossier
 has been reviewed by the scientific decision-maker on a real parameter set.
 
-**Gate status (2026-11-17):** V2.3 ✅ (P2 finding reproduced in the report)
-and V2.4 ✅ (prediction reproduced on **5/5 seeds** — repeat stability
-confirmed). V2.1 ⏳ (agreement 0.958 measured, but against *drafted* labels —
-owner review pending) and V2.2 ⏳ (traceability 79/96 — 17 parameters need
-backfilled quotes or explicit status corrections, owner decision).
-**The gate is therefore not yet open**; the two pending items are owner
-decisions, not engineering work.
+**Gate status (2026-11-22):** V2.1 ✅ (agreement 0.958 against
+**owner-reviewed** labels, 2026-11-20), V2.3 ✅ (P2 finding reproduced in the
+report) and V2.4 ✅ (prediction reproduced on **5/5 seeds** — repeat stability
+confirmed). V2.2 ⏳ (traceability 79/96 — 17 parameters need backfilled quotes
+or explicit status corrections, owner decision). **The gate is therefore not
+yet open**; the remaining pending item is an owner decision (and is blocked on
+the Chen2020 article PDF), not engineering work.
 
 Rationale: an automated loop that repeatedly retrieves evidence and recalibrates
 an incorrect parameter is not a scientific instrument — it is an automated way of
@@ -269,7 +270,7 @@ prevent.
 | D7 | **LLM stays out of the numeric decision path** | Matches the project's identity and its closest-neighbour differentiation | never |
 | D8 | **The per-parameter dossier is the central artifact** (9 mandatory fields, §2.1) | A researcher must be able to defend every number in the resulting PyBaMM parameter set from the dossier alone; the report/CLI is a rendering of the dossier, not the product | never |
 | D9 | **V2.6 is hard-gated on V2.1–V2.4** (§4.2) | An automated retrieval/recalibration loop over an unreliable decision layer automates incorrect results | when V2.1–V2.4 exit criteria are met and the synthetic validation is stable |
-| D10 | **Expert agreement is a headline metric**, not a footnote | The assembly layer's value is measured by agreement with expert judgement, always reported with the status of the label set (drafted vs owner-reviewed) | when the owner has reviewed the label set |
+| D10 | **Expert agreement is a headline metric**, not a footnote | The assembly layer's value is measured by agreement with expert judgement, always reported with the status of the label set (drafted vs owner-reviewed) | when the label set is revised (current set owner-reviewed 2026-11-20) |
 
 ## 6. Explicitly out of scope for v0.2
 

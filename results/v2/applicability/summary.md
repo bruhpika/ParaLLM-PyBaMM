@@ -1,6 +1,6 @@
 # V2.1 — expert agreement of the applicability rubric
 
-rubric: `rubric-v2` · cases: 24 (PRIVATE set, labels drafted, pending owner review)
+rubric: `rubric-v2` · cases: 24 (PRIVATE set, owner-reviewed (2026-11-20))
 
 | scope | n | decision agreement | full agreement | ambiguous | mismatched decisions |
 |---|---:|---:|---:|---:|---:|
@@ -9,7 +9,7 @@ rubric: `rubric-v2` · cases: 24 (PRIVATE set, labels drafted, pending owner rev
 | class:applicability | 5 | 1.000 | 1.000 | 0 | 0 |
 | class:conflict | 17 | 1.000 | 1.000 | 0 | 0 |
 
-Label status: 24 drafted, 0 reviewed.
+Label status: 0 drafted, 24 reviewed (reviewed on 2026-11-20).
 
 ## Mismatches
 

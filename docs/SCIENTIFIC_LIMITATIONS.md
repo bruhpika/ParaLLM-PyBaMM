@@ -69,9 +69,9 @@ expert decisions** on a labelled set of ≥20 conflict/applicability cases
 (`docs/ROADMAP_V0.2.md` §3.1). Two honest caveats, stated wherever the number
 appears:
 
-- The labels are **drafted by the assistant and pending review by the project
-  owner**; agreement against drafted labels is *not* yet agreement with reviewed
-  expert judgement.
+- The labels were **reviewed and approved by the project owner on 2026-11-20**;
+  `reviewed_by`/`reviewed_on` are recorded on every case. The set is small
+  (24 cases, 2 ambiguous), so the subclass breakdown is descriptive.
 - The labelled set must contain ambiguous cases whose expert answer is
   `REVIEW`; agreement computed only on decidable cases would overstate the
   rubric's usefulness.

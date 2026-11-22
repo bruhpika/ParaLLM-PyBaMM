@@ -113,7 +113,7 @@ effect measurable only on a live re-run), and an association-level mechanism
 against the residual invented claims (0.058–0.200). Full design:
 `docs/V2_PRIVATE_V4_BENCHMARK.md`.
 
-## V2.1 — Applicability & conflict engine  *[first milestone — implemented; awaiting label review]*
+## V2.1 — Applicability & conflict engine  *[first milestone — implemented; owner-reviewed 2026-11-20]*
 
 **Goal.** For a target cell + protocol, rank and decide among candidate values
 for one parameter, with a recorded rationale, preserving conflicts.
@@ -140,8 +140,8 @@ for one parameter, with a recorded rationale, preserving conflicts.
 - `data/private_v4/build_applicability_cases.py` →
   `data/private_v4/applicability_cases_v1.jsonl` (**private**, git-ignored)
   — 24 labelled conflict/applicability cases **derived from** the registry and
-  the v3 fixture (no hand-typed values); expert labels drafted, `reviewed_by`
-  pending owner sign-off.
+  the v3 fixture (no hand-typed values); expert labels **owner-reviewed**
+  (2026-11-20), with `reviewed_by`/`reviewed_on` recorded on every case.
 - `benchmarks/v2/run_applicability.py` — agreement of the rubric with the
   labelled set + rule-firing statistics; aggregates public under
   `results/v2/applicability/`, per-case rows private.
@@ -172,12 +172,12 @@ V2.3 (the taxonomy in the roadmap is unchanged; V2.1 emits a subset).
       cross-source ranking, margin→REVIEW, dossier/gate round-trip.
 - [x] Integration test: assembly over the real 96-record registry produces a
       report with no exceptions and every field traceable.
-- [x] Benchmark: agreement with the drafted labelled set **0.958** (24 cases,
-      ≥ 80 % exit criterion met); mismatches listed per case in
+- [x] Benchmark: agreement with the owner-reviewed labelled set **0.958**
+      (24 cases, ≥ 80 % exit criterion met); mismatches listed per case in
       `results/v2/applicability/summary.md` — note the `ambiguous` class alone
       is 1/2 (the set is 2 ambiguous cases, too few to read that subclass).
-- [ ] Expert labels reviewed (`reviewed_by` / owner sign-off) — **pending;
-      agreement against unreviewed labels is provisional**.
+- [x] Expert labels reviewed and approved by the owner (2026-11-20);
+      `reviewed_by`/`reviewed_on` recorded on every case; agreement is final.
 - [x] Report states decisions for all parameters; no silent defaults.
 - [x] Docs updated (`ROADMAP_V0.2.md` status, `CHANGELOG.md`); planned
       modules in `ARCHITECTURE.md` still to be moved to implemented.
@@ -185,9 +185,10 @@ V2.3 (the taxonomy in the roadmap is unchanged; V2.1 emits a subset).
 **Failure modes to watch**
 - Free-text condition parsing mislabels a chemistry → mitigate with explicit
   "unknown" scores (never silently 0) and a `parse_warnings` field.
-- The rubric "agrees" with drafted labels by construction → the labelled set
-  must include **ambiguous** cases expecting `REVIEW`; report agreement
-  separately for `USE/FIX` and `REVIEW` cases.
+- The rubric could "agree" with labels by construction if labels are not
+  independently reviewed → the set includes **ambiguous** cases expecting
+  `REVIEW` and is now owner-reviewed; report agreement separately for
+  `USE/FIX` and `REVIEW` cases.
 - Same-source policy could hide a genuine paper error → the preserved
   alternative stays visible in the dossier and the set-level summary counts
   preserved conflicts.
@@ -311,10 +312,11 @@ Parameter-targeted loop: flagged field → targeted evidence request → retriev
 validation is stable across repeats, and the dossier has been reviewed by the
 scientific decision-maker on a real parameter set.
 
-**Gate status (2026-11-17):** V2.3 ✅ · V2.4 ✅ (prediction reproduced on
-**5/5 seeds**, repeat stability confirmed) · V2.1 ⏳ owner label review ·
-V2.2 ⏳ 17 traceability flags (backfill quotes or correct statuses). The two
-pending items are owner decisions; no engineering work can close them.
+**Gate status (2026-11-22):** V2.1 ✅ (owner-reviewed labels, 2026-11-20) ·
+V2.3 ✅ · V2.4 ✅ (prediction reproduced on **5/5 seeds**, repeat stability
+confirmed) · V2.2 ⏳ 17 traceability flags (backfill quotes or correct
+statuses). The remaining pending item is an owner decision, blocked on the
+Chen2020 article PDF; no engineering work can close it.
 
 ## V2.7 — Product & community  *[CI + packaging scaffolding landed; publish pending owner]*
 
@@ -348,8 +350,8 @@ decision logic is built on top of them.
 retrieval/recalibration loop over an unreliable decision layer is an automated
 way of producing incorrect results.
 
-**Milestone status (2026-11-19):** V2.1 ✅ implemented (agreement 0.958 vs
-drafted labels, review pending) · V2.2 ✅ implemented (traceability 79/96,
+**Milestone status (2026-11-22):** V2.1 ✅ implemented (agreement 0.958 vs
+owner-reviewed labels) · V2.2 ✅ implemented (traceability 79/96,
 17 flags pending owner) · V2.3 ✅ acceptance met · V2.4 ✅ acceptance met ·
 V2.5 ⏳ exit criterion not met (0.310 / 0.058 vs ≥0.5 / 0.000; blocked on an
 extractor decision) · V2.6 gated · V2.7 CI/packaging landed; publish pending.

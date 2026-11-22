@@ -12,6 +12,16 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### V2.1 owner-reviewed applicability labels
+
+- Recorded the owner's 2026-11-20 approval on all 24 applicability cases
+  (`reviewed_by="owner"`, `reviewed_on="2026-11-20"`; private case set
+  otherwise unchanged). Re-ran `benchmarks/v2/run_applicability.py`: agreement
+  remains **0.958** (24 cases, 1 mismatch), now reported as 24 reviewed /
+  0 drafted, so the V2.1 exit criterion is met. Updated ROADMAP, execution
+  plan, handoff, remaining-tasks, scientific-limitations and README status.
+  Verification: ruff clean; core scope 406 passed, 15 skipped, 3 deselected.
+
 ### V2.7 v4a applicability mini-benchmark
 
 - Added the v4a conflict-resolution mini-benchmark (`docs/V4A_MINI_BENCHMARK.md`):

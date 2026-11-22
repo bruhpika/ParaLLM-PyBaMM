@@ -48,7 +48,8 @@ v0.1.0-beta.1 is released (P0-P5). v0.2 is in progress. Milestone status from
 `docs/ROADMAP_V0.2.md` and `docs/V2_EXECUTION_PLAN.md`:
 
 - V2.1 applicability engine: implemented; 24 expert labels are **owner-approved**
-  (2026-11-20); agreement 0.958 (`results/v2/applicability/summary.md`).
+  (2026-11-20) with `reviewed_by`/`reviewed_on` recorded on every case;
+  agreement 0.958 is final (`results/v2/applicability/summary.md`).
 - V2.2 dossier/assembly CLI: implemented; 36/36 recorded quotes verify;
   traceability 79/96, 17 flagged records need the Chen2020 article PDF (see
   `docs/REMAINING_TASKS.md` item 1).
@@ -74,6 +75,9 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 - Added the missing V2.4 held-out RMSE figure and its generator (`ad18a9c`).
 - Current docs and the `ORACLE_LABEL` constant now use the clarified label;
   committed v4 summaries retain the pre-clarification wording.
+- V2.1 close-out: the 24 applicability cases now carry owner review metadata
+  (`reviewed_by="owner"`, `reviewed_on="2026-11-20"`); the agreement summary
+  reports 24 reviewed / 0 drafted and the 0.958 figure is final.
 
 ### General engineering / licensing
 
@@ -119,7 +123,7 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 
 ## 5. Sourced numbers to reuse (do not re-derive by hand)
 
-- Core test scope: 405 passed, 15 skipped, 3 deselected (measured on `main`).
+- Core test scope: 406 passed, 15 skipped, 3 deselected (measured on `main`).
 - v3 BM25 gold-passage recall@1/3/5/10 = 0.189 / 0.351 / 0.459 / 0.486
   (`results/p5/benchmark_v3/retrieval_recall.md`).
 - v4 small recall = 0.300 / 0.867 / 0.900 / 1.000; full corpus =
@@ -166,10 +170,11 @@ Owner decisions recorded 2026-11-20 are applied in
 2. Article licence remains UNVERIFIED; decide whether to seek a citable
    publisher statement or keep the fetched-only policy.
 
-Recorded decisions: the 24 drafted applicability labels are owner-approved;
-V2.5 continues with evidence-layer work; the prepared live runs are approved
-but blocked on `PYCL_LLM_*` env vars; git history is retained (no rewrite);
-Zenodo 4032561 is not eligible as independent validation.
+Recorded decisions: the 24 applicability labels are owner-approved and the
+review metadata is recorded; V2.5 continues with evidence-layer work; the
+prepared live runs are approved but blocked on `PYCL_LLM_*` env vars; git
+history is retained (no rewrite); Zenodo 4032561 is not eligible as independent
+validation.
 
 ## 8. Next step: prepared live runs (DO NOT RUN without approval)
 
@@ -211,5 +216,6 @@ Outputs: `results/p5/benchmark_v3/raw_outputs_retrieval_bm25_tuned_strict_r{0,1,
 - Report oracle vs BM25 vs tuned LLM extraction side-by-side; do not tune on
   test. A null result is acceptable.
 - Then continue with V2.5's association-level mechanism for
-  condition<->value binding; keep V2.6 gated until V2.1/V2.2 owner items close.
+  condition<->value binding; keep V2.6 gated until the V2.2 owner item (PDF)
+  closes. V2.1 is closed (owner-reviewed labels, 2026-11-20).
 - Update this handoff and `CHANGELOG.md` after every milestone.

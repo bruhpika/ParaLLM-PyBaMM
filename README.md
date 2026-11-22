@@ -81,7 +81,7 @@ PyBaMM 26.8.0.0) on CPython 3.12.16.
 ```
 
 Expected outputs and limitations: `docs/QUICKSTART.md`. **The core scope above
-measured 405 passed, 15 skipped (3 characterization tests deselected) on
+measured 406 passed, 15 skipped (3 characterization tests deselected) on
 `main` (2026-11-20), in the core `.venv` (CPython 3.14.8), using the command
 shown.**
 Coverage: benchmark tests are opt-in via `-m benchmark`.
@@ -140,7 +140,7 @@ as distractors (10 documents instead of 4), v4 recall@k falls to
 (`results/v2/v4/retrieval_recall_distractors.md`).
 
 **v0.2 scientific results.** Applicability decision agreement **0.958** on 24
-*drafted, owner-unreviewed* cases (`results/v2/applicability/summary.md`).
+**owner-reviewed** cases (2026-11-20; `results/v2/applicability/summary.md`).
 Private v4: condition-field accuracy 0.144 / 0.294 / 0.310 and invented-condition
 rate 0.067 / 0.200 / 0.058 for compact/expanded/v25 (`results/v2/v4/summary.md`).
 V2.4 held-out RMSE 4.4 ± 0.1 mV (baseline) → 1.1 ± 0.1 mV (positive control) →
@@ -172,8 +172,9 @@ positive beats baseline 15/18 and negative does not 18/18 — also **SYNTHETIC**
 - Experimental-condition extraction is weak (v3 retrieval condition completeness
   0.116 all / 0.035 eval, same source as the v3 table above); an eligible
   Chen2020-aligned validation dataset is unresolved.
-- The rubric is hand-set (no learned weights); expert labels are drafted and
-  pending owner review, so agreement figures are provisional.
+- The rubric is hand-set (no learned weights). Expert labels were owner-reviewed
+  on 2026-11-20, so the 0.958 agreement is final for this set; the set is small
+  (24 cases, 2 ambiguous), so subclass figures are descriptive.
 
 ## Data and third-party licences
 

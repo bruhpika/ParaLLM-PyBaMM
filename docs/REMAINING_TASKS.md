@@ -31,9 +31,10 @@ applied below.
 
 ### 3. Applicability labels
 
-- [x] Owner approved the 24 drafted applicability labels (2026-11-20). The
-      0.958 agreement in `results/v2/applicability/summary.md` is now final;
-      the case-set regeneration and V2.1 close-out are pending.
+- [x] Owner approved the 24 applicability labels (2026-11-20). The cases now
+      carry `reviewed_by`/`reviewed_on` metadata, the benchmark summary reports
+      24 reviewed / 0 drafted, and the 0.958 agreement in
+      `results/v2/applicability/summary.md` is final. V2.1 is closed.
 
 ### 4. Traceability flags (17)
 

@@ -49,6 +49,7 @@ class ApplicabilityCase:
     ambiguous: bool = False
     case_class: str = "conflict"  # conflict | applicability | ambiguous
     reviewed_by: str | None = None
+    reviewed_on: str | None = None
     notes: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -63,6 +64,7 @@ class ApplicabilityCase:
             "ambiguous": self.ambiguous,
             "case_class": self.case_class,
             "reviewed_by": self.reviewed_by,
+            "reviewed_on": self.reviewed_on,
             "notes": self.notes,
         }
 
@@ -85,6 +87,7 @@ def load_cases(path: str | Path) -> list[ApplicabilityCase]:
                 ambiguous=bool(d.get("ambiguous", False)),
                 case_class=d.get("case_class", "conflict"),
                 reviewed_by=d.get("reviewed_by"),
+                reviewed_on=d.get("reviewed_on"),
                 notes=d.get("notes", ""),
             )
         )
@@ -174,6 +177,7 @@ def score_case(
             for o in resolution.outcomes
         ],
         "reviewed_by": case.reviewed_by,
+        "reviewed_on": case.reviewed_on,
     }
 
 

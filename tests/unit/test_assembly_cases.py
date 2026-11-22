@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from pybamm_closed_loop.eval.assembly_cases import (
@@ -52,10 +53,32 @@ def _case(**kw) -> ApplicabilityCase:
 
 class TestCaseSchema:
     def test_roundtrip_to_dict(self):
-        c = _case()
+        c = _case(reviewed_by="owner", reviewed_on="2026-11-20")
         d = c.to_dict()
         assert d["case_id"] == "C1"
         assert d["expert_decision"] == "USE"
+        assert d["reviewed_by"] == "owner"
+        assert d["reviewed_on"] == "2026-11-20"
+
+    def test_load_cases_reads_review_metadata(self, tmp_path):
+        path = tmp_path / "cases.jsonl"
+        path.write_text(
+            json.dumps(
+                {
+                    "case_id": "C1",
+                    "target_id": "lgm50",
+                    "parameter": "p",
+                    "candidates": [{"value": 1.0, "source_id": "doc-a"}],
+                    "expert_decision": "USE",
+                    "reviewed_by": "owner",
+                    "reviewed_on": "2026-11-20",
+                }
+            )
+            + "\n"
+        )
+        cases = load_cases(path)
+        assert cases[0].reviewed_by == "owner"
+        assert cases[0].reviewed_on == "2026-11-20"
 
     def test_score_case_reports_source_counts(self):
         c = _case(
@@ -141,6 +164,9 @@ class TestPrivateCaseSet:
         cases = load_cases(path)
         assert len(cases) >= 20
         assert all(c.expert_decision for c in cases)
+        # owner approval is recorded on every case (2026-11-20)
+        assert all(c.reviewed_by for c in cases)
+        assert all(c.reviewed_on for c in cases)
         # every candidate value must be present (no invented placeholders)
         for c in cases:
             assert c.candidates

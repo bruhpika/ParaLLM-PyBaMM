@@ -62,6 +62,25 @@ def main() -> int:
 
     rows = [score_case(case, rubric, TARGET) for case in cases]
     agg = agreement(rows)
+    review_dates = sorted({c.reviewed_on for c in cases if c.reviewed_on})
+    n_drafted = agg.get("label_status", {}).get("drafted", 0)
+    n_reviewed = agg.get("label_status", {}).get("reviewed", 0)
+    if n_drafted == 0 and n_reviewed:
+        label_status_text = "owner-reviewed"
+        if review_dates:
+            label_status_text += f" ({', '.join(review_dates)})"
+        label_note = (
+            "All labels were reviewed and approved by the project owner"
+            + (f" on {', '.join(review_dates)}" if review_dates else "")
+            + "."
+        )
+    else:
+        label_status_text = "labels drafted, pending owner review"
+        label_note = (
+            "Labels are drafted by the assistant until the project owner reviews "
+            "them; agreement against drafted labels is not yet agreement with "
+            "expert judgement."
+        )
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -73,11 +92,8 @@ def main() -> int:
                 "n_cases": len(cases),
                 "agreement": agg,
                 "label_status": agg.get("label_status"),
-                "note": (
-                    "Labels are drafted by the assistant until the project owner "
-                    "reviews them; agreement against drafted labels is not yet "
-                    "agreement with expert judgement."
-                ),
+                "reviewed_on": review_dates,
+                "note": label_note,
             },
             indent=2,
             sort_keys=True,
@@ -94,7 +110,7 @@ def main() -> int:
         "# V2.1 — expert agreement of the applicability rubric",
         "",
         f"rubric: `{args.rubric_version}` · cases: {len(cases)} (PRIVATE set, "
-        "labels drafted, pending owner review)",
+        f"{label_status_text})",
         "",
         "| scope | n | decision agreement | full agreement | ambiguous | mismatched decisions |",
         "|---|---:|---:|---:|---:|---:|",
@@ -108,8 +124,9 @@ def main() -> int:
         )
     lines += [
         "",
-        f"Label status: {agg.get('label_status', {}).get('drafted', 0)} drafted, "
-        f"{agg.get('label_status', {}).get('reviewed', 0)} reviewed.",
+        f"Label status: {n_drafted} drafted, {n_reviewed} reviewed"
+        + (f" (reviewed on {', '.join(review_dates)})" if review_dates else "")
+        + ".",
         "",
         "## Mismatches",
         "",
