@@ -28,11 +28,14 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   in `data/raw_documents/chen2020_supplement/ACQUISITION.md`; the
   owner-supplied PDF was ingested locally with `scripts/fetch_chen2020.py`
   (hash-verified; not redistributed at the time).
-- **Redistribution decision (owner, 2026-11-22):** the unmodified PDF is now
-  tracked at `data/raw_documents/chen2020_jes_167_080534/` (CC BY-NC-ND 4.0,
-  unchanged, cited); derived text extracts stay gitignored (no-derivatives
-  line) and the supplement stays fetched-only. `.gitignore`, README and the
-  provenance/ingestion docs were updated accordingly.
+- **Redistribution decision (owner, final 2026-11-22):** the PDF was briefly
+  tracked in commit `b6c2b36` and then **untracked** at HEAD — the owner
+  reversed the tracking decision over licensing concerns. The licence stays
+  verified CC BY-NC-ND 4.0, but the fetched-only policy is restored: derived
+  text extracts and the supplement stay gitignored/fetched-only. `.gitignore`,
+  README and the provenance/ingestion docs were updated accordingly. The PDF
+  blob remains reachable in git history from `b6c2b36` (no history rewrite
+  per the hard operating rule).
 - **Licence verified** from the article PDF's own first page: **CC BY-NC-ND
   4.0** (verbatim statement recorded in `docs/DATA_PROVENANCE.md`), resolving
   the earlier UNVERIFIED status; the redistribution policy stays fetched-only

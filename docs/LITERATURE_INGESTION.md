@@ -38,12 +38,11 @@ The Chen2020 article (DOI 10.1149/1945-7111/ab9050, text originally retrieved
 (2026-11-22; verbatim statement in `docs/DATA_PROVENANCE.md`), which confirms
 the University of Warwick repository listing and supersedes the earlier
 "UNVERIFIED / ECS ©" status (the publisher page returned HTTP 500 on
-2026-11-19 and the DOI resolver returned citation metadata only). The
-unmodified PDF is tracked at
-`data/raw_documents/chen2020_jes_167_080534/chen2020_jes_167_080534_article.pdf`
-(owner decision 2026-11-22); the derived text extracts are not tracked — run
-`scripts/fetch_chen2020.py --pdf <tracked PDF>` to ingest them locally before
-running text-dependent fixtures.
+2026-11-19 and the DOI resolver returned citation metadata only). The PDF is
+**not tracked** (owner reversed the tracking decision 2026-11-22 over
+licensing concerns; blob remains in history from `b6c2b36`): supply it locally
+and run `scripts/fetch_chen2020.py --pdf <local PDF>` to ingest the text
+extracts before running text-dependent fixtures.
 
 ## 2. Retrieval (Part C)
 

@@ -24,7 +24,7 @@ recorded license evidence.
 | Dessantis et al. 2023 (Batteries 9:146) | `data/raw_documents/dessantis2023_batteries9_0146/` | **CC BY 4.0** (verified) | same |
 | Goussian et al. 2024 (Batteries 10:205) | `data/raw_documents/goussian2024_batteries10_00205/` | **CC BY 4.0** (verified) | same; no numeric cell parameters (data confidential) |
 | PyBaMM parameter-sets documentation snapshot | `data/raw_documents/pybamm_parameter_sets_docs/` | PyBaMM project docs (PyBaMM code is **BSD 3-Clause**, verified below; the docs snapshot itself has no explicit licence evidence recorded) | ingested text snapshot |
-| Chen2020 **PDF + text** extract (article) | PDF **tracked** at `data/raw_documents/chen2020_jes_167_080534/` (owner decision 2026-11-22); text extract not tracked | **CC BY-NC-ND 4.0** (verified in the PDF text, 2026-11-22; see the single statement below) | unmodified PDF redistributed with citation; raw text and segments stay gitignored — regenerate locally from the tracked PDF |
+| Chen2020 **PDF + text** extract (article) | **Not tracked** — owner reversed the tracking decision on 2026-11-22 over licensing concerns; supply the PDF locally and verify via `scripts/fetch_chen2020.py` | **CC BY-NC-ND 4.0** (verified in the PDF text, 2026-11-22; see the single statement below) | PDF and derived text extracts are gitignored; the PDF blob remains in retained git history from commit `b6c2b36` (no history rewrite per the hard operating rule) |
 | Benchmark fixtures & derived results | `data/eval/`, `results/p4/`, `results/p5/`, `data/registry/` | produced by this project (MIT, subject to underlying source terms noted per item) | include recorded provenance/qualifiers; raw model outputs preserved |
 
 License evidence and sha256: `data/raw_documents/p5_sources/acquisition_manifest.json`.
@@ -50,26 +50,25 @@ License evidence and sha256: `data/raw_documents/p5_sources/acquisition_manifest
   earlier files) is superseded. The publisher-page check of **2026-11-19**
   (HTTP 500; DOI resolver returned citation metadata only) is retained as
   historical record.
-- **Redistribution policy (owner decision 2026-11-22):** the **unmodified
-  PDF is tracked** in this repository at
-  `data/raw_documents/chen2020_jes_167_080534/chen2020_jes_167_080534_article.pdf`
-  under the terms above (non-commercial, unchanged, cited — this file and
-  `docs/DATA_PROVENANCE.md` constitute the citation/attribution record).
-  Derived **text extracts stay untracked** (gitignored; the no-derivatives
-  line: only the original is redistributed). The supplement remains
-  fetched-only (its licence is unverified).
+- **Redistribution policy (owner decision, final 2026-11-22):** the PDF was
+  briefly tracked and is now **untracked** at HEAD — the owner reversed the
+  tracking decision over licensing concerns. The licence remains verified
+  **CC BY-NC-ND 4.0** from the PDF's own first page (statement above), but the
+  repo keeps the conservative **fetched-only** policy: supply the PDF locally
+  and verify its sha256 with `scripts/fetch_chen2020.py`. The **PDF blob is
+  still reachable in git history from commit `b6c2b36`**; removing it from
+  history would require a rewrite, which the hard operating rule forbids.
+  Derived text extracts and the supplement stay untracked/fetched-only.
 - The article text was originally retrieved **2026-11-04** (recorded in
   `documents.json` before untracking).
 
 ### Local ingest of the Chen2020 article (no automatic download)
 
-The unmodified publisher PDF is **tracked** in this repository (owner decision
-2026-11-22; licence section above). The derived text extracts are **not
-tracked**: run `scripts/fetch_chen2020.py --pdf
-data/raw_documents/chen2020_jes_167_080534/chen2020_jes_167_080534_article.pdf`
-and the script verifies the checksum before ingesting into
-`data/literature_store/` with the existing ingest code. The generated raw
-text/segments are gitignored.
+The publisher PDF is **not tracked** (owner decision 2026-11-22; licence
+section above). Supply it locally, then run
+`scripts/fetch_chen2020.py --pdf <path-to-local-pdf>`; the script verifies the
+checksum before ingesting into `data/literature_store/` with the existing
+ingest code. The generated raw text/segments are gitignored.
 
 **Text-extract discrepancy (recorded 2026-11-22, disclosed not smoothed).**
 The pypdf extraction of the owner-supplied PDF hashes to
