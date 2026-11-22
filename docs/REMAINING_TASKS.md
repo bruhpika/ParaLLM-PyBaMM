@@ -28,9 +28,10 @@ applied below.
 - [x] **Verified 2026-11-22** from the PDF's own first page: **CC BY-NC-ND
       4.0** (verbatim statement in `docs/DATA_PROVENANCE.md`). This confirms
       the Warwick repository listing and supersedes the "ECS ©" assumption.
-- [ ] Owner decision (non-blocking): keep the fetched-only redistribution
-      policy or switch to unmodified non-commercial redistribution with
-      citation (both permitted; current policy stays until the owner decides).
+- [x] **Redistribution policy decided 2026-11-22 (owner):** track the
+      **unmodified PDF** at `data/raw_documents/chen2020_jes_167_080534/`
+      (non-commercial, unchanged, cited). Derived text extracts stay
+      gitignored; the supplement remains fetched-only (licence unverified).
 
 ### 3. Applicability labels
 

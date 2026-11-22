@@ -21,8 +21,9 @@ secrets/
 data/raw_documents/chen2020_supplement/JES_167_8_080534_suppdata.pdf
 data/raw_documents/chen2020_supplement/suppdata_fulltext.txt
 
-# Chen2020 article: acquire the PDF and ingest locally via scripts/fetch_chen2020.py
-data/raw_documents/chen2020_jes_167_080534/*.pdf
+# Chen2020 article PDF is tracked verbatim (CC BY-NC-ND 4.0, cited; owner
+# decision 2026-11-22). Derived text extracts and the store corpus stay
+# gitignored; regenerate locally via scripts/fetch_chen2020.py.
 data/raw_documents/chen2020_jes_167_080534/chen2020_jes_167_080534_fulltext.txt
 data/literature_store/raw/chen2020_jes_167_080534.txt
 data/literature_store/segments/chen2020_jes_167_080534.json

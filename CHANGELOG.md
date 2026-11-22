@@ -20,7 +20,12 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   (`ab629418ba0edc3f81122354e3fc7b02b58f1bbe8bb0a86073f8ea7b1a05f022`)
   in `data/raw_documents/chen2020_supplement/ACQUISITION.md`; the
   owner-supplied PDF was ingested locally with `scripts/fetch_chen2020.py`
-  (hash-verified; not redistributed).
+  (hash-verified; not redistributed at the time).
+- **Redistribution decision (owner, 2026-11-22):** the unmodified PDF is now
+  tracked at `data/raw_documents/chen2020_jes_167_080534/` (CC BY-NC-ND 4.0,
+  unchanged, cited); derived text extracts stay gitignored (no-derivatives
+  line) and the supplement stays fetched-only. `.gitignore`, README and the
+  provenance/ingestion docs were updated accordingly.
 - **Licence verified** from the article PDF's own first page: **CC BY-NC-ND
   4.0** (verbatim statement recorded in `docs/DATA_PROVENANCE.md`), resolving
   the earlier UNVERIFIED status; the redistribution policy stays fetched-only

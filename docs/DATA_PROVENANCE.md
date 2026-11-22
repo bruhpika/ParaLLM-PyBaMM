@@ -24,7 +24,7 @@ recorded license evidence.
 | Dessantis et al. 2023 (Batteries 9:146) | `data/raw_documents/dessantis2023_batteries9_0146/` | **CC BY 4.0** (verified) | same |
 | Goussian et al. 2024 (Batteries 10:205) | `data/raw_documents/goussian2024_batteries10_00205/` | **CC BY 4.0** (verified) | same; no numeric cell parameters (data confidential) |
 | PyBaMM parameter-sets documentation snapshot | `data/raw_documents/pybamm_parameter_sets_docs/` | PyBaMM project docs (PyBaMM code is **BSD 3-Clause**, verified below; the docs snapshot itself has no explicit licence evidence recorded) | ingested text snapshot |
-| Chen2020 **text** extract (article) | not tracked; fetch + verify locally via `scripts/fetch_chen2020.py` | **CC BY-NC-ND 4.0** (verified in the PDF text, 2026-11-22; see the single statement below) | raw text and segments were removed from git tracking; regenerate locally from an owner-supplied PDF |
+| Chen2020 **PDF + text** extract (article) | PDF **tracked** at `data/raw_documents/chen2020_jes_167_080534/` (owner decision 2026-11-22); text extract not tracked | **CC BY-NC-ND 4.0** (verified in the PDF text, 2026-11-22; see the single statement below) | unmodified PDF redistributed with citation; raw text and segments stay gitignored — regenerate locally from the tracked PDF |
 | Benchmark fixtures & derived results | `data/eval/`, `results/p4/`, `results/p5/`, `data/registry/` | produced by this project (MIT, subject to underlying source terms noted per item) | include recorded provenance/qualifiers; raw model outputs preserved |
 
 License evidence and sha256: `data/raw_documents/p5_sources/acquisition_manifest.json`.
@@ -50,20 +50,26 @@ License evidence and sha256: `data/raw_documents/p5_sources/acquisition_manifest
   earlier files) is superseded. The publisher-page check of **2026-11-19**
   (HTTP 500; DOI resolver returned citation metadata only) is retained as
   historical record.
-- **Redistribution policy: unchanged.** The text stays **not redistributed**
-  in this repository (fetched and verified locally). CC BY-NC-ND 4.0 would
-  permit unmodified non-commercial redistribution with citation, but changing
-  the distribution policy is an owner decision (`docs/REMAINING_TASKS.md`
-  item 2).
+- **Redistribution policy (owner decision 2026-11-22):** the **unmodified
+  PDF is tracked** in this repository at
+  `data/raw_documents/chen2020_jes_167_080534/chen2020_jes_167_080534_article.pdf`
+  under the terms above (non-commercial, unchanged, cited — this file and
+  `docs/DATA_PROVENANCE.md` constitute the citation/attribution record).
+  Derived **text extracts stay untracked** (gitignored; the no-derivatives
+  line: only the original is redistributed). The supplement remains
+  fetched-only (its licence is unverified).
 - The article text was originally retrieved **2026-11-04** (recorded in
   `documents.json` before untracking).
 
-### Local fetch of the Chen2020 article (no automatic download)
+### Local ingest of the Chen2020 article (no automatic download)
 
-The full article text is **not redistributed**. Supply the publisher PDF
-yourself and run `scripts/fetch_chen2020.py --pdf <path>`; the script verifies
-the checksum before ingesting into `data/literature_store/` with the existing
-ingest code. The generated raw text/segments and any local PDF are gitignored.
+The unmodified publisher PDF is **tracked** in this repository (owner decision
+2026-11-22; licence section above). The derived text extracts are **not
+tracked**: run `scripts/fetch_chen2020.py --pdf
+data/raw_documents/chen2020_jes_167_080534/chen2020_jes_167_080534_article.pdf`
+and the script verifies the checksum before ingesting into
+`data/literature_store/` with the existing ingest code. The generated raw
+text/segments are gitignored.
 
 **Text-extract discrepancy (recorded 2026-11-22, disclosed not smoothed).**
 The pypdf extraction of the owner-supplied PDF hashes to

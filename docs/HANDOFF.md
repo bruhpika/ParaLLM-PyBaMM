@@ -217,14 +217,17 @@ All branches were merged into `main` at commit `e2cc7ab` and pushed.
 ## 7. Open owner decisions (blocking)
 
 Owner decisions recorded 2026-11-20 are applied in
-`docs/REMAINING_TASKS.md`. The 2026-11-22 hash confirmation closed items 1
-and 3; the licence is verified from the PDF. Remaining open:
+`docs/REMAINING_TASKS.md`. The 2026-11-22 decisions (hash confirmation,
+licence verification, redistribution policy) closed the provenance items.
+Remaining open:
 
-1. **Redistribution policy** for the Chen2020 article (non-blocking): the PDF
-   states CC BY-NC-ND 4.0 (verified 2026-11-22, verbatim statement in
-   `docs/DATA_PROVENANCE.md`), which permits unmodified non-commercial
-   redistribution with citation. The repo keeps the conservative fetched-only
-   policy until the owner decides otherwise.
+1. **V2.6 go-ahead** — all four gate milestones (V2.1–V2.4) meet their exit
+   criteria; starting the closed loop is an owner call (the working plan also
+   tracks the V2.5 exit criterion first).
+2. **Live runs** — approved in principle; execution needs `PYCL_LLM_API_KEY`,
+   `PYCL_LLM_MODEL`, `PYCL_LLM_BASE_URL` in the environment.
+3. **PyPI publish** — credentials + version decision.
+4. **GitHub Pages** — enable in Settings → Pages → Source: GitHub Actions.
 
 Recorded decisions: the 24 applicability labels are owner-approved and the
 review metadata is recorded; V2.5 continues with evidence-layer work; the
@@ -234,7 +237,9 @@ validation; the Chen2020 PDF sha256
 (`99d8f38a383e367aba5a8c3de74fdaf6ca9051842b0ddd75ca3ef1a238afb551`) and
 supplement sha256
 (`ab629418ba0edc3f81122354e3fc7b02b58f1bbe8bb0a86073f8ea7b1a05f022`) are
-owner-confirmed and recorded.
+owner-confirmed and recorded; the article's **unmodified PDF is tracked**
+under CC BY-NC-ND 4.0 with citation (2026-11-22), text extracts stay
+gitignored, the supplement stays fetched-only.
 
 ## 8. Next step: prepared live runs (DO NOT RUN without approval)
 

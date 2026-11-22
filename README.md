@@ -190,7 +190,7 @@ documents, papers or datasets. Source terms and provenance are recorded in
 
 | document / data | licence (evidence) | text in this repo |
 |---|---|---|
-| Chen2020 article, JES 167 080534 (doi `10.1149/1945-7111/ab9050`) | **CC BY-NC-ND 4.0** (verified in the PDF text, 2026-11-22; verbatim statement in `docs/DATA_PROVENANCE.md`) | **Not tracked** — supply the PDF and run `scripts/fetch_chen2020.py --pdf <path>`; the script verifies the sha256 before local ingest |
+| Chen2020 article, JES 167 080534 (doi `10.1149/1945-7111/ab9050`) | **CC BY-NC-ND 4.0** (verified in the PDF text, 2026-11-22; verbatim statement in `docs/DATA_PROVENANCE.md`) | **PDF tracked verbatim** (unmodified, cited, non-commercial) at `data/raw_documents/chen2020_jes_167_080534/`; derived text extracts not tracked — regenerate with `scripts/fetch_chen2020.py` |
 | Chen2020 supplementary information | No licence evidence (ECS ©, permission unverified) | **Not tracked** — PDF and derived text/segments acquired locally; see `data/raw_documents/chen2020_supplement/ACQUISITION.md` |
 | Laue et al. 2021 | **CC BY 4.0** (licence quote + sha256 verified in the manifest) | Tracked PDF and derived text/segments |
 | Dessantis et al. 2023 | **CC BY 4.0** (verified) | Tracked PDF and derived text/segments |
