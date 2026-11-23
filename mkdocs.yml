@@ -6,12 +6,16 @@ edit_uri: edit/main/docs/
 theme:
   name: material
   palette:
-    primary: white
-    accent: blue
+    scheme: slate
+    primary: cyan
+    accent: cyan
   features:
     - navigation.sections
+    - navigation.path
     - navigation.top
     - content.code.copy
+extra_css:
+  - assets/stylesheets/parallm.css
 nav:
   - Home: index.md
   - Getting started:
@@ -28,6 +32,7 @@ nav:
       - Architecture: ARCHITECTURE.md
       - CLI capability matrix: CLI_CAPABILITY_MATRIX.md
       - CLI design system: CLI_DESIGN_SYSTEM.md
+      - JSON export trust model: JSON_EXPORT_TRUST_MODEL.md
       - Revised architecture: REVISED_ARCHITECTURE.md
       - Parameter registry: PARAMETER_REGISTRY.md
       - Parameter selection: PARAMETER_SELECTION.md
@@ -55,11 +60,9 @@ nav:
       - Dependency compatibility: DEPENDENCY_COMPATIBILITY.md
       - Ecosystem audit: ECOSYSTEM_AUDIT.md
   - Roadmap:
-      - Development roadmap: DEVELOPMENT_ROADMAP.md
       - Roadmap v0.2: ROADMAP_V0.2.md
       - V2 execution plan: V2_EXECUTION_PLAN.md
       - V2 private v4 benchmark: V2_PRIVATE_V4_BENCHMARK.md
-      - Integration plan: INTEGRATION_PLAN.md
       - CLI release checklist: CLI_RELEASE_CHECKLIST.md
 markdown_extensions:
   - admonition
@@ -74,6 +77,9 @@ exclude_docs: |
   internal/
   HANDOFF.md
   REMAINING_TASKS.md
+  DEVELOPMENT_ROADMAP.md
+  INTEGRATION_PLAN.md
+  RELEASE_READINESS_AUDIT.md
 validation:
   nav:
     omitted_files: info

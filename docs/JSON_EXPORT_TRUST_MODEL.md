@@ -1,9 +1,9 @@
 # JSON Export Trust Model and Schema — Design Proposal
 
-**Status:** proposal only. No implementation, schema file, test, or source change is included.  
-**Date:** 2026-11-23  
-**Scope:** `parallm export --format json` and its relationship to assembly, approval, validation, provenance and the PyBaMM overlay.  
-**Notation:** fields marked `[PROPOSED]` do not yet exist in the repository. Everything else is taken from current code, fixtures or tests.
+**Status:** implemented; see §11–12 for implementation status and adversarial-audit remediation.<br>
+**Date:** 2026-11-23<br>
+**Scope:** `parallm export --format json` and its relationship to assembly, approval, validation, provenance and the PyBaMM overlay.<br>
+**Notation:** fields marked `[PROPOSED]` in §§1–10 describe the original design; §§11–12 record what is implemented. Everything else is taken from current code, fixtures or tests.
 
 ---
 

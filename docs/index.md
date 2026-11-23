@@ -1,30 +1,39 @@
 # PARALLM
 
-**PARALLM** is a research framework for parameterizing physics-based
-lithium-ion battery models built on PyBaMM. Its unit of work is the
-**per-parameter dossier**: literature evidence -> applicability/conflict
-assembly -> dossier with a mandatory human approval gate ->
-observability-based CALIBRATE/FIX/MEASURE decisions.
+LLM-assisted, provenance-grounded parameterization for PyBaMM.
 
-This site documents the scientific scope, architecture, benchmarks and
-limitations. The LLM reads evidence and proposes; it never decides values.
+PARALLM's unit of work is the **per-parameter dossier**: literature evidence ->
+applicability/conflict assembly -> dossier with a mandatory human approval gate
+-> observability-based CALIBRATE/FIX/MEASURE decisions. The LLM reads evidence
+and proposes; it never decides values.
 
 ## Start here
 
-- [Quickstart](QUICKSTART.md)
-- [Installation](INSTALLATION.md)
-- [Examples gallery](examples.md)
-- [Benchmark results](BENCHMARK_RESULTS.md)
-- [Scientific limitations](SCIENTIFIC_LIMITATIONS.md)
-
-## Repository
-
-- [GitHub repository](https://github.com/bruhpika/ParaLLM-PyBaMM)
-- [Issue tracker](https://github.com/bruhpika/ParaLLM-PyBaMM/issues)
+<div class="pl-card-grid">
+  <a class="pl-card" href="QUICKSTART/">
+    <span class="pl-card__label">Quickstart</span>
+    <span class="pl-card__hint">First end-to-end run</span>
+  </a>
+  <a class="pl-card" href="INSTALLATION/">
+    <span class="pl-card__label">Installation</span>
+    <span class="pl-card__hint">Environment and dependencies</span>
+  </a>
+  <a class="pl-card" href="CLI/">
+    <span class="pl-card__label">CLI guide</span>
+    <span class="pl-card__hint">Commands, statuses and error codes</span>
+  </a>
+  <a class="pl-card" href="BENCHMARK_RESULTS/">
+    <span class="pl-card__label">Benchmark results</span>
+    <span class="pl-card__hint">Committed scientific results</span>
+  </a>
+</div>
 
 ## Scientific stance
 
-Every number in the results sections comes from a committed file under
-`results/`. Synthetic recovery is not experimental validation; a successful
-optimization is not parameter identifiability. See
-[Scientific limitations](SCIENTIFIC_LIMITATIONS.md).
+!!! note "Scientific stance"
+    Every number in the results sections comes from a committed file under
+    `results/`. Synthetic recovery is not experimental validation; a successful
+    optimization is not parameter identifiability. See
+    [Scientific limitations](SCIENTIFIC_LIMITATIONS.md).
+
+<div class="pl-next">next: parallm doctor</div>

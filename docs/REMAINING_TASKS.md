@@ -182,3 +182,12 @@ Expected outputs: `results/p5/benchmark_v3/raw_outputs_retrieval_bm25_tuned_stri
 (private; public summary regenerated from them). After the runs, close the
 "oracle vs BM25 baseline vs tuned BM25 side-by-side" item above using the
 committed results files.
+
+## Future to-dos
+
+Owner-requested (2026-11-23):
+
+- [ ] Cut a new release (version/tag decision + release notes)
+- [ ] Add contributor information (e.g. CONTRIBUTORS.md or a README contributors section)
+- [ ] Clean up the README further
+- [ ] Publish/package to GitHub Packages (registry, auth and version decision)
