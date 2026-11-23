@@ -12,6 +12,17 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Deferred live runs — supplement text restored locally (2026-11-22)
+
+- Restored the Chen2020 supplement corpus locally from retained git history
+  (raw text blob `d7b4ccad…`, sha `80f2c08b…` verified against
+  `ACQUISITION.md`; segments blob `1a95b7ad…`; manifest entry from
+  `7e1c54d…`). Store files stay gitignored; only the `documents.json` entry
+  is tracked.
+- Live-guard dry-run now covers the full **37 v3 items / 111 calls** (~1.528M
+  prompt tokens) and 30 v4 items / 90 calls. Live runs remain deferred until
+  the owner exports `PYCL_LLM_*` and says go; no model call was made.
+
 ### Milestone decisions (2026-11-22)
 
 - **V2.6 held (owner):** the closed loop does not start until the V2.5 exit

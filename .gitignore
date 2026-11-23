@@ -30,6 +30,10 @@ data/raw_documents/chen2020_jes_167_080534/chen2020_jes_167_080534_fulltext.txt
 data/literature_store/raw/chen2020_jes_167_080534.txt
 data/literature_store/segments/chen2020_jes_167_080534.json
 
+# Chen2020 supplement: licence unverified — derived text/segments stay local
+data/literature_store/raw/chen2020_supplement_s1.txt
+data/literature_store/segments/chen2020_supplement_s1.json
+
 # Private v4 benchmark corpus + fixture (NOT published; see docs/ROADMAP_V0.2.md)
 data/private_v4/
 

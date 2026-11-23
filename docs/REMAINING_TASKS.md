@@ -125,7 +125,7 @@ applied below.
 - [ ] V2.7: PyPI publish (credentials + version decision). Docs site, examples
       gallery and the v4a mini-benchmark are landed.
 - [ ] **Live LLM runs — DEFERRED (owner said "later", 2026-11-22; env vars
-      not set).** v3 35 items / 105 calls, v4 30 items / 90 calls; full
+      not set).** v3 37 items / 111 calls, v4 30 items / 90 calls; full
       commands, outputs and guard behaviour under "Deferred work" below.
 - [ ] Enable GitHub Pages (Settings -> Pages -> Source: GitHub Actions) so the
       docs workflow can deploy. The build is green and the site artifact is
@@ -143,10 +143,10 @@ export PYCL_LLM_API_KEY=... PYCL_LLM_MODEL=... PYCL_LLM_BASE_URL=...
   --modes retrieval_tuned --repeats 3 --live
 ```
 
-Dry-run estimates (live-guard planner, 2026-11-22): v3 **35 items / 105
-calls** (2 supplement items skip — supplement text not ingested locally;
-35/105 becomes 37/111 if it is restored), v4 30 items / 90 calls. No model
-call or download has been made for these runs.
+Dry-run estimates (live-guard planner, 2026-11-22, after restoring the
+supplement text): v3 **37 items / 111 calls**, ~509.4k prompt tokens/run
+(~1.528M total); v4 30 items / 90 calls, ~366.2k tokens/run (~1.099M total).
+No model call or download has been made for these runs.
 
 ## Deferred work (future sessions)
 
@@ -156,15 +156,14 @@ Preconditions:
 1. Export `PYCL_LLM_API_KEY`, `PYCL_LLM_MODEL`, `PYCL_LLM_BASE_URL` in the
    environment of the run (they were **not set** in the agent shell as of
    2026-11-22; the owner will export them and say "go").
-2. Article text is already restored locally (store + quote-verification
-   archive); the PDF itself is not tracked (owner licensing decision).
-3. Optional: restore the local supplement text (git history blob
-   `1012fbd3501b9fab4086501118769450d1286853`, expected extract sha256
-   `80f2c08bc079ebe63070d181a46a23e68f837cfdbacb6f657f7381bd062e81dd`)
-   to include the 2 skipped v3 items → 37 items / 111 calls. Verify the
-   regenerated text hash before using supplement-derived items.
-4. Re-run the dry-run planner after any corpus change to refresh counts and
-   token estimates.
+2. Article and supplement texts are restored locally (store +
+   quote-verification archive); the article PDF itself is not tracked (owner
+   licensing decision). Supplement restored 2026-11-22 from git-history blobs
+   `d7b4ccad…` (raw text, sha `80f2c08b…` verified) and `1a95b7ad…`
+   (segments); its manifest entry was restored from `7e1c54d…`. Store files
+   are gitignored except the `documents.json` manifest entry.
+3. Re-run the dry-run planner after any corpus change to refresh counts and
+   token estimates (done 2026-11-22: **37 items / 111 calls** for v3).
 
 Commands (live guard: `--live` mandatory; existing raw outputs are never
 overwritten without `--overwrite` — a fresh timestamped directory is used):
