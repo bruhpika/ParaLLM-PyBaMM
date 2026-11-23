@@ -254,14 +254,14 @@ PYTHONPATH=src:benchmarks/v2 .venv/bin/python \
 
 Env vars required for live runs: `PYCL_LLM_API_KEY`, `PYCL_LLM_MODEL`,
 `PYCL_LLM_BASE_URL`. Dry-run token estimate uses chars/4 and no tokenizer
-download. Current dry-run estimates: v3 22 locally available items, 66 calls,
-~158.5k prompt tokens/run (~475.5k total); v4 30 items, 90 calls, ~366.2k
-tokens/run (~1.099M total).
+download. **Dry-run 2026-11-22** (both planner runs repeated after the article
+ingest): v3 **35 items / 105 calls**, ~500.6k prompt tokens/run (~1.502M
+total); v4 30 items / 90 calls, ~366.2k tokens/run (~1.099M total). The 2
+supplement items skip because the supplement text is not ingested locally;
+restoring it would give the full 37 items / 111 calls.
 
-**The v3 live run requires the local Chen2020 article ingest first**:
-fill the PDF hash TODO, supply the publisher PDF, then run
-`scripts/fetch_chen2020.py --pdf <path>`; after ingest v3 covers 37 items /
-111 calls and the dry-run should be repeated for an exact token estimate.
+The Chen2020 article text is restored locally (store + quote-verification
+archive); the PDF itself is not tracked (owner decision 2026-11-22).
 
 Prepared live commands (each needs owner approval and `--live`):
 

@@ -140,6 +140,7 @@ export PYCL_LLM_API_KEY=... PYCL_LLM_MODEL=... PYCL_LLM_BASE_URL=...
   --modes retrieval_tuned --repeats 3 --live
 ```
 
-Dry-run estimates (article text ingested 2026-11-22): v3 covers 37 items /
-111 calls; v4 30 items / 90 calls. No model call or download has been made
-for these runs.
+Dry-run estimates (live-guard planner, 2026-11-22): v3 **35 items / 105
+calls** (2 supplement items skip — supplement text not ingested locally;
+35/105 becomes 37/111 if it is restored), v4 30 items / 90 calls. No model
+call or download has been made for these runs.
