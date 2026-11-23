@@ -124,6 +124,9 @@ applied below.
       until then.
 - [ ] V2.7: PyPI publish (credentials + version decision). Docs site, examples
       gallery and the v4a mini-benchmark are landed.
+- [ ] **Live LLM runs — DEFERRED (owner said "later", 2026-11-22; env vars
+      not set).** v3 35 items / 105 calls, v4 30 items / 90 calls; full
+      commands, outputs and guard behaviour under "Deferred work" below.
 - [ ] Enable GitHub Pages (Settings -> Pages -> Source: GitHub Actions) so the
       docs workflow can deploy. The build is green and the site artifact is
       uploaded; deploy fails harmlessly until Pages is enabled.
@@ -144,3 +147,39 @@ Dry-run estimates (live-guard planner, 2026-11-22): v3 **35 items / 105
 calls** (2 supplement items skip — supplement text not ingested locally;
 35/105 becomes 37/111 if it is restored), v4 30 items / 90 calls. No model
 call or download has been made for these runs.
+
+## Deferred work (future sessions)
+
+### Live LLM runs — owner said "later" (2026-11-22)
+
+Preconditions:
+1. Export `PYCL_LLM_API_KEY`, `PYCL_LLM_MODEL`, `PYCL_LLM_BASE_URL` in the
+   environment of the run (they were **not set** in the agent shell as of
+   2026-11-22; the owner will export them and say "go").
+2. Article text is already restored locally (store + quote-verification
+   archive); the PDF itself is not tracked (owner licensing decision).
+3. Optional: restore the local supplement text (git history blob
+   `1012fbd3501b9fab4086501118769450d1286853`, expected extract sha256
+   `80f2c08bc079ebe63070d181a46a23e68f837cfdbacb6f657f7381bd062e81dd`)
+   to include the 2 skipped v3 items → 37 items / 111 calls. Verify the
+   regenerated text hash before using supplement-derived items.
+4. Re-run the dry-run planner after any corpus change to refresh counts and
+   token estimates.
+
+Commands (live guard: `--live` mandatory; existing raw outputs are never
+overwritten without `--overwrite` — a fresh timestamped directory is used):
+
+```bash
+PYTHONPATH=src:benchmarks/v2 .venv/bin/python \
+  benchmarks/v2/prepare_live_retrieval.py --benchmark both --repeats 3   # re-check first
+.venv-ecosystem312/bin/python benchmarks/p5/run_ablation.py \
+  --condition retrieval_bm25_tuned_strict --repeats 3 --live
+.venv-ecosystem312/bin/python benchmarks/v2/run_v4_evaluation.py \
+  --modes retrieval_tuned --repeats 3 --live
+```
+
+Expected outputs: `results/p5/benchmark_v3/raw_outputs_retrieval_bm25_tuned_strict_r{0,1,2}.jsonl`
++ aggregate; `data/private_v4/results/raw_retrieval_tuned_r{0,1,2}.jsonl`
+(private; public summary regenerated from them). After the runs, close the
+"oracle vs BM25 baseline vs tuned BM25 side-by-side" item above using the
+committed results files.

@@ -245,6 +245,10 @@ gitignored, the supplement stays fetched-only.
 
 ## 8. Next step: prepared live runs (DO NOT RUN without approval)
 
+**Deferred 2026-11-22** (owner said "later"; env vars not set in the agent
+shell). Full deferred handoff, preconditions, commands, outputs and guard
+behaviour: `docs/REMAINING_TASKS.md` → "Deferred work (future sessions)".
+
 Dry-run command (no model client, no API call):
 
 ```bash
