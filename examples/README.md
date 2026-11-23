@@ -10,6 +10,7 @@ no network call and no LLM call. Each example writes its outputs under
 | `01_retrieval_recall.py` | Gold-passage recall@k for the real BM25 retrieval arm on the public v3 benchmark | core install |
 | `02_synthetic_validation_figure.py` | Regenerates the V2.4 held-out RMSE figure (5-seed stability + 18-run mismatch) | core install |
 | `03_assemble_dossiers.py` | Per-parameter dossier assembly over the committed LG M50 registry | core install |
+| `candidate_archived.json` | Archived extraction candidate used by the CLI validation demo (verbatim from `results/p4/benchmark_v2/raw_outputs_llm_rag.jsonl`, item `V1-porosity-prose`, first candidate) | CLI demo |
 
 ## Run
 

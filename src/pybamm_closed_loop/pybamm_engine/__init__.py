@@ -11,6 +11,8 @@ from pybamm_closed_loop.pybamm_engine.engine import (
     build_parameter_values,
     build_simulation,
     build_solver,
+    installed_parameter_sets,
+    installed_parameter_names,
     run,
     save_result,
 )
@@ -32,6 +34,8 @@ __all__ = [
     "build_simulation",
     "build_solver",
     "extract_all",
+    "installed_parameter_sets",
+    "installed_parameter_names",
     "run",
     "save_result",
 ]

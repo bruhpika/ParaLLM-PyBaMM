@@ -15,7 +15,7 @@ Design commitments:
 from __future__ import annotations
 
 from .dossier import check_traceability, dossier, to_markdown
-from .gate import ApprovalGate, ApprovalRecord
+from .gate import ApprovalGate, ApprovalRecord, GateValidationError, validate_gate_records
 from .observability import (
     ObservabilityAssessment,
     load_observability,
@@ -41,6 +41,8 @@ from .schema import (
 __all__ = [
     "ApprovalGate",
     "ApprovalRecord",
+    "GateValidationError",
+    "validate_gate_records",
     "AssemblyReport",
     "CandidateValue",
     "ConditionFacts",

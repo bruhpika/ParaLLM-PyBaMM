@@ -1,0 +1,19 @@
+{
+  "cell_config": "UNRESOLVED",
+  "context": "Parameterization of the cell model; different methods gave different estimates of the electrolyte volume fraction, so the average of the estimates was adopted as the parameter value.",
+  "definition": "Electrolyte volume fraction (porosity) in the positive electrode, reported as 33.5%; taken as the average of estimates obtained from the different methods used (including FIB-SEM imaging of the electrode).",
+  "material": "positive electrode (cathode)",
+  "measurement_method": "FIB-SEM imaging combined with other estimation methods; value is the average across methods",
+  "parameter_name": "electrolyte_volume_fraction",
+  "qualifier": "calculated",
+  "reported_uncertainty": null,
+  "source": {
+    "document_id": "chen2020_jes_167_080534",
+    "locator": null,
+    "page": null,
+    "quote": "Given the different estimations of the electrolyte volume fraction obtained from each method, we take the average between them as our parameter values. This gives an electrolyte volume fraction of 33.5% in the positive electrode and of 25% in the negative electrode."
+  },
+  "temperature": null,
+  "unit": "dimensionless",
+  "value": 0.335
+}

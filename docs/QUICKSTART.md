@@ -4,6 +4,24 @@ All commands run from the repo root. Core examples use `.venv`; PyBOP/benchmark
 examples use `.venv-ecosystem312` (see `docs/INSTALLATION.md`). No API keys are
 needed except the optional P5 LLM ablation (env vars, never committed).
 
+## 0) First CLI run
+
+`parallm init` creates directories and a user-level TOML configuration; it never
+installs packages and has a non-interactive path for scripts:
+
+```bash
+parallm init --workspace ./battery-research --non-interactive
+parallm doctor
+parallm status
+```
+
+The configuration is written to `~/.config/parallm/config.toml` by default.
+Relative `[paths]` entries resolve against the workspace. Scientific commands
+below take explicit `--registry`/`--documents` paths, so they work from the repo
+root even if the new workspace has no registry yet. No approval gate file is
+shipped: `assemble` works without `--gate` and writes an empty approved export
+until human approvals are recorded (see `docs/CLI.md`).
+
 ## 1) Reproducible PyBaMM baseline (P0)
 
 ```bash
@@ -16,18 +34,19 @@ IDAKLUSolver `rtol=atol=1e-6`, experiment `Discharge at 1C until 2.5 V`, pinned
 `pybamm==26.8.0.0`. **Expected outputs** under the `--out`/`--figures` dirs:
 `solution_arrays.npz` (time series + spatial profiles), `run_manifest.json`
 (versions, solver, parameter snapshot, seed policy, variable availability),
-`extraction_summary.json`, and figures (voltage/current, concentrations,
-potentials). The run is deterministic (seed recorded as null). ~seconds.
+`extraction_metadata.json`, `parameter_snapshot.json`, and figures
+(voltage/current, concentrations, potentials). The run is deterministic (seed
+recorded as null). ~seconds.
 
 ## 2) Synthetic parameter estimation / recovery (P2, ecosystem venv)
 
 ```bash
 .venv-ecosystem312/bin/python benchmarks/parameter_recovery/run_recovery_benchmark.py \
-  --config configs/p2/recovery_single.yaml --out results/p2/recovery_single
+  --config configs/p2/recovery_single_1C.yaml --out results/p2/recovery_single
 ```
 
-**Config:** `configs/p2/recovery_single.yaml` (single-parameter recovery;
-multi-condition variant: `configs/p2/recovery_multi.yaml`). Generates seeded
+**Config:** `configs/p2/recovery_single_1C.yaml` (single-parameter recovery;
+multi-condition variant: `configs/p2/recovery_multi_0p5_1_2C.yaml`). Generates seeded
 synthetic data from the Chen2020 forward model, fits with PyBOP/SciPy, and
 reports recovery error. **Expected outputs** under `--out`: JSON/Markdown
 report(s) and plots. **Limitation:** synthetic parameter recovery demonstrates
@@ -58,15 +77,16 @@ shows run-to-run variance; treat committed aggregates as the reference run.
 ## 4) Run the test suite
 
 ```bash
-.venv/bin/python -m pytest                  # core: 184 passed, 6 skipped
-.venv-ecosystem312/bin/python -m pytest     # full: 201 passed, 3 warnings
+.venv/bin/python -m pytest                  # core: 510 passed, 8 skipped
+.venv/bin/python -m pytest -q -m "not benchmark and not characterization" \
+                                            # 507 passed, 8 skipped, 3 deselected
 .venv-ecosystem312/bin/python -m compileall -q src benchmarks scripts tests
 ```
 
-Scope: unit + integration + characterization. Measured on the `v0.1.0-beta.1`
-release commit `bec653d` — core env CPython 3.14.8 (PyBOP/PyProBE tests skip),
-ecosystem env CPython 3.12.16 with PyBOP 26.10 + PyProBE-Data 2.6.1. The three
-warnings are PyBOP optimiser notices, not failures.
+Scope: unit + integration + characterization. Measured on `main` (2026-11-23) —
+core env CPython 3.14.10 (PyBOP/PyProBE tests skip), ecosystem env CPython
+3.12.16 with PyBOP 26.10 + PyProBE-Data 2.6.1. The single warning in the core
+run is a PyBaMM `CasadiSolver` deprecation notice, not a failure.
 
 Scientific benchmarks live in `benchmarks/` (separate from `tests/`) and are not
 part of the default pytest run.
@@ -74,9 +94,9 @@ part of the default pytest run.
 ## Key configs (examples)
 
 - `configs/baseline_dfn.yaml` — P0 DFN baseline (pinned model/solver/experiment).
-- `configs/p2/recovery_single.yaml`, `configs/p2/recovery_multi.yaml` — synthetic recovery.
+- `configs/p2/recovery_single_1C.yaml`, `configs/p2/recovery_multi_0p5_1_2C.yaml` — synthetic recovery.
 - `configs/p2/identifiability.yaml`, `configs/p2/diffusivity_feasibility.yaml` — identifiability/feasibility.
-- `configs/p3/*.yaml` — ingestion/extraction/registry settings.
+- `configs/v2/target_lgm50.yaml` — target cell specification used by `parallm assemble`.
 
 ## Known limitations (read before interpreting outputs)
 

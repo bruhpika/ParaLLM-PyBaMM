@@ -54,7 +54,65 @@ For a reproducible, pinned developer setup use the lockfiles in `requirements/`
 on CPython 3.14.8; the ecosystem stack (PyBOP 26.10, PyProBE-Data 2.6.1,
 PyBaMM 26.8.0.0) on CPython 3.12.16.
 
+## Command-line interface (`parallm`)
+
+`parallm` is a production-oriented frontend to the existing engine. It adds
+Typer, Rich and Questionary; it does not duplicate extraction, validation or
+calibration logic. Requires Python 3.10–3.15.
+
+```bash
+pip install -e .                        # or install from the git URL above
+parallm --version
+parallm init --workspace ./battery-research
+parallm doctor
+```
+
+Without installation: `.venv/bin/python -m pybamm_closed_loop --help`.
+
+Core workflow:
+
+| Stage | Command |
+|---|---|
+| Workspace | `parallm init`, `status`, `project create NAME`, `doctor [--deep]` |
+| Evidence | `parallm extract paper.pdf --out DIR --parameter NAME` |
+| Validation | `parallm validate candidates.json --documents DIR [--strict]` |
+| Provenance | `parallm evidence list/inspect/report`, `parallm explain PARAMETER` |
+| Assembly | `parallm assemble --target YAML --registry JSON --out DIR [--gate FILE]` |
+| Calibration | `parallm calibrate report`, `parallm calibrate synthetic --config YAML --out DIR` |
+| Export | `parallm export --format json\|pybamm --from PATH --output FILE` |
+| Simulation | `parallm simulate --config YAML --out DIR` |
+
+Automation: global `--json`, `--quiet`, `--no-color` and `--debug` options go
+before the subcommand. JSON output is a single structured envelope; errors are
+machine-readable with stable codes and exit statuses.
+
+Extracted values are **candidates**, never automatically validated or
+calibrated. Only human-approved parameters reach the export. Synthetic
+recovery is not experimental validation, and real-data fitting is deliberately
+not exposed. Full reference: `docs/CLI.md`; capability and design notes:
+`docs/CLI_CAPABILITY_MATRIX.md` and `docs/CLI_DESIGN_SYSTEM.md`.
+
+### Terminal demonstrations
+
+Reproducible VHS recordings (real repository data, no fabricated results):
+
+| Workflow | Demonstration |
+|---|---|
+| Diagnostics | ![`parallm doctor --deep`](docs/assets/parallm-doctor.gif) |
+| Evidence provenance | ![`parallm evidence inspect`](docs/assets/parallm-evidence.gif) |
+| Validation | ![`parallm validate`](docs/assets/parallm-validate.gif) |
+
+The validation demo uses `examples/candidate_archived.json`, copied verbatim
+from the archived P4 extraction output; its `FAILED` unit check is genuine
+engine output. Tapes and regeneration instructions are in `demos/`.
+
 ## Quickstart
+
+Run these from the repository root after `pip install -e .`. The
+`python -m pybamm_closed_loop` form below also works without the console
+script. `parallm init --workspace ./battery-research` creates the workspace
+directories used by the CLI; no config or gate file is needed to run the
+examples below.
 
 ```bash
 # Reproducible P0 baseline (DFN, Chen2020, 1C discharge to 2.5 V)
@@ -62,28 +120,28 @@ PyBaMM 26.8.0.0) on CPython 3.12.16.
 
 # Synthetic parameter recovery (ecosystem env)
 .venv-ecosystem312/bin/python benchmarks/parameter_recovery/run_recovery_benchmark.py \
-  --config configs/p2/recovery_single.yaml --out results/p2/recovery_single
+  --config configs/p2/recovery_single_1C.yaml --out results/p2/recovery_single
 
 # Offline literature extraction benchmark (no API key)
 .venv-ecosystem312/bin/python benchmarks/p3/run_extraction_benchmark.py --provider offline
 
-# Assemble per-parameter dossiers; only gate-approved values reach the export
-.venv/bin/parallm assemble \
+# Assemble per-parameter dossiers. Without --gate the approved export is empty
+# by design; add --gate FILE only after recording explicit human approvals.
+.venv/bin/python -m pybamm_closed_loop assemble \
   --target configs/v2/target_lgm50.yaml \
   --registry data/registry/registry.json \
   --out reports/assembly \
   --documents data/raw_documents \
-  --p2-results results/p2 \
-  --gate reports/gate.json
+  --p2-results results/p2
 
 # Core software scope (no benchmark or characterization tests)
 .venv/bin/python -m pytest -q -m "not benchmark and not characterization"
 ```
 
 Expected outputs and limitations: `docs/QUICKSTART.md`. **The core scope above
-measured 462 passed, 8 skipped (3 characterization tests deselected) on
-`main` (2026-11-22), in the core `.venv` (CPython 3.14.8), using the command
-shown.**
+measured 507 passed, 8 skipped (3 characterization tests deselected) on
+`main` (2026-11-23), in the core `.venv` (CPython 3.14.10), using the command
+shown.** The full default suite measured 510 passed, 8 skipped.
 Coverage: benchmark tests are opt-in via `-m benchmark`.
 
 ## Results

@@ -12,6 +12,21 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### Production CLI frontend (2026-11-23)
+
+- Added `parallm` as a Typer/Rich frontend over the existing engine: workspace
+  setup (`init`, `status`, `project`), diagnostics (`doctor`), extraction,
+  validation, evidence/provenance (`evidence`, `explain`), assembly,
+  synthetic-only calibration reporting/fitting, approved-only export and
+  pinned PyBaMM simulation.
+- Preserved the historical `main(argv)`/`load_target` API and the four
+  `parallm assemble` outputs. Added `python -m pybamm_closed_loop`.
+- Added a shared terminal design system, a source-derived capability matrix,
+  command documentation and a release checklist under `docs/`.
+- Scientific boundaries unchanged: extraction produces candidates, validation
+  is deterministic, export requires human approval, and no real-data fitting
+  command was added.
+
 ### Deferred live runs — supplement text restored locally (2026-11-22)
 
 - Restored the Chen2020 supplement corpus locally from retained git history

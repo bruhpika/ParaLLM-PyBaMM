@@ -58,6 +58,29 @@ def build_parameter_values(config: BaselineRunConfig):
     return parameter_values
 
 
+def installed_parameter_sets() -> list[str]:
+    """List parameter-set names available in the installed PyBaMM library."""
+    import pybamm
+
+    return sorted(pybamm.parameter_sets)
+
+
+def installed_parameter_names(parameter_set: str = "Chen2020") -> list[str]:
+    """List parameter names from an installed PyBaMM parameter set.
+
+    Used by validation to check PyBaMM mappings against the installed version
+    without inventing names.
+    """
+    import pybamm
+
+    if parameter_set not in pybamm.parameter_sets:
+        raise UnknownParameterSetError(
+            f"parameter set '{parameter_set}' not in installed pybamm; "
+            f"available: {list(pybamm.parameter_sets)}"
+        )
+    return sorted(pybamm.ParameterValues(parameter_set).keys())
+
+
 def build_model(config: BaselineRunConfig):
     """Build the configured lithium-ion model with explicit options."""
     import pybamm

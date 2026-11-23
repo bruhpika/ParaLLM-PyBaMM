@@ -36,6 +36,49 @@ class ApprovalRecord:
         }
 
 
+class GateValidationError(ValueError):
+    """Raised when a gate payload is malformed or contains duplicate decisions."""
+
+
+def validate_gate_records(payload: Any) -> list[ApprovalRecord]:
+    """Validate and build gate records with a single, order-independent policy.
+
+    Duplicate parameter ids are rejected for this release, including identical
+    decisions: approval history and revision semantics are out of scope, and
+    first/last-record-wins would make approval depend on array order.
+    """
+    if not isinstance(payload, dict):
+        raise GateValidationError("gate payload must be a JSON object")
+    items = payload.get("approvals")
+    if not isinstance(items, list):
+        raise GateValidationError("gate payload must contain an 'approvals' list")
+    records: list[ApprovalRecord] = []
+    seen: set[str] = set()
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            raise GateValidationError(f"approval #{index} must be an object")
+        for key in ("parameter", "decision", "approver", "rubric_version"):
+            value = item.get(key)
+            if not isinstance(value, str) or not value.strip():
+                raise GateValidationError(f"approval #{index} has missing or invalid '{key}'")
+        if not isinstance(item.get("approved"), bool):
+            raise GateValidationError(f"approval #{index} has invalid 'approved' value")
+        parameter = str(item["parameter"]).strip()
+        if parameter in seen:
+            raise GateValidationError(f"duplicate approval record for parameter {parameter!r}")
+        seen.add(parameter)
+        records.append(ApprovalRecord(
+            parameter=parameter,
+            decision=item["decision"],
+            approved=item["approved"],
+            approver=item["approver"],
+            rubric_version=item["rubric_version"],
+            timestamp=item.get("timestamp", ""),
+            note=item.get("note", ""),
+        ))
+    return records
+
+
 class ApprovalGate:
     """Collects approvals; exposes which parameters may enter the approved set."""
 
@@ -96,16 +139,5 @@ class ApprovalGate:
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "ApprovalGate":
         gate = cls()
-        for item in payload.get("approvals", []):
-            gate._records.append(
-                ApprovalRecord(
-                    parameter=item["parameter"],
-                    decision=item["decision"],
-                    approved=bool(item["approved"]),
-                    approver=item["approver"],
-                    rubric_version=item["rubric_version"],
-                    timestamp=item.get("timestamp", ""),
-                    note=item.get("note", ""),
-                )
-            )
+        gate._records = validate_gate_records(payload)
         return gate

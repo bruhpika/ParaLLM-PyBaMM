@@ -17,6 +17,7 @@ nav:
   - Getting started:
       - Quickstart: QUICKSTART.md
       - Installation: INSTALLATION.md
+      - CLI guide: CLI.md
       - Examples: examples.md
   - Scientific scope:
       - Positioning: POSITIONING.md
@@ -25,6 +26,8 @@ nav:
       - Data provenance: DATA_PROVENANCE.md
   - Architecture:
       - Architecture: ARCHITECTURE.md
+      - CLI capability matrix: CLI_CAPABILITY_MATRIX.md
+      - CLI design system: CLI_DESIGN_SYSTEM.md
       - Revised architecture: REVISED_ARCHITECTURE.md
       - Parameter registry: PARAMETER_REGISTRY.md
       - Parameter selection: PARAMETER_SELECTION.md
@@ -57,6 +60,7 @@ nav:
       - V2 execution plan: V2_EXECUTION_PLAN.md
       - V2 private v4 benchmark: V2_PRIVATE_V4_BENCHMARK.md
       - Integration plan: INTEGRATION_PLAN.md
+      - CLI release checklist: CLI_RELEASE_CHECKLIST.md
 markdown_extensions:
   - admonition
   - pymdownx.details
