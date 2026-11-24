@@ -21,8 +21,7 @@ Run them from the repository root:
 Each script accepts `--out-dir` and writes outputs under
 `examples/output/<name>/` (gitignored, regenerable). Example 1 and 2 run
 without the Chen2020 article; example 3 prints a note when traceability flags
-are present because the article text is absent locally (see
-`docs/REMAINING_TASKS.md` item 1 in the repository).
+are present because the article text is absent locally.
 
 These examples demonstrate the software workflow and the retrieval/evidence
 layers. They are **not** experimental validation and do not prove parameter

@@ -22,8 +22,7 @@ no network call and no LLM call. Each example writes its outputs under
 
 Each script accepts `--out-dir` to redirect outputs. Example 1 and 2 run
 without the Chen2020 article; example 3 prints a note when traceability flags
-are present because the article text is absent locally (see
-`docs/REMAINING_TASKS.md` item 1).
+are present because the article text is absent locally.
 
 ## Scientific scope
 

@@ -1,9 +1,22 @@
-# PARALLM — provenance-grounded parameter assembly for PyBaMM
+<div align="center">
+
+# PARALLM
+
+**Provenance-grounded parameter assembly for PyBaMM**
 
 > **Literature evidence in; a reviewable PyBaMM parameter set out — with the
-> provenance, conflicts and identifiability decisions attached.** Research
-> prototype: `v0.1.0-beta.1` released, `v0.2` in progress. No experimental
-> validation is claimed.
+> provenance, conflicts and identifiability decisions attached.**
+
+[Docs](https://bruhpika.github.io/ParaLLM-PyBaMM/) · [CLI guide](docs/CLI.md) · [Results](docs/BENCHMARK_RESULTS.md) · [MIT license](LICENSE)
+
+</div>
+
+<p align="center">
+  <img src="docs/assets/parallm-evidence.gif" alt="PARALLM evidence inspection CLI" width="720">
+</p>
+
+**Status:** research prototype — [v0.1.0-beta.1](CHANGELOG.md) released, `v0.2`
+in progress. **No experimental validation is claimed.**
 
 PARALLM is a closed-loop research framework for parameterizing physics-based
 lithium-ion battery models built on [PyBaMM](https://pybamm.org). Its unit of
@@ -11,6 +24,34 @@ work is the **per-parameter dossier**: a researcher must be able to defend every
 number in the resulting parameter set from the dossier alone. The LLM is an
 evidence interpreter and workflow orchestrator, never an oracle for
 electrochemical constants; all numeric decision paths are deterministic.
+
+## How it works
+
+```mermaid
+flowchart LR
+  A[Research PDFs] --> B[Extract + provenance]
+  B --> C[Validate candidates]
+  C --> D[Applicability / conflict assembly]
+  D --> E[Per-parameter dossier]
+  E --> F{Human approval gate}
+  F -->|approved| G[PyBaMM export]
+  F -->|not approved| H[No export]
+```
+
+The LLM proposes evidence interpretations; deterministic rules validate units,
+quotes, applicability and export eligibility.
+
+## Repository map
+
+| Path | Purpose |
+|---|---|
+| `src/pybamm_closed_loop/` | Engine, CLI and deterministic decision layers |
+| `docs/` | Published documentation site |
+| `demos/` | Reproducible VHS terminal recordings |
+| `results/` | Committed scientific artifacts and summaries |
+| `data/raw_documents/` | Provenance-tracked source documents |
+| `benchmarks/`, `configs/`, `scripts/` | Reproducible experiments and run configs |
+| `tests/` | Software-correctness tests (science stays in `benchmarks/`) |
 
 ## What PARALLM is now (v0.2)
 
@@ -94,13 +135,17 @@ not exposed. Full reference: `docs/CLI.md`; capability and design notes:
 
 ### Terminal demonstrations
 
-Reproducible VHS recordings (real repository data, no fabricated results):
+Reproducible VHS recordings using real repository data — no fabricated results:
 
-| Workflow | Demonstration |
-|---|---|
-| Diagnostics | ![`parallm doctor --deep`](docs/assets/parallm-doctor.gif) |
-| Evidence provenance | ![`parallm evidence inspect`](docs/assets/parallm-evidence.gif) |
-| Validation | ![`parallm validate`](docs/assets/parallm-validate.gif) |
+<p align="center">
+  <img src="docs/assets/parallm-doctor.gif" alt="parallm doctor --deep" width="32%">
+  <img src="docs/assets/parallm-evidence.gif" alt="parallm evidence inspect" width="32%">
+  <img src="docs/assets/parallm-validate.gif" alt="parallm validate" width="32%">
+</p>
+
+<p align="center">
+  <code>doctor --deep</code> · <code>evidence inspect</code> · <code>validate</code>
+</p>
 
 The validation demo uses `examples/candidate_archived.json`, copied verbatim
 from the archived P4 extraction output; its `FAILED` unit check is genuine
@@ -138,11 +183,9 @@ examples below.
 .venv/bin/python -m pytest -q -m "not benchmark and not characterization"
 ```
 
-Expected outputs and limitations: `docs/QUICKSTART.md`. **The core scope above
-measured 507 passed, 8 skipped (3 characterization tests deselected) on
-`main` (2026-11-23), in the core `.venv` (CPython 3.14.10), using the command
-shown.** The full default suite measured 510 passed, 8 skipped.
-Coverage: benchmark tests are opt-in via `-m benchmark`.
+Expected outputs and limitations: `docs/QUICKSTART.md`. **The full default suite
+measured 583 passed, 8 skipped on `main` (2026-11-24) in the core `.venv`
+(CPython 3.14.10).** Benchmark tests are opt-in via `-m benchmark`.
 
 ## Results
 
@@ -222,6 +265,7 @@ positive beats baseline 15/18 and negative does not 18/18 — also **SYNTHETIC**
 
 - **No independent experimental validation.** Synthetic parameter recovery ≠
   experimental validation; a successful optimization ≠ identifiability.
+  Calibration and validation data must stay disjoint.
 - The only end-to-end validation is **synthetic mismatch**: deliberately
   perturbed ground truth and synthetic measurements (V2.4). Real-data claims
   stay blocked until an eligible dataset is licensed and audited.
@@ -235,10 +279,12 @@ positive beats baseline 15/18 and negative does not 18/18 — also **SYNTHETIC**
   explicitly `not_assessed`, never silently fitted.
 - Experimental-condition extraction is weak (v3 retrieval condition completeness
   0.116 all / 0.035 eval, same source as the v3 table above); an eligible
-  Chen2020-aligned validation dataset is unresolved.
+  Chen2020-aligned 25 °C multi-rate validation dataset is unresolved.
 - The rubric is hand-set (no learned weights). Expert labels were owner-reviewed
   on 2026-11-20, so the 0.958 agreement is final for this set; the set is small
   (24 cases, 2 ambiguous), so subclass figures are descriptive.
+
+Full disclosure: `docs/SCIENTIFIC_LIMITATIONS.md`.
 
 ## Data and third-party licences
 
@@ -260,18 +306,16 @@ Git history still contains the previously tracked Chen2020 article and
 supplement full texts; the repository owner decides whether to purge that
 history. No history rewrite was performed here.
 
-## Scientific limitations (read before citing results)
-
-- **No independent experimental validation** is claimed in this beta.
-- **Synthetic parameter recovery ≠ experimental validation;** optimization ≠
-  identifiability. Calibration and validation data must stay disjoint.
-- **Experimental-condition extraction is weak** (P5 retrieval condition
-  completeness 0.116 all / 0.035 eval); an eligible Chen2020-aligned 25 °C
-  multi-rate validation dataset is **unresolved** (T5/T6).
-- Full disclosure: `docs/SCIENTIFIC_LIMITATIONS.md`.
-
 ## Citing
 
 See `CITATION.cff`. Software citation: PARALLM v0.1.0-beta.1 (2026); v0.2 is in
-progress. Author: Harshith Bhardwaz Kenkary. AI-assistance disclosure and
-acknowledgements are recorded in the repository's documentation.
+progress. AI-assistance disclosure and acknowledgements are recorded in the
+repository's documentation.
+
+## Author / ownership
+
+**Harshith Bhardwaz Kenkary** — owner and maintainer of PARALLM.<br>
+GitHub: [@bruhpika](https://github.com/bruhpika) · Email: harshithkenkary@gmail.com
+
+PARALLM code is MIT-licensed; third-party documents and datasets retain their
+own licences as recorded above.

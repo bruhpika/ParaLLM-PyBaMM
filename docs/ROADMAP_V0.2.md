@@ -249,7 +249,7 @@ confirmed). V2.2 ✅ (traceability **96/96** after the 2026-11-22 verbatim-quote
 backfill from the owner-supplied article PDF). All four gate milestones now
 meet their exit criteria; **V2.6 is held by owner decision (2026-11-22)**
 until the V2.5 exit criterion closes (≥0.5 completeness / 0.000 invented;
-current best 0.310 / 0.044 — `docs/REMAINING_TASKS.md`). No V2.6
+current best 0.310 / 0.044). No V2.6
 implementation starts before that.
 
 Rationale: an automated loop that repeatedly retrieves evidence and recalibrates
@@ -314,14 +314,14 @@ prevent.
 
 Two phase vocabularies co-exist and confuse readers:
 
-- **PRD phases** (`docs/DEVELOPMENT_ROADMAP.md`): P0…P8 — the original plan
-  (P6 = literature extraction, P7 = closed loop, P8 = fine-tuning study).
+- **PRD phases**: P0…P8 — the original plan (P6 = literature extraction,
+  P7 = closed loop, P8 = fine-tuning study).
 - **Shipped milestones** (git history, v0.1 release notes): P0…P5 —
   baseline → ecosystem audit → estimation/identifiability → literature &
   provenance → LLM evaluation → reliability/v3 benchmark/ablation.
 
 From v0.2 onward, releases are described as **v0.x feature sets**; PRD phase
-names are retained only in `docs/internal/` archives. Mapping table:
+names are retained only in local-only planning archives. Mapping table:
 
 | PRD phase | shipped as | v0.2 status |
 |---|---|---|

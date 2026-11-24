@@ -73,13 +73,6 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
-exclude_docs: |
-  internal/
-  HANDOFF.md
-  REMAINING_TASKS.md
-  DEVELOPMENT_ROADMAP.md
-  INTEGRATION_PLAN.md
-  RELEASE_READINESS_AUDIT.md
 validation:
   nav:
     omitted_files: info

@@ -46,3 +46,8 @@ examples/output/
 
 # Generated documentation site (mkdocs build)
 site/
+
+# Local-only archives, source PDFs and generated reports (kept on this machine, not in the repo)
+local_archive/
+chen2020/
+reports/
