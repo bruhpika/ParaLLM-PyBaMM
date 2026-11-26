@@ -39,6 +39,12 @@ def test_v4_offline_arm_is_labelled_and_needs_no_live_flag():
     assert runner._is_retrieval_mode(runner.OFFLINE_TUNED_MODE)
 
 
+def test_v4_prompt_suffix_keeps_v25_frozen_and_separates_v26():
+    runner = _load("benchmarks/v2/run_v4_evaluation.py", "v4_runner")
+    assert runner._prompt_suffix("v25") == ""
+    assert runner._prompt_suffix("v26") == "_v26"
+
+
 def test_side_by_side_parser_reads_nested_aggregates(tmp_path):
     module = _load("benchmarks/v2/offline_side_by_side.py", "side_by_side")
     path = tmp_path / "report.json"

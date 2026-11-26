@@ -634,7 +634,8 @@ def main() -> int:
                 rows = rescore_from_raw(
                     items, mode, repeat, raw_path, discipline=args.discipline
                 )
-                (rows_dir / f"rows_{tag}.json").write_text(
+                rows_name = f"rows_{tag}{_prompt_suffix(args.prompt_version)}.json"
+                (rows_dir / rows_name).write_text(
                     json.dumps(rows, indent=2, sort_keys=True)
                 )
                 summaries[tag] = aggregate(rows)
