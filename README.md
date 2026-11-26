@@ -81,13 +81,17 @@ in `docs/`).
 
 ## Install
 
-Not published to PyPI. Package name: `parallm-pybamm` (Python 3.10–3.15 for the
+Install the published `v0.1.0-beta.1` wheel from the
+[GitHub Release](https://github.com/bruhpika/ParaLLM-PyBaMM/releases/tag/v0.1.0-beta.1)
+(PyPI is not used). Package name: `parallm-pybamm` (Python 3.10–3.15 for the
 core stack).
 
 ```bash
-pip install "git+https://github.com/bruhpika/ParaLLM-PyBaMM.git"
+pip install "https://github.com/bruhpika/ParaLLM-PyBaMM/releases/download/v0.1.0-beta.1/parallm_pybamm-0.1.0b1-py3-none-any.whl"
 # ecosystem extras (PyBOP / PyProBE-Data / SALib / pypdf / polars), Python 3.10–3.12:
-pip install "parallm-pybamm[ecosystem] @ git+https://github.com/bruhpika/ParaLLM-PyBaMM.git"
+pip install "parallm-pybamm[ecosystem] @ https://github.com/bruhpika/ParaLLM-PyBaMM/releases/download/v0.1.0-beta.1/parallm_pybamm-0.1.0b1-py3-none-any.whl"
+# latest development version:
+pip install "git+https://github.com/bruhpika/ParaLLM-PyBaMM.git"
 ```
 
 For a reproducible, pinned developer setup use the lockfiles in `requirements/`
