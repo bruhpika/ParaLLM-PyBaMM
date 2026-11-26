@@ -300,9 +300,19 @@ class TestPrompt:
             for marker in ("JSON NUMBER", "document_id", '"quote"', "temperature")
         )
 
+    def test_v28_is_v27_plus_only_the_sentinel_and_abstention_rules(self):
+        from pybamm_closed_loop.eval.benchmark_v4 import _V28_ADDITION
+
+        v27 = build_v4_prompt("v27")
+        v28 = build_v4_prompt("v28")
+        assert _V28_ADDITION in v28
+        assert _V28_ADDITION not in v27
+        assert v28.replace(_V28_ADDITION, "", 1) == v27
+        assert "UNRESOLVED" in v28 and "document id" in v28
+
     def test_unknown_prompt_version_is_rejected(self):
         with pytest.raises(ValueError, match="unknown v4 prompt version"):
-            build_v4_prompt("v28")
+            build_v4_prompt("v29")
 
 
 class TestFixtureLoading:

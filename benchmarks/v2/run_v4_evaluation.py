@@ -526,19 +526,21 @@ def main() -> int:
     )
     ap.add_argument(
         "--discipline",
-        choices=("trace", "association"),
+        choices=("trace", "association", "entailment"),
         default="trace",
         help="deterministic post-extraction discipline: trace (default, "
-        "evidence-wide condition trace) or association (value-local scope; "
-        "new discipline, no model calls)",
+        "evidence-wide condition trace), association (value-local scope) or "
+        "entailment (label-free value-in-quote/binding checks followed by "
+        "association; no model calls)",
     )
     ap.add_argument(
         "--prompt-version",
-        choices=("v25", "v26", "v27"),
+        choices=("v25", "v26", "v27", "v28"),
         default="v25",
         help="extraction prompt version: v25 (frozen, default), v26 "
-        "(abstention-boundary clarification) or v27 (v26 + quote fidelity, "
-        "short output, chemistry and cell identity rules; same schema/scorer)",
+        "(abstention boundary), v27 (quote fidelity, short output, chemistry "
+        "and cell identity), v28 (v27 + document-id sentinel and cue-free "
+        "abstention; same schema/scorer)",
     )
     ap.add_argument(
         "--split",

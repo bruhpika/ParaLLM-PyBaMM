@@ -712,10 +712,26 @@ _V4_PROMPT_V27 = _V4_PROMPT_V26.replace(
     1,
 )
 
+# v28 adds one paragraph to v27: an explicit document-id sentinel (so a valid
+# candidate is not schema-rejected when the header shows no id) and cue-free
+# abstention phrasing (so an explicit "not stated" is not scored as a protocol
+# claim). Both are abstention/placeholder rules; no value or identity is invented.
+_V28_ADDITION = """When the EVIDENCE header does not show a document id, write the literal string "UNRESOLVED" in source.document_id. Never invent a document id.
+When a condition is not stated, write only that fact (for example "SOC not stated in the evidence"). Do not list protocol cue words such as pulse, rest, C-rate or cutoff in a sentence that says a condition is not stated.
+
+"""
+
+_V4_PROMPT_V28 = _V4_PROMPT_V27.replace(
+    "\nRespond with a JSON array of objects and nothing else.",
+    "\n" + _V28_ADDITION + "Respond with a JSON array of objects and nothing else.",
+    1,
+)
+
 _PROMPT_VERSIONS = {
     "v25": _V4_PROMPT,
     "v26": _V4_PROMPT_V26,
     "v27": _V4_PROMPT_V27,
+    "v28": _V4_PROMPT_V28,
 }
 
 
@@ -724,9 +740,9 @@ def build_v4_prompt(version: str = "v25") -> str:
 
     ``v25`` is the frozen prompt used by the committed v4 results. ``v26``
     adds one paragraph that separates "value absent" from "condition absent";
-    ``v27`` adds one paragraph that constrains output length, quote fidelity,
-    material composition and cell identity. None changes the schema, evidence,
-    scorer or discipline.
+    ``v27`` adds output-length/quote-fidelity rules; ``v28`` adds a document-id
+    sentinel and cue-free abstention phrasing. None changes the schema,
+    evidence, scorer or discipline.
     """
     try:
         return _PROMPT_VERSIONS[version]
@@ -931,12 +947,21 @@ def score_with_discipline(
 
     ``discipline="trace"`` (default) applies the v0.1 verification +
     ``not_stated`` rules; ``discipline="association"`` additionally requires
-    each condition to be supported *inside the local scope of the quote*.
+    each condition to be supported *inside the local scope of the quote*;
+    ``discipline="entailment"`` first applies the label-free deterministic
+    entailment checks, then the association discipline.
     """
     if discipline == "association":
         from .association import apply_association_discipline
 
         cleaned, stats = apply_association_discipline(evidence_text, candidates)
+    elif discipline == "entailment":
+        from .association import apply_association_discipline
+        from .entailment import apply_entailment
+
+        entailed, ent_stats = apply_entailment(evidence_text, candidates)
+        cleaned, stats = apply_association_discipline(evidence_text, entailed)
+        stats = {**ent_stats, **stats}
     elif discipline == "trace":
         cleaned, stats = apply_discipline(evidence_text, candidates)
     else:
