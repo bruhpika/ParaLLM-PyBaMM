@@ -139,6 +139,21 @@ class TestProtocolContextSlice:
         ctx = "pulse protocol C/10 is not stated in the evidence"
         assert _context_slice(ctx, "protocol") is None
 
+    @pytest.mark.xfail(
+        strict=True,
+        reason=(
+            "known scorer false positive: an explicit abstention that lists "
+            "protocol cue words without the word 'protocol' is reported as a "
+            "protocol claim; fix requires owner approval (measurement change)"
+        ),
+    )
+    def test_abstention_listing_cue_words_reports_none(self):
+        ctx = (
+            "SOC window, pulse current, pulse duration, rest time, C-rate, "
+            "and cutoff voltages are not stated in the evidence."
+        )
+        assert _context_slice(ctx, "protocol") is None
+
     def test_soc_branch_unchanged(self):
         assert _context_slice("at 50 % SOC", "soc") == "50"
         assert _context_slice("no SOC here", "soc") is None
