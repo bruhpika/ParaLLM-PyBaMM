@@ -534,10 +534,11 @@ def main() -> int:
     )
     ap.add_argument(
         "--prompt-version",
-        choices=("v25", "v26"),
+        choices=("v25", "v26", "v27"),
         default="v25",
-        help="extraction prompt version: v25 (frozen, default) or v26 "
-        "(v25 + one abstention-boundary clarification; same schema/scorer)",
+        help="extraction prompt version: v25 (frozen, default), v26 "
+        "(abstention-boundary clarification) or v27 (v26 + quote fidelity, "
+        "short output, chemistry and cell identity rules; same schema/scorer)",
     )
     ap.add_argument(
         "--split",

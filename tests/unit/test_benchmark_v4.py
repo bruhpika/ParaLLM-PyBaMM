@@ -287,9 +287,22 @@ class TestPrompt:
         assert addition not in v25
         assert v26.replace(addition + "\n\n", "", 1) == v25
 
+    def test_v27_is_v26_plus_only_the_output_quality_rules(self):
+        from pybamm_closed_loop.eval.benchmark_v4 import _V27_ADDITION
+
+        v26 = build_v4_prompt("v26")
+        v27 = build_v4_prompt("v27")
+        assert _V27_ADDITION in v27
+        assert _V27_ADDITION not in v26
+        assert v27.replace(_V27_ADDITION, "", 1) == v26
+        assert all(
+            marker in v27
+            for marker in ("JSON NUMBER", "document_id", '"quote"', "temperature")
+        )
+
     def test_unknown_prompt_version_is_rejected(self):
         with pytest.raises(ValueError, match="unknown v4 prompt version"):
-            build_v4_prompt("v27")
+            build_v4_prompt("v28")
 
 
 class TestFixtureLoading:

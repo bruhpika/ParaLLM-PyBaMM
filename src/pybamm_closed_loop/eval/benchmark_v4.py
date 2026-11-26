@@ -696,9 +696,26 @@ The EVIDENCE may contain several kinds of statements: the value itself (often in
 Respond with a JSON array of objects and nothing else. If the evidence supports no parameter statement, respond with [].
 """
 
+# v27 adds one paragraph to the v26 prompt, targeting the failure modes seen
+# in the v26 live dev run: verbose whole-table enumerations, non-verbatim
+# quotes, electrode-role materials and imported cell product names.
+_V27_ADDITION = """Return at most three candidates. Choose the entries whose values are printed in the EVIDENCE and whose conditions you can support; do not enumerate the whole table.
+Every source.quote must be copied character-for-character from the EVIDENCE as one contiguous span, including spacing, dashes and ligatures. If you cannot do that, omit the candidate.
+In material, state the chemical composition of the active material (for example "graphite-SiOx", "NCA", "LFP"), not an electrode role such as "anode" or "cathode". Use UNRESOLVED when the composition is not stated.
+In cell_config, name the cell product or configuration exactly as printed in the EVIDENCE (for example "INR21700-50E", "2032 coin cell"). Use UNRESOLVED when it is not stated; never import a product name from outside the evidence.
+
+"""
+
+_V4_PROMPT_V27 = _V4_PROMPT_V26.replace(
+    "\nRespond with a JSON array of objects and nothing else.",
+    "\n" + _V27_ADDITION + "Respond with a JSON array of objects and nothing else.",
+    1,
+)
+
 _PROMPT_VERSIONS = {
     "v25": _V4_PROMPT,
     "v26": _V4_PROMPT_V26,
+    "v27": _V4_PROMPT_V27,
 }
 
 
@@ -707,7 +724,9 @@ def build_v4_prompt(version: str = "v25") -> str:
 
     ``v25`` is the frozen prompt used by the committed v4 results. ``v26``
     adds one paragraph that separates "value absent" from "condition absent";
-    it does not change the schema, evidence, scorer or discipline.
+    ``v27`` adds one paragraph that constrains output length, quote fidelity,
+    material composition and cell identity. None changes the schema, evidence,
+    scorer or discipline.
     """
     try:
         return _PROMPT_VERSIONS[version]
