@@ -237,6 +237,17 @@ Consequences, stated plainly:
 - The free tier returns intermittent HTTP 503; those calls are excluded and
   counted, never scored as abstentions.
 
+**v26 prompt arm (2026-11-26):** the live dev run uses **`mimo-v2.6-flash`**
+via Xiaomi's OpenAI-compatible Token Plan endpoint (regional `sgp`). The
+endpoint, model and key are supplied through the gitignored `.env` via
+`PYCL_LLM_BASE_URL`, `PYCL_LLM_MODEL` and `PYCL_LLM_API_KEY`; no credential is
+stored in the repository. This is a **different extractor** from the canonical
+v4 arms above, so its absolute numbers are **not comparable** with the frozen
+0.310 / 0.058 baseline. The v26 run is a within-run prompt-boundary check
+(does the new rule stop the category-E over-abstention?), not a replacement of
+the baseline. Schema, evidence, scorer, fixture and threshold are unchanged;
+only the prompt arm and the extractor differ.
+
 ## 7. Results
 
 See `results/v2/v4/summary.md` (aggregate only; per-item rows stay private).
