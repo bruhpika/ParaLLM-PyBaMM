@@ -51,3 +51,6 @@ site/
 local_archive/
 chen2020/
 reports/
+
+# Grant proposal drafts (generated locally, not part of the software repository)
+TEMP_grant/
