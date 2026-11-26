@@ -110,6 +110,40 @@ _PROTOCOL_CONCRETE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# A value-local abstention can mention a document-level technique while saying
+# explicitly that it is not tied to THIS value. That is still an abstention,
+# even when a concrete C-rate/technique appears in the same context.
+_VALUE_LOCAL_ANCHORS = (
+    "this value",
+    "this particular value",
+    "this entry",
+    "this row",
+    "this number",
+    "this parameter",
+)
+
+
+def _protocol_value_local_abstention(text: Any) -> bool:
+    for sentence in re.split(r"(?<=[.;])\s+", str(text or "")):
+        lowered = sentence.lower()
+        if not any(anchor in lowered for anchor in _VALUE_LOCAL_ANCHORS):
+            continue
+        if _PROTOCOL_ABSTENTION_HINT_RE.search(sentence):
+            return True
+        if re.search(
+            r"\bno\b[^.;]{0,80}\b(?:attached|tied|linked)\s+to\s+this\b",
+            sentence,
+            re.IGNORECASE,
+        ):
+            return True
+        if re.search(
+            r"\blink\s+to\s+this\b[^.;]{0,40}\bnot\s+stated\b",
+            sentence,
+            re.IGNORECASE,
+        ):
+            return True
+    return False
+
 _METHOD_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("eis", ("eis", "impedance", "peis")),
     ("gitt", ("gitt",)),
@@ -744,10 +778,12 @@ def enforce_association(
             value = _context_slice(cleaned.get("context"), field_name)
         if _is_missing(value):
             continue
-        if (
-            field_name == "protocol"
-            and _PROTOCOL_ABSTENTION_HINT_RE.search(str(value))
-            and not _PROTOCOL_CONCRETE_RE.search(str(value))
+        if field_name == "protocol" and (
+            _protocol_value_local_abstention(value)
+            or (
+                _PROTOCOL_ABSTENTION_HINT_RE.search(str(value))
+                and not _PROTOCOL_CONCRETE_RE.search(str(value))
+            )
         ):
             # Explicit abstention wins over a cue-word trace. Record it so the
             # drop stays auditable in the transcript.

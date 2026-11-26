@@ -344,6 +344,19 @@ class TestApplyAssociationDiscipline:
         assert _context_slice(cleaned[0].get("context"), "protocol") is None
         assert "explicit_abstention" in stats["association_rule_counts"]
 
+    def test_value_local_abstention_wins_over_document_level_gitt(self):
+        cand = _candidate(
+            context=(
+                "SOC and cutoff voltages for this value are not stated in the "
+                "evidence; document-level tests used GITT at C/10 but the link "
+                "to this entry is not stated."
+            ),
+            source={"quote": "Diffusion coefficient of anode Dn m2 s-1 9.61e-15"},
+        )
+        cleaned, stats = apply_association_discipline(TABLE_EVIDENCE, [cand])
+        assert _context_slice(cleaned[0].get("context"), "protocol") is None
+        assert "explicit_abstention" in stats["association_rule_counts"]
+
     def test_stated_protocol_survives_a_partial_abstention(self):
         cand = _candidate(
             context="GITT at C/10 pulses; rest time not stated in the evidence.",
