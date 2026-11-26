@@ -132,6 +132,11 @@ def _tag_label(tag: str) -> str:
     return f"{_arm_label(mode)} ({tag.rsplit('_r', 1)[-1]})"
 
 
+def _prompt_suffix(prompt_version: str) -> str:
+    """Filename suffix for non-default prompts; v25 stays byte-compatible."""
+    return "" if prompt_version == "v25" else f"_{prompt_version}"
+
+
 def run_mode(
     items,
     store,
@@ -145,8 +150,9 @@ def run_mode(
     retrieval_k: int = DEFAULT_RETRIEVAL_K,
     offline_extract: bool = False,
     discipline: str = "trace",
+    prompt_version: str = "v25",
 ) -> dict:
-    prompt = build_v4_prompt()
+    prompt = build_v4_prompt(prompt_version)
     rows = []
     raw_rows = []
     retrieval_audits = []
@@ -250,6 +256,7 @@ def run_mode(
     return {
         "mode": mode,
         "repeat": repeat,
+        "prompt_version": prompt_version,
         "evidence_source": (
             "retrieval" if _is_retrieval_mode(mode) else "oracle"
         ),
@@ -352,6 +359,7 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
         "fixture": "PRIVATE v4 (30 items; fixture not published)",
         "n_items": len(items),
         "discipline": getattr(args, "discipline", "trace"),
+        "prompt_version": getattr(args, "prompt_version", "v25"),
         "split": getattr(args, "split", "all"),
         "categories": {
             c: sum(1 for i in items if i.category == c)
@@ -392,6 +400,7 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
         + ", ".join(f"{k}={v}" for k, v in payload["categories"].items()),
         "",
         f"discipline: `{payload['discipline']}` (split: {payload['split']}); "
+        f"prompt: `{payload['prompt_version']}`; "
         "deterministic post-extraction rules, identical for every arm.",
         "",
         f"- {ORACLE_LABEL}: compact/expanded/v25 locate evidence from the probe; "
@@ -524,6 +533,13 @@ def main() -> int:
         "new discipline, no model calls)",
     )
     ap.add_argument(
+        "--prompt-version",
+        choices=("v25", "v26"),
+        default="v25",
+        help="extraction prompt version: v25 (frozen, default) or v26 "
+        "(v25 + one abstention-boundary clarification; same schema/scorer)",
+    )
+    ap.add_argument(
         "--split",
         choices=("all", "dev", "test"),
         default="all",
@@ -533,8 +549,8 @@ def main() -> int:
     ap.add_argument(
         "--private-out",
         default=None,
-        help="directory for the private rows_*.json (default: data/private_v4/"
-        "results, next to the frozen raw outputs)",
+        help="directory for the private raw_*.jsonl and rows_*.json "
+        "(default: data/private_v4/results, next to the frozen raw outputs)",
     )
     add_live_guard_args(ap)
     args = ap.parse_args()
@@ -608,7 +624,10 @@ def main() -> int:
             tags = []
             for repeat in range(args.repeats):
                 tag = f"{mode}_r{repeat}"
-                raw_path = find_raw(PRIVATE_RESULTS, f"raw_{tag}.jsonl")
+                raw_path = find_raw(
+                    rows_dir,
+                    f"raw_{tag}{_prompt_suffix(args.prompt_version)}.jsonl",
+                )
                 if raw_path is None:
                     print(f"  [{tag}] raw file missing - skipped", flush=True)
                     continue
@@ -635,7 +654,10 @@ def main() -> int:
             tags = []
             for repeat in range(args.repeats):
                 tag = f"{mode}_r{repeat}"
-                rows_path = find_raw(rows_dir, f"rows_{tag}.json")
+                rows_path = find_raw(
+                    rows_dir,
+                    f"rows_{tag}{_prompt_suffix(args.prompt_version)}.json",
+                )
                 if rows_path is None:
                     continue
                 rows = json.loads(rows_path.read_text())
@@ -686,11 +708,12 @@ def main() -> int:
     for mode in args.modes:
         for repeat in range(args.repeats):
             tag = f"{mode}_r{repeat}"
-            raw_name = f"raw_{'offline_' if args.offline_all else ''}{tag}.jsonl"
-            raw_path = policy.raw_path(PRIVATE_RESULTS, raw_name)
-            rows_name = f"rows_{'offline_' if args.offline_all else ''}{tag}.json"
+            suffix = _prompt_suffix(args.prompt_version)
+            raw_name = f"raw_{'offline_' if args.offline_all else ''}{tag}{suffix}.jsonl"
+            raw_path = policy.raw_path(rows_dir, raw_name)
+            rows_name = f"rows_{'offline_' if args.offline_all else ''}{tag}{suffix}.json"
             rows_path = raw_path.with_name(rows_name)
-            if raw_path.parent != PRIVATE_RESULTS:
+            if raw_path.parent != rows_dir:
                 raw_path.parent.mkdir(parents=True, exist_ok=True)
                 print(
                     f"  [{tag}] raw file exists - writing to {raw_path.parent.name}/",
@@ -708,6 +731,7 @@ def main() -> int:
                 retrieval_k=args.retrieval_k,
                 offline_extract=offline_only,
                 discipline=args.discipline,
+                prompt_version=args.prompt_version,
             )
             raw_path.write_text(
                 "\n".join(json.dumps(r, sort_keys=True) for r in report["raw"]) + "\n"
@@ -724,6 +748,7 @@ def main() -> int:
         "fixture": "PRIVATE v4 (30 items; fixture not published)",
         "n_items": len(items),
         "discipline": args.discipline,
+        "prompt_version": args.prompt_version,
         "split": args.split,
         "categories": {
             c: sum(1 for i in items if i.category == c)
@@ -750,7 +775,8 @@ def main() -> int:
         f"{len(items)} items (PRIVATE fixture, not published), categories: "
         + ", ".join(f"{k}={v}" for k, v in payload["categories"].items()),
         "",
-        f"discipline: `{payload['discipline']}` (split: {payload['split']})",
+        f"discipline: `{payload['discipline']}` (split: {payload['split']}); "
+        f"prompt: `{payload['prompt_version']}`",
         "",
         "| metric | " + " | ".join(summaries) + " |",
         "|---|" + "---|" * len(summaries),

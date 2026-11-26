@@ -209,6 +209,24 @@ class TestPrompt:
         assert "document_id" in prompt and "quote" in prompt
         assert "not stated" in prompt.lower()
 
+    def test_v26_is_v25_plus_only_the_abstention_clarification(self):
+        v25 = build_v4_prompt()
+        v26 = build_v4_prompt("v26")
+        addition = (
+            "A parameter value is a valid extraction even when none of its experimental\n"
+            "conditions are stated. Return the value and mark each unstated condition as\n"
+            'missing (null for temperature, "UNRESOLVED" for free-text fields, and an\n'
+            'explicit "not stated" note in context). Do not abstain because conditions are\n'
+            "missing; abstain only when no parameter value is stated in the evidence."
+        )
+        assert addition in v26
+        assert addition not in v25
+        assert v26.replace(addition + "\n\n", "", 1) == v25
+
+    def test_unknown_prompt_version_is_rejected(self):
+        with pytest.raises(ValueError, match="unknown v4 prompt version"):
+            build_v4_prompt("v27")
+
 
 class TestFixtureLoading:
     def test_private_fixture_loads(self):

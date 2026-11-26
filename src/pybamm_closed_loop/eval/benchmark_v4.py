@@ -533,10 +533,69 @@ The EVIDENCE may contain several kinds of statements: the value itself (often in
 Respond with a JSON array of objects and nothing else. If the evidence supports no parameter statement, respond with [].
 """
 
+# v26 prompt: the frozen v25 prompt plus one abstention-boundary clarification.
+# Kept as a separate literal so the v25 prompt stays byte-for-byte frozen and
+# the two arms can be compared without ambiguity.
+_V4_PROMPT_V26 = """You are a battery-parameter extraction assistant.
 
-def build_v4_prompt() -> str:
-    """The v4 extraction system prompt (schema identical to the frozen spec)."""
-    return _V4_PROMPT
+You may ONLY use the EVIDENCE passages provided in the user message. Nothing is
+known outside them. Missing information must be reported as UNRESOLVED; never
+infer, never guess, never import knowledge from another paper.
+
+TASK: extract the parameter value AND the experimental conditions under which
+it was reported.
+
+A parameter value is a valid extraction even when none of its experimental
+conditions are stated. Return the value and mark each unstated condition as
+missing (null for temperature, "UNRESOLVED" for free-text fields, and an
+explicit "not stated" note in context). Do not abstain because conditions are
+missing; abstain only when no parameter value is stated in the evidence.
+
+FIELDS (fill every field; use UNRESOLVED only where the evidence does not state it):
+- parameter_name: descriptive name including electrode/side and any particle/phase qualifier.
+- value: a JSON NUMBER (never a string). Convert the printed form to a plain number, e.g. "9.61·10−15" -> 9.61e-15, "1.10·10−13" -> 1.1e-13, "37.309" -> 37.309. Keep the printed significant digits; if the printed form carries a scale (e.g. "14.7·10^4"), write the number it represents.
+- unit: the unit EXACTLY as printed, including any scale prefix.
+- definition: 1-2 sentences describing the quantity.
+- material: the active material and its composition as stated (e.g. "NCA cathode, graphite-SiOx anode").
+- temperature: a JSON NUMBER in Kelvin (e.g. 298.15) when the evidence states a temperature, otherwise null. Never write "UNRESOLVED" or a string here; use null. Never infer a temperature that is not stated.
+- cell_config: the cell product or configuration as stated (chemistry, format, cell type) — for example "INR21700-50E high-energy cell, 21700" or "2032 coin cell, NMC920503 half-cell vs Li".
+- measurement_method: the technique used for THIS value (e.g. "GITT", "EIS", "CIM", "calculation from FIB-SEM tortuosity").
+- qualifier: one of measured / fitted / calculated / assumed / unknown.
+- context: 1-3 sentences stating the remaining experimental conditions of THIS value — the state of charge (SOC) window if stated, and the measurement protocol (pulse current, pulse duration, rest time, C-rate, cutoff voltages) if stated. If a condition is not stated, say so explicitly (e.g. "SOC not stated in the evidence").
+- reported_uncertainty: a JSON NUMBER in the same unit as value, or null.
+- source: a nested object with exactly four keys:
+    "document_id": the document id exactly as given in the evidence header (never invent one),
+    "page": the page number only if the evidence header shows one, otherwise null (never guess),
+    "locator": the visible table/figure/equation label, or the string UNRESOLVED,
+    "quote": ONE verbatim contiguous span copied character-for-character from the evidence (never splice with "...", never reorder, never summarise).
+
+Output format: a JSON array of objects only. Do not wrap it in markdown code fences and do not add any text before or after it.
+
+The EVIDENCE may contain several kinds of statements: the value itself (often in a parameter table), and the experimental setup (temperature, cell, protocol, SOC) stated elsewhere in the document. Use the setup statements to fill the conditions OF THIS VALUE, but only when the evidence does not contradict them.
+
+Respond with a JSON array of objects and nothing else. If the evidence supports no parameter statement, respond with [].
+"""
+
+_PROMPT_VERSIONS = {
+    "v25": _V4_PROMPT,
+    "v26": _V4_PROMPT_V26,
+}
+
+
+def build_v4_prompt(version: str = "v25") -> str:
+    """Return the v4 extraction system prompt for a named version.
+
+    ``v25`` is the frozen prompt used by the committed v4 results. ``v26``
+    adds one paragraph that separates "value absent" from "condition absent";
+    it does not change the schema, evidence, scorer or discipline.
+    """
+    try:
+        return _PROMPT_VERSIONS[version]
+    except KeyError as exc:
+        allowed = ", ".join(sorted(_PROMPT_VERSIONS))
+        raise ValueError(
+            f"unknown v4 prompt version {version!r}; choose from {allowed}"
+        ) from exc
 
 
 # ---------------------------------------------------------------------------

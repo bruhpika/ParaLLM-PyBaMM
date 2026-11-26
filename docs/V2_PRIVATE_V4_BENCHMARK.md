@@ -144,6 +144,39 @@ dev half of the seeded split only (`configs/retrieval/dev_test_split.json`,
 seed 20261119, 15 dev / 15 test items), then applied **once** to the test
 half. Raw outputs are frozen: this is an offline re-score, no model calls.
 
+### 4.3 Prompt arm v26 (Phase 1; results pending, 2026-11-26)
+
+The frozen v25 prompt asks for “the value **and** the conditions” and says to
+respond `[]` when the evidence supports no parameter statement. In the
+canonical raw outputs, **5 of 6 category-E items return `[]`** even though the
+value is verbatim in the evidence — the model is over-abstaining on the item
+when the probed condition is absent, which also loses the value and any other
+stated conditions. This is a prompt-boundary problem, not a condition-
+association problem.
+
+`v26` is the v25 prompt plus one paragraph:
+
+> A parameter value is a valid extraction even when none of its experimental
+> conditions are stated. Return the value and mark each unstated condition as
+> missing (null for temperature, `UNRESOLVED` for free-text fields, and an
+> explicit “not stated” note in context). Do not abstain because conditions are
+> missing; abstain only when no parameter value is stated in the evidence.
+
+The schema, evidence builder, scorer and discipline are unchanged. Select it
+with `--prompt-version v26`; raw files are suffixed `_v26` and must be written
+to a separate `--private-out` directory so the frozen v25 raws are untouched.
+Protocol: dev first, test once, then score both `trace` and `association` from
+the same raw outputs (`--rescore`, no model calls).
+
+**Expected effect is partial, not a fix-all.** Category E also carries stated
+cell/chemistry/format/temperature fields; returning the value alone would only
+recover the `not_stated` fields. A diagnostic what-if on the frozen v25 rows
+gives condition accuracy **0.372** if every E item returned its value with no
+conditions, versus **0.510** if every E item were fully correct — so the prompt
+arm is necessary but not sufficient, and the cell/chemistry association work
+remains the next lever. **No v26 result is claimed yet**: the live dev run is
+blocked on the `PYCL_LLM_*` credentials.
+
 ## 5. Arms
 
 | arm | evidence |

@@ -150,6 +150,21 @@ a live re-run), and a live extractor re-run to see whether the model itself
 can be made to abstain rather than relying on the post-hoc discipline. Full
 design: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
 
+**Phase 1 prompt arm (v26) implemented 2026-11-26 — results pending.** The
+canonical v25 raw outputs show 5 of 6 category-E items returning `[]` even
+though the value is verbatim in the evidence: the model is over-abstaining
+when the probed condition is absent, which also loses the value and any other
+stated conditions. `v26` adds one paragraph to the frozen prompt separating
+“no value” from “no conditions”; the schema, evidence builder, scorer and
+discipline are unchanged. Select it with `--prompt-version v26`; raw files are
+suffixed `_v26` and must use a separate `--private-out` directory. Dev first,
+test once, then score `trace` and `association` from the same raw outputs.
+**Phase 1 is necessary but not sufficient:** E items also carry stated
+cell/chemistry/format/temperature fields, so the expected gain is partial;
+cell/chemistry remain the next lever. No v26 number is claimed yet: the live
+dev run is blocked on `PYCL_LLM_API_KEY` / `PYCL_LLM_BASE_URL` /
+`PYCL_LLM_MODEL`.
+
 ## V2.1 — Applicability & conflict engine  *[first milestone — implemented; owner-reviewed 2026-11-20]*
 
 **Goal.** For a target cell + protocol, rank and decide among candidate values

@@ -12,6 +12,29 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### V2.5 prompt arm v26 — over-abstention fix (2026-11-26)
+
+- Diagnosed the remaining v4 gap from the frozen v25 raw outputs: **5 of 6
+  category-E items return `[]`** even though the value is verbatim in the
+  evidence. The model is over-abstaining when conditions are absent, not
+  failing to retrieve the value.
+- Added an opt-in **v26** extraction prompt: the frozen v25 prompt plus one
+  paragraph that separates “no parameter value” from “no conditions”. The
+  schema, evidence builder, scorer and discipline are unchanged; `v25` remains
+  the default and byte-for-byte frozen.
+- Added `--prompt-version {v25,v26}` to the v4 runner, a `_v26` raw/rows
+  suffix, and separate `--private-out` handling so new runs cannot clobber the
+  frozen v25 raws. Public summaries now record the prompt version.
+- Added unit tests that pin v26 to “v25 + exactly one paragraph” and reject
+  unknown prompt versions. Verification: ruff clean; core scope **585 passed,
+  8 skipped**.
+- **No v26 metric is claimed.** The live dev run is blocked on the
+  `PYCL_LLM_API_KEY` / `PYCL_LLM_BASE_URL` / `PYCL_LLM_MODEL` credentials;
+  protocol is dev first, test once, then `--rescore --discipline association`.
+  Phase 1 is necessary but not sufficient: E items also carry stated
+  cell/chemistry/format/temperature fields, so cell/chemistry remain the next
+  lever.
+
 ### Production CLI frontend (2026-11-23)
 
 - Added `parallm` as a Typer/Rich frontend over the existing engine: workspace
