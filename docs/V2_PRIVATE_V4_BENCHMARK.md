@@ -177,6 +177,36 @@ arm is necessary but not sufficient, and the cell/chemistry association work
 remains the next lever. **No v26 result is claimed yet**: the live dev run is
 blocked on the `PYCL_LLM_*` credentials.
 
+### 4.4 Evidence reachability ceiling (diagnostic, 2026-11-26)
+
+A second limit is in the **evidence**, not the extractor. Running
+`scripts/v2/audit_v4_reachability.py` (no model calls; scorer untouched) checks
+each gold condition against the frozen v25 evidence window with the same
+deterministic matchers the scorer uses. A gold field absent from the evidence
+cannot be recovered without importing outside knowledge, which the prompt
+forbids.
+
+| split | reachable gold fields | ceiling |
+|---|---:|---:|
+| dev | 87 / 105 | 0.829 |
+| test | 90 / 105 | 0.857 |
+| all | 177 / 210 | **0.843** |
+
+Per field (all 30 items): chemistry 1.000, SOC 1.000, method 1.000, protocol
+0.900, format 0.900, temperature 0.767, **cell 0.333**. The low ceiling is
+almost entirely the cell product identity: for 20 of 30 items the table header
+naming `INR21700-50E` / `INR21700-30T` (or the `2032` coin-cell line) is outside
+the probe-centred window, while the extracted `LG M50 21700` comparison cell
+*is* in it. A model that obeys “only use the evidence” cannot win those fields;
+a deterministic association rule cannot recover them either.
+
+Consequences for V2.5: the ≥0.5 condition-completeness criterion is **not
+mathematically impossible** (ceiling 0.843), but cell can contribute at most
+0.333 / 7 ≈ 0.048 overall, versus 0.184 measured. The remaining headroom is
+chemistry (0.143 measured / 1.000 reachable), SOC (0.510 / 1.000) and method
+(0.551 / 1.000). This diagnostic is reported, not used to relax the threshold.
+Per-item unreachable fields stay private; the public summary is aggregate only.
+
 ## 5. Arms
 
 | arm | evidence |

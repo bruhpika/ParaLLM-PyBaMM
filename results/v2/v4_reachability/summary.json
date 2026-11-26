@@ -1,0 +1,30 @@
+{
+  "condition_field_ceiling": 0.8428571428571429,
+  "evidence_source": "data/private_v4/results/raw_v25_r0.jsonl",
+  "fields": [
+    "chemistry",
+    "cell",
+    "format",
+    "temperature_k",
+    "soc",
+    "method",
+    "protocol"
+  ],
+  "fixture": "PRIVATE v4 (30 items; fixture not published)",
+  "generated": "2026-11-26T05:31:59.239580+00:00",
+  "n_fields": 210,
+  "n_items": 30,
+  "n_reachable_fields": 177,
+  "note": "Diagnostic upper bound only: a not_stated gold is reachable by abstaining; a stated gold absent from the evidence window cannot be recovered without importing outside knowledge.",
+  "per_field_ceiling": {
+    "cell": 0.3333333333333333,
+    "chemistry": 1.0,
+    "format": 0.9,
+    "method": 1.0,
+    "protocol": 0.9,
+    "soc": 1.0,
+    "temperature_k": 0.7666666666666667
+  },
+  "split": "all",
+  "split_seed": 20261119
+}

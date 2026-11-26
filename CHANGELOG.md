@@ -35,6 +35,22 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
   cell/chemistry/format/temperature fields, so cell/chemistry remain the next
   lever.
 
+### V2.5 evidence reachability audit (2026-11-26)
+
+- Added `scripts/v2/audit_v4_reachability.py` and the additive
+  `gold_condition_reachable` / `evidence_ceiling` diagnostics. No model calls;
+  the scorer, fixture, evidence builder and threshold are untouched.
+- Measured the **upper bound** implied by the frozen v25 evidence windows:
+  177/210 gold fields reachable (0.843; dev 0.829, test 0.857). Per field:
+  chemistry/SOC/method 1.000, protocol/format 0.900, temperature 0.767,
+  **cell 0.333** — the cell-product header is outside the probe window for
+  20 of 30 items. The headroom is therefore chemistry, SOC and method, not
+  cell. Public summary is aggregate only; per-item gaps stay under
+  `data/private_v4/`.
+- Added unit tests for the reachability helpers; core scope re-run: 590 passed,
+  8 skipped. This is reported as a scientific limitation, not used to relax
+  the V2.5 exit criterion.
+
 ### Production CLI frontend (2026-11-23)
 
 - Added `parallm` as a Typer/Rich frontend over the existing engine: workspace

@@ -165,6 +165,16 @@ cell/chemistry remain the next lever. No v26 number is claimed yet: the live
 dev run is blocked on `PYCL_LLM_API_KEY` / `PYCL_LLM_BASE_URL` /
 `PYCL_LLM_MODEL`.
 
+**Evidence reachability audit (2026-11-26):** `scripts/v2/audit_v4_reachability.py`
+shows that 33 of 210 gold condition fields are absent from the frozen v25
+evidence windows (ceiling 0.843; cell only 0.333 reachable because the table
+header naming the cell product is outside the probe-centred window for 20 of
+30 items). The criterion is therefore not impossible, but cell cannot supply
+more than ~0.048 of the required 0.5. The real headroom is chemistry (0.143
+measured vs 1.000 reachable), SOC (0.510) and method (0.551). This is a
+reported benchmark limitation, not a reason to relax the threshold; see
+`docs/V2_PRIVATE_V4_BENCHMARK.md` §4.4.
+
 ## V2.1 — Applicability & conflict engine  *[first milestone — implemented; owner-reviewed 2026-11-20]*
 
 **Goal.** For a target cell + protocol, rank and decide among candidate values

@@ -17,6 +17,8 @@ from pybamm_closed_loop.eval.benchmark_v4 import (
     coerce_candidates,
     coerce_number,
     coerce_temperature,
+    evidence_ceiling,
+    gold_condition_reachable,
     load_items,
     match_field,
     score_item,
@@ -200,6 +202,53 @@ class TestScoring:
         assert agg["n_transport_errors"] == 1
         assert agg["all"]["n_items"] == 1
         assert agg["all"]["condition_field_accuracy"] == 1.0
+
+
+class TestEvidenceReachability:
+    """Diagnostic ceiling only: never used by the scorer."""
+
+    def test_not_stated_is_always_reachable(self):
+        item = _item(gold_conditions={"soc": NOT_STATED}, not_stated_fields=("soc",))
+        assert gold_condition_reachable(item, "", "soc")
+
+    def test_keyword_fields_need_the_gold_words_in_evidence(self):
+        item = _item()
+        assert gold_condition_reachable(item, "tested in an INR21700-50E cell", "cell")
+        assert not gold_condition_reachable(item, "no cell named", "cell")
+        assert not gold_condition_reachable(
+            item, "tested in an INR21700-50E cell", "chemistry"
+        )
+
+    def test_temperature_in_celsius_counts_as_reachable(self):
+        item = _item()
+        assert gold_condition_reachable(item, "measured at 25 °C", "temperature_k")
+        assert not gold_condition_reachable(item, "no temperature given", "temperature_k")
+
+    def test_protocol_and_method_use_their_own_vocabulary(self):
+        item = _item()
+        assert gold_condition_reachable(item, "C/10 GITT pulses", "protocol")
+        assert gold_condition_reachable(item, "C/10 GITT pulses", "method")
+        soc_item = _item(
+            gold_conditions={
+                "chemistry": "nca+graphite",
+                "cell": "inr21700+50e",
+                "format": "21700|cylindrical",
+                "temperature_k": 298.15,
+                "soc": "50",
+                "method": "gitt",
+                "protocol": "c/10",
+            },
+            not_stated_fields=(),
+        )
+        assert not gold_condition_reachable(soc_item, "C/10 GITT pulses", "soc")
+
+    def test_ceiling_is_an_aggregate_without_item_details(self):
+        item = _item()
+        result = evidence_ceiling([item], {item.item_id: "INR21700-50E cell"})
+        assert result["n_items"] == 1
+        assert result["n_fields"] == len(CONDITION_FIELDS)
+        assert 0.0 < result["condition_field_ceiling"] < 1.0
+        assert all("item_id" not in entry for entry in [result])
 
 
 class TestPrompt:

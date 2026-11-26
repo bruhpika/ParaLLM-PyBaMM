@@ -497,6 +497,126 @@ def aggregate(rows: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# Evidence reachability audit (diagnostic only; does NOT change scoring)
+# ---------------------------------------------------------------------------
+# A gold condition that is absent from the evidence window cannot be recovered
+# by a conformant extractor without importing outside knowledge. This audit
+# reports which gold fields are actually present in the evidence so a missed
+# criterion is not misattributed to the extractor. It is deliberately separate
+# from ``score_item``/``aggregate``: those stay frozen.
+_TEMP_EVIDENCE_RE = re.compile(
+    r"(-?\d+(?:[.,]\d+)?)\s*(?:°|deg(?:rees)?\s*)?\s*(k\b|c\b|celsius|kelvin)",
+    re.IGNORECASE,
+)
+
+
+def gold_condition_reachable(
+    item: V4Item, evidence_text: str, field_name: str
+) -> bool:
+    """Whether a gold condition can, in principle, be read from the evidence.
+
+    ``not_stated`` gold fields are always reachable (the correct answer is to
+    report nothing). Exact wording is deliberately permissive: the purpose is
+    an upper bound, not a verdict on any extraction.
+    """
+    gold = item.gold_conditions.get(field_name, NOT_STATED)
+    if str(gold).strip().lower() == NOT_STATED:
+        return True
+    if field_name == "temperature_k":
+        target = _as_number(gold)
+        if target is None:
+            return _keyword_hit(evidence_text, gold)
+        for match in _TEMP_EVIDENCE_RE.finditer(evidence_text):
+            try:
+                value = float(match.group(1).replace(",", "."))
+            except ValueError:
+                continue
+            kelvin = value + (273.15 if match.group(2).lower().startswith("c") else 0)
+            if 200.0 <= kelvin <= 400.0 and abs(kelvin - target) <= 1.0:
+                return True
+        return False
+    if field_name == "protocol":
+        for alternative in str(gold).split("|"):
+            if _keyword_hit(evidence_text, alternative):
+                return True
+            rate = re.search(r"c\s*/\s*(\d+(?:\.\d+)?)", _norm(alternative))
+            if rate:
+                pattern = rf"c\s*/\s*{re.escape(rate.group(1))}"
+                if re.search(pattern, evidence_text, re.IGNORECASE):
+                    return True
+        return False
+    if field_name == "soc":
+        target = _as_number(gold)
+        if target is None:
+            return _keyword_hit(evidence_text, gold)
+        return any(
+            abs(float(number.replace(",", ".")) - target) <= 2.0
+            for number in re.findall(r"\d+(?:[.,]\d+)?", evidence_text)
+        )
+    if field_name == "method":
+        return any(
+            _keyword_hit(evidence_text, alt) or _keyword_hit(alt, evidence_text)
+            for alt in str(gold).split("|")
+        )
+    return _keyword_hit(evidence_text, gold)
+
+
+def evidence_ceiling(
+    items: Iterable[V4Item],
+    evidence_by_id: Mapping[str, str],
+    split_ids: Iterable[str] | None = None,
+) -> dict[str, Any]:
+    """Aggregate evidence reachability, without printing private item details."""
+    selected = list(items)
+    if split_ids is not None:
+        wanted = set(split_ids)
+        selected = [item for item in selected if item.item_id in wanted]
+    per_field: dict[str, dict[str, int]] = {
+        name: {"reachable": 0, "total": 0} for name in CONDITION_FIELDS
+    }
+    unreachable: list[dict[str, str]] = []
+    reachable_total = 0
+    total = 0
+    n_items = 0
+    for item in selected:
+        evidence = evidence_by_id.get(item.item_id)
+        if evidence is None:
+            continue
+        n_items += 1
+        for name in CONDITION_FIELDS:
+            per_field[name]["total"] += 1
+            total += 1
+            if gold_condition_reachable(item, evidence, name):
+                per_field[name]["reachable"] += 1
+                reachable_total += 1
+            else:
+                unreachable.append(
+                    {
+                        "item_id": item.item_id,
+                        "field": name,
+                        "gold": str(item.gold_conditions.get(name, NOT_STATED)),
+                    }
+                )
+    return {
+        "n_items": n_items,
+        "n_fields": total,
+        "n_reachable_fields": reachable_total,
+        "condition_field_ceiling": (
+            reachable_total / total if total else float("nan")
+        ),
+        "per_field_ceiling": {
+            name: (
+                counts["reachable"] / counts["total"]
+                if counts["total"]
+                else float("nan")
+            )
+            for name, counts in per_field.items()
+        },
+        "unreachable": unreachable,
+    }
+
+
+# ---------------------------------------------------------------------------
 # v4 extraction prompt (P5′): same schema, conditions made explicit
 # ---------------------------------------------------------------------------
 _V4_PROMPT = """You are a battery-parameter extraction assistant.
