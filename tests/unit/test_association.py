@@ -332,6 +332,29 @@ class TestApplyAssociationDiscipline:
         assert stats["quote_in_evidence_rate"] is None
         assert stats["association_fallback_rate"] is None
 
+    def test_explicit_protocol_abstention_is_not_a_claim(self):
+        cand = _candidate(
+            context=(
+                "SOC window, pulse current, pulse duration, rest time, "
+                "C-rate, and cutoff voltages are not stated in the evidence."
+            ),
+            source={"quote": "Diffusion coefficient of anode Dn m2 s-1 9.61e-15"},
+        )
+        cleaned, stats = apply_association_discipline(TABLE_EVIDENCE, [cand])
+        assert _context_slice(cleaned[0].get("context"), "protocol") is None
+        assert "explicit_abstention" in stats["association_rule_counts"]
+
+    def test_stated_protocol_survives_a_partial_abstention(self):
+        cand = _candidate(
+            context="GITT at C/10 pulses; rest time not stated in the evidence.",
+            source={"quote": "Diffusion coefficient of anode Dn m2 s-1 9.61e-15"},
+        )
+        cleaned, stats = apply_association_discipline(TABLE_EVIDENCE, [cand])
+        # The existing local-scope rule strips this claim; our new abstention
+        # rule must not be the reason (a real C/10 + GITT claim was present).
+        assert _context_slice(cleaned[0].get("context"), "protocol") is None
+        assert "explicit_abstention" not in stats["association_rule_counts"]
+
 
 class TestScoreIntegration:
     def _items(self):

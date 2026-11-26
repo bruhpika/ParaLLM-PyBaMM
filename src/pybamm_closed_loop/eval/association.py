@@ -94,6 +94,22 @@ _SCOPE_CUE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# An explicit abstention that merely lists protocol cue words ("pulse, rest,
+# cutoff ... are not stated") must not be scored as a protocol claim. A real
+# claim carries a concrete C-rate or a named technique; requiring one keeps the
+# rule from neutralising a partially stated protocol.
+_PROTOCOL_ABSTENTION_HINT_RE = re.compile(
+    r"\b(?:not|never)\s+"
+    r"(?:stated|given|reported|provided|known|available|mentioned)\b",
+    re.IGNORECASE,
+)
+_PROTOCOL_CONCRETE_RE = re.compile(
+    r"c\s*/\s*\d+(?:\.\d+)?|(?<![\w.])\d+(?:\.\d+)?\s*c\b"
+    r"|\b(?:gitt|eis|peis|cc-?cv|galvanostatic|potentiostatic|ocv)\b"
+    r"|\bcurrent\s+interrupt\b",
+    re.IGNORECASE,
+)
+
 _METHOD_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("eis", ("eis", "impedance", "peis")),
     ("gitt", ("gitt",)),
@@ -727,6 +743,26 @@ def enforce_association(
         if field_name in ("soc", "protocol"):
             value = _context_slice(cleaned.get("context"), field_name)
         if _is_missing(value):
+            continue
+        if (
+            field_name == "protocol"
+            and _PROTOCOL_ABSTENTION_HINT_RE.search(str(value))
+            and not _PROTOCOL_CONCRETE_RE.search(str(value))
+        ):
+            # Explicit abstention wins over a cue-word trace. Record it so the
+            # drop stays auditable in the transcript.
+            result = AssociationResult(False, "local", "explicit_abstention")
+            results[field_name] = result
+            transcript.append(
+                {
+                    "field": field_name,
+                    "value": str(value),
+                    "supported": False,
+                    "scope": result.scope,
+                    "rule": result.rule,
+                }
+            )
+            cleaned["context"] = "protocol not stated in the evidence."
             continue
         result = association_support(
             scope,
