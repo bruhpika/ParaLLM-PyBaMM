@@ -419,12 +419,15 @@ decision logic is built on top of them.
 retrieval/recalibration loop over an unreliable decision layer is an automated
 way of producing incorrect results.
 
-**Milestone status (2026-11-22):** V2.1 ✅ implemented (agreement 0.958 vs
+**Milestone status (2026-11-26):** V2.1 ✅ implemented (agreement 0.958 vs
 owner-reviewed labels) · V2.2 ✅ acceptance met (traceability 96/96 after the
 verbatim-quote backfill) · V2.3 ✅ acceptance met · V2.4 ✅ acceptance met ·
-V2.5 ⏳ exit criterion not met (0.310 / 0.044 vs ≥0.5 / 0.000; association
-discipline landed 2026-11-22, invented rate 0.108 → 0.044; blocked on an
-extractor decision) · V2.6 gated · V2.7 CI/packaging landed; publish pending.
+V2.5 ⏳ exit criterion **still not met**: best frozen measurement v27
+association **0.398 / 0.067** (MiMo V2.6 Flash, all 30 items, 3 repeats) vs
+≥0.5 / 0.000; this is a large gain over the old v25 association 0.254 / 0.044
+and chemistry rose 0.143 → 0.455, but both gates remain open. Cell is capped
+by evidence reachability (0.333). · V2.6 gated · V2.7 CI/packaging landed;
+publish pending.
 
 **TODO carried (not v0.2 scope):** multi-chemistry (LFP/graphite, NMC811,
 Li-metal); experimental dataset acquisition + licensing; observables beyond

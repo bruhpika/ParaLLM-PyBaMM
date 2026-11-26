@@ -199,6 +199,27 @@ the dev criterion is not met. Public aggregates:
 `results/v2/v4_prompt_v26_dev/summary.md` and
 `results/v2/v4_prompt_v26_dev_assoc/summary.md`.
 
+### 4.5 v27 final all-30 measurement (frozen before the test half, 2026-11-26)
+
+The v27 prompt and both association abstention rules were frozen on dev only;
+the test half was then evaluated **once** with the same MiMo V2.6 Flash
+extractor, 3 repeats, no further rule changes.
+
+| discipline | condition accuracy | invented | value found | abstain | verbatim quotes |
+|---|---:|---:|---:|---:|---:|
+| v27 trace | 0.384 ± 0.038 | 0.367 ± 0.088 | 0.456 ± 0.069 | 0.167 | 0.912 |
+| v27 association | **0.398 ± 0.020** | **0.067 ± 0.033** | 0.456 ± 0.069 | 0.167 | 0.912 |
+| frozen v25 association (old extractor) | 0.254 ± 0.079 | 0.044 ± 0.029 | 0.454 | 0.431 | 0.997 |
+
+This is a large improvement over the old baseline (0.254 → 0.398), but
+**V2.5 still fails both gates**: 0.398 < 0.5 and 0.067 > 0.000. Per-field the
+gains are chemistry 0.455, temperature 0.640, protocol 0.639, method 0.560,
+SOC 0.573, but cell remains 0.190 against a 0.333 evidence ceiling (§4.4).
+The residual invented claims are not tuned away: the test half was measured
+once and stands. Public aggregates:
+`results/v2/v4_prompt_v27_all/summary.md` and
+`results/v2/v4_prompt_v27_all_assoc/summary.md`.
+
 ### 4.4 Evidence reachability ceiling (diagnostic, 2026-11-26)
 
 A second limit is in the **evidence**, not the extractor. Running

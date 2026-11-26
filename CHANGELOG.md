@@ -12,6 +12,18 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### V2.5 v27 final measurement (2026-11-26)
+
+- Froze the v27 prompt and both value-local association abstention rules on
+  dev only, then evaluated the **test half once** with the same MiMo V2.6 Flash
+  extractor (3 repeats, no further changes).
+- Final all-30 result: condition accuracy **0.398 ± 0.020** (association) and
+  **0.384 ± 0.038** (trace); invented rate **0.067 ± 0.033** (association).
+  This improves on the frozen v25 association 0.254 / 0.044, with chemistry
+  0.143 → 0.455, but **V2.5 still fails both gates** (≥0.5 / 0.000).
+- No rule was changed against the test half; the residual invented claims
+  stand as measured. Details: `docs/V2_PRIVATE_V4_BENCHMARK.md` §4.5.
+
 ### V2.5 prompt arm v26 — over-abstention fix (2026-11-26)
 
 - Diagnosed the remaining v4 gap from the frozen v25 raw outputs: **5 of 6
