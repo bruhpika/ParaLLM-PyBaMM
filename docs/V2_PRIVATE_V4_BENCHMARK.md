@@ -174,8 +174,30 @@ recover the `not_stated` fields. A diagnostic what-if on the frozen v25 rows
 gives condition accuracy **0.372** if every E item returned its value with no
 conditions, versus **0.510** if every E item were fully correct — so the prompt
 arm is necessary but not sufficient, and the cell/chemistry association work
-remains the next lever. **No v26 result is claimed yet**: the live dev run is
-blocked on the `PYCL_LLM_*` credentials.
+remains the next lever.
+
+**Measured dev result (2026-11-26, 3 repeats, 15/30 dev items, MiMo V2.6
+Flash).** This is a **confounded A/B**: the extractor also changed from the
+canonical `gemini-flash-lite-latest`, so the difference cannot be attributed to
+the prompt alone.
+
+| discipline | condition accuracy | invented | value found | abstain | quote in evidence |
+|---|---:|---:|---:|---:|---:|
+| v26 trace | 0.200 ± 0.016 | 0.200 ± 0.133 | 0.489 ± 0.102 | 0.400 ± 0.067 | 0.882 ± 0.077 |
+| v26 association | 0.216 ± 0.031 | 0.067 ± 0.067 | 0.489 ± 0.102 | 0.400 ± 0.067 | 0.882 ± 0.077 |
+| frozen v25 trace (dev) | 0.226 ± 0.071 | 0.096 ± 0.059 | 0.396 ± 0.101 | 0.507 ± 0.057 | 1.000 |
+| frozen v25 association (dev) | 0.234 ± 0.072 | 0.022 ± 0.033 | 0.396 ± 0.101 | 0.507 ± 0.057 | 1.000 |
+
+The target symptom did move: abstention fell 0.507 → 0.400 and value-found
+rose 0.396 → 0.489. Category-E recovery was partial (E4 2/3 repeats, E6 1/3,
+E5 0/3). But condition accuracy **did not improve** and invented conditions
+got worse, especially under `trace`. The most likely cause is extractor-side:
+only 0.882 of quotes verify verbatim (vs 1.000 for the frozen arm), so the
+association discipline drops ~22.6 conditions per item and unsupported claims
+survive. **Do not run the test half yet**: the prompt effect is confounded and
+the dev criterion is not met. Public aggregates:
+`results/v2/v4_prompt_v26_dev/summary.md` and
+`results/v2/v4_prompt_v26_dev_assoc/summary.md`.
 
 ### 4.4 Evidence reachability ceiling (diagnostic, 2026-11-26)
 

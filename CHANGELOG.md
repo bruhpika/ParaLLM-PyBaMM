@@ -28,12 +28,14 @@ Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 - Added unit tests that pin v26 to “v25 + exactly one paragraph” and reject
   unknown prompt versions. Verification: ruff clean; core scope **585 passed,
   8 skipped**.
-- **No v26 metric is claimed.** The live dev run is blocked on the
-  `PYCL_LLM_API_KEY` / `PYCL_LLM_BASE_URL` / `PYCL_LLM_MODEL` credentials;
-  protocol is dev first, test once, then `--rescore --discipline association`.
-  Phase 1 is necessary but not sufficient: E items also carry stated
-  cell/chemistry/format/temperature fields, so cell/chemistry remain the next
-  lever.
+- **Measured dev result (3 repeats, MiMo V2.6 Flash, 2026-11-26):** abstention
+  0.507 → 0.400 and value-found 0.396 → 0.489 versus frozen v25 dev, but
+  condition accuracy did not improve (0.200 trace / 0.216 association vs
+  0.226 / 0.234) and invented conditions worsened (0.200 / 0.067 vs 0.096 /
+  0.022). The A/B is confounded by the extractor change (quote verification
+  0.882 vs 1.000), so no prompt-only effect is claimed. Category-E recovery
+  was partial (E4 2/3, E6 1/3, E5 0/3). **The test half was not run.** Details:
+  `docs/V2_PRIVATE_V4_BENCHMARK.md` §4.3.
 
 ### V2.5 evidence reachability audit (2026-11-26)
 

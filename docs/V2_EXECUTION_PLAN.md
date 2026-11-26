@@ -150,7 +150,7 @@ a live re-run), and a live extractor re-run to see whether the model itself
 can be made to abstain rather than relying on the post-hoc discipline. Full
 design: `docs/V2_PRIVATE_V4_BENCHMARK.md`.
 
-**Phase 1 prompt arm (v26) implemented 2026-11-26 — results pending.** The
+**Phase 1 prompt arm (v26) measured on dev 2026-11-26 — criterion not met.** The
 canonical v25 raw outputs show 5 of 6 category-E items returning `[]` even
 though the value is verbatim in the evidence: the model is over-abstaining
 when the probed condition is absent, which also loses the value and any other
@@ -161,9 +161,14 @@ suffixed `_v26` and must use a separate `--private-out` directory. Dev first,
 test once, then score `trace` and `association` from the same raw outputs.
 **Phase 1 is necessary but not sufficient:** E items also carry stated
 cell/chemistry/format/temperature fields, so the expected gain is partial;
-cell/chemistry remain the next lever. No v26 number is claimed yet: the live
-dev run is blocked on `PYCL_LLM_API_KEY` / `PYCL_LLM_BASE_URL` /
-`PYCL_LLM_MODEL`.
+cell/chemistry remain the next lever. The dev run completed (3 repeats) with
+`mimo-v2.6-flash` via the gitignored `PYCL_LLM_*` `.env`: abstention fell
+0.507 → 0.400 and value-found rose 0.396 → 0.489, but condition accuracy did
+not improve (0.200 trace / 0.216 association vs 0.226 / 0.234 for frozen v25
+dev) and invented conditions worsened (0.200 / 0.067 vs 0.096 / 0.022).
+The A/B is **confounded** by the extractor change (quote verification 0.882
+vs 1.000), so no prompt-only effect can be claimed. **The test half was
+deliberately not run.** Full table: `docs/V2_PRIVATE_V4_BENCHMARK.md` §4.3.
 
 **Evidence reachability audit (2026-11-26):** `scripts/v2/audit_v4_reachability.py`
 shows that 33 of 210 gold condition fields are absent from the frozen v25
