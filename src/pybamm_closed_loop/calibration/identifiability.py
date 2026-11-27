@@ -105,6 +105,63 @@ def fim_diagnostics(
     }
 
 
+def multi_observable_fim(
+    per_observable: dict[str, dict[str, Any]], x: np.ndarray
+) -> dict[str, Any]:
+    """Combine dimensionless sensitivities from several forward observables.
+
+    Each ``per_observable[name]`` entry supplies:
+
+    - ``jacobian``: array of shape (n_points, n_params), e.g. from
+      :func:`finite_difference_jacobian` applied to an EIS, OCV-SOC, dQ/dV or
+      GITT-D prediction callable;
+    - ``sigma``: assumed i.i.d. noise standard deviation in that observable's
+      units (user-supplied, never inferred from a fit);
+    - ``y_scale``: characteristic magnitude of that observable, used to make
+      columns dimensionless via :func:`normalized_sensitivity`.
+
+    The stacked Jacobian is ``J_scaled = S / sigma`` per observable, so the
+    combined FIM is ``J_scaled.T @ J_scaled``. This is a *local sensitivity
+    diagnostic assuming independent Gaussian noise*; a well-conditioned FIM
+    does not prove global identifiability, and nothing here is experimental
+    data (scientific rules 7 and 8). No PyBaMM calls occur in this function.
+    """
+    if not per_observable:
+        raise ValueError("per_observable must contain at least one observable")
+    x_arr = np.asarray(x, dtype=float)
+    blocks: list[np.ndarray] = []
+    per_observable_report: dict[str, dict[str, Any]] = {}
+    for name, spec in per_observable.items():
+        jac = np.asarray(spec["jacobian"], dtype=float)
+        sigma = float(spec["sigma"])
+        y_scale = float(spec["y_scale"])
+        if sigma <= 0:
+            raise ValueError(f"sigma for {name!r} must be positive")
+        if y_scale <= 0:
+            raise ValueError(f"y_scale for {name!r} must be positive")
+        if jac.ndim != 2 or jac.shape[1] != x_arr.size:
+            raise ValueError(
+                f"jacobian for {name!r} must have {x_arr.size} columns, got {jac.shape}"
+            )
+        scaled = normalized_sensitivity(jac, x_arr, y_scale) / sigma
+        blocks.append(scaled)
+        diag = fim_diagnostics(scaled, sigma=1.0)
+        per_observable_report[name] = {
+            "condition_number": diag["condition_number"],
+            "n_points": int(jac.shape[0]),
+        }
+    stacked = np.vstack(blocks)
+    combined = fim_diagnostics(stacked, sigma=1.0)
+    combined["per_observable"] = per_observable_report
+    combined["stacked_jacobian_shape"] = list(stacked.shape)
+    combined["synthetic_only"] = True
+    combined["identifiability_note"] = (
+        "Well-conditioned local FIM is not proof of identifiability; "
+        "predictions are model-generated, not experimental data."
+    )
+    return combined
+
+
 def profile_likelihood(
     make_problem: Callable[[dict[str, float]], Any],
     run_fit_fn: Callable[..., dict[str, Any]],

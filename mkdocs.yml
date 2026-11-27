@@ -27,6 +27,7 @@ nav:
       - Positioning: POSITIONING.md
       - Scientific limitations: SCIENTIFIC_LIMITATIONS.md
       - Scientific validation: SCIENTIFIC_VALIDATION.md
+      - Forward observables: FORWARD_OBSERVABLES.md
       - Data provenance: DATA_PROVENANCE.md
   - Architecture:
       - Architecture: ARCHITECTURE.md
