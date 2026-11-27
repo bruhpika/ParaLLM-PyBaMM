@@ -326,24 +326,39 @@ prevent.
    curves fed into the landed `multi_observable_fim` with declared
    per-observable noise; SYNTHETIC-labelled artifacts in
    `results/observables/diffusivity_multi_observable_fim.{json,md}`.
-   **Corrected result:** voltage-only FIM 9.029e4 → augmented **1.796e5**
-   (SE reduction factor **1.41**). The low-SOC GITT pulse drop (0.082) and
-   sqrt(t) relaxation slope (0.100) clear the 0.05 bar, so the verdict flips
-   to `OBSERVABLE`; the dossier action stays `MEASURE` pending owner review.
-   The committed baseline reproduces exactly (Δ = 0.0 at 0.5C/1C/2C).
-   **Correction:** the first run used the PyBaMM default 100% SOC, where the
-   graphite OCP is flat; its "no flip" conclusion was a protocol artefact. The
-   committed protocol is 20% SOC / 0.2C, validated against the 3.0 V cutoff;
-   `gitt_protocol_warnings()` flags full-charge runs and an integration test
-   pins the corrected signal. **Joint collinearity check (same milestone):**
-   `D_neg`, `j0_neg` and `D_e` freed together give a `D_neg` marginal relative
-   SE of **0.00263** (single-parameter reference 0.00236; variance inflation
-   **1.25**), correlations 0.153 and −0.444, and classification `OBSERVABLE`
-   under the declared rule. Voltage-only already meets the relative-SE limb but
-   not the per-block |S| limb (0.0476), so the flip is a conservative
-   classification flip; the joint FIM itself shows voltage data carry local
-   information. A 0.5–5 % finite-difference sweep is stable (SE deviation
-   <0.6 %). Artifacts: `results/observables/joint_diffusivity_fim.{json,md}`.
+   **Result (after two disclosed corrections):** the verdict flips to
+   `OBSERVABLE` (low-SOC GITT pulse drop mean |S| 0.082, sqrt(t) slope 0.100
+   clear the 0.05 bar), but the corrected **true** SE reduction from adding
+   GITT + EIS is only **1.007×** (3.42 % → 3.39 %): the flip is carried by the
+   per-block |S| limb, not by added precision. The dossier action stays
+   `MEASURE` pending owner review. The committed baseline reproduces exactly
+   (Δ = 0.0 at 0.5C/1C/2C).
+   **Correction 1 (protocol):** the first run used the PyBaMM default 100% SOC,
+   where the graphite OCP is flat; its "no flip" conclusion was a protocol
+   artefact. The committed protocol is 20% SOC / 0.2C, validated against the
+   3.0 V cutoff; `gitt_protocol_warnings()` flags full-charge runs and an
+   integration test pins the corrected signal.
+   **Correction 2 (units):** the first two runs divided dimensionless
+   sensitivities by a noise in volts, scaling every implied SE by its
+   observable's `y_scale` (old figures 9.029e4 → 1.796e5, "1.41×" and
+   "0.236 %" were wrong). The FIM now uses raw sensitivities against noise in
+   observable units, and GITT feature noises are propagated from the 1 mV
+   per-sample noise (drop √2·σ, sqrt(t) slope σ/√Sxx). The classification
+   verdict survives; the information-gain claim does not.
+   **Joint collinearity check (same milestone, corrected):** `D_neg`, `j0_neg`
+   and `D_e` freed together give a `D_neg` marginal relative SE of **0.0452**
+   (single-parameter 0.0339; variance inflation **1.78**), correlations 0.36 /
+   −0.655 / −0.657, all below the declared 0.9 warning; classification
+   `OBSERVABLE` with only 0.5 percentage points of margin against the 5 % rule.
+   Voltage-only joint misses the SE limb by 0.04 pp (0.0504) and the |S| limb
+   (0.0476); GITT features alone leave `D_neg` at ±125 %. A 0.5–5 %
+   finite-difference sweep is stable (SE deviation <0.9 %). Artifacts:
+   `results/observables/joint_diffusivity_fim.{json,md}`.
+   **Recovery dry-run (synthetic, gates 2/3 machinery):** joint least squares
+   on §2.7 GITT raw voltage recovers `j0_neg` (z = 0.23) but `D_neg`/`D_e`
+   fail the multi-start spread rule (shallow valley, ρ = −0.90); the `D_neg`
+   profile is closed at [0.35, 0.82] (95 %) — bounded, not pinned
+   (`results/observables/diffusivity_gitt_recovery.{json,md}`).
    **Limits:** only three parameters are free, function-valued parameters are
    perturbed by a constant multiplier (their form is assumed known), and this
    remains a local synthetic FIM, not identifiability proof; GITT features

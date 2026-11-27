@@ -1,0 +1,325 @@
+{
+  "label": "SYNTHETIC JOINT PARAMETER RECOVERY + PROFILE LIKELIHOOD",
+  "run_id": "diffusivity_gitt_recovery_synthetic",
+  "description": "Joint least-squares recovery of three multiplicative scale factors (negative particle diffusivity, negative exchange-current density, electrolyte diffusivity) from synthetic low-SOC GITT voltage at the \u00a72.7 protocol, plus a profile likelihood over the diffusivity. Dry-run of the identification machinery on synthetic data; no real data involved.\n",
+  "synthetic_only": true,
+  "diagnostic_only": true,
+  "decision_changed": false,
+  "registry_write": false,
+  "parameter_set": "Chen2020",
+  "model_name": "DFN",
+  "parameters": [
+    {
+      "label": "D_neg",
+      "name": "Negative particle diffusivity [m2.s-1]"
+    },
+    {
+      "label": "j0_neg",
+      "name": "Negative electrode exchange-current density [A.m-2]"
+    },
+    {
+      "label": "D_e",
+      "name": "Electrolyte diffusivity [m2.s-1]"
+    }
+  ],
+  "protocol": {
+    "model_name": "DFN",
+    "current_A": 1.0,
+    "pulse_duration_s": 120.0,
+    "rest_duration_s": 180.0,
+    "n_pulses": 5,
+    "period_s": 30.0,
+    "initial_soc": 0.2,
+    "relaxation_fit_points": 5
+  },
+  "noise_sigma_V": 0.001,
+  "seed": 20261127,
+  "rel_perturbation": 0.02,
+  "optimizer": {
+    "method": "trf",
+    "max_nfev": 300,
+    "bounds": [
+      0.1,
+      10.0
+    ],
+    "multi_start": [
+      [
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        0.2,
+        1.5,
+        0.5
+      ],
+      [
+        2.0,
+        0.5,
+        2.0
+      ],
+      [
+        0.5,
+        2.0,
+        1.5
+      ]
+    ]
+  },
+  "n_data_points": 60,
+  "recovery": {
+    "recovered": false,
+    "per_parameter": {
+      "D_e": {
+        "z_score": 0.8560134705399173,
+        "multi_start_spread_ratio": 1.1158502945036284,
+        "recovered": false
+      },
+      "D_neg": {
+        "z_score": -0.515115125335233,
+        "multi_start_spread_ratio": 1.1508809267887372,
+        "recovered": false
+      },
+      "j0_neg": {
+        "z_score": 0.22647069347448726,
+        "multi_start_spread_ratio": 1.0026462564459777,
+        "recovered": true
+      }
+    },
+    "rule": "|z| <= 3 against the predicted SE and multi-start estimate spread ratio <= 1.05, for every parameter",
+    "truth_scale_factors": {
+      "D_neg": 0.5,
+      "j0_neg": 0.7,
+      "D_e": 1.3
+    },
+    "estimate": {
+      "D_neg": 0.43976972595219466,
+      "j0_neg": 0.7014094101921263,
+      "D_e": 1.4766766731225325
+    },
+    "predicted_standard_error": {
+      "D_neg": 0.11692585033026925,
+      "j0_neg": 0.00622336678756691,
+      "D_e": 0.20639473466591168
+    },
+    "unconstrained_parameters": [],
+    "unconstrained_note": "Parameters touching a null direction of the truth FIM cannot be constrained by this dataset; their standard error is reported as inf and they are never counted as recovered.",
+    "predicted_correlation": {
+      "D_neg": {
+        "D_neg": 1.0,
+        "j0_neg": -0.439045819244572,
+        "D_e": -0.8992428939351613
+      },
+      "j0_neg": {
+        "D_neg": -0.4390458192445747,
+        "j0_neg": 1.0,
+        "D_e": 0.1525089065754518
+      },
+      "D_e": {
+        "D_neg": -0.8992428939351622,
+        "j0_neg": 0.15250890657545135,
+        "D_e": 1.0
+      }
+    }
+  },
+  "multi_start_fits": [
+    {
+      "start": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "estimate": [
+        0.5061225897774908,
+        0.7003373412925262,
+        1.3233645054325258
+      ],
+      "chi_square": 62.84897107210058,
+      "nfev": 24,
+      "success": true,
+      "status": 3,
+      "message": "`xtol` termination condition is satisfied."
+    },
+    {
+      "start": [
+        0.2,
+        1.5,
+        0.5
+      ],
+      "estimate": [
+        0.4805889940606462,
+        0.7014534364507579,
+        1.3539543342640195
+      ],
+      "chi_square": 62.69566940231666,
+      "nfev": 21,
+      "success": true,
+      "status": 3,
+      "message": "`xtol` termination condition is satisfied."
+    },
+    {
+      "start": [
+        2.0,
+        0.5,
+        2.0
+      ],
+      "estimate": [
+        0.5050554399648162,
+        0.6996021098579267,
+        1.350269263014844
+      ],
+      "chi_square": 62.84269928330244,
+      "nfev": 23,
+      "success": true,
+      "status": 4,
+      "message": "Both `ftol` and `xtol` termination conditions are satisfied."
+    },
+    {
+      "start": [
+        0.5,
+        2.0,
+        1.5
+      ],
+      "estimate": [
+        0.43976972595219466,
+        0.7014094101921263,
+        1.4766766731225325
+      ],
+      "chi_square": 62.506894248333175,
+      "nfev": 17,
+      "success": true,
+      "status": 3,
+      "message": "`xtol` termination condition is satisfied."
+    }
+  ],
+  "profile_likelihood": {
+    "closed_at_delta_chi2": true,
+    "ci95": [
+      0.3467703527782196,
+      0.8178085989158785
+    ],
+    "unbounded_sides": [],
+    "minimum_grid_value": 0.4,
+    "minimum_delta": 0.0,
+    "rule": "closed iff the minimum is interior and the cost exceeds the minimum by 3.841 on both sides of the declared grid",
+    "fixed_parameter": "D_neg",
+    "free_parameters": [
+      "j0_neg",
+      "D_e"
+    ],
+    "grid": [
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.75,
+      0.9,
+      1.1,
+      1.4,
+      1.8,
+      2.2
+    ],
+    "chi_square": [
+      136.99072840689823,
+      69.97447809850291,
+      62.75857455513254,
+      62.799878863176524,
+      64.34116304852496,
+      65.92642648965844,
+      67.41550326510367,
+      68.92795171743198,
+      70.59510267140152,
+      72.0124372619684,
+      73.10560450481873
+    ],
+    "delta_chi_square": [
+      74.23215385176569,
+      7.2159035433703735,
+      0.0,
+      0.04130430804398344,
+      1.5825884933924215,
+      3.167851934525899,
+      4.656928709971126,
+      6.16937716229944,
+      7.83652811626898,
+      9.25386270683586,
+      10.347029949686188
+    ],
+    "free_estimates": [
+      [
+        0.7150398241900826,
+        6.472579188777259
+      ],
+      [
+        0.7049746141296858,
+        2.3152711750061252
+      ],
+      [
+        0.7028052835768198,
+        1.58638107648235
+      ],
+      [
+        0.7001593938150161,
+        1.346303237814888
+      ],
+      [
+        0.6964680627241879,
+        1.2578137788139172
+      ],
+      [
+        0.6960965549577748,
+        1.104681050969836
+      ],
+      [
+        0.6946285620403873,
+        1.0368946611354073
+      ],
+      [
+        0.693048188540115,
+        0.9830488303199068
+      ],
+      [
+        0.6912336052435966,
+        0.9355137899602851
+      ],
+      [
+        0.6893336803914515,
+        0.9027178224611629
+      ],
+      [
+        0.6873635386714932,
+        0.8906560272732563
+      ]
+    ],
+    "delta_chi2_95": 3.841
+  },
+  "environment": {
+    "python": "3.14.10",
+    "pybamm": "26.8.0.0",
+    "numpy": "2.5.4"
+  },
+  "verified_api_signatures": {
+    "pybamm.__version__": "26.8.0.0",
+    "EISSimulation": "EISSimulation(model, parameter_values=None, geometry=None, submesh_types=None, var_pts=None, spatial_methods=None, skip_surface_form_check=False)",
+    "EISSimulation.solve": "EISSimulation.solve(self, frequencies, inputs=None, initial_soc=None)",
+    "EISSolution": "EISSolution(frequencies, impedance)",
+    "EISSolution.get_data_dict": "EISSolution.get_data_dict(self)",
+    "get_initial_stoichiometries": "lithium_ion.get_initial_stoichiometries(initial_value, parameter_values, direction=None, param=None, known_value='cyclable lithium capacity', options=None, tol=1e-06, inputs=None, esoh_solver=None)",
+    "get_min_max_stoichiometries": "lithium_ion.get_min_max_stoichiometries(parameter_values, direction=None, param=None, known_value='cyclable lithium capacity', options=None, inputs=None)",
+    "Experiment": "Experiment(operating_conditions: 'list[str | tuple[str] | BaseStep]', period: 'str | None' = None, temperature: 'float | None' = None, termination: 'list[str] | None' = None)",
+    "Simulation": "Simulation(model, experiment=None, geometry=None, parameter_values=None, submesh_types=None, var_pts=None, spatial_methods=None, solver=None, output_variables=None, C_rate=None, discretisation_kwargs=None, cache_esoh=True, experiment_model_mode='legacy')",
+    "Simulation.solve": "Simulation.solve(self, t_eval=None, solver=None, save_at_cycles=None, calc_esoh=None, starting_solution=None, initial_soc=None, direction=None, callbacks=None, showprogress=False, inputs=None, t_interp=None, **kwargs)",
+    "step.string": "step.string(text, **kwargs)"
+  },
+  "config_sha256": "4ab5f8130405c25d3bff5dad125fe09aac7b5205ca7d187f8111314609086214",
+  "limitations": [
+    "SYNTHETIC ONLY: the fitted data are model-generated with declared noise, not measured.",
+    "Recovery at one declared truth point; it does not explore the parameter space or prove global identifiability.",
+    "Only three parameters are free; function-valued parameters are perturbed by a constant multiplier (their functional form is assumed known).",
+    "GITT pulse overpotential mixes transport with ohmic and kinetic contributions; this is not a pure solid-diffusion estimator.",
+    "The profile likelihood is coarse (declared grid) and local: it bounds the parameter under this protocol and noise only. Crossings are linearly interpolated between grid points, so a convex profile's interval is slightly underestimated; refine the grid before quoting tight bounds.",
+    "No calibration objective, registry record or dossier decision was changed."
+  ],
+  "scientific_note": "Synthetic dry-run of the identification machinery only. A successful recovery does not prove identifiability on real data (rule 7) and is not experimental validation (rule 8). The dossier action for this parameter remains MEASURE; gates 2/3 of docs/D_NEG_ACTION_DECISION.md must be re-run on a real dataset before any decision change (rule 10).",
+  "runtime_s": 386.01348850999784
+}

@@ -123,16 +123,32 @@ at 25 °C:
    see `docs/P5_DATA_ACQUISITION.md`);
 6. a calibration/validation split defined before any fit (rule 9).
 
-**Limitations carried with this specification.** The diagnostics are local,
-synthetic, single/joint-parameter FIM studies: the joint fit frees only
-`D_neg`, `neg exchange-current density` and `electrolyte diffusivity`
-(variance inflation 1.25, |ρ| ≤ 0.44), function-valued parameters are
-perturbed by a constant multiplier, and the pulse drop and sqrt(t) slope
-include ohmic and kinetic overpotential — they are not pure solid-diffusion
-estimators. A protocol built to this specification gives the *model* a
-resolvable signal; whether real data identify `D_neg` (rules 7–8) is exactly
-what the dataset must be used to find out. Calibration data must never double
-as validation data (rule 9).
+**Limitations and expected precision (2026-11-27, after the unit correction).**
+The diagnostics are local, synthetic FIM studies. With all three parameters
+free (`D_neg`, negative exchange-current density, electrolyte diffusivity)
+the corrected joint fit constrains `D_neg` to **≈ ±4.5 % (1σ)** under the
+declared 1 mV noise, with variance inflation 1.78 and |ρ| ≤ 0.66; a GITT-only
+dataset bounds it at **±45 % (95 %)** from the profile likelihood
+(`results/observables/diffusivity_gitt_recovery.{json,md}`). So a protocol
+built to this specification gives the model a resolvable signal and *bounds*
+the parameter; it does **not** pin it to a few percent. Three practical
+consequences for dataset design:
+
+1. **Fit raw voltage time series**, not only the three derived features — the
+   features compress information (GITT-only: ±125 % from features vs ±23–28 %
+   from raw voltage in the joint recovery dry-run).
+2. **GITT alone cannot break the `D_neg`–`D_e` valley** (ρ ≈ −0.90). Include
+   at least one non-GITT observable (e.g. the 0.5C/1C/2C discharge curves of
+   §2.3 item 6) in any calibration objective.
+3. To reach ±5 % from GITT-like data alone would need roughly **30× more
+   information** (more titrations, longer rests, repeated protocols, and/or a
+   second temperature) than the minimum protocol above; treat the listed
+   protocol as a floor, not a target.
+
+The pulse drop and sqrt(t) slope include ohmic and kinetic overpotential —
+they are not pure solid-diffusion estimators. Whether real data identify
+`D_neg` (rules 7–8) is exactly what the dataset must be used to find out.
+Calibration data must never double as validation data (rule 9).
 
 ## 3. Explicitly unsuitable datasets (do not substitute for convenience)
 

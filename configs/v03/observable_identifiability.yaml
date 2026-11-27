@@ -110,6 +110,11 @@ positive_control:
   component: z_re
 
 # --- declared noise assumptions --------------------------------------------
+# Per-sample voltage noise; derived GITT feature noises are propagated from it
+# by gitt_feature_sigmas() (end-of-rest: sigma_V; pulse drop: sqrt(2)*sigma_V;
+# sqrt(t) slope: sigma_V/sqrt(Sxx) in V.s-0.5). A 2026-11-27 unit correction
+# replaced the earlier practice of applying the raw voltage noise to every
+# derived feature directly.
 noise:
   voltage_V: 1.0e-3          # documented V2.4 synthetic measurement noise
   gitt_voltage_V: 1.0e-3     # same instrument class as voltage

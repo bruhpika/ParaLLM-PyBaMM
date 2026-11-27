@@ -9,6 +9,15 @@ the same model that is fitted. It is *not* experimental validation and does
 *not* prove identifiability (scientific rules 7–8). Identifiability is
 quantified separately in `docs/IDENTIFIABILITY_STUDY.md`.
 
+> **Related (2026-11-27):** a second, PyBOP-free recovery dry-run exists for
+> the *negative particle diffusivity* at the low-SOC GITT protocol of
+> `docs/EXPERIMENTAL_DATA_REQUIREMENTS.md` §2.7 —
+> `benchmarks/observables/diffusivity_gitt_recovery.py` with artifact
+> `results/observables/diffusivity_gitt_recovery.{json,md}`. It fits three
+> scale factors jointly (diffusivity, negative exchange-current density,
+> electrolyte diffusivity) and adds a profile likelihood; same synthetic-only
+> scope and the same rules 7–8 caveats as this document.
+
 ## 1. Environment and reproduction
 
 Tested configuration (see `docs/DEPENDENCY_COMPATIBILITY.md`):

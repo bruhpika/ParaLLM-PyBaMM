@@ -19,26 +19,26 @@ Parameter: `Negative particle diffusivity [m2.s-1]` · parameter set `Chen2020` 
 
 | observable | n | norm | sigma | mean \|S\| | implied rel. SE | classification |
 |---|---:|---|---:|---:|---:|---|
-| voltage_0.5C | 24 | std | 0.001 | 0.01068 | 0.01711 | UNOBSERVABLE |
-| voltage_1C | 24 | std | 0.001 | 0.02131 | 0.008718 | UNOBSERVABLE |
-| voltage_2C | 24 | std | 0.001 | 0.04757 | 0.003683 | UNOBSERVABLE |
-| gitt_d_rest_voltage | 5 | std | 0.001 | 0.008699 | 0.04826 | UNOBSERVABLE |
-| gitt_d_pulse_drop | 5 | mean_magnitude | 0.001 | 0.08177 | 0.005334 | OBSERVABLE |
-| gitt_d_relaxation_slope | 5 | mean_magnitude | 0.001 | 0.1 | 0.004331 | OBSERVABLE |
-| eis_re_impedance | 28 | std | 0.0003726 | 0.0008651 | 0.05043 | UNOBSERVABLE |
-| eis_neg_im_impedance | 28 | std | 0.0003726 | 0.0002081 | 0.2312 | UNOBSERVABLE |
+| voltage_0.5C | 24 | std | 0.001 | 0.01068 | 0.3064 | UNOBSERVABLE |
+| voltage_1C | 24 | std | 0.001 | 0.02131 | 0.1258 | UNOBSERVABLE |
+| voltage_2C | 24 | std | 0.001 | 0.04757 | 0.03573 | UNOBSERVABLE |
+| gitt_d_rest_voltage | 5 | std | 0.001 | 0.008699 | 5.701 | UNOBSERVABLE |
+| gitt_d_pulse_drop | 5 | mean_magnitude | 0.001414 | 0.08177 | 0.3969 | UNOBSERVABLE |
+| gitt_d_relaxation_slope | 5 | mean_magnitude | 0.0001168 | 0.1 | 0.4302 | UNOBSERVABLE |
+| eis_re_impedance | 28 | std | 0.0003726 | 0.0008651 | 4.583 | UNOBSERVABLE |
+| eis_neg_im_impedance | 28 | std | 0.0003726 | 0.0002081 | 12.15 | UNOBSERVABLE |
 | ocv_soc_control | 21 | std | 0.001 | 0 | inf | UNOBSERVABLE |
 
 ## Observable sets
 
 | set | FIM | implied rel. SE | strongest block mean \|S\| | classification |
 |---|---:|---:|---:|---|
-| voltage only | 9.029e+04 | 0.003328 | 0.04757 | UNOBSERVABLE |
-| voltage + GITT-D + EIS | 1.796e+05 | 0.00236 | 0.1 | OBSERVABLE |
+| voltage only | 857.2 | 0.03415 | 0.04757 | UNOBSERVABLE |
+| voltage + GITT-D + EIS | 869.1 | 0.03392 | 0.1 | OBSERVABLE |
 
 Combined-set rule (declared before scoring): conjunction: combined implied rel. SE <= 0.05 AND strongest block mean |S| >= 0.05. Stacking observables can therefore only make a flip harder, never manufacture one.
 
-Information gain (sqrt FIM ratio = standard-error reduction factor): **1.41**
+Information gain (sqrt FIM ratio = standard-error reduction factor): **1.007**
 
 ## Verdict
 
@@ -51,8 +51,8 @@ Information gain (sqrt FIM ratio = standard-error reduction factor): **1.41**
 
 Parameters free together: D_neg, j0_neg, D_e. Primary parameter: `D_neg`.
 
-- joint marginal relative SE: **0.002635** (single-parameter reference 0.00236)
-- variance inflation factor: **1.246**; joint FIM condition number 5667
+- joint marginal relative SE: **0.04522** (single-parameter reference 0.03392)
+- variance inflation factor: **1.777**; joint FIM condition number 1256
 - no free parameter exceeds the declared collinearity threshold
 - survives the collinearity check: **True** — D_neg remains marginally observable in the joint 3-parameter fit and no free parameter is correlated above |rho| = 0.9.
 - full artifact: `results/observables/joint_diffusivity_fim.json`
@@ -76,6 +76,7 @@ Scaling `Negative electrode exchange-current density [A.m-2]` by 10 changes the 
 - The single-parameter study holds every other parameter fixed; the companion joint FIM frees D_neg, j0_neg and D_e, but still only locally and only for that three-parameter subset.
 - A large joint-FIM variance inflation or |correlation| near 1 means the parameters are not separately identifiable from this observable set, even if the marginal relative standard error is small.
 - The result is conditional on the declared noise assumptions in the config.
+- FIM-implied relative SEs are computed from raw sensitivities with the noise in the same observable units (2026-11-27 correction: the first run divided dimensionless sensitivities by a noise in volts, which scaled every implied SE by its own observable scale and invalidated the information-gain figures).
 - No calibration objective, registry record or dossier decision was changed.
 - GITT end-of-rest voltages approximate quasi-relaxed OCV; the pulse drop and sqrt-time slope include ohmic and kinetic overpotential, so they are not pure solid-diffusion estimators.
 - The GITT protocol must start away from full charge: at 100% SOC the graphite OCP is flat and a low signal is a protocol artefact, not evidence about transport observability (2026-11-27 correction).

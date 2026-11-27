@@ -117,26 +117,44 @@ sensitivity bar (0.15 SOC at 0.5C was rejected: V_min = 3.03 V approaches the
 3.0 V cutoff). `gitt_protocol_warnings()` now flags full-charge GITT runs, and
 an integration test pins the corrected protocol.
 
-Results (PyBaMM 26.8.0.0, Chen2020, DFN, `rel_perturbation = 0.02`):
+**Unit correction (2026-11-27).** The first two runs of this study built the
+FIM from *dimensionless* sensitivities divided by a noise **in volts**, so
+every implied SE was scaled by its own observable's `y_scale` (in volts) and
+the information-gain figures were meaningless. The FIM is now built from **raw**
+sensitivities (observable units per unit scale factor) against noise in the
+same units, so implied SEs are true Cramér–Rao relative SEs; mean |S| keeps
+its recorded dimensionless convention. The derived GITT feature noises are
+also propagated from the per-sample voltage noise (end-of-rest: σ; pulse drop:
+√2·σ; sqrt(t) slope: σ/√Sxx in V·s^−½) instead of applying the raw voltage
+noise to each feature. Old mixed-unit values are struck through in
+`CHANGELOG.md`; the qualitative verdict survives, the information-gain claim
+does not.
 
-| observable | n | mean \|S\| | implied rel. SE | verdict |
+Results (PyBaMM 26.8.0.0, Chen2020, DFN, `rel_perturbation = 0.02`,
+1 mV i.i.d. voltage noise):
+
+| observable | n | mean \|S\| | true rel. SE (alone) | verdict |
 |---|---:|---:|---:|---|
-| voltage 0.5C | 24 | 0.01068 | 0.0171 | UNOBSERVABLE |
-| voltage 1C | 24 | 0.02131 | 0.00872 | UNOBSERVABLE |
-| voltage 2C | 24 | 0.04757 | 0.00368 | UNOBSERVABLE |
-| GITT-D end-of-rest voltage | 5 | 0.00870 | 0.0483 | UNOBSERVABLE |
-| GITT-D pulse voltage drop | 5 | **0.0818** | 0.00533 | **OBSERVABLE** |
-| GITT-D sqrt(t) relaxation slope | 5 | **0.100** | 0.00433 | **OBSERVABLE** |
-| EIS Re(Z) | 28 | 8.7e-4 | 0.0504 | UNOBSERVABLE |
-| EIS −Im(Z) | 28 | 2.1e-4 | 0.231 | UNOBSERVABLE |
+| voltage 0.5C | 24 | 0.01068 | 0.306 | UNOBSERVABLE |
+| voltage 1C | 24 | 0.02131 | 0.126 | UNOBSERVABLE |
+| voltage 2C | 24 | 0.04757 | 0.0357 | UNOBSERVABLE |
+| GITT-D end-of-rest voltage | 5 | 0.00870 | 5.70 | UNOBSERVABLE |
+| GITT-D pulse voltage drop | 5 | **0.0818** | 0.397 | UNOBSERVABLE |
+| GITT-D sqrt(t) relaxation slope | 5 | **0.100** | 0.430 | UNOBSERVABLE |
+| EIS Re(Z) | 28 | 8.7e-4 | 4.58 | UNOBSERVABLE |
+| EIS −Im(Z) | 28 | 2.1e-4 | 12.2 | UNOBSERVABLE |
 | OCV-vs-SOC (negative control) | 21 | 0 | ∞ | UNOBSERVABLE |
 
-- Combined FIM: 9.029e4 (voltage only) → **1.796e5** (voltage + low-SOC GITT-D
-  + EIS); standard-error reduction factor **1.41**.
-- **Verdict flips** from `UNOBSERVABLE` to `OBSERVABLE` under the declared
-  conjunction rule (combined relative SE ≤ 5 % **and** at least one block
-  clearing mean-|S| ≥ 0.05). The flip is carried by the two transport-bearing
-  GITT features, not by EIS.
+- Combined FIM: 857.2 (voltage only) → **869.1** (voltage + low-SOC GITT-D
+  + EIS); true standard-error reduction factor **1.007**. In units that matter
+  (millivolts of signal against 1 mV noise) the GITT block adds **~0.7 %**
+  information about `D_neg` on top of three discharge curves.
+- **The verdict still flips** from `UNOBSERVABLE` to `OBSERVABLE`, but only
+  through the recorded mean-|S| limb: both sets clear the 5 % SE limb
+  (3.42 % vs 3.39 %), and only the augmented set has a block above
+  mean |S| = 0.05 (the GITT pulse drop and slope). The flip is a
+  **classification flip driven by feature sensitivity, not by added
+  precision**.
 - The **dossier action is unchanged** (`MEASURE`): a local single-parameter FIM
   is not an identifiability proof (rule 7), and changing the action needs owner
   approval (rule 10).
@@ -147,8 +165,8 @@ Limits of the flip:
 
 1. **Single-parameter sensitivity in this section.** Every other parameter is
    held fixed here; the joint section below frees `D_neg`, `j0_neg` and `D_e`
-   together and finds a variance inflation factor of 1.25 with |correlation| ≤
-   0.44. Other parameters (porosities, conductivities, positive-electrode
+   together and finds a variance inflation factor of 1.78 with |correlation| ≤
+   0.66. Other parameters (porosities, conductivities, positive-electrode
    parameters, further kinetics) remain fixed. The pulse drop and relaxation
    slope contain ohmic and kinetic overpotential, not pure solid diffusion.
 2. **GITT protocol dependence.** At 100% SOC the same features are numerically
@@ -178,37 +196,42 @@ form is assumed known.
 
 | observable set (3 parameters free) | `D_neg` marginal rel. SE | classification | cond(FIM) |
 |---|---:|---|---:|
-| voltage only | 0.00471 | UNOBSERVABLE | 1.50e3 |
-| GITT-D only | 0.0142 | OBSERVABLE | 5.97e2 |
-| voltage + GITT-D | 0.00303 | OBSERVABLE | 6.28e2 |
-| EIS only | 0.274 | UNOBSERVABLE | 5.87e7 |
-| all configured | **0.00263** | **OBSERVABLE** | 5.67e3 |
+| voltage only | 0.0504 | UNOBSERVABLE | 6.1e2 |
+| GITT-D features only | 1.25 | UNOBSERVABLE | 3.5e2 |
+| voltage + GITT-D | 0.0498 | OBSERVABLE | 6.3e2 |
+| EIS only | 21.3 | UNOBSERVABLE | 6.6e6 |
+| all configured | **0.0452** | **OBSERVABLE** | 1.26e3 |
 
 | parameter | joint marginal rel. SE | single-parameter ref. | variance inflation | strongest mean \|S\| |
 |---|---:|---:|---:|---:|
-| `D_neg` | 0.00263 | 0.00236 | 1.25 | 0.100 |
-| `j0_neg` | 3.84e-5 | 3.52e-5 | 1.19 | 1.89 |
-| `D_e` | 1.47e-4 | 1.22e-4 | 1.45 | 1.25 |
+| `D_neg` | 0.0452 | 0.0339 | 1.78 | 0.100 |
+| `j0_neg` | 0.00268 | 0.00200 | 1.79 | 1.89 |
+| `D_e` | 0.00235 | 0.00142 | 2.72 | 1.25 |
 
-Joint correlations: `D_neg`–`j0_neg` **0.153**, `D_neg`–`D_e` **−0.444**,
-`j0_neg`–`D_e` **−0.398** — all below the declared 0.9 collinearity warning.
-Freeing the other two parameters inflates the `D_neg` variance by only 25 %
-(SE by ~12 %), and the all-observable joint fit improves the `D_neg` SE by
-**1.79×** relative to the voltage-only joint fit. A finite-difference step sweep
-(0.5 %, 1 %, 5 %) leaves the classification unchanged; the largest SE deviation
-is 0.59 % and the largest correlation deviation is 0.006.
+Joint correlations: `D_neg`–`j0_neg` **0.36**, `D_neg`–`D_e` **−0.655**,
+`j0_neg`–`D_e` **−0.657** — all below the declared 0.9 collinearity warning.
+Freeing the other two parameters inflates the `D_neg` variance by 78 % (SE by
+~33 %). A finite-difference step sweep (0.5 %, 1 %, 5 %) leaves the
+classification unchanged; the largest SE deviation is 0.8 % and the largest
+correlation deviation is 0.009.
 
-Honest reading:
+Honest reading (post unit correction):
 
+- The joint `OBSERVABLE` label is **marginal**: the `D_neg` joint SE is 4.5 %
+  against a recorded 5 % threshold, i.e. 0.5 percentage points of margin. It is
+  threshold-sensitive and must not be quoted as "precise".
 - The single-parameter flip is **not** an artefact of freezing kinetics and
-  electrolyte transport: this three-parameter joint fit retains a 0.26 %
-  marginal SE and no severe collinearity.
-- The **voltage-only joint fit already meets the relative-SE limb** (0.47 %).
-  Its `UNOBSERVABLE` label comes from the declared conjunction's second limb:
-  no individual voltage block reaches mean |S| ≥ 0.05 (strongest 0.0476). The
-  flip is therefore a **conservative classification flip**, not a claim that
-  voltage data are uninformative. The joint FIM says the opposite: voltage data
-  carry real local information about `D_neg` under the declared noise.
+  electrolyte transport — the joint fit keeps `D_neg` under the 5 % rule — but
+  the *precision* claim is weak: `D_neg` is constrained to about ±4.5 % (1σ)
+  locally, and the GITT features alone would leave it at ~±125 %.
+- **Voltage data carry essentially all the information.** The voltage-only
+  joint fit misses the SE limb by 0.04 percentage points (5.04 % vs 5 %) and
+  fails the |S| limb (0.0476); the GITT block is what clears the |S| limb and
+  nudges the SE under the bar. This is a classification flip, not a
+  measurement-quality flip.
+- The independent recovery dry-run (raw voltage, not features) gives ~23–28 %
+  SE for GITT-only — consistent with the corrected feature-space picture and
+  far from the 5 % rule. **A §2.7 dataset bounds `D_neg`, it does not pin it.**
 - This is still a **local** three-parameter FIM on **synthetic** curves with
   i.i.d. noise. It is not global identifiability (rule 7), not experimental
   validation (rule 8), and not a calibration recommendation. The dossier action
@@ -222,6 +245,14 @@ Two deliverables follow from this result and are committed with it:
 - the **owner decision package** for the `MEASURE` vs `CALIBRATE` action
   (`docs/D_NEG_ACTION_DECISION.md`) — options, evidence and what each would
   change, with no decision taken here (rule 10).
+
+A third, synthetic-only deliverable dry-runs the identification machinery the
+decision package's gates 2/3 require: joint least-squares recovery of the three
+scale factors from §2.7 GITT voltage plus a profile likelihood over `D_neg`
+(`benchmarks/observables/diffusivity_gitt_recovery.py`, artifact
+`results/observables/diffusivity_gitt_recovery.{json,md}`). It is a method
+check on model-generated data — not identifiability proof (rule 7) and not
+experimental validation (rule 8).
 
 ## Reproduction
 

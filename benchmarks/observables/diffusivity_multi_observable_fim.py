@@ -76,6 +76,7 @@ LIMITATIONS = [
     "The single-parameter study holds every other parameter fixed; the companion joint FIM frees D_neg, j0_neg and D_e, but still only locally and only for that three-parameter subset.",
     "A large joint-FIM variance inflation or |correlation| near 1 means the parameters are not separately identifiable from this observable set, even if the marginal relative standard error is small.",
     "The result is conditional on the declared noise assumptions in the config.",
+    "FIM-implied relative SEs are computed from raw sensitivities with the noise in the same observable units (2026-11-27 correction: the first run divided dimensionless sensitivities by a noise in volts, which scaled every implied SE by its own observable scale and invalidated the information-gain figures).",
     "No calibration objective, registry record or dossier decision was changed.",
     "GITT end-of-rest voltages approximate quasi-relaxed OCV; the pulse drop and sqrt-time slope include ohmic and kinetic overpotential, so they are not pure solid-diffusion estimators.",
     "The GITT protocol must start away from full charge: at 100% SOC the graphite OCP is flat and a low signal is a protocol artefact, not evidence about transport observability (2026-11-27 correction).",
@@ -147,9 +148,12 @@ def mean_abs_normalized_sensitivity(
 def implied_relative_standard_error(fim: np.ndarray) -> float:
     """FIM-implied relative standard error of a unit-mean scale factor.
 
-    ``FIM = JᵀJ`` for a dimensionless scale factor with ``x = 1``; the
-    Cramér–Rao lower bound gives ``SE = 1/sqrt(FIM)``, so the relative
-    standard error is ``1/sqrt(FIM)``. ``inf`` means no information.
+    The FIM must be built from **raw** sensitivities (observable units per unit
+    scale factor) with the noise in the same observable units
+    (:data:`_block`'s convention since the 2026-11-27 correction); then the
+    Cramér–Rao bound gives ``SE = 1/sqrt(FIM)`` in scale-factor units, which
+    for ``x = 1`` is also the relative standard error. ``inf`` means no
+    information.
     """
     fim = np.asarray(fim, dtype=float)
     if fim.ndim != 2 or fim.shape[0] != fim.shape[1]:
@@ -319,6 +323,60 @@ def diffusion_frequency(diffusivity: float, particle_radius: float) -> dict[str,
         "particle_radius_m": float(particle_radius),
         "diffusion_time_constant_s": tau,
         "diffusion_frequency_Hz": 1.0 / (2.0 * np.pi * tau),
+    }
+
+
+def gitt_feature_sigmas(gitt_spec: dict[str, Any], sigma_V: float) -> dict[str, dict[str, Any]]:
+    """Propagate raw voltage noise into the declared GITT feature noises.
+
+    Pure error propagation for independent per-sample voltage noise
+    ``sigma_V`` (2026-11-27 unit correction: the derived features must carry
+    noise in their own units, not the raw voltage noise):
+
+    * end-of-rest voltage: single sample -> ``sigma_V``;
+    * pulse voltage drop: difference of the first and last pulse samples ->
+      ``sqrt(2) * sigma_V``;
+    * sqrt(t) relaxation slope: ordinary least-squares slope of voltage
+      against ``sqrt(t)`` over the declared fit window -> ``sigma_V /
+      sqrt(Sxx)`` with ``Sxx = sum((sqrt(t_i) - mean)^2)`` in s.
+
+    The slope's noise has units V/sqrt(s); reporting it as a voltage was the
+    second half of the same unit mismatch that scaled the implied standard
+    errors.
+    """
+    sigma = float(sigma_V)
+    if sigma <= 0:
+        raise ValueError(f"sigma_V must be positive, got {sigma!r}")
+    period = float(gitt_spec["period_s"])
+    if period <= 0:
+        raise ValueError(f"period_s must be positive, got {period!r}")
+    n_fit = int(gitt_spec.get("relaxation_fit_points", 5))
+    if n_fit < 3:
+        raise ValueError(f"relaxation_fit_points must be >= 3, got {n_fit}")
+    sqrt_t = np.sqrt(np.arange(n_fit, dtype=float) * period)
+    sxx = float(np.sum((sqrt_t - sqrt_t.mean()) ** 2))
+    if sxx <= 0:
+        raise ValueError("degenerate sqrt(t) fit window (Sxx <= 0)")
+    slope_sigma = sigma / np.sqrt(sxx)
+    return {
+        "gitt_rest_voltage": {
+            "sigma": sigma,
+            "units": "V",
+            "derivation": "end-of-rest voltage is one sampled voltage",
+        },
+        "gitt_pulse_drop": {
+            "sigma": float(np.sqrt(2.0) * sigma),
+            "units": "V",
+            "derivation": "pulse drop is a difference of two samples",
+        },
+        "gitt_relaxation_slope": {
+            "sigma": float(slope_sigma),
+            "units": "V.s-0.5",
+            "derivation": (
+                f"OLS slope against sqrt(t) over {n_fit} samples at {period:g} s: "
+                f"sigma_V/sqrt(Sxx), Sxx={sxx:.4g} s"
+            ),
+        },
     }
 
 
@@ -596,6 +654,7 @@ def joint_observable_specs(
             "sigma": float(noise["voltage_V"]),
         }
     gitt_spec = cfg["gitt_d"]
+    feature_sigmas = gitt_feature_sigmas(gitt_spec, float(noise["gitt_voltage_V"]))
     for name, feature, norm_key in (
         ("gitt_d_rest_voltage", gitt_rest_voltages, "gitt_rest_voltage"),
         ("gitt_d_pulse_drop", gitt_pulse_drops, "gitt_pulse_drop"),
@@ -604,7 +663,7 @@ def joint_observable_specs(
         specs[name] = {
             "predict": lambda pv, f=feature, s=gitt_spec: f(pv, s),
             "normalization": str(norms[norm_key]),
-            "sigma": float(noise["gitt_voltage_V"]),
+            "sigma": float(feature_sigmas[norm_key]["sigma"]),
         }
     eis_spec = cfg["eis"]
     for name, component in (
@@ -629,13 +688,22 @@ def _block(
     x: np.ndarray,
     normalization: str,
 ) -> dict[str, Any]:
-    block = {
+    # FIM convention (2026-11-27 correction of a unit mismatch): the FIM uses
+    # RAW sensitivities (observable units per unit scale factor) against noise
+    # in the same observable units, so ``implied_relative_standard_error`` is a
+    # true relative SE of the unit-mean scale factor. The earlier convention
+    # divided dimensionless sensitivities (divided by ``y_scale``) by a noise in
+    # volts, which scaled every implied SE by its own ``y_scale`` and made the
+    # information-gain figures meaningless. ``mean |S|`` keeps the recorded
+    # dimensionless convention (``y_scale``-normalized) because the recorded
+    # observability rule is defined on it.
+    fim_block = {
         "jacobian": jacobian,
         "sigma": float(sigma),
-        "y_scale": float(y_scale),
+        "y_scale": 1.0,
     }
     mean_abs_s = mean_abs_normalized_sensitivity(jacobian, x, y_scale)
-    fim = multi_observable_fim({name: block}, x)
+    fim = multi_observable_fim({name: fim_block}, x)
     rel_std = implied_relative_standard_error(fim["fim"])
     return {
         "name": name,
@@ -647,7 +715,7 @@ def _block(
         "fim": float(np.asarray(fim["fim"]).squeeze()),
         "implied_relative_standard_error": rel_std,
         "classification": classify_observability(mean_abs_s, rel_std),
-        "_block": block,
+        "_block": fim_block,
     }
 
 
@@ -658,6 +726,7 @@ JOINT_LIMITATIONS = [
     "Function-valued parameters (j0_neg, D_e) are perturbed by a constant multiplicative scale factor, not as arbitrary functions of concentration or temperature; their functional form is assumed known.",
     "A high parameter correlation means this observable set cannot separate the parameters locally; it does not prove they are physically indistinguishable under a different protocol.",
     "Marginal standard errors are conditional on the other free parameters and on the declared i.i.d. Gaussian noise.",
+    "FIM-implied SEs use raw sensitivities against noise in observable units (2026-11-27 unit correction); the earlier mixed-unit convention is no longer used.",
     "GITT pulse drops and sqrt-time slopes include ohmic and kinetic overpotential; they are not pure solid-diffusion estimators.",
     "No calibration objective, registry record or dossier decision was changed.",
 ]
@@ -763,9 +832,13 @@ def run_joint_fim(
                 str(spec["normalization"]),
             )
             blocks_for_step[name] = {
+                # Same FIM convention as ``_block`` (2026-11-27 correction):
+                # raw sensitivities against noise in observable units; the
+                # ``y_scale``-normalized sensitivities are used only for the
+                # dimensionless mean-|S| rule.
                 "jacobian": jacobian,
                 "sigma": float(spec["sigma"]),
-                "y_scale": float(y_scale),
+                "y_scale": 1.0,
             }
             scaled = normalized_sensitivity(jacobian, x, y_scale)
             sensitivity_for_step[name] = {
@@ -1113,6 +1186,11 @@ def run_joint_fim(
             ),
         },
         "single_parameter_cross_check": cross_check_block,
+        "fim_convention": (
+            "FIM from raw sensitivities with noise in observable units "
+            "(2026-11-27 unit correction, same as the single-parameter study); "
+            "mean |S| keeps the recorded dimensionless convention."
+        ),
         "observable_sets": sets,
         "single_parameter_reference": single_parameter,
         "primary_parameter_summary": primary_summary,
@@ -1240,6 +1318,10 @@ def run_diagnostic(config_path: Path) -> dict[str, Any]:
         capacity = float(pv0[capacity_key])
         gitt_protocol["cell_capacity_Ah"] = capacity
         gitt_protocol["current_C_rate"] = float(gitt_spec["current_A"]) / capacity
+    feature_sigmas = gitt_feature_sigmas(
+        gitt_spec, float(cfg["noise"]["gitt_voltage_V"])
+    )
+    gitt_protocol["feature_sigmas"] = feature_sigmas
     jac, y_scale = _jacobian_for(
         lambda pv, spec=gitt_spec: gitt_rest_voltages(pv, spec),
         parameter_set,
@@ -1252,7 +1334,7 @@ def run_diagnostic(config_path: Path) -> dict[str, Any]:
         "gitt_d_rest_voltage",
         jac,
         y_scale,
-        float(cfg["noise"]["gitt_voltage_V"]),
+        feature_sigmas["gitt_rest_voltage"]["sigma"],
         x,
         str(norms["gitt_rest_voltage"]),
     )
@@ -1269,7 +1351,7 @@ def run_diagnostic(config_path: Path) -> dict[str, Any]:
         "gitt_d_pulse_drop",
         jac,
         y_scale,
-        float(cfg["noise"]["gitt_voltage_V"]),
+        feature_sigmas["gitt_pulse_drop"]["sigma"],
         x,
         str(norms["gitt_pulse_drop"]),
     )
@@ -1286,7 +1368,7 @@ def run_diagnostic(config_path: Path) -> dict[str, Any]:
         "gitt_d_relaxation_slope",
         jac,
         y_scale,
-        float(cfg["noise"]["gitt_voltage_V"]),
+        feature_sigmas["gitt_relaxation_slope"]["sigma"],
         x,
         str(norms["gitt_relaxation_slope"]),
     )
@@ -1530,6 +1612,13 @@ def run_diagnostic(config_path: Path) -> dict[str, Any]:
             "relative_std_observability": RELATIVE_STD_OBSERVABILITY_THRESHOLD,
             "source": "src/pybamm_closed_loop/assembly/observability.py (recorded rules)",
         },
+        "fim_convention": (
+            "FIM from raw sensitivities (observable units per unit scale factor) "
+            "with noise in the same units, so implied relative SEs are true "
+            "Cramér-Rao relative SEs of the unit-mean scale factor. mean |S| "
+            "keeps the recorded dimensionless convention (y_scale-normalized). "
+            "2026-11-27 correction of a unit mismatch in the first run."
+        ),
         "a_priori_diffusion_scales": a_priori,
         "gitt_protocol": gitt_protocol,
         "protocol_warnings": protocol_warnings,

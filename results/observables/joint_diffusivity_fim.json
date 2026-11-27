@@ -109,6 +109,7 @@
     "all_within_tolerance": true,
     "note": "The primary-parameter column of the joint Jacobian is compared with the single-parameter block on the same observable. Identity confirms that both studies use the same protocol and normalization."
   },
+  "fim_convention": "FIM from raw sensitivities with noise in observable units (2026-11-27 unit correction, same as the single-parameter study); mean |S| keeps the recorded dimensionless convention.",
   "observable_sets": {
     "voltage_only": {
       "observables": [
@@ -118,49 +119,49 @@
       ],
       "fim": [
         [
-          90292.43780180269,
-          -16742.08317178963,
-          1091298.831758924
+          857.2195663881797,
+          1762.6387782318468,
+          12250.275219218058
         ],
         [
-          -16742.08317178963,
-          29051113.06100144,
-          25835083.905117318
+          1762.6387782318468,
+          151832.45793288964,
+          201964.65297650648
         ],
         [
-          1091298.831758924,
-          25835083.905117318,
-          50055608.707307965
+          12250.275219218058,
+          201964.65297650648,
+          490194.0794985109
         ]
       ],
       "rank": 3,
       "n_parameters": 3,
-      "condition_number": 1500.2848746778607,
+      "condition_number": 1490.99234477977,
       "eigenvalues": [
-        44960.41338352864,
-        11698625.634155612,
-        67453428.15857208
+        392.16495346066404,
+        57776.64854356324,
+        584714.9435007649
       ],
       "correlation": [
         [
           1.0,
-          0.567317909793742,
-          -0.7074531406933823
+          0.5341293564618667,
+          -0.7275329327621514
         ],
         [
-          0.5673179097937474,
+          0.534129356461867,
           1.0,
-          -0.7956603357581826
+          -0.8179777379086536
         ],
         [
-          -0.7074531406933894,
-          -0.795660335758183,
+          -0.7275329327621562,
+          -0.8179777379086562,
           1.0
         ]
       ],
       "per_parameter": {
         "D_neg": {
-          "marginal_relative_standard_error": 0.004708964309460739,
+          "marginal_relative_standard_error": 0.05038835380580111,
           "strongest_mean_abs_normalized_sensitivity": 0.04757405571912124,
           "classification": "UNOBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -170,7 +171,7 @@
           }
         },
         "j0_neg": {
-          "marginal_relative_standard_error": 0.00030630450495980945,
+          "marginal_relative_standard_error": 0.004515517593381582,
           "strongest_mean_abs_normalized_sensitivity": 0.7162488431566004,
           "classification": "OBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -180,7 +181,7 @@
           }
         },
         "D_e": {
-          "marginal_relative_standard_error": 0.00027189379079674655,
+          "marginal_relative_standard_error": 0.003096701222613705,
           "strongest_mean_abs_normalized_sensitivity": 1.2447364622615602,
           "classification": "OBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -199,51 +200,51 @@
       ],
       "fim": [
         [
-          88877.43933898119,
-          -3272.923425993222,
-          294649.6439751827
+          11.782388959034359,
+          -0.9760533871212929,
+          37.67327332779781
         ],
         [
-          -3272.923425993222,
-          2904.8427414130256,
-          -4240.383881520462
+          -0.9760533871212929,
+          0.44755981021928215,
+          -2.3368702825163603
         ],
         [
-          294649.6439751827,
-          -4240.383881520462,
-          1053610.9142832737
+          37.67327332779781,
+          -2.3368702825163603,
+          129.9240206315888
         ]
       ],
       "rank": 3,
       "n_parameters": 3,
-      "condition_number": 596.6396442107405,
+      "condition_number": 554.875056423858,
       "eigenvalues": [
-        1904.844584645705,
-        6982.556519253185,
-        1136505.795259769
+        0.2540390747760499,
+        0.9399843758411606,
+        140.9599459502254
       ],
       "correlation": [
         [
           1.0,
-          0.48259344356966605,
-          -0.970402207573115
+          0.5058063961242352,
+          -0.9663449932374943
         ],
         [
-          0.4825934435696675,
+          0.5058063961242331,
           1.0,
-          -0.4520976966861545
+          -0.4207767054220403
         ],
         [
-          -0.970402207573116,
-          -0.4520976966861541,
+          -0.9663449932374941,
+          -0.42077670542204126,
           1.0
         ]
       ],
       "per_parameter": {
         "D_neg": {
-          "marginal_relative_standard_error": 0.014187279064949578,
+          "marginal_relative_standard_error": 1.2511132443429902,
           "strongest_mean_abs_normalized_sensitivity": 0.09999669439965878,
-          "classification": "OBSERVABLE",
+          "classification": "UNOBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
             "gitt_d_rest_voltage": 0.008699086496380534,
             "gitt_d_pulse_drop": 0.08176652539685367,
@@ -251,7 +252,7 @@
           }
         },
         "j0_neg": {
-          "marginal_relative_standard_error": 0.02124668536240033,
+          "marginal_relative_standard_error": 1.8203568590000325,
           "strongest_mean_abs_normalized_sensitivity": 0.020169913200119745,
           "classification": "UNOBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -261,9 +262,9 @@
           }
         },
         "D_e": {
-          "marginal_relative_standard_error": 0.004046059526498196,
+          "marginal_relative_standard_error": 0.3582744010075145,
           "strongest_mean_abs_normalized_sensitivity": 0.38920613436136736,
-          "classification": "OBSERVABLE",
+          "classification": "UNOBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
             "gitt_d_rest_voltage": 0.025266823305101625,
             "gitt_d_pulse_drop": 0.24203363985091916,
@@ -283,49 +284,49 @@
       ],
       "fim": [
         [
-          179169.87714078388,
-          -20015.006597782853,
-          1385948.4757341065
+          869.0019553472141,
+          1761.6627248447255,
+          12287.948492545856
         ],
         [
-          -20015.006597782853,
-          29054017.903742857,
-          25830843.521235786
+          1761.6627248447255,
+          151832.9054926998,
+          201962.316106224
         ],
         [
-          1385948.4757341065,
-          25830843.521235786,
-          51109219.62159125
+          12287.948492545856,
+          201962.316106224,
+          490324.0035191424
         ]
       ],
       "rank": 3,
       "n_parameters": 3,
-      "condition_number": 627.6065614716623,
+      "condition_number": 1459.496778107335,
       "eigenvalues": [
-        108646.44113589537,
-        12046541.623906326,
-        68187219.33743265
+        400.70061729136415,
+        57803.950427531694,
+        584821.2599223664
       ],
       "correlation": [
         [
           1.0,
-          0.47870134157794253,
-          -0.6251425799438954
+          0.5316970132220898,
+          -0.7250753048279844
         ],
         [
-          0.4787013415779431,
+          0.5316970132220945,
           1.0,
-          -0.7586113202964766
+          -0.8172447948800636
         ],
         [
-          -0.6251425799438948,
-          -0.7586113202964757,
+          -0.7250753048279869,
+          -0.8172447948800622,
           1.0
         ]
       ],
       "per_parameter": {
         "D_neg": {
-          "marginal_relative_standard_error": 0.0030269512239703106,
+          "marginal_relative_standard_error": 0.04984794985094382,
           "strongest_mean_abs_normalized_sensitivity": 0.09999669439965878,
           "classification": "OBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -338,7 +339,7 @@
           }
         },
         "j0_neg": {
-          "marginal_relative_standard_error": 0.000284754259739125,
+          "marginal_relative_standard_error": 0.004506548377526121,
           "strongest_mean_abs_normalized_sensitivity": 0.7162488431566004,
           "classification": "OBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -351,7 +352,7 @@
           }
         },
         "D_e": {
-          "marginal_relative_standard_error": 0.00024150629260598412,
+          "marginal_relative_standard_error": 0.003084071252670036,
           "strongest_mean_abs_normalized_sensitivity": 1.2447364622615602,
           "classification": "OBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -372,49 +373,49 @@
       ],
       "fim": [
         [
-          411.98140967653455,
-          357740.74126212654,
-          78989.53408797008
+          0.05438956255261138,
+          43.38312542642324,
+          10.58390757932584
         ],
         [
-          357740.74126212654,
-          776895894.8004156,
-          60628162.87804529
+          43.38312542642324,
+          97629.08328424091,
+          7350.404002587295
         ],
         [
-          78989.53408797008,
-          60628162.87804529,
-          15881180.664478367
+          10.58390757932584,
+          7350.404002587295,
+          2180.224022884379
         ]
       ],
       "rank": 3,
       "n_parameters": 3,
-      "condition_number": 58703745.493772715,
+      "condition_number": 44716281.58275842,
       "eigenvalues": [
-        13.315945678407308,
-        11081588.016233271,
-        781695886.1141253
+        0.0021958854336516995,
+        1617.5281261554164,
+        98191.83137464698
       ],
       "correlation": [
         [
           1.0,
-          -0.5504414815462351,
-          -0.972698755959982
+          -0.520037767618491,
+          -0.96822438453317
         ],
         [
-          -0.5504414815460397,
+          -0.5200377676186578,
           1.0,
-          0.4296604240944468
+          0.3958949653472559
         ],
         [
-          -0.9726987559599961,
-          0.4296604240946446,
+          -0.9682243845332723,
+          0.3958949653471476,
           1.0
         ]
       ],
       "per_parameter": {
         "D_neg": {
-          "marginal_relative_standard_error": 0.2740371450617221,
+          "marginal_relative_standard_error": 21.339820651993087,
           "strongest_mean_abs_normalized_sensitivity": 0.0008651448413108118,
           "classification": "UNOBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -423,7 +424,7 @@
           }
         },
         "j0_neg": {
-          "marginal_relative_standard_error": 5.128675634939268e-05,
+          "marginal_relative_standard_error": 0.004337711201622942,
           "strongest_mean_abs_normalized_sensitivity": 1.8880185035727857,
           "classification": "OBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -432,9 +433,9 @@
           }
         },
         "D_e": {
-          "marginal_relative_standard_error": 0.0012904597235634271,
+          "marginal_relative_standard_error": 0.09913936010629826,
           "strongest_mean_abs_normalized_sensitivity": 0.15748857914563533,
-          "classification": "OBSERVABLE",
+          "classification": "UNOBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
             "eis_re_impedance": 0.15748857914563533,
             "eis_neg_im_impedance": 0.040647561508387615
@@ -455,49 +456,49 @@
       ],
       "fim": [
         [
-          179581.85855046046,
-          337725.73466434365,
-          1464938.0098220774
+          869.0563449097662,
+          1805.0458502711476,
+          12298.532400125176
         ],
         [
-          337725.73466434365,
-          805949912.7041585,
-          86459006.39928107
+          1805.0458502711476,
+          249461.98877694077,
+          209312.72010881122
         ],
         [
-          1464938.0098220774,
-          86459006.39928107,
-          66990400.28606958
+          12298.532400125176,
+          209312.72010881122,
+          492504.2275420267
         ]
       ],
       "rank": 3,
       "n_parameters": 3,
-      "condition_number": 5666.802201656245,
+      "condition_number": 1256.0948645771414,
       "eigenvalues": [
-        143984.41555875813,
-        57044707.340661444,
-        815931203.0925584
+        488.2057255613516,
+        129114.3622035447,
+        613232.7047347709
       ],
       "correlation": [
         [
           1.0,
-          0.15342592080158798,
-          -0.44395353173372715
+          0.3602988189989326,
+          -0.6547828216208083
         ],
         [
-          0.1534259208016105,
+          0.36029881899893534,
           1.0,
-          -0.39757907912053997
+          -0.6569453890253725
         ],
         [
-          -0.44395353173377095,
-          -0.39757907912053686,
+          -0.6547828216208091,
+          -0.6569453890253715,
           1.0
         ]
       ],
       "per_parameter": {
         "D_neg": {
-          "marginal_relative_standard_error": 0.0026345582726903906,
+          "marginal_relative_standard_error": 0.045221770779993696,
           "strongest_mean_abs_normalized_sensitivity": 0.09999669439965878,
           "classification": "OBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -512,7 +513,7 @@
           }
         },
         "j0_neg": {
-          "marginal_relative_standard_error": 3.8404219864468523e-05,
+          "marginal_relative_standard_error": 0.0026757794543329876,
           "strongest_mean_abs_normalized_sensitivity": 1.8880185035727857,
           "classification": "OBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -527,7 +528,7 @@
           }
         },
         "D_e": {
-          "marginal_relative_standard_error": 0.00014690002585470837,
+          "marginal_relative_standard_error": 0.0023503717531395945,
           "strongest_mean_abs_normalized_sensitivity": 1.2447364622615602,
           "classification": "OBSERVABLE",
           "per_observable_mean_abs_normalized_sensitivity": {
@@ -546,20 +547,20 @@
   },
   "single_parameter_reference": {
     "D_neg": {
-      "relative_standard_error": 0.0023597650742116063,
-      "fim": 179581.85855046043
+      "relative_standard_error": 0.03392157687843905,
+      "fim": 869.0563449097666
     },
     "j0_neg": {
-      "relative_standard_error": 3.522459218256438e-05,
-      "fim": 805949912.7041584
+      "relative_standard_error": 0.002002155524606128,
+      "fim": 249461.98877694082
     },
     "D_e": {
-      "relative_standard_error": 0.00012217819747391344,
-      "fim": 66990400.286069594
+      "relative_standard_error": 0.001424934884063593,
+      "fim": 492504.2275420269
     }
   },
   "primary_parameter_summary": {
-    "marginal_relative_standard_error": 0.0026345582726903906,
+    "marginal_relative_standard_error": 0.045221770779993696,
     "strongest_mean_abs_normalized_sensitivity": 0.09999669439965878,
     "classification": "OBSERVABLE",
     "per_observable_mean_abs_normalized_sensitivity": {
@@ -572,24 +573,24 @@
       "eis_re_impedance": 0.0008651448413108118,
       "eis_neg_im_impedance": 0.00020809539053399123
     },
-    "single_parameter_relative_standard_error": 0.0023597650742116063,
-    "variance_inflation_factor": 1.2464592357413806,
+    "single_parameter_relative_standard_error": 0.03392157687843905,
+    "variance_inflation_factor": 1.7772276579259965,
     "correlations": [
       {
         "parameter": "j0_neg",
-        "correlation": 0.15342592080158798
+        "correlation": 0.3602988189989326
       },
       {
         "parameter": "D_e",
-        "correlation": -0.44395353173372715
+        "correlation": -0.6547828216208083
       }
     ],
     "collinear_with": [],
     "collinearity_warning_abs_correlation": 0.9,
     "survives_collinearity_check": true,
-    "joint_voltage_only_relative_standard_error": 0.004708964309460739,
-    "joint_gitt_only_relative_standard_error": 0.014187279064949578,
-    "joint_information_gain_over_voltage_only": 1.7873828634854907
+    "joint_voltage_only_relative_standard_error": 0.05038835380580111,
+    "joint_gitt_only_relative_standard_error": 1.2511132443429902,
+    "joint_information_gain_over_voltage_only": 1.114249905226912
   },
   "interpretation": "Marginal standard errors are local Cram\u00e9r\u2013Rao bounds conditional on the declared i.i.d. noise. The OBSERVABLE/UNOBSERVABLE label is the declared conjunction: marginal relative SE <= 0.05 AND at least one contributing observable has mean |S| >= 0.05. The voltage-only set meets the SE limb but not the |S| limb (strongest 0.04757), so it stays UNOBSERVABLE even though its implied SE is small. The flip is therefore a conservative classification flip, not a claim that voltage data are uninformative.",
   "perturbation_robustness": {
@@ -597,53 +598,53 @@
     "checks": [
       {
         "rel_perturbation": 0.005,
-        "primary_relative_standard_error": 0.002640449650281162,
+        "primary_relative_standard_error": 0.045136005254445305,
         "primary_classification": "OBSERVABLE",
         "marginal_relative_standard_errors": {
-          "D_neg": 0.002640449650281162,
-          "j0_neg": 3.840818639424743e-05,
-          "D_e": 0.00014663448426635635
+          "D_neg": 0.045136005254445305,
+          "j0_neg": 0.0026703602355859224,
+          "D_e": 0.002331394179586739
         },
         "correlations_with_primary": {
-          "j0_neg": 0.15096382145064302,
-          "D_e": -0.4376855589066469
+          "j0_neg": 0.354598640997166,
+          "D_e": -0.6457479055511102
         },
-        "condition_number": 5688.034956826997
+        "condition_number": 1247.414747326495
       },
       {
         "rel_perturbation": 0.01,
-        "primary_relative_standard_error": 0.002638887974264443,
+        "primary_relative_standard_error": 0.04542302235245137,
         "primary_classification": "OBSERVABLE",
         "marginal_relative_standard_errors": {
-          "D_neg": 0.002638887974264443,
-          "j0_neg": 3.8420582554527134e-05,
-          "D_e": 0.00014710687286944416
+          "D_neg": 0.04542302235245137,
+          "j0_neg": 0.0026775321224299367,
+          "D_e": 0.0023564782502208136
         },
         "correlations_with_primary": {
-          "j0_neg": 0.1534773370100725,
-          "D_e": -0.4434103026910951
+          "j0_neg": 0.361755763387334,
+          "D_e": -0.655290785590774
         },
-        "condition_number": 5682.193042310329
+        "condition_number": 1263.0173487484603
       },
       {
         "rel_perturbation": 0.05,
-        "primary_relative_standard_error": 0.002645502914801165,
+        "primary_relative_standard_error": 0.0452712997580937,
         "primary_classification": "OBSERVABLE",
         "marginal_relative_standard_errors": {
-          "D_neg": 0.002645502914801165,
-          "j0_neg": 3.830512760160252e-05,
-          "D_e": 0.00014602846718699656
+          "D_neg": 0.0452712997580937,
+          "j0_neg": 0.0026699132440674697,
+          "D_e": 0.0023331206023575173
         },
         "correlations_with_primary": {
-          "j0_neg": 0.15387568909562846,
-          "D_e": -0.4470704014326284
+          "j0_neg": 0.36105690416420744,
+          "D_e": -0.6577182565821709
         },
-        "condition_number": 5736.34590568284
+        "condition_number": 1275.929645024998
       }
     ],
     "classification_stable": true,
-    "max_relative_se_deviation": 0.005933005543333425,
-    "max_abs_correlation_deviation": 0.006267972827080248
+    "max_relative_se_deviation": 0.008074285919878688,
+    "max_abs_correlation_deviation": 0.009034916069698085
   },
   "verdict": {
     "primary_parameter": "D_neg",
@@ -656,7 +657,7 @@
     "python": "3.14.10",
     "pybamm": "26.8.0.0"
   },
-  "config_sha256": "1b6201efda6bad08d86e1f26f5b4234be302e3553c8cfa5d2afaad4cf6825180",
+  "config_sha256": "4cba8fc1c5f5348ef3df433108a211888f71c809d0c611e33d0b7194809cf057",
   "limitations": [
     "SYNTHETIC ONLY: every curve is model-generated, not measured experimentally.",
     "Local finite-difference FIM at scale factor 1.0; it is not a global identifiability proof.",
@@ -664,9 +665,10 @@
     "Function-valued parameters (j0_neg, D_e) are perturbed by a constant multiplicative scale factor, not as arbitrary functions of concentration or temperature; their functional form is assumed known.",
     "A high parameter correlation means this observable set cannot separate the parameters locally; it does not prove they are physically indistinguishable under a different protocol.",
     "Marginal standard errors are conditional on the other free parameters and on the declared i.i.d. Gaussian noise.",
+    "FIM-implied SEs use raw sensitivities against noise in observable units (2026-11-27 unit correction); the earlier mixed-unit convention is no longer used.",
     "GITT pulse drops and sqrt-time slopes include ohmic and kinetic overpotential; they are not pure solid-diffusion estimators.",
     "No calibration objective, registry record or dossier decision was changed."
   ],
   "scientific_note": "Local joint FIM diagnostic only. Freeing a parameter subset tests collinearity, not global identifiability (rule 7); all curves are synthetic (rule 8). No calibration objective, registry record or dossier decision was changed (rule 10).",
-  "runtime_s": 124.29239783499725
+  "runtime_s": 157.17330633600068
 }

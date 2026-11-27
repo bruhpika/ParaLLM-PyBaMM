@@ -253,6 +253,46 @@ def test_joint_observable_specs_cover_every_configured_observable():
 
 
 # --------------------------------------------------------------------------
+# FIM units convention (2026-11-27 correction of a unit mismatch)
+# --------------------------------------------------------------------------
+def test_block_fim_uses_raw_sensitivities_with_noise_in_observable_units():
+    mod = load_module()
+    jacobian = np.array([[2.0], [3.0]])  # volts per unit scale factor
+    block = mod._block(
+        "t", jacobian, y_scale=0.01, sigma=1.0e-3, x=np.array([1.0]), normalization="std"
+    )
+    expected_fim = (2.0**2 + 3.0**2) / 1.0e-6
+    assert block["fim"] == pytest.approx(expected_fim)
+    assert block["implied_relative_standard_error"] == pytest.approx(
+        1.0 / np.sqrt(expected_fim)
+    )
+    # mean |S| keeps the recorded dimensionless (y_scale-normalized) convention.
+    assert block["mean_abs_normalized_sensitivity"] == pytest.approx(250.0)
+
+
+# --------------------------------------------------------------------------
+# GITT feature noise propagation (2026-11-27 unit correction)
+# --------------------------------------------------------------------------
+def test_gitt_feature_sigmas_propagate_voltage_noise():
+    mod = load_module()
+    sigmas = mod.gitt_feature_sigmas(
+        {"period_s": 30.0, "relaxation_fit_points": 5}, 1.0e-3
+    )
+    assert sigmas["gitt_rest_voltage"]["sigma"] == pytest.approx(1.0e-3)
+    assert sigmas["gitt_pulse_drop"]["sigma"] == pytest.approx(np.sqrt(2.0) * 1.0e-3)
+    slope = sigmas["gitt_relaxation_slope"]
+    sqrt_t = np.sqrt(np.arange(5, dtype=float) * 30.0)
+    sxx = float(np.sum((sqrt_t - sqrt_t.mean()) ** 2))
+    assert slope["sigma"] == pytest.approx(1.0e-3 / np.sqrt(sxx))
+    # The slope carries units of V/sqrt(s), never volts.
+    assert slope["units"] == "V.s-0.5"
+    with pytest.raises(ValueError):
+        mod.gitt_feature_sigmas({"period_s": 30.0, "relaxation_fit_points": 5}, 0.0)
+    with pytest.raises(ValueError):
+        mod.gitt_feature_sigmas({"period_s": 0.0, "relaxation_fit_points": 5}, 1e-3)
+
+
+# --------------------------------------------------------------------------
 # GITT protocol guard (the defect that produced the 2026-11-27 correction)
 # --------------------------------------------------------------------------
 def test_gitt_protocol_warnings_flag_null_or_high_soc():
@@ -392,6 +432,12 @@ def test_committed_report_is_labelled_and_non_decision_changing():
             > 0.05
         ), name
     assert report["verdict"]["flip"] is True
+    # Unit convention (2026-11-27 correction): implied SEs are true relative
+    # SEs of the scale factor, and the added observables add ~1% information.
+    # These fail if the FIM regresses to the mixed-units convention.
+    assert report["voltage_only"]["implied_relative_standard_error"] < 0.1
+    assert abs(report["information_gain_sqrt_ratio"] - 1.0) < 0.05
+    assert "unit" in report["fim_convention"].lower()
     joint = report["joint_fim"]
     assert joint["primary_parameter"] == "D_neg"
     assert joint["parameters"] == ["D_neg", "j0_neg", "D_e"]

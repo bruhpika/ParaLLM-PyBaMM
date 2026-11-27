@@ -1,0 +1,96 @@
+# Synthetic joint parameter-recovery + profile-likelihood study at the §2.7
+# GITT protocol (docs/EXPERIMENTAL_DATA_REQUIREMENTS.md).
+#
+# Purpose (D_NEG_ACTION_DECISION.md gates 2 and 3): prove that the machinery
+# which would identify Negative particle diffusivity from an experimental
+# GITT dataset is executable and behaves correctly on model-generated data,
+# BEFORE any real dataset exists. This dry-run is SYNTHETIC:
+#   * the "data" are model-generated with declared noise and a declared seed;
+#   * the truth scale factors below are study devices, not measurements;
+#   * rules 7/8 apply: recovery here is NOT identifiability proof and NOT
+#     experimental validation, and no dossier decision changes (rule 10).
+schema_version: 1
+run_id: diffusivity_gitt_recovery_synthetic
+description: >
+  Joint least-squares recovery of three multiplicative scale factors
+  (negative particle diffusivity, negative exchange-current density,
+  electrolyte diffusivity) from synthetic low-SOC GITT voltage at the §2.7
+  protocol, plus a profile likelihood over the diffusivity. Dry-run of the
+  identification machinery on synthetic data; no real data involved.
+
+model_name: DFN
+parameter_set: Chen2020
+
+# Free parameters: multiplicative scale factors on the installed values/
+# functions. Function-valued parameters keep their concentration/temperature
+# dependence; only the multiplier is fitted (same convention as the joint FIM).
+parameters:
+  - label: D_neg
+    name: "Negative particle diffusivity [m2.s-1]"
+  - label: j0_neg
+    name: "Negative electrode exchange-current density [A.m-2]"
+  - label: D_e
+    name: "Electrolyte diffusivity [m2.s-1]"
+
+# --- data-generating truth (study device, not a measurement) ----------------
+# Declared before fitting; the fit is judged against these values only via the
+# recorded z-score rule below. Values are deliberately away from 1.0 so the
+# recovery is not trivially self-referential.
+truth_scale_factors:
+  D_neg: 0.5
+  j0_neg: 0.7
+  D_e: 1.3
+
+# --- §2.7 GITT protocol (identical to configs/v03/observable_identifiability.yaml)
+gitt_d:
+  model_name: DFN
+  current_A: 1.0            # 0.2C on the installed 5 Ah Chen2020 cell
+  pulse_duration_s: 120.0
+  rest_duration_s: 180.0
+  n_pulses: 5
+  period_s: 30.0
+  initial_soc: 0.20
+  relaxation_fit_points: 5
+
+# --- declared measurement noise and reproducibility -------------------------
+noise_sigma_V: 1.0e-3       # documented 1 mV i.i.d. (same assumption as the FIM study)
+seed: 20261127
+
+# --- finite differences (truth FIM only) -----------------------------------
+rel_perturbation: 0.02
+
+# --- optimizer -------------------------------------------------------------
+optimizer:
+  method: trf
+  max_nfev: 300
+  bounds: [0.1, 10.0]
+
+# Multi-start: every start is declared here, none is chosen after the fact.
+multi_start:
+  - [1.0, 1.0, 1.0]
+  - [0.2, 1.5, 0.5]
+  - [2.0, 0.5, 2.0]
+  - [0.5, 2.0, 1.5]
+
+# --- recovery rule (declared before scoring) -------------------------------
+# z = (estimate - truth) / predicted SE; recovered iff |z| <= 3 for every
+# parameter and every start converges to the same optimum (declared spread
+# rule: max/min estimate ratio <= 1.05 for each parameter).
+recovery:
+  z_score_threshold: 3.0
+  max_estimate_spread_ratio: 1.05
+
+# --- profile likelihood over D_neg -----------------------------------------
+# At each grid point the other two parameters are re-optimised. The profile is
+# "closed" (bounds the parameter at 95%) when the cost at both grid ends
+# exceeds the minimum by delta_chi2_95 (chi-square, 1 dof) and the minimum is
+# interior. 3.841 is the standard 95% chi-square critical value for one
+# parameter; it is a statistical constant, not a chemistry value.
+profile:
+  fixed_parameter: D_neg
+  grid: [0.2, 0.3, 0.4, 0.5, 0.6, 0.75, 0.9, 1.1, 1.4, 1.8, 2.2]
+  delta_chi2_95: 3.841
+
+outputs:
+  report: results/observables/diffusivity_gitt_recovery.json
+  summary: results/observables/diffusivity_gitt_recovery.md

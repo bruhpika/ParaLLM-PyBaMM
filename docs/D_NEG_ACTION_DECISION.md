@@ -17,9 +17,11 @@ deterministic join upgrades it to **`CALIBRATE`**?
 | step | artifact | result |
 |---|---|---|
 | voltage-only baseline (P2, committed) | `results/p2/diffusivity_feasibility/report.json` | mean \|S\| 0.011 / 0.021 / 0.048 at 0.5C/1C/2C → `UNOBSERVABLE` → `MEASURE` |
-| observable-augmented study (2026-11-27, corrected) | `results/observables/diffusivity_multi_observable_fim.{json,md}` | low-SOC GITT pulse drop 0.082, sqrt(t) slope 0.100 clear the 0.05 bar; combined FIM 9.029e4 → 1.796e5; verdict flips to `OBSERVABLE` under the declared conjunction |
+| observable-augmented study (2026-11-27, twice corrected) | `results/observables/diffusivity_multi_observable_fim.{json,md}` | low-SOC GITT pulse drop 0.082, sqrt(t) slope 0.100 clear the 0.05 \|S\| bar; verdict flips to `OBSERVABLE` under the declared conjunction. **True** SE reduction from adding GITT + EIS: **1.007×** (3.42 % → 3.39 %) — the flip is a classification flip driven by the \|S\| limb, not by added precision |
 | protocol correction | same artifact + `CHANGELOG.md` | the first run used the PyBaMM default 100 % SOC where the graphite OCP is flat; its null was a protocol artefact. Committed protocol: 20 % SOC, 0.2C, 120 s pulse / 180 s rest × 5 |
-| joint collinearity check (2026-11-27) | `results/observables/joint_diffusivity_fim.{json,md}` | `D_neg`, `j0_neg`, `D_e` free together: marginal rel. SE 0.263 % (single-parameter 0.236 %, variance inflation **1.25**), correlations 0.153 / −0.444, survives the declared 0.9 warning; stable across 0.5–5 % FD steps |
+| unit correction | same artifact + `CHANGELOG.md` | the first two runs mixed dimensionless sensitivities with noise in volts, scaling every implied SE by its observable's `y_scale`; corrected to raw sensitivities with noise in observable units. Feature noises are propagated from the 1 mV per-sample noise |
+| joint collinearity check (2026-11-27, corrected) | `results/observables/joint_diffusivity_fim.{json,md}` | `D_neg`, `j0_neg`, `D_e` free together: `D_neg` marginal rel. SE **4.52 %** (single-parameter 3.39 %, variance inflation **1.78**), correlations 0.36 / −0.655 / −0.657, all below the declared 0.9 warning; classification `OBSERVABLE` by 0.5 percentage points; stable across 0.5–5 % FD steps |
+| recovery + profile dry-run (2026-11-27, synthetic) | `results/observables/diffusivity_gitt_recovery.{json,md}` | joint least squares on §2.7 GITT raw voltage: `j0_neg` recovered (z = 0.23), `D_neg`/`D_e` within their SEs (z = −0.52 / 0.86) but failing the multi-start spread rule (1.15 / 1.12 > 1.05) because of a shallow `D_neg`–`D_e` valley (ρ = −0.899 GITT-only). Profile over `D_neg` **closed** at [0.35, 0.82] (95 %): bounded, not pinned |
 | measurement specification | `docs/EXPERIMENTAL_DATA_REQUIREMENTS.md` §2.7 | what an experimental GITT dataset must contain |
 
 The committed voltage-only baseline is reproduced **exactly** (Δ = 0.0 at all
@@ -38,12 +40,16 @@ vs ~8e-5 from 100× diffusivity) and contributes nothing to the flip.
    licensing).
 3. **Not a pure transport estimator.** The GITT pulse drop and sqrt(t) slope
    contain ohmic and kinetic overpotential.
-4. **Threshold sensitivity.** The `OBSERVABLE` flip is a *conservative
-   classification flip*: the voltage-only joint set already meets the
-   relative-SE limb (0.47 %) and misses only the per-block mean-|S| limb
-   (0.0476 vs 0.05). A different, equally defensible threshold would label the
-   voltage-only set observable too. The information claim (SE reduction 1.41×,
-   joint 1.79× over voltage-only) is more robust than the label.
+4. **Threshold sensitivity and limited precision.** After the unit correction
+   both the voltage-only and the augmented sets clear the 5 % SE limb
+   (3.42 % / 3.39 %), so the flip is decided entirely by the per-block mean-|S|
+   limb (0.0476 vs 0.100). In the joint fit `D_neg` reaches 4.52 % — 0.5
+   percentage points of margin against the same 5 % rule. The label is
+   threshold-sensitive; the honest quantitative statement is that `D_neg` is
+   *locally bounded to ≈ ±4.5 % (1σ)* under the declared noise, that GITT
+   contributes ≈ 0.7 % additional information over three discharge curves, and
+   that a §2.7 GITT dataset alone bounds it at ±45 % (95 %) rather than pinning
+   it.
 
 ## Where the action is enforced
 
@@ -89,3 +95,37 @@ next scientific gate before B is even discussable.
 
 Until all four are recorded, any dossier change to `CALIBRATE` is a rule-10
 violation.
+
+### Gate machinery dry-run (2026-11-27) — synthetic only, gates NOT satisfied
+
+The procedures for gates 2 and 3 are implemented and validated on
+model-generated data:
+
+- `benchmarks/observables/diffusivity_gitt_recovery.py` with
+  `configs/v03/diffusivity_recovery.yaml`, artifact
+  `results/observables/diffusivity_gitt_recovery.{json,md}`;
+- joint weighted least-squares recovery of the three scale factors from the
+  §2.7 GITT voltage series, from four declared starting points, judged by a
+  declared rule (`|z| ≤ 3` against the truth-FIM standard error **and**
+  multi-start estimate spread ratio ≤ 1.05);
+- a profile likelihood over `D_neg` (other two re-optimised at each of 11
+  declared grid points), judged closed when the cost exceeds the minimum by
+  the 95 % χ² critical value (3.841, one parameter) on **both** sides;
+- parameters touching a null direction of the truth FIM are reported as
+  unconstrained with infinite standard error and are never counted as
+  recovered (the tiny SPM integration test pins this honesty property).
+
+This proves the machinery executes and behaves correctly. **It does not
+satisfy gates 2/3**: the data are model-generated at a declared truth point
+(rules 7/8), and both gates must be re-run on the real dataset from gate 1
+before the action is reconsidered.
+
+Dry-run outcome (artifact `diffusivity_gitt_recovery.json`): `j0_neg` recovers
+(z = 0.23); `D_neg` and `D_e` land inside their predicted SEs (z = −0.52 /
+0.86) but fail the multi-start spread rule (1.15 / 1.12 > 1.05) because of a
+shallow `D_neg`–`D_e` valley (ρ = −0.899 on GITT-only). The profile likelihood
+over `D_neg` is **closed** at [0.35, 0.82] (95 %, χ² = 3.841): the parameter is
+bounded but only to ≈ ±45 %. Both findings argue for strengthening the
+measurement specification (more titrations, longer rests, and at least one
+non-GITT observable to break the `D_neg`–`D_e` valley) before real data are
+collected.

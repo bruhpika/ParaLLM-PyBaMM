@@ -58,12 +58,13 @@ sets of exports/helpers.
   (2 % central difference, same device as the committed feasibility study) and
   stacks voltage, GITT-D and EIS Jacobians through `multi_observable_fim` with
   declared per-observable noise.
-- **Corrected result (2026-11-27):** voltage-only FIM 9.029e4 → augmented
-  **1.796e5** (implied relative SE 0.333 % → 0.236 %; SE reduction factor
-  **1.41**). The low-SOC GITT pulse drop (mean |S| 0.082) and sqrt(t)
-  relaxation slope (0.100) clear the recorded 0.05 bar, so the verdict flips
-  from `UNOBSERVABLE` to `OBSERVABLE` under the declared conjunction rule.
-  The committed baseline is still reproduced exactly (Δ = 0.0 at 0.5C/1C/2C).
+- **Corrected result (2026-11-27; numbers superseded by the unit correction
+  below):** voltage-only FIM 9.029e4 → augmented **1.796e5** (implied relative
+  SE 0.333 % → 0.236 %; SE reduction factor **1.41**). The low-SOC GITT pulse
+  drop (mean |S| 0.082) and sqrt(t) relaxation slope (0.100) clear the recorded
+  0.05 bar, so the verdict flips from `UNOBSERVABLE` to `OBSERVABLE` under the
+  declared conjunction rule. The committed baseline is still reproduced exactly
+  (Δ = 0.0 at 0.5C/1C/2C).
 - **Correction:** the first committed run used the PyBaMM default **100 % SOC**
   for GITT, where the graphite OCP is flat. Its "no flip" conclusion was a
   protocol artefact, not a transport result. The committed protocol now starts
@@ -73,7 +74,8 @@ sets of exports/helpers.
   `gitt_protocol_warnings()` guard now flags full-charge GITT runs, and an
   integration test pins the corrected protocol's signal. The EIS null is
   unchanged and remains a PyBaMM 26.8.0.0 formulation limitation.
-- **Joint collinearity check (2026-11-27):** added a three-parameter joint FIM
+- **Joint collinearity check (2026-11-27; numbers superseded by the unit
+  correction below):** added a three-parameter joint FIM
   (`D_neg`, `j0_neg`, `D_e` free together) to the same benchmark; artifact
   `results/observables/joint_diffusivity_fim.{json,md}`. `D_neg` marginal
   relative SE **0.263 %** (single-parameter reference 0.236 %; variance
@@ -86,12 +88,41 @@ sets of exports/helpers.
   already meets the relative-SE limb but not the per-block |S| limb (0.0476),
   so the flip is a **conservative classification flip**, not evidence that
   voltage data are uninformative.
+- **Unit correction (2026-11-27):** the first two runs built the FIM from
+  dimensionless sensitivities divided by a noise **in volts**, so every
+  implied SE was scaled by its own observable's `y_scale` and the
+  information-gain figures were meaningless (this was found by the recovery
+  dry-run, whose raw-voltage SE disagreed by two orders of magnitude). The
+  FIM now uses raw sensitivities against noise in observable units; GITT
+  feature noises are propagated from the 1 mV per-sample noise (end-of-rest
+  σ, pulse drop √2·σ, sqrt(t) slope σ/√Sxx in V·s^−½). **Corrected numbers:**
+  voltage-only FIM 857.2 → augmented 869.1, true relative SE 3.42 % → 3.39 %,
+  SE reduction **1.007×**; joint `D_neg` marginal SE **4.52 %** (single
+  3.39 %, variance inflation **1.78**), correlations 0.36 / −0.655 / −0.657.
+  The `UNOBSERVABLE → OBSERVABLE` verdict **survives** but is decided entirely
+  by the per-block mean-|S| limb (0.0476 vs 0.100): GITT changes the label,
+  not the precision. The joint `OBSERVABLE` label has 0.5 percentage points of
+  margin against the recorded 5 % rule and is threshold-sensitive.
 - **Limits of the flip:** only three parameters are free; function-valued
   `j0_neg`/`D_e` are perturbed by a constant multiplier, so their functional
   form is assumed known; other parameters remain fixed. The GITT features
   include ohmic/kinetic overpotential; this is a local synthetic FIM, not an
   identifiability proof (rules 7/8). The dossier action stays `MEASURE`
   pending owner review (rule 10).
+- **Recovery + profile dry-run (2026-11-27, synthetic):**
+  `benchmarks/observables/diffusivity_gitt_recovery.py` +
+  `configs/v03/diffusivity_recovery.yaml`, artifact
+  `results/observables/diffusivity_gitt_recovery.{json,md}`. Joint weighted
+  least squares of the three scale factors on §2.7 GITT raw voltage (four
+  declared starts, declared truth 0.5 / 0.7 / 1.3, seed 20261127) plus a
+  profile likelihood over `D_neg` (11-point grid, χ² = 3.841 rule). `j0_neg`
+  recovers (z = 0.23); `D_neg`/`D_e` fail the multi-start spread rule
+  (1.15 / 1.12 > 1.05) on a shallow valley (ρ = −0.899 GITT-only); the
+  profile is closed at [0.35, 0.82] (95 %) — bounded, not pinned. Parameters
+  touching a FIM null space are reported as unconstrained with infinite SE and
+  never counted as recovered (pinned by an SPM integration test). Synthetic
+  only (rules 7/8); gates 2/3 of `docs/D_NEG_ACTION_DECISION.md` remain
+  unsatisfied until re-run on real data.
 - **Deliverables (2026-11-27):** a measurement specification for an
   experimental GITT dataset (`docs/EXPERIMENTAL_DATA_REQUIREMENTS.md` §2.7:
   20 % SOC start, 0.2C, 120 s pulse / 180 s rest × 5, feature list and
@@ -118,7 +149,7 @@ sets of exports/helpers.
 2026-11-22/27 holds in force (V2.5 exit criterion still open). Experimental
 dataset acquisition remains blocked on licensing; local-model experimentation
 remains blocked on D3's revisit condition. Verification: `ruff` clean,
-`mkdocs build --strict` clean, core scope **717 passed, 9 skipped, 3
+`mkdocs build --strict` clean, core scope **738 passed, 9 skipped, 3
 deselected, 1 xfailed**.
 
 ### V2.5 owner decision: stop after v27 (2026-11-27)
