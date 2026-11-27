@@ -117,6 +117,40 @@ def test_eis_positive_control_moves_but_diffusivity_does_not(module):
     assert kinetics_change > 100.0 * diffusivity_change
 
 
+def test_committed_gitt_protocol_has_resolvable_transport_signal(module):
+    """Pin the corrected low-SOC protocol (2026-11-27).
+
+    This is the regression test that would have caught the original defect:
+    with GITT at the PyBaMM default 100% SOC the transport features are
+    numerically weak, so a "no flip" conclusion is not evidence. The committed
+    protocol must clear the recorded 0.05 bar on both transport-bearing
+    features.
+    """
+    cfg = module.load_config(
+        REPO_ROOT / "configs/v03/observable_identifiability.yaml"
+    )
+    spec = cfg["gitt_d"]
+    assert spec["initial_soc"] is not None
+    assert float(spec["initial_soc"]) <= 0.3
+    assert module.gitt_protocol_warnings(spec) == []
+
+    x = np.array([1.0])
+    for label, feature, normalization in (
+        ("pulse_drop", module.gitt_pulse_drops, "mean_magnitude"),
+        ("relaxation_slope", module.gitt_relaxation_slopes, "mean_magnitude"),
+    ):
+        jacobian, y_scale = module._jacobian_for(
+            lambda pv, f=feature, s=spec: f(pv, s),
+            cfg["parameter_set"],
+            cfg["parameter"],
+            float(cfg["rel_perturbation"]),
+            x,
+            normalization,
+        )
+        value = module.mean_abs_normalized_sensitivity(jacobian, x, y_scale)
+        assert value > module.SENSITIVITY_OBSERVABILITY_THRESHOLD, (label, value)
+
+
 def test_run_diagnostic_writes_labelled_synthetic_artifacts(module, tmp_path):
     report_path = tmp_path / "report.json"
     summary_path = tmp_path / "summary.md"
@@ -165,6 +199,7 @@ def test_run_diagnostic_writes_labelled_synthetic_artifacts(module, tmp_path):
             "voltage": "std",
             "gitt_rest_voltage": "std",
             "gitt_pulse_drop": "mean_magnitude",
+            "gitt_relaxation_slope": "mean_magnitude",
             "eis": "std",
             "ocv": "std",
         },
@@ -187,10 +222,14 @@ def test_run_diagnostic_writes_labelled_synthetic_artifacts(module, tmp_path):
         "voltage_0.5C",
         "gitt_d_rest_voltage",
         "gitt_d_pulse_drop",
+        "gitt_d_relaxation_slope",
         "eis_re_impedance",
         "eis_neg_im_impedance",
         "ocv_soc_control",
     }
+    # The tiny config starts GITT at the PyBaMM default (100% SOC): the guard
+    # must say so, because a null there would be a protocol artefact.
+    assert report["protocol_warnings"]
     # OCV is the negative control: equilibrium thermodynamics cannot inform a
     # transport parameter, so its sensitivity must be exactly zero.
     assert report["per_observable"]["ocv_soc_control"][

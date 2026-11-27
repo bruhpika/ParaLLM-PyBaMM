@@ -66,10 +66,13 @@ def test_committed_config_is_complete():
         assert key in cfg, key
     assert cfg["parameter"] == "Negative particle diffusivity [m2.s-1]"
     assert cfg["positive_control"]["factor"] > 1.0
+    assert cfg["gitt_d"]["initial_soc"] == pytest.approx(0.20)
+    assert cfg["gitt_d"]["relaxation_fit_points"] >= 3
     assert set(cfg["normalization"]) >= {
         "voltage",
         "gitt_rest_voltage",
         "gitt_pulse_drop",
+        "gitt_relaxation_slope",
         "eis",
         "ocv",
     }
@@ -192,9 +195,20 @@ def test_information_ratio():
 
 
 # --------------------------------------------------------------------------
-# A-priori diffusion scales
+# GITT protocol guard (the defect that produced the 2026-11-27 correction)
 # --------------------------------------------------------------------------
-def test_diffusion_frequency_arithmetic():
+def test_gitt_protocol_warnings_flag_null_or_high_soc():
+    mod = load_module()
+    assert mod.gitt_protocol_warnings({"initial_soc": None})
+    assert mod.gitt_protocol_warnings({"initial_soc": 0.95})
+    assert mod.gitt_protocol_warnings({"initial_soc": 1.0})
+    assert mod.gitt_protocol_warnings({"initial_soc": 0.2}) == []
+    assert mod.gitt_protocol_warnings({"initial_soc": 0.5}) == []
+
+
+# --------------------------------------------------------------------------
+# A-priori diffusion scales
+# --------------------------------------------------------------------------def test_diffusion_frequency_arithmetic():
     mod = load_module()
     result = mod.diffusion_frequency(4.0, 2.0)
     assert result["diffusion_time_constant_s"] == pytest.approx(1.0)
@@ -235,6 +249,16 @@ def test_render_summary_marks_synthetic_and_limitations():
             "eis_band_Hz": [1e-4, 1e1],
             "eis_band_covers_diffusion_frequency": True,
         },
+        "gitt_protocol": {
+            "initial_soc": 0.2,
+            "current_A": 1.0,
+            "current_C_rate": 0.2,
+            "pulse_duration_s": 120.0,
+            "rest_duration_s": 180.0,
+            "n_pulses": 5,
+            "relaxation_fit_points": 5,
+        },
+        "protocol_warnings": [],
         "per_observable": {
             "voltage_1C": {
                 "n_points": 24,
@@ -299,3 +323,13 @@ def test_committed_report_is_labelled_and_non_decision_changing():
     assert report["baseline_comparison"]["all_within_tolerance"] is True
     assert report["eis_positive_control"]["relative_impedance_change"] > 0.01
     assert "scientific_note" in report
+    # 2026-11-27 correction: the committed protocol is the low-SOC one and its
+    # GITT features must clear the recorded sensitivity bar.
+    assert report["gitt_protocol"]["initial_soc"] == pytest.approx(0.20)
+    assert report["protocol_warnings"] == []
+    for name in ("gitt_d_pulse_drop", "gitt_d_relaxation_slope"):
+        assert (
+            report["per_observable"][name]["mean_abs_normalized_sensitivity"]
+            > 0.05
+        ), name
+    assert report["verdict"]["flip"] is True

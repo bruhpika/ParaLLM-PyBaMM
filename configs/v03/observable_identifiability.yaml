@@ -20,9 +20,10 @@ run_id: observable_identifiability_neg_diffusivity
 description: >
   Finite-difference local-sensitivity study of the negative particle
   diffusivity scale factor under a voltage-only observable set versus an
-  observable-augmented set (GITT-D rest voltages and pulse drops, EIS real and
-  imaginary impedance, OCV-vs-SOC null control). Compared against the committed
-  voltage-only baseline; diagnostic only.
+  observable-augmented set (low-SOC GITT-D rest voltages, pulse drops and
+  sqrt-time relaxation slopes; EIS real and imaginary impedance; OCV-vs-SOC
+  null control). Compared against the committed voltage-only baseline;
+  diagnostic only.
 
 model_name: DFN
 parameter_set: Chen2020
@@ -55,18 +56,29 @@ voltage_n_points: 24
 voltage_t_start_s: 10.0
 
 # --- GITT-D block -----------------------------------------------------------
-# Two theoretically motivated features are scored, both from one protocol:
-#   * end-of-rest voltages   -> the quasi-relaxed OCV points of a GITT-D analysis
-#   * per-pulse voltage drop -> the pulse overpotential that includes transport
-# Neither feature is selected after seeing its sensitivity; both are reported.
+# Three theoretically motivated features are scored, all from one protocol:
+#   * end-of-rest voltages      -> quasi-relaxed OCV points (transport-poor)
+#   * per-pulse voltage drop    -> pulse overpotential (transport + kinetics)
+#   * sqrt(time) relaxation fit -> canonical GITT-D slope (transport-bearing)
+# The protocol is chosen a priori away from full charge: at 100% SOC the
+# graphite OCP is flat and a low signal there is a protocol artefact, not a
+# transport result (2026-11-27 correction). A validity grid over SOC 0.15-0.30
+# and 0.1-0.2C showed every low-SOC point clears the recorded 0.05 sensitivity
+# bar; 0.15 SOC at 0.5C was rejected because V_min = 3.03 V approaches the
+# 3.0 V cutoff. This primary point (0.20 SOC, 0.2C, V_min = 3.41 V) uses 3.3%
+# of nominal capacity. All three features are reported; none is selected after
+# seeing its sensitivity.
 gitt_d:
   model_name: DFN
-  current_A: 0.5
+  current_A: 1.0            # 0.2C on the installed 5 Ah Chen2020 cell
   pulse_duration_s: 120.0
   rest_duration_s: 180.0
   n_pulses: 5
   period_s: 30.0
-  initial_soc: null
+  initial_soc: 0.20
+  # Sqrt(time) window: first 5 rest samples = 150 s, short against the
+  # installed solid-diffusion time constant tau = R^2/D ~ 1041 s.
+  relaxation_fit_points: 5
 
 # --- EIS block --------------------------------------------------------------
 # Band set a priori to cover the solid-diffusion frequency computed from the
@@ -111,6 +123,7 @@ normalization:
   voltage: std
   gitt_rest_voltage: std
   gitt_pulse_drop: mean_magnitude
+  gitt_relaxation_slope: mean_magnitude
   eis: std
   ocv: std
 

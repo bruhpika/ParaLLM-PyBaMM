@@ -58,16 +58,31 @@ sets of exports/helpers.
   (2 % central difference, same device as the committed feasibility study) and
   stacks voltage, GITT-D and EIS Jacobians through `multi_observable_fim` with
   declared per-observable noise.
-- **Honest null:** voltage-only FIM 9.029e4 → augmented 9.083e4 (implied
-  relative SE 0.333 % → 0.332 %; SE reduction factor 1.003). Every added
-  observable is below the recorded 0.05 mean-|S| bar, so the verdict does
-  **not** flip and the parameter remains `MEASURE`. The committed baseline is
-  reproduced exactly (Δ = 0.0 at 0.5C/1C/2C).
-- Recorded tool/protocol findings: GITT end-of-rest voltage is quasi-OCV, and
-  PyBaMM 26.8.0.0 EIS does not respond to solid diffusivity (100× change gives
-  ~8e-5 relative Re(Z) change) while responding to kinetics (~0.37 for 10×
-  exchange-current density). A positive control and a pinned integration test
-  make the latter explicit, and fail if a future PyBaMM release changes it.
+- **Corrected result (2026-11-27):** voltage-only FIM 9.029e4 → augmented
+  **1.796e5** (implied relative SE 0.333 % → 0.236 %; SE reduction factor
+  **1.41**). The low-SOC GITT pulse drop (mean |S| 0.082) and sqrt(t)
+  relaxation slope (0.100) clear the recorded 0.05 bar, so the verdict flips
+  from `UNOBSERVABLE` to `OBSERVABLE` under the declared conjunction rule.
+  The committed baseline is still reproduced exactly (Δ = 0.0 at 0.5C/1C/2C).
+- **Correction:** the first committed run used the PyBaMM default **100 % SOC**
+  for GITT, where the graphite OCP is flat. Its "no flip" conclusion was a
+  protocol artefact, not a transport result. The committed protocol now starts
+  at 20 % SOC / 0.2C, chosen a priori; a validity grid over SOC 0.15–0.30 and
+  0.1–0.2C showed every low-SOC point clears the bar, and 0.15 SOC at 0.5C was
+  rejected because V_min = 3.03 V approaches the 3.0 V cutoff. A
+  `gitt_protocol_warnings()` guard now flags full-charge GITT runs, and an
+  integration test pins the corrected protocol's signal. The EIS null is
+  unchanged and remains a PyBaMM 26.8.0.0 formulation limitation.
+- **Limits of the flip:** single-parameter local sensitivity (all other
+  parameters fixed), so joint D–kinetics/electrolyte collinearity is not
+  assessed; the GITT features include ohmic/kinetic overpotential and are not
+  pure solid-diffusion estimators; synthetic only (rules 7/8). The dossier
+  action stays `MEASURE` pending owner review (rule 10).
+- Recorded tool finding: PyBaMM 26.8.0.0 EIS does not respond to solid
+  diffusivity (100× change gives ~8e-5 relative Re(Z) change) while responding
+  to kinetics (~0.37 for 10× exchange-current density). A positive control and
+  a pinned integration test make this explicit, and fail if a future PyBaMM
+  release changes it.
 - No calibration objective, registry record or dossier decision changed
   (rule 10); rules 7/8 guard the interpretation. Unit tests cover the pure
   helpers; an ecosystem-free integration test runs a tiny protocol under the
@@ -77,7 +92,7 @@ sets of exports/helpers.
 2026-11-22/27 holds in force (V2.5 exit criterion still open). Experimental
 dataset acquisition remains blocked on licensing; local-model experimentation
 remains blocked on D3's revisit condition. Verification: `ruff` clean,
-`mkdocs build --strict` clean, core scope **709 passed, 9 skipped, 3
+`mkdocs build --strict` clean, core scope **710 passed, 9 skipped, 3
 deselected, 1 xfailed**.
 
 ### V2.5 owner decision: stop after v27 (2026-11-27)

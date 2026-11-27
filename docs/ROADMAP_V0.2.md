@@ -315,28 +315,32 @@ prevent.
 6. **Experimentation with a small local model** (optional, only if D3's revisit
    condition is met).
 7. **Observable-augmented observability diagnostic for negative diffusivity**
-   (**implemented 2026-11-27; honest null, no decision change**). Asked whether
-   GITT-D and/or EIS change the observability verdict for
-   `neg_particle_diffusivity` — documented `UNOBSERVABLE` from voltage-only
-   ≤2C (mean |normalized sensitivity| 0.011 / 0.021 / 0.048, all < 0.05).
-   Landed `benchmarks/observables/diffusivity_multi_observable_fim.py` +
-   `configs/v03/observable_identifiability.yaml`; finite-difference observable
-   Jacobians using the verified `pybamm_engine/observables.py` curves fed into
-   the landed `multi_observable_fim` with declared per-observable noise;
-   SYNTHETIC-labelled artifacts in
+   (**implemented 2026-11-27; protocol-corrected flip to OBSERVABLE, decision
+   unchanged**). Asked whether GITT-D and/or EIS change the observability
+   verdict for `neg_particle_diffusivity` — documented `UNOBSERVABLE` from
+   voltage-only ≤2C (mean |normalized sensitivity| 0.011 / 0.021 / 0.048, all
+   < 0.05). Landed `benchmarks/observables/diffusivity_multi_observable_fim.py`
+   + `configs/v03/observable_identifiability.yaml`; finite-difference
+   observable Jacobians using the verified `pybamm_engine/observables.py`
+   curves fed into the landed `multi_observable_fim` with declared
+   per-observable noise; SYNTHETIC-labelled artifacts in
    `results/observables/diffusivity_multi_observable_fim.{json,md}`.
-   **Result:** voltage-only FIM 9.029e4 vs augmented 9.083e4 (SE reduction
-   factor 1.003); every added block is below the 0.05 sensitivity bar, so the
-   verdict does **not** flip and the parameter stays `MEASURE`. The committed
-   baseline reproduces exactly (Δ = 0.0 at 0.5C/1C/2C). Two structural
-   findings recorded: GITT end-of-rest voltage is quasi-OCV (transport-poor),
-   and PyBaMM 26.8.0.0 EIS ignores solid diffusivity even for a 100× change
-   while responding to kinetics (positive control ~0.37) — a verified tool
-   limitation pinned by an integration test. **Diagnostic only:** no
-   calibration-objective change, no registry write, no decision change
-   (AGENTS.md rule 10; `docs/FORWARD_OBSERVABLES.md`). Guard rules 7/8 (FIM
-   evidence ≠ identifiability; synthetic ≠ experimental) and D4 (no real-data
-   claims).
+   **Corrected result:** voltage-only FIM 9.029e4 → augmented **1.796e5**
+   (SE reduction factor **1.41**). The low-SOC GITT pulse drop (0.082) and
+   sqrt(t) relaxation slope (0.100) clear the 0.05 bar, so the verdict flips
+   to `OBSERVABLE`; the dossier action stays `MEASURE` pending owner review.
+   The committed baseline reproduces exactly (Δ = 0.0 at 0.5C/1C/2C).
+   **Correction:** the first run used the PyBaMM default 100% SOC, where the
+   graphite OCP is flat; its "no flip" conclusion was a protocol artefact. The
+   committed protocol is 20% SOC / 0.2C, validated against the 3.0 V cutoff;
+   `gitt_protocol_warnings()` flags full-charge runs and an integration test
+   pins the corrected signal. **Limits:** single-parameter local sensitivity
+   (joint D–kinetics collinearity not assessed), GITT features include
+   ohmic/kinetic overpotential, synthetic only (rules 7/8). EIS remains a
+   verified PyBaMM 26.8.0.0 formulation limitation (positive control ~0.37
+   from kinetics vs ~8e-5 from 100× diffusivity), pinned by an integration
+   test. **Diagnostic only:** no calibration-objective change, no registry
+   write, no decision change (AGENTS.md rule 10; `docs/FORWARD_OBSERVABLES.md`).
 
 ## 8. Risk register
 

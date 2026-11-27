@@ -108,51 +108,63 @@ added.
 Everything is model-generated (**SYNTHETIC**) and **diagnostic only**: no
 calibration objective, registry record or dossier decision changes.
 
+**Protocol correction (2026-11-27).** The first committed run started GITT from
+the PyBaMM default 100% SOC, where the graphite OCP is flat. Its "no flip"
+conclusion was a protocol artefact, not a transport result. The committed
+protocol now starts at **20% SOC and 0.2C**; a validity grid over SOC
+0.15–0.30 and 0.1–0.2C showed every low-SOC point clears the recorded
+sensitivity bar (0.15 SOC at 0.5C was rejected: V_min = 3.03 V approaches the
+3.0 V cutoff). `gitt_protocol_warnings()` now flags full-charge GITT runs, and
+an integration test pins the corrected protocol.
+
 Results (PyBaMM 26.8.0.0, Chen2020, DFN, `rel_perturbation = 0.02`):
 
-| observable | n | mean \|S\| | implied rel. SE |
-|---|---:|---:|---:|
-| voltage 0.5C | 24 | 0.01068 | 0.0171 |
-| voltage 1C | 24 | 0.02131 | 0.00872 |
-| voltage 2C | 24 | 0.04757 | 0.00368 |
-| GITT-D end-of-rest voltage | 5 | 3.0e-6 | 86.2 |
-| GITT-D pulse voltage drop | 5 | 0.00504 | 0.0885 |
-| EIS Re(Z) | 28 | 8.7e-4 | 0.0504 |
-| EIS −Im(Z) | 28 | 2.1e-4 | 0.231 |
-| OCV-vs-SOC (negative control) | 21 | 0 | ∞ |
+| observable | n | mean \|S\| | implied rel. SE | verdict |
+|---|---:|---:|---:|---|
+| voltage 0.5C | 24 | 0.01068 | 0.0171 | UNOBSERVABLE |
+| voltage 1C | 24 | 0.02131 | 0.00872 | UNOBSERVABLE |
+| voltage 2C | 24 | 0.04757 | 0.00368 | UNOBSERVABLE |
+| GITT-D end-of-rest voltage | 5 | 0.00870 | 0.0483 | UNOBSERVABLE |
+| GITT-D pulse voltage drop | 5 | **0.0818** | 0.00533 | **OBSERVABLE** |
+| GITT-D sqrt(t) relaxation slope | 5 | **0.100** | 0.00433 | **OBSERVABLE** |
+| EIS Re(Z) | 28 | 8.7e-4 | 0.0504 | UNOBSERVABLE |
+| EIS −Im(Z) | 28 | 2.1e-4 | 0.231 | UNOBSERVABLE |
+| OCV-vs-SOC (negative control) | 21 | 0 | ∞ | UNOBSERVABLE |
 
-- Combined FIM: 9.029e4 (voltage only) → 9.083e4 (voltage + GITT-D + EIS);
-  standard-error reduction factor **1.003**. The added observables carry no
-  material information about this parameter.
-- **No flip.** Both sets stay `UNOBSERVABLE`; the parameter remains `MEASURE`,
-  not `CALIBRATE`.
+- Combined FIM: 9.029e4 (voltage only) → **1.796e5** (voltage + low-SOC GITT-D
+  + EIS); standard-error reduction factor **1.41**.
+- **Verdict flips** from `UNOBSERVABLE` to `OBSERVABLE` under the declared
+  conjunction rule (combined relative SE ≤ 5 % **and** at least one block
+  clearing mean-|S| ≥ 0.05). The flip is carried by the two transport-bearing
+  GITT features, not by EIS.
+- The **dossier action is unchanged** (`MEASURE`): a local single-parameter FIM
+  is not an identifiability proof (rule 7), and changing the action needs owner
+  approval (rule 10).
 - The committed voltage-only baseline is reproduced **exactly** (Δ = 0.0 at
   0.5C/1C/2C), validating the study device and the comparison.
-- Combined sets are classified by a conjunction declared before scoring: the
-  combined implied relative SE must meet the recorded 5% rule **and** at least
-  one contributing block must clear the recorded mean-|S| ≥ 0.05 rule.
-  Stacking cannot manufacture a flip.
 
-Two structural findings explain the null and are recorded as tool/protocol
-limitations, not physical conclusions about real cells:
+Limits of the flip:
 
-1. **GITT-D end-of-rest voltage is quasi-OCV.** It measures the relaxed
-   thermodynamic state, which is insensitive to a transport coefficient; the
-   pulse *drop* is the transport-bearing feature, and it is also below the
-   sensitivity bar at this protocol.
-2. **PyBaMM 26.8.0.0 EIS does not respond to solid particle diffusivity.**
-   A 100× change in `Negative particle diffusivity [m2.s-1]` changes Re(Z) by
-   ~8e-5 relative, while a 10× change in the negative exchange-current
-   density changes it by ~0.37 relative. The positive control proves parameter
-   propagation works, so the null is a property of the installed EIS
-   formulation. `tests/integration/test_observable_identifiability_pybamm.py`
-   pins this contrast and fails loudly if a future PyBaMM release changes it,
-   at which point this limitation and the artifact must be revisited.
+1. **Single-parameter sensitivity.** Every other parameter is held fixed, so
+   joint D–kinetics/electrolyte collinearity is not assessed. The pulse drop and
+   relaxation slope contain ohmic and kinetic overpotential, not pure solid
+   diffusion.
+2. **GITT protocol dependence.** At 100% SOC the same features are numerically
+   weak (pulse drop 0.005, slope ~1e-5). The result is a statement about a
+   low-SOC protocol, not about GITT in general.
+3. **EIS remains blind in this stack.** A 100× change in
+   `Negative particle diffusivity [m2.s-1]` changes Re(Z) by ~8e-5 relative,
+   while a 10× change in the negative exchange-current density changes it by
+   ~0.37 relative. The positive control proves parameter propagation works, so
+   this is a PyBaMM 26.8.0.0 formulation limitation, not a physical conclusion
+   about real cells. The integration test pins this contrast.
 
 Interpretation guard: the a-priori diffusion scale (τ = R²/D ≈ 1041 s,
 f ≈ 1.5e-4 Hz) was computed from the installed parameter set and the EIS band
-(1e-4–10 Hz) covers it, so the null is not an artefact of a mis-placed
-frequency window.
+(1e-4–10 Hz) covers it, so the EIS null is not an artefact of a mis-placed
+frequency window. The GITT sqrt(t) window (first 5 rest samples = 150 s) is
+short against τ, so the semi-infinite approximation used by the slope feature
+is appropriate.
 
 ## Reproduction
 
@@ -194,7 +206,7 @@ shapes, live API signatures and limitations in
   to calibration objectives would change scientific scope and needs separate
   approval.
 * **PyBaMM 26.8.0.0 EIS ignores solid particle diffusivity** (verified by a
-  positive control; see the diagnostic section). The observable-augmented null
-  is therefore conditional on this tool behaviour. Testing whether real-cell
-  EIS informs diffusivity would require an impedance formulation that includes
-  solid diffusion — unavailable in the pinned stack and not approximated here.
+  positive control; see the diagnostic section). The EIS result is therefore
+  conditional on this tool behaviour. Testing whether real-cell EIS informs
+  diffusivity would require an impedance formulation that includes solid
+  diffusion — unavailable in the pinned stack and not approximated here.
