@@ -16,7 +16,9 @@
 </p>
 
 **Status:** research prototype — [v0.1.0-beta.1](CHANGELOG.md) released, `v0.2`
-in progress. **No experimental validation is claimed.**
+in progress; three ungated v0.3 milestones (first-party parameter-set
+candidate, multi-chemistry target specs, forward observables) are integrated.
+**No experimental validation is claimed.**
 
 PARALLM is a closed-loop research framework for parameterizing physics-based
 lithium-ion battery models built on [PyBaMM](https://pybamm.org). Its unit of

@@ -12,6 +12,50 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### v0.3 milestones integrated (2026-11-27, three isolated worktrees merged)
+
+Three ungated v0.3 TODO items landed on `main` via separate worktrees
+(`v03-multichem` `c80c320`, `v03-observables` `94e2858`, `v03-param-set`
+`561a848`; merge commits `65f2e61`/`315f0bb`). Conflicts in `mkdocs.yml`
+and `pybamm_engine/{__init__,engine}.py` resolved by keeping all three
+sets of exports/helpers.
+
+- **First-party parameter set candidate** (`scripts/v03/build_param_set.py`,
+  `configs/v03/param_set.yaml`, `results/v03/param_set/`): a deterministic,
+  provenance-carrying artifact with 27 fields (11 documented Chen2020
+  discrepancies + 16 documented set-extension families). Every field records
+  source/locator/status; unsourced fields carry `NOT_RECORDED` /
+  `NOT_APPLICABLE` sentinels, never invented values. `exportable: false`:
+  no human gate, no registry writes, no named PyBaMM set registered.
+  `docs/FIRST_PARTY_PARAMETER_SET.md` clarifies the 11-vs-16 distinction and
+  states that operative values come from PyBaMM/Chen2020, not literature
+  validation or identifiability.
+- **Multi-chemistry coverage** (`configs/v3/`, `specifications/targets.py`,
+  `docs/V3_CHEMISTRY_COVERAGE.md`): declarative target specs for LFP/graphite
+  (`Prada2013`), NMC811/LG M50 (`ORegan2022`) and Li-metal/NMC (`Xu2019`),
+  plus coverage metadata. All set names, chemistry fields and OCP identifiers
+  are introspected from installed PyBaMM 26.8.0.0. No `NMC811`-named set and
+  no LMO set exist in the pinned install — recorded as `UNRESOLVED`, not
+  fabricated. `Prada2013` lacks a graphite OCP (PyBaMM substitutes a Chen2020
+  fit, documented). v0.2 LG M50 behaviour unchanged.
+- **Forward observables** (`pybamm_engine/observables.py`,
+  `calibration/identifiability.py::multi_observable_fim`,
+  `benchmarks/observables/run_forward_observables.py`, `results/observables/`,
+  `docs/FORWARD_OBSERVABLES.md`): EIS, OCV-vs-SOC, dQ/dV and GITT-D helpers
+  with all PyBaMM 26.8.0.0 API signatures verified by introspection. PyBaMM
+  has no dedicated OCV-SOC/GITT/dQ-dV APIs, so these are composed from
+  verified primitives (`EISSimulation`, `Experiment`/`Simulation`/`step`,
+  stoichiometries). Stacked-FIM diagnostics are synthetic-only; a successful
+  fit is still not proof of identifiability and no real-data claim is made
+  (D4). Real-data noise robustness remains untested.
+
+**V2.6 remains blocked** by the owner decision to keep D9 and the
+2026-11-22/27 holds in force (V2.5 exit criterion still open). Experimental
+dataset acquisition remains blocked on licensing; local-model experimentation
+remains blocked on D3's revisit condition. Verification: `ruff` clean,
+`mkdocs build --strict` clean, core scope **675 passed, 9 skipped, 3
+deselected, 1 xfailed**.
+
 ### V2.5 owner decision: stop after v27 (2026-11-27)
 
 - Kept the frozen **v27 all-30 result (0.398 / 0.067)** as the final V2.5
