@@ -16,6 +16,28 @@ ones (Tables V/VII) — recovering them from synthetic data proves the
 calibration works, not that the underlying electrochemistry is recovered
 (AGENTS.md rule 7).
 
+## The two counts: 11 discrepancies vs 16 set extensions
+
+The artifact contains **27 disjoint families in two groups**, which must not be
+confused:
+
+1. **11 `discrepancies`** (the table below): parameters where a paper value and
+   the operative PyBaMM Chen2020 value can be compared numerically (including
+   unit-convention and naming cases with ratio 1). Each carries a paper-side
+   value, conditions and a verbatim quote.
+2. **16 `set_extensions.families`** (§"Key structural findings", item 2):
+   PyBaMM Chen2020 parameters that the paper never parameterizes — the SEI
+   growth block, double-layer capacities, total heat transfer coefficient and
+   contact resistance. They have **no paper-side value**; the registry carries
+   them as shipped PyBaMM defaults (`UNRESOLVED`, and `ASSUMED` for contact
+   resistance).
+
+"The 16 documented discrepancy families" in `ROADMAP_V0.2.md` §7 item 4 is
+shorthand for this combined corpus: 11 numeric discrepancy families **plus**
+16 set-extension families. The first-party artifact
+(`docs/FIRST_PARTY_PARAMETER_SET.md`) covers all 27 fields, and marks the 16
+unsourced ones as `ASSUMED`/`UNRESOLVED` rather than inventing literature values.
+
 ## Head-line numbers (pybamm_value / paper_value, from the artifact)
 
 | parameter | PyBaMM operative | paper reported | ratio | causes |

@@ -55,6 +55,7 @@ nav:
   - Data:
       - Dataset audit: DATASET_AUDIT.md
       - Chen2020 discrepancy analysis: CHEN2020_DISCREPANCY_ANALYSIS.md
+      - First-party parameter set: FIRST_PARTY_PARAMETER_SET.md
       - P5 benchmark expansion: P5_BENCHMARK_EXPANSION.md
       - P5 data acquisition: P5_DATA_ACQUISITION.md
       - P5 real-data experiment design: P5_REAL_DATA_EXPERIMENT_DESIGN.md

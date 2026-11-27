@@ -13,11 +13,14 @@ from pybamm_closed_loop.pybamm_engine.engine import (
     build_solver,
     installed_parameter_sets,
     installed_parameter_names,
+    installed_pybamm_version,
+    installed_scalar_values,
     parameter_set_chemistry,
     parameter_set_ocp_names,
     run,
     save_result,
     validate_model_options,
+    verify_parameter_names,
 )
 from pybamm_closed_loop.pybamm_engine.outputs import (
     ExtractionResult,
@@ -68,6 +71,8 @@ __all__ = [
     "gitt_relaxation_summary",
     "installed_parameter_sets",
     "installed_parameter_names",
+    "installed_pybamm_version",
+    "installed_scalar_values",
     "ocv_from_stoichiometries",
     "parameter_set_chemistry",
     "parameter_set_ocp_names",
@@ -76,4 +81,5 @@ __all__ = [
     "save_result",
     "validate_model_options",
     "verified_api_signatures",
+    "verify_parameter_names",
 ]

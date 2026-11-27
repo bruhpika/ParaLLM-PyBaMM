@@ -1,0 +1,98 @@
+{
+  "approval": {
+    "approval": "PENDING_HUMAN_APPROVAL",
+    "exportable": false,
+    "kind": "candidate_provenance_artifact",
+    "n_approved_fields": 0,
+    "pybamm_set_registered": false,
+    "registration_note": "This artifact is NOT a named PyBaMM parameter set; registration requires a human gate decision and a separate explicit action (AGENTS.md rule 10)."
+  },
+  "artifact_id": "ParaLLM-Chen2020-ext",
+  "artifact_version": "0.1.0",
+  "config": {
+    "path": "configs/v03/param_set.yaml",
+    "sha256": "c2b27c8792f22097ea18198ee5f61fc7f1ab8fe407b598da21d8148ead9dd2a1"
+  },
+  "generator": {
+    "package_version": "0.1.0b1",
+    "pybamm_version": "26.8.0.0",
+    "python": "3.14.10",
+    "script": "scripts/v03/build_param_set.py"
+  },
+  "inputs": {
+    "discrepancies": {
+      "path": "data/registry/chen2020_discrepancies.json",
+      "sha256": "31c1d82aa4f80ec7e8ddc1490802938ad43132744092feaaa8e62f00ecb7c088"
+    },
+    "gate": {
+      "n_approvals": 0,
+      "path": null,
+      "sha256": null
+    },
+    "registry": {
+      "path": "data/registry/registry.json",
+      "sha256": "b0d06f0c9fb665b9a9c9a9355ad89ae76fd6829f8e9d0b0ca79cd060ca249ec6"
+    }
+  },
+  "name_verification": {
+    "all_present": true,
+    "found": [
+      "Contact resistance [Ohm]",
+      "Electrode width [m]",
+      "Initial SEI thickness [m]",
+      "Lithium interstitial reference concentration [mol.m-3]",
+      "Maximum concentration in negative electrode [mol.m-3]",
+      "Maximum concentration in positive electrode [mol.m-3]",
+      "Negative electrode Bruggeman coefficient (electrolyte)",
+      "Negative electrode active material volume fraction",
+      "Negative electrode double-layer capacity [F.m-2]",
+      "Negative particle diffusivity [m2.s-1]",
+      "Positive electrode Bruggeman coefficient (electrolyte)",
+      "Positive electrode active material volume fraction",
+      "Positive electrode double-layer capacity [F.m-2]",
+      "Positive particle diffusivity [m2.s-1]",
+      "Ratio of lithium moles to SEI moles",
+      "SEI electron conductivity [S.m-1]",
+      "SEI growth activation energy [J.mol-1]",
+      "SEI kinetic rate constant [m.s-1]",
+      "SEI lithium interstitial diffusivity [m2.s-1]",
+      "SEI open-circuit potential [V]",
+      "SEI partial molar volume [m3.mol-1]",
+      "SEI reaction exchange current density [A.m-2]",
+      "SEI resistivity [Ohm.m]",
+      "SEI solvent diffusivity [m2.s-1]",
+      "Separator Bruggeman coefficient (electrolyte)",
+      "Separator porosity",
+      "Total heat transfer coefficient [W.m-2.K-1]"
+    ],
+    "missing": [],
+    "n_installed": 93,
+    "n_requested": 27,
+    "parameter_set": "Chen2020",
+    "pybamm_version": "26.8.0.0"
+  },
+  "output": {
+    "content_sha256": "b4cc83846ecfdc568daebfee3854e7c4dda5006b98d60d8197b063894ca3d4b6",
+    "counts": {
+      "fields": 27,
+      "fields_with_literature_source": 11,
+      "fields_without_literature_source": 16,
+      "numeric_discrepancy_families": 11,
+      "set_extension_families": 16,
+      "statuses": {
+        "ASSUMED": 4,
+        "CALIBRATED": 4,
+        "LITERATURE_DERIVED": 4,
+        "UNRESOLVED": 15
+      }
+    },
+    "path": "results/v03/param_set/parallm_chen2020_ext.json"
+  },
+  "schema_version": 1,
+  "value_verification": {
+    "mismatches": [],
+    "n_checked": 27,
+    "n_matched": 27,
+    "note": "internal consistency of copied values against installed PyBaMM defaults; NOT independent literature validation"
+  }
+}

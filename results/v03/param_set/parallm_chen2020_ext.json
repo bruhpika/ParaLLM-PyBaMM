@@ -1,0 +1,2091 @@
+{
+  "artifact_id": "ParaLLM-Chen2020-ext",
+  "artifact_version": "0.1.0",
+  "content_sha256": "b4cc83846ecfdc568daebfee3854e7c4dda5006b98d60d8197b063894ca3d4b6",
+  "counts": {
+    "fields": 27,
+    "fields_with_literature_source": 11,
+    "fields_without_literature_source": 16,
+    "numeric_discrepancy_families": 11,
+    "set_extension_families": 16,
+    "statuses": {
+      "ASSUMED": 4,
+      "CALIBRATED": 4,
+      "LITERATURE_DERIVED": 4,
+      "UNRESOLVED": 15
+    }
+  },
+  "limitations": [
+    "11 numeric discrepancy families are separate from the 16 set-extension families; only the former have a paper-side value.",
+    "Operative values are PyBaMM/Chen2020 values, including paper-tuned values; preserving them is not evidence of electrochemical truth.",
+    "Set-extension values are installed PyBaMM defaults (UNRESOLVED or ASSUMED), not literature-derived; do not calibrate them without tracing their primary sources.",
+    "No human approval is created by this builder; no parameter is exportable or registered from this artifact alone.",
+    "This is not independent experimental validation; no optimization result is implied by a successful build."
+  ],
+  "manifest": {
+    "approval": {
+      "approval": "PENDING_HUMAN_APPROVAL",
+      "exportable": false,
+      "kind": "candidate_provenance_artifact",
+      "n_approved_fields": 0,
+      "pybamm_set_registered": false,
+      "registration_note": "This artifact is NOT a named PyBaMM parameter set; registration requires a human gate decision and a separate explicit action (AGENTS.md rule 10)."
+    },
+    "artifact_id": "ParaLLM-Chen2020-ext",
+    "artifact_version": "0.1.0",
+    "config": {
+      "path": "configs/v03/param_set.yaml",
+      "sha256": "c2b27c8792f22097ea18198ee5f61fc7f1ab8fe407b598da21d8148ead9dd2a1"
+    },
+    "generator": {
+      "package_version": "0.1.0b1",
+      "pybamm_version": "26.8.0.0",
+      "python": "3.14.10",
+      "script": "scripts/v03/build_param_set.py"
+    },
+    "inputs": {
+      "discrepancies": {
+        "path": "data/registry/chen2020_discrepancies.json",
+        "sha256": "31c1d82aa4f80ec7e8ddc1490802938ad43132744092feaaa8e62f00ecb7c088"
+      },
+      "gate": {
+        "n_approvals": 0,
+        "path": null,
+        "sha256": null
+      },
+      "registry": {
+        "path": "data/registry/registry.json",
+        "sha256": "b0d06f0c9fb665b9a9c9a9355ad89ae76fd6829f8e9d0b0ca79cd060ca249ec6"
+      }
+    },
+    "name_verification": {
+      "all_present": true,
+      "found": [
+        "Contact resistance [Ohm]",
+        "Electrode width [m]",
+        "Initial SEI thickness [m]",
+        "Lithium interstitial reference concentration [mol.m-3]",
+        "Maximum concentration in negative electrode [mol.m-3]",
+        "Maximum concentration in positive electrode [mol.m-3]",
+        "Negative electrode Bruggeman coefficient (electrolyte)",
+        "Negative electrode active material volume fraction",
+        "Negative electrode double-layer capacity [F.m-2]",
+        "Negative particle diffusivity [m2.s-1]",
+        "Positive electrode Bruggeman coefficient (electrolyte)",
+        "Positive electrode active material volume fraction",
+        "Positive electrode double-layer capacity [F.m-2]",
+        "Positive particle diffusivity [m2.s-1]",
+        "Ratio of lithium moles to SEI moles",
+        "SEI electron conductivity [S.m-1]",
+        "SEI growth activation energy [J.mol-1]",
+        "SEI kinetic rate constant [m.s-1]",
+        "SEI lithium interstitial diffusivity [m2.s-1]",
+        "SEI open-circuit potential [V]",
+        "SEI partial molar volume [m3.mol-1]",
+        "SEI reaction exchange current density [A.m-2]",
+        "SEI resistivity [Ohm.m]",
+        "SEI solvent diffusivity [m2.s-1]",
+        "Separator Bruggeman coefficient (electrolyte)",
+        "Separator porosity",
+        "Total heat transfer coefficient [W.m-2.K-1]"
+      ],
+      "missing": [],
+      "n_installed": 93,
+      "n_requested": 27,
+      "parameter_set": "Chen2020",
+      "pybamm_version": "26.8.0.0"
+    },
+    "output": {
+      "content_sha256": "b4cc83846ecfdc568daebfee3854e7c4dda5006b98d60d8197b063894ca3d4b6",
+      "counts": {
+        "fields": 27,
+        "fields_with_literature_source": 11,
+        "fields_without_literature_source": 16,
+        "numeric_discrepancy_families": 11,
+        "set_extension_families": 16,
+        "statuses": {
+          "ASSUMED": 4,
+          "CALIBRATED": 4,
+          "LITERATURE_DERIVED": 4,
+          "UNRESOLVED": 15
+        }
+      },
+      "path": "results/v03/param_set/parallm_chen2020_ext.json"
+    },
+    "schema_version": 1,
+    "value_verification": {
+      "mismatches": [],
+      "n_checked": 27,
+      "n_matched": 27,
+      "note": "internal consistency of copied values against installed PyBaMM defaults; NOT independent literature validation"
+    }
+  },
+  "parameters": [
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value (same units; sign conventions preserved; unit conversions verified in the registry)",
+          "value": 18.965517
+        },
+        "registry_notes": [
+          "PyBaMM carries 3.3e-14 m2/s: the paper's tuned 1C value (variation +1797% vs GITT measurement). For C/2 and 1.5C the paper tuned 1.3e-14 and 6.3e-14 m2/s respectively - effective diffusivity is C-rate dependent in the paper's own validation.",
+          "Paper verdict (P2 TASK 5 reproduced): negative particle diffusivity is not estimable from voltage-only observations at <=2C (mean |normalized sensitivity| 0.011-0.048)."
+        ]
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "neg_particle_diffusivity",
+      "causes": [
+        "calibration",
+        "operating_conditions"
+      ],
+      "cell_conditions": {
+        "cell": "graphite-SiOx half cell (Li counter), from LG M50",
+        "current": "0.58 mA (0.1C)",
+        "pulse_min": 2.5,
+        "temperature_k": 298.15,
+        "voltage_v": "0.005-1.0"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "CALIBRATED",
+        "unit": "m2.s-1",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 3.3e-14
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "graphite-SiOx half cell (Li counter), from LG M50",
+          "current": "0.58 mA (0.1C)",
+          "pulse_min": 2.5,
+          "temperature_k": 298.15,
+          "voltage_v": "0.005-1.0"
+        },
+        "context": "PyBaMM/Chen2020-tuned value carried in the set: 3.3e-14 m2.s-1",
+        "method": "Sand-equation fit to the voltage transient during GITT current pulses (C/10, 2.5 min pulses); average over the full SOC range; last ten points of each pulse used",
+        "review_state": "NEEDS_REVIEW",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          68370,
+          68681
+        ],
+        "source_quote": "In addition, in the positive electrode the first five data points in the discharge are neglected when fitting  in the positive electrode as they capture transient effects which are not related to lithium diffusion.The diffusion coefficients calculated for NMC and graphite-SiOx electrodes are shown in Table V.",
+        "uncertainty": 4.1e-15,
+        "unit": "m2 s-1",
+        "value": 1.74e-15
+      },
+      "preserved_conflicts": [
+        {
+          "conditions": {
+            "cell": "graphite-SiOx half cell (Li counter), from LG M50",
+            "current": "0.58 mA (0.1C)",
+            "pulse_min": 2.5,
+            "temperature_k": 298.15,
+            "voltage_v": "0.005-1.0"
+          },
+          "context": "PyBaMM/Chen2020-tuned value carried in the set: 3.3e-14 m2.s-1",
+          "kind": "LITERATURE_DERIVED",
+          "method": "Sand-equation fit to the voltage transient during GITT current pulses (C/10, 2.5 min pulses); average over the full SOC range; last ten points of each pulse used",
+          "reported_uncertainty": 4.1e-15,
+          "review_reason": null,
+          "review_state": "NEEDS_REVIEW",
+          "source": {
+            "char_end": 68681,
+            "char_start": 68370,
+            "document_id": "chen2020_jes_167_080534",
+            "doi_or_url": "10.1149/1945-7111/ab9050",
+            "locator": "Table V (label retained in retrieved text); Table V. Diffusion coefficients calculated for positive electrode and negative electrode.",
+            "page": null,
+            "quote": "In addition, in the positive electrode the first five data points in the discharge are neglected when fitting  in the positive electrode as they capture transient effects which are not related to lithium diffusion.The diffusion coefficients calculated for NMC and graphite-SiOx electrodes are shown in Table V.",
+            "title": "Development of Experimental Techniques for Parameterization of Multi-scale Lithium-ion Battery Models"
+          },
+          "uncertainty_note": "reported as 1.74 +/- 4.10 (1e-15 m2 s-1) in Table V",
+          "unit": "m2 s-1",
+          "value": 1.74e-15
+        }
+      ],
+      "provenance": {
+        "locator": "Table V (label retained in retrieved text); Table V. Diffusion coefficients calculated for positive electrode and negative electrode.",
+        "notes": [
+          "PyBaMM carries 3.3e-14 m2/s: the paper's tuned 1C value (variation +1797% vs GITT measurement). For C/2 and 1.5C the paper tuned 1.3e-14 and 6.3e-14 m2/s respectively - effective diffusivity is C-rate dependent in the paper's own validation.",
+          "Paper verdict (P2 TASK 5 reproduced): negative particle diffusivity is not estimable from voltage-only observations at <=2C (mean |normalized sensitivity| 0.011-0.048)."
+        ],
+        "source": {
+          "char_end": 68681,
+          "char_start": 68370,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table V (label retained in retrieved text); Table V. Diffusion coefficients calculated for positive electrode and negative electrode.",
+          "method": "Sand-equation fit to the voltage transient during GITT current pulses (C/10, 2.5 min pulses); average over the full SOC range; last ten points of each pulse used",
+          "quote": "In addition, in the positive electrode the first five data points in the discharge are neglected when fitting  in the positive electrode as they capture transient effects which are not related to lithium diffusion.The diffusion coefficients calculated for NMC and graphite-SiOx electrodes are shown in Table V.",
+          "registry_source_location": "section \"P2D model simulations\"; table by exact caption \"Comparison between the experimentally determined and the tuned parameter values for 1C discharge experimental data.\" (label not retained by HTML-to-text conversion) (tuned value); conflict carries the measured value",
+          "review_state": "ACCEPTED"
+        },
+        "status": "CALIBRATED"
+      },
+      "pybamm_names": [
+        "Negative particle diffusivity [m2.s-1]"
+      ]
+    },
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value (same units; sign conventions preserved; unit conversions verified in the registry)",
+          "value": 2.702703
+        },
+        "registry_notes": [
+          "PyBaMM carries 4e-15 m2/s: the paper's tuned 1C value (variation +170% vs GITT measurement).",
+          "P2 identifies positive particle diffusivity as a candidate for later estimation (sensitivity 0.63-0.85 over 0.5C-2C)."
+        ]
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "pos_particle_diffusivity",
+      "causes": [
+        "calibration",
+        "operating_conditions"
+      ],
+      "cell_conditions": {
+        "cell": "NMC half cell (Li counter), from LG M50",
+        "current": "0.73 mA (0.1C)",
+        "pulse_min": 2.5,
+        "temperature_k": 298.15,
+        "voltage_v": "3.66-4.25"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "CALIBRATED",
+        "unit": "m2.s-1",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 4e-15
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "NMC half cell (Li counter), from LG M50",
+          "current": "0.73 mA (0.1C)",
+          "pulse_min": 2.5,
+          "temperature_k": 298.15,
+          "voltage_v": "3.66-4.25"
+        },
+        "context": "PyBaMM/Chen2020-tuned value carried in the set: 4e-15 m2.s-1",
+        "method": "Sand-equation fit to the voltage transient during GITT current pulses (C/10, 2.5 min pulses); average over the full SOC range",
+        "review_state": "NEEDS_REVIEW",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          68370,
+          68681
+        ],
+        "source_quote": "In addition, in the positive electrode the first five data points in the discharge are neglected when fitting  in the positive electrode as they capture transient effects which are not related to lithium diffusion.The diffusion coefficients calculated for NMC and graphite-SiOx electrodes are shown in Table V.",
+        "uncertainty": 1.05e-15,
+        "unit": "m2 s-1",
+        "value": 1.48e-15
+      },
+      "preserved_conflicts": [
+        {
+          "conditions": {
+            "cell": "NMC half cell (Li counter), from LG M50",
+            "current": "0.73 mA (0.1C)",
+            "pulse_min": 2.5,
+            "temperature_k": 298.15,
+            "voltage_v": "3.66-4.25"
+          },
+          "context": "PyBaMM/Chen2020-tuned value carried in the set: 4e-15 m2.s-1",
+          "kind": "LITERATURE_DERIVED",
+          "method": "Sand-equation fit to the voltage transient during GITT current pulses (C/10, 2.5 min pulses); average over the full SOC range",
+          "reported_uncertainty": 1.05e-15,
+          "review_reason": null,
+          "review_state": "NEEDS_REVIEW",
+          "source": {
+            "char_end": 68681,
+            "char_start": 68370,
+            "document_id": "chen2020_jes_167_080534",
+            "doi_or_url": "10.1149/1945-7111/ab9050",
+            "locator": "Table V (label retained in retrieved text); Table V. Diffusion coefficients calculated for positive electrode and negative electrode.",
+            "page": null,
+            "quote": "In addition, in the positive electrode the first five data points in the discharge are neglected when fitting  in the positive electrode as they capture transient effects which are not related to lithium diffusion.The diffusion coefficients calculated for NMC and graphite-SiOx electrodes are shown in Table V.",
+            "title": "Development of Experimental Techniques for Parameterization of Multi-scale Lithium-ion Battery Models"
+          },
+          "uncertainty_note": "reported as 1.48 +/- 1.05 (1e-15 m2 s-1) in Table V",
+          "unit": "m2 s-1",
+          "value": 1.48e-15
+        }
+      ],
+      "provenance": {
+        "locator": "Table V (label retained in retrieved text); Table V. Diffusion coefficients calculated for positive electrode and negative electrode.",
+        "notes": [
+          "PyBaMM carries 4e-15 m2/s: the paper's tuned 1C value (variation +170% vs GITT measurement).",
+          "P2 identifies positive particle diffusivity as a candidate for later estimation (sensitivity 0.63-0.85 over 0.5C-2C)."
+        ],
+        "source": {
+          "char_end": 68681,
+          "char_start": 68370,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table V (label retained in retrieved text); Table V. Diffusion coefficients calculated for positive electrode and negative electrode.",
+          "method": "Sand-equation fit to the voltage transient during GITT current pulses (C/10, 2.5 min pulses); average over the full SOC range",
+          "quote": "In addition, in the positive electrode the first five data points in the discharge are neglected when fitting  in the positive electrode as they capture transient effects which are not related to lithium diffusion.The diffusion coefficients calculated for NMC and graphite-SiOx electrodes are shown in Table V.",
+          "registry_source_location": "section \"P2D model simulations\"; table by exact caption \"Comparison between the experimentally determined and the tuned parameter values for 1C discharge experimental data.\" (label not retained by HTML-to-text conversion) (tuned value); conflict carries the measured value",
+          "review_state": "ACCEPTED"
+        },
+        "status": "CALIBRATED"
+      },
+      "pybamm_names": [
+        "Positive particle diffusivity [m2.s-1]"
+      ]
+    },
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value (same units; sign conventions preserved; unit conversions verified in the registry)",
+          "value": 1.120001
+        },
+        "registry_notes": [
+          "PyBaMM carries 33133 mol/m3: the paper's tuned value (variation +12% vs calculated 29583).",
+          "Text variant 29603 mol/m3 (paper body) vs Table VII 29583 mol/m3 preserved in evidence context."
+        ]
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "neg_max_concentration",
+      "causes": [
+        "calibration",
+        "source_conflict"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700, half-cell capacity 5.0 mAh cm-2 measured at C/50"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "CALIBRATED",
+        "unit": "mol.m-3",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 33133.0
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "LG M50 21700, half-cell capacity 5.0 mAh cm-2 measured at C/50"
+        },
+        "context": "paper body text states 29603 mol m-3 (slight rounding variant of the Table VII value 29583); both preserved | PyBaMM/Chen2020-tuned value carried in the set: 33133.0 mol.m-3",
+        "method": "calculated from electrode specific capacity per unit area, coating thickness and active material volume fraction (paper Eqs. 5-7)",
+        "review_state": "NEEDS_REVIEW",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          58412,
+          58546
+        ],
+        "source_quote": "2 \u03bcm) and  (75%) from Table VII, we obtain a maximum lithium concentration in the negative electrode active material of 29603 mol m\u22123.",
+        "uncertainty": null,
+        "unit": "mol m-3",
+        "value": 29583
+      },
+      "preserved_conflicts": [
+        {
+          "conditions": {
+            "cell": "LG M50 21700, half-cell capacity 5.0 mAh cm-2 measured at C/50"
+          },
+          "context": "paper body text states 29603 mol m-3 (slight rounding variant of the Table VII value 29583); both preserved | PyBaMM/Chen2020-tuned value carried in the set: 33133.0 mol.m-3",
+          "kind": "CALCULATED",
+          "method": "calculated from electrode specific capacity per unit area, coating thickness and active material volume fraction (paper Eqs. 5-7)",
+          "reported_uncertainty": null,
+          "review_reason": null,
+          "review_state": "NEEDS_REVIEW",
+          "source": {
+            "char_end": 58546,
+            "char_start": 58412,
+            "document_id": "chen2020_jes_167_080534",
+            "doi_or_url": "10.1149/1945-7111/ab9050",
+            "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+            "page": null,
+            "quote": "2 \u03bcm) and  (75%) from Table VII, we obtain a maximum lithium concentration in the negative electrode active material of 29603 mol m\u22123.",
+            "title": "Development of Experimental Techniques for Parameterization of Multi-scale Lithium-ion Battery Models"
+          },
+          "uncertainty_note": null,
+          "unit": "mol m-3",
+          "value": 29583
+        }
+      ],
+      "provenance": {
+        "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+        "notes": [
+          "PyBaMM carries 33133 mol/m3: the paper's tuned value (variation +12% vs calculated 29583).",
+          "Text variant 29603 mol/m3 (paper body) vs Table VII 29583 mol/m3 preserved in evidence context."
+        ],
+        "source": {
+          "char_end": 58546,
+          "char_start": 58412,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "method": "calculated from electrode specific capacity per unit area, coating thickness and active material volume fraction (paper Eqs. 5-7)",
+          "quote": "2 \u03bcm) and  (75%) from Table VII, we obtain a maximum lithium concentration in the negative electrode active material of 29603 mol m\u22123.",
+          "registry_source_location": "section \"P2D model simulations\"; table by exact caption \"Comparison between the experimentally determined and the tuned parameter values for 1C discharge experimental data.\" (label not retained by HTML-to-text conversion) (tuned value); conflict carries the measured value",
+          "review_state": "ACCEPTED"
+        },
+        "status": "CALIBRATED"
+      },
+      "pybamm_names": [
+        "Maximum concentration in negative electrode [mol.m-3]"
+      ]
+    },
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value (same units; sign conventions preserved; unit conversions verified in the registry)",
+          "value": 1.219048
+        },
+        "registry_notes": [
+          "PyBaMM carries 63104 mol/m3: the paper's tuned value (variation +22% vs calculated 51765)."
+        ]
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "pos_max_concentration",
+      "causes": [
+        "calibration"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700, extracted electrodes; assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2 (MW 94.87 g/mol in paper; 96.03 g/mol used in Eq. 5 for the lithiated material)"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "CALIBRATED",
+        "unit": "mol.m-3",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 63104.0
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "LG M50 21700, extracted electrodes; assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2 (MW 94.87 g/mol in paper; 96.03 g/mol used in Eq. 5 for the lithiated material)"
+        },
+        "context": "PyBaMM/Chen2020-tuned value carried in the set: 63104.0 mol.m-3",
+        "method": "calculated from coating mass per unit area, molecular mass of lithiated active material, thickness and active material volume fraction (paper Eq. 5); cross-checked against crystal density 4.95 g/cm3 (theoretical 51545 mol m-3)",
+        "review_state": "NEEDS_REVIEW",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          57479,
+          57625
+        ],
+        "source_quote": "99 mg cm\u22122 (max Li content in active material), we find that the maximum concentration in the positive electrode active material is 51765 mol m\u22123.",
+        "uncertainty": null,
+        "unit": "mol m-3",
+        "value": 51765
+      },
+      "preserved_conflicts": [
+        {
+          "conditions": {
+            "cell": "LG M50 21700, extracted electrodes; assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2 (MW 94.87 g/mol in paper; 96.03 g/mol used in Eq. 5 for the lithiated material)"
+          },
+          "context": "PyBaMM/Chen2020-tuned value carried in the set: 63104.0 mol.m-3",
+          "kind": "CALCULATED",
+          "method": "calculated from coating mass per unit area, molecular mass of lithiated active material, thickness and active material volume fraction (paper Eq. 5); cross-checked against crystal density 4.95 g/cm3 (theoretical 51545 mol m-3)",
+          "reported_uncertainty": null,
+          "review_reason": null,
+          "review_state": "NEEDS_REVIEW",
+          "source": {
+            "char_end": 57625,
+            "char_start": 57479,
+            "document_id": "chen2020_jes_167_080534",
+            "doi_or_url": "10.1149/1945-7111/ab9050",
+            "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+            "page": null,
+            "quote": "99 mg cm\u22122 (max Li content in active material), we find that the maximum concentration in the positive electrode active material is 51765 mol m\u22123.",
+            "title": "Development of Experimental Techniques for Parameterization of Multi-scale Lithium-ion Battery Models"
+          },
+          "uncertainty_note": null,
+          "unit": "mol m-3",
+          "value": 51765
+        }
+      ],
+      "provenance": {
+        "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+        "notes": [
+          "PyBaMM carries 63104 mol/m3: the paper's tuned value (variation +22% vs calculated 51765)."
+        ],
+        "source": {
+          "char_end": 57625,
+          "char_start": 57479,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "method": "calculated from coating mass per unit area, molecular mass of lithiated active material, thickness and active material volume fraction (paper Eq. 5); cross-checked against crystal density 4.95 g/cm3 (theoretical 51545 mol m-3)",
+          "quote": "99 mg cm\u22122 (max Li content in active material), we find that the maximum concentration in the positive electrode active material is 51765 mol m\u22123.",
+          "registry_source_location": "section \"P2D model simulations\"; table by exact caption \"Comparison between the experimentally determined and the tuned parameter values for 1C discharge experimental data.\" (label not retained by HTML-to-text conversion) (tuned value); conflict carries the measured value",
+          "review_state": "ACCEPTED"
+        },
+        "status": "CALIBRATED"
+      },
+      "pybamm_names": [
+        "Maximum concentration in positive electrode [mol.m-3]"
+      ]
+    },
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value_in_pybamm_unit (%-values pre-multiplied by 0.01 to compare against the PyBaMM fraction; numeric equality expected for pure unit-convention cases)",
+          "value": 0.515464
+        },
+        "registry_notes": [
+          "PyBaMM carries 1.5 (theoretical), not the measured 2.91; conflict preserved."
+        ]
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "neg_bruggeman_electrolyte",
+      "causes": [
+        "model_assumption",
+        "calibration"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700, extracted electrodes"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "ASSUMED",
+        "unit": "dimensionless",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 1.5
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "LG M50 21700, extracted electrodes"
+        },
+        "context": "PyBaMM carries the theoretical value 1.5 instead of the measured value",
+        "method": "calculated from FIB-SEM tortuosity (Table II lists 2.92/2.90 for the two sides; Table VII averages to 2.91)",
+        "review_state": "NEEDS_REVIEW",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          84878,
+          85034
+        ],
+        "source_quote": "The Bruggeman coefficients are set to the theoretical value of 1.5 for packed spheres,59 given that the P2D model assumes this geometry for the electrodes.",
+        "uncertainty": null,
+        "unit": "-",
+        "value": "2.91"
+      },
+      "preserved_conflicts": [
+        {
+          "conditions": {
+            "cell": "LG M50 21700, extracted electrodes"
+          },
+          "context": "PyBaMM carries the theoretical value 1.5 instead of the measured value",
+          "kind": "LITERATURE_DERIVED",
+          "method": "calculated from FIB-SEM tortuosity (Table II lists 2.92/2.90 for the two sides; Table VII averages to 2.91)",
+          "reported_uncertainty": null,
+          "review_reason": null,
+          "review_state": "NEEDS_REVIEW",
+          "source": {
+            "char_end": 85034,
+            "char_start": 84878,
+            "document_id": "chen2020_jes_167_080534",
+            "doi_or_url": "10.1149/1945-7111/ab9050",
+            "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+            "page": null,
+            "quote": "The Bruggeman coefficients are set to the theoretical value of 1.5 for packed spheres,59 given that the P2D model assumes this geometry for the electrodes.",
+            "title": "Development of Experimental Techniques for Parameterization of Multi-scale Lithium-ion Battery Models"
+          },
+          "uncertainty_note": null,
+          "unit": "-",
+          "value": "2.91"
+        }
+      ],
+      "provenance": {
+        "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+        "notes": [
+          "PyBaMM carries 1.5 (theoretical), not the measured 2.91; conflict preserved."
+        ],
+        "source": {
+          "char_end": 85034,
+          "char_start": 84878,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "method": "calculated from FIB-SEM tortuosity (Table II lists 2.92/2.90 for the two sides; Table VII averages to 2.91)",
+          "quote": "The Bruggeman coefficients are set to the theoretical value of 1.5 for packed spheres,59 given that the P2D model assumes this geometry for the electrodes.",
+          "registry_source_location": "Table VII (label retained in retrieved text) (measured exponent preserved as conflict); operative value is the theoretical packed-sphere assumption 1.5",
+          "review_state": "ACCEPTED"
+        },
+        "status": "ASSUMED"
+      },
+      "pybamm_names": [
+        "Negative electrode Bruggeman coefficient (electrolyte)"
+      ]
+    },
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value_in_pybamm_unit (%-values pre-multiplied by 0.01 to compare against the PyBaMM fraction; numeric equality expected for pure unit-convention cases)",
+          "value": 0.617284
+        },
+        "registry_notes": [
+          "PyBaMM carries 1.5 (theoretical packed-sphere value), not the measured 2.43: the paper states Table VII values give unphysical electrolyte depletion and sets 1.5 instead. Conflict preserved in conflicts[]."
+        ]
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "pos_bruggeman_electrolyte",
+      "causes": [
+        "model_assumption",
+        "calibration"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700, extracted electrodes"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "ASSUMED",
+        "unit": "dimensionless",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 1.5
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "LG M50 21700, extracted electrodes"
+        },
+        "context": "PyBaMM carries the theoretical value 1.5 instead of the measured value",
+        "method": "calculated from FIB-SEM tortuosity (Taufactor/Simpleware) via the Bruggeman relation",
+        "review_state": "NEEDS_REVIEW",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          84878,
+          85034
+        ],
+        "source_quote": "The Bruggeman coefficients are set to the theoretical value of 1.5 for packed spheres,59 given that the P2D model assumes this geometry for the electrodes.",
+        "uncertainty": null,
+        "unit": "-",
+        "value": "2.43"
+      },
+      "preserved_conflicts": [
+        {
+          "conditions": {
+            "cell": "LG M50 21700, extracted electrodes"
+          },
+          "context": "PyBaMM carries the theoretical value 1.5 instead of the measured value",
+          "kind": "LITERATURE_DERIVED",
+          "method": "calculated from FIB-SEM tortuosity (Taufactor/Simpleware) via the Bruggeman relation",
+          "reported_uncertainty": null,
+          "review_reason": null,
+          "review_state": "NEEDS_REVIEW",
+          "source": {
+            "char_end": 85034,
+            "char_start": 84878,
+            "document_id": "chen2020_jes_167_080534",
+            "doi_or_url": "10.1149/1945-7111/ab9050",
+            "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+            "page": null,
+            "quote": "The Bruggeman coefficients are set to the theoretical value of 1.5 for packed spheres,59 given that the P2D model assumes this geometry for the electrodes.",
+            "title": "Development of Experimental Techniques for Parameterization of Multi-scale Lithium-ion Battery Models"
+          },
+          "uncertainty_note": null,
+          "unit": "-",
+          "value": "2.43"
+        }
+      ],
+      "provenance": {
+        "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+        "notes": [
+          "PyBaMM carries 1.5 (theoretical packed-sphere value), not the measured 2.43: the paper states Table VII values give unphysical electrolyte depletion and sets 1.5 instead. Conflict preserved in conflicts[]."
+        ],
+        "source": {
+          "char_end": 85034,
+          "char_start": 84878,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "method": "calculated from FIB-SEM tortuosity (Taufactor/Simpleware) via the Bruggeman relation",
+          "quote": "The Bruggeman coefficients are set to the theoretical value of 1.5 for packed spheres,59 given that the P2D model assumes this geometry for the electrodes.",
+          "registry_source_location": "Table VII (label retained in retrieved text) (measured exponent preserved as conflict); operative value is the theoretical packed-sphere assumption 1.5",
+          "review_state": "ACCEPTED"
+        },
+        "status": "ASSUMED"
+      },
+      "pybamm_names": [
+        "Positive electrode Bruggeman coefficient (electrolyte)"
+      ]
+    },
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value_in_pybamm_unit (%-values pre-multiplied by 0.01 to compare against the PyBaMM fraction; numeric equality expected for pure unit-convention cases)",
+          "value": 0.583658
+        },
+        "registry_notes": [
+          "PyBaMM carries 1.5 (theoretical), not the measured 2.57; conflict preserved."
+        ]
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "sep_bruggeman_electrolyte",
+      "causes": [
+        "model_assumption",
+        "calibration"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700, extracted separator"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "ASSUMED",
+        "unit": "dimensionless",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 1.5
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "LG M50 21700, extracted separator"
+        },
+        "context": "PyBaMM carries the theoretical value 1.5 instead of the measured value",
+        "method": "calculated from FIB-SEM tortuosity via the Bruggeman relation",
+        "review_state": "NEEDS_REVIEW",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          84878,
+          85034
+        ],
+        "source_quote": "The Bruggeman coefficients are set to the theoretical value of 1.5 for packed spheres,59 given that the P2D model assumes this geometry for the electrodes.",
+        "uncertainty": null,
+        "unit": "-",
+        "value": "2.57"
+      },
+      "preserved_conflicts": [
+        {
+          "conditions": {
+            "cell": "LG M50 21700, extracted separator"
+          },
+          "context": "PyBaMM carries the theoretical value 1.5 instead of the measured value",
+          "kind": "LITERATURE_DERIVED",
+          "method": "calculated from FIB-SEM tortuosity via the Bruggeman relation",
+          "reported_uncertainty": null,
+          "review_reason": null,
+          "review_state": "NEEDS_REVIEW",
+          "source": {
+            "char_end": 85034,
+            "char_start": 84878,
+            "document_id": "chen2020_jes_167_080534",
+            "doi_or_url": "10.1149/1945-7111/ab9050",
+            "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+            "page": null,
+            "quote": "The Bruggeman coefficients are set to the theoretical value of 1.5 for packed spheres,59 given that the P2D model assumes this geometry for the electrodes.",
+            "title": "Development of Experimental Techniques for Parameterization of Multi-scale Lithium-ion Battery Models"
+          },
+          "uncertainty_note": null,
+          "unit": "-",
+          "value": "2.57"
+        }
+      ],
+      "provenance": {
+        "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+        "notes": [
+          "PyBaMM carries 1.5 (theoretical), not the measured 2.57; conflict preserved."
+        ],
+        "source": {
+          "char_end": 85034,
+          "char_start": 84878,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "method": "calculated from FIB-SEM tortuosity via the Bruggeman relation",
+          "quote": "The Bruggeman coefficients are set to the theoretical value of 1.5 for packed spheres,59 given that the P2D model assumes this geometry for the electrodes.",
+          "registry_source_location": "Table VII (label retained in retrieved text) (measured exponent preserved as conflict); operative value is the theoretical packed-sphere assumption 1.5",
+          "review_state": "ACCEPTED"
+        },
+        "status": "ASSUMED"
+      },
+      "pybamm_names": [
+        "Separator Bruggeman coefficient (electrolyte)"
+      ]
+    },
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value_in_pybamm_unit (%-values pre-multiplied by 0.01 to compare against the PyBaMM fraction; numeric equality expected for pure unit-convention cases)",
+          "value": 1.0
+        },
+        "registry_notes": []
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "neg_electrode_active_material_volume_fraction",
+      "causes": [
+        "unit_convention"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700, extracted electrodes"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "LITERATURE_DERIVED",
+        "unit": "dimensionless",
+        "validation_state": "ACCEPTED",
+        "value": 0.75
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "LG M50 21700, extracted electrodes"
+        },
+        "context": null,
+        "method": "derived from electrode mass/loading and theoretical crystal densities (paper assumes 100% active material; binder and conductive additive omitted)",
+        "review_state": "ACCEPTED",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          null,
+          null
+        ],
+        "source_quote": null,
+        "uncertainty": null,
+        "unit": "%",
+        "value": "75"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+        "notes": [],
+        "source": {
+          "char_end": 80651,
+          "char_start": 80602,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "method": "derived from electrode mass/loading and theoretical crystal densities (paper assumes 100% active material; binder and conductive additive omitted)",
+          "quote": "Active material volume fraction ()\n%\n66.5\n\u2014\n75",
+          "registry_source_location": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "review_state": "ACCEPTED"
+        },
+        "status": "LITERATURE_DERIVED"
+      },
+      "pybamm_names": [
+        "Negative electrode active material volume fraction"
+      ]
+    },
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value_in_pybamm_unit (%-values pre-multiplied by 0.01 to compare against the PyBaMM fraction; numeric equality expected for pure unit-convention cases)",
+          "value": 1.0
+        },
+        "registry_notes": []
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "pos_electrode_active_material_volume_fraction",
+      "causes": [
+        "unit_convention"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700, extracted electrodes"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "LITERATURE_DERIVED",
+        "unit": "dimensionless",
+        "validation_state": "ACCEPTED",
+        "value": 0.665
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "LG M50 21700, extracted electrodes"
+        },
+        "context": null,
+        "method": "derived from electrode mass/loading and theoretical crystal densities (paper assumes 100% active material; binder and conductive additive omitted)",
+        "review_state": "ACCEPTED",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          null,
+          null
+        ],
+        "source_quote": null,
+        "uncertainty": null,
+        "unit": "%",
+        "value": "66.5"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+        "notes": [],
+        "source": {
+          "char_end": 80651,
+          "char_start": 80602,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "method": "derived from electrode mass/loading and theoretical crystal densities (paper assumes 100% active material; binder and conductive additive omitted)",
+          "quote": "Active material volume fraction ()\n%\n66.5\n\u2014\n75",
+          "registry_source_location": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "review_state": "ACCEPTED"
+        },
+        "status": "LITERATURE_DERIVED"
+      },
+      "pybamm_names": [
+        "Positive electrode active material volume fraction"
+      ]
+    },
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value_in_pybamm_unit (%-values pre-multiplied by 0.01 to compare against the PyBaMM fraction; numeric equality expected for pure unit-convention cases)",
+          "value": 1.0
+        },
+        "registry_notes": []
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "separator_porosity",
+      "causes": [
+        "source_conflict"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700, extracted separator"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "LITERATURE_DERIVED",
+        "unit": "dimensionless",
+        "validation_state": "ACCEPTED",
+        "value": 0.47
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "LG M50 21700, extracted separator"
+        },
+        "context": null,
+        "method": "physical/porosimetry analysis of the extracted separator (paper Table II row 'Electrolyte volume fraction')",
+        "review_state": "ACCEPTED",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          null,
+          null
+        ],
+        "source_quote": null,
+        "uncertainty": null,
+        "unit": "%",
+        "value": "47"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+        "notes": [],
+        "source": {
+          "char_end": 36081,
+          "char_start": 36039,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "method": "physical/porosimetry analysis of the extracted separator (paper Table II row 'Electrolyte volume fraction')",
+          "quote": "Electrolyte volume fraction\n%\n33.5\n25\n47",
+          "registry_source_location": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "review_state": "ACCEPTED"
+        },
+        "status": "LITERATURE_DERIVED"
+      },
+      "pybamm_names": [
+        "Separator porosity"
+      ]
+    },
+    {
+      "analysis": {
+        "ratio": {
+          "definition": "pybamm_value / paper_value_in_pybamm_unit (%-values pre-multiplied by 0.01 to compare against the PyBaMM fraction; numeric equality expected for pure unit-convention cases)",
+          "value": 1.0
+        },
+        "registry_notes": [
+          "Name inversion PyBaMM vs paper (verified numerically): pybamm 'Electrode width [m]' = paper 'Electrode length' = 1.58 m; pybamm 'Electrode height [m]' = paper 'Electrode width' = 0.065 m."
+        ]
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "cell_electrode_width",
+      "causes": [
+        "definition"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700"
+      },
+      "family": "numeric_discrepancy",
+      "operative": {
+        "status": "LITERATURE_DERIVED",
+        "unit": "m",
+        "validation_state": "ACCEPTED",
+        "value": 1.58
+      },
+      "paper_evidence": {
+        "conditions": {
+          "cell": "LG M50 21700"
+        },
+        "context": null,
+        "method": "Vernier caliper and foil-layer lengths at teardown (Table II: 79/79 cm per side for the positive electrode)",
+        "review_state": "ACCEPTED",
+        "source_document": "chen2020_jes_167_080534",
+        "source_offset": [
+          null,
+          null
+        ],
+        "source_quote": null,
+        "uncertainty": null,
+        "unit": "m",
+        "value": "1.58"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+        "notes": [
+          "Name inversion PyBaMM vs paper (verified numerically): pybamm 'Electrode width [m]' = paper 'Electrode length' = 1.58 m; pybamm 'Electrode height [m]' = paper 'Electrode width' = 0.065 m."
+        ],
+        "source": {
+          "char_end": 80461,
+          "char_start": 80435,
+          "document_id": "chen2020_jes_167_080534",
+          "doi_or_url": "10.1149/1945-7111/ab9050",
+          "has_literature_source": true,
+          "kind": "literature",
+          "locator": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "method": "Vernier caliper and foil-layer lengths at teardown (Table II: 79/79 cm per side for the positive electrode)",
+          "quote": "Electrode length\nm\n1.58",
+          "registry_source_location": "Table VII (label retained in retrieved text); Table II. Geometrical measurements for the negative electrode and positive electrode from a disassembled LGM50.",
+          "review_state": "ACCEPTED"
+        },
+        "status": "LITERATURE_DERIVED"
+      },
+      "pybamm_names": [
+        "Electrode width [m]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "initial_sei_thickness",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "m",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 5e-09
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Initial SEI thickness [m]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Initial SEI thickness [m]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Initial SEI thickness [m]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "Initial SEI thickness [m]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "sei_electron_conductivity",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "S.m-1",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 8.95e-14
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI electron conductivity [S.m-1]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI electron conductivity [S.m-1]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI electron conductivity [S.m-1]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "SEI electron conductivity [S.m-1]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "sei_growth_activation_energy",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "J.mol-1",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 0.0
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI growth activation energy [J.mol-1]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI growth activation energy [J.mol-1]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI growth activation energy [J.mol-1]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "SEI growth activation energy [J.mol-1]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "sei_kinetic_rate_constant",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "m.s-1",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 1e-12
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI kinetic rate constant [m.s-1]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI kinetic rate constant [m.s-1]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI kinetic rate constant [m.s-1]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "SEI kinetic rate constant [m.s-1]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "sei_lithium_interstitial_diffusivity",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "m2.s-1",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 1e-20
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI lithium interstitial diffusivity [m2.s-1]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI lithium interstitial diffusivity [m2.s-1]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI lithium interstitial diffusivity [m2.s-1]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "SEI lithium interstitial diffusivity [m2.s-1]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "sei_open_circuit_potential",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "V",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 0.4
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI open-circuit potential [V]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI open-circuit potential [V]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI open-circuit potential [V]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "SEI open-circuit potential [V]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "sei_partial_molar_volume",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "m3.mol-1",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 9.585e-05
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI partial molar volume [m3.mol-1]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI partial molar volume [m3.mol-1]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI partial molar volume [m3.mol-1]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "SEI partial molar volume [m3.mol-1]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "sei_reaction_exchange_current_density",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "A.m-2",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 1.5e-07
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI reaction exchange current density [A.m-2]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI reaction exchange current density [A.m-2]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI reaction exchange current density [A.m-2]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "SEI reaction exchange current density [A.m-2]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "sei_resistivity",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "Ohm.m",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 200000.0
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI resistivity [Ohm.m]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI resistivity [Ohm.m]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI resistivity [Ohm.m]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "SEI resistivity [Ohm.m]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "sei_solvent_diffusivity",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "m2.s-1",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 2.5e-22
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI solvent diffusivity [m2.s-1]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI solvent diffusivity [m2.s-1]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['SEI solvent diffusivity [m2.s-1]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "SEI solvent diffusivity [m2.s-1]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "ratio_of_lithium_moles_to_sei_moles",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "dimensionless",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 2.0
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Ratio of lithium moles to SEI moles']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Ratio of lithium moles to SEI moles']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Ratio of lithium moles to SEI moles']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "Ratio of lithium moles to SEI moles"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "lithium_interstitial_reference_concentration",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "mol.m-3",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 15.0
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Lithium interstitial reference concentration [mol.m-3]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Lithium interstitial reference concentration [mol.m-3]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Lithium interstitial reference concentration [mol.m-3]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "Lithium interstitial reference concentration [mol.m-3]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "negative_electrode_double_layer_capacity",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "F.m-2",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 0.2
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Negative electrode double-layer capacity [F.m-2]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Negative electrode double-layer capacity [F.m-2]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Negative electrode double-layer capacity [F.m-2]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "Negative electrode double-layer capacity [F.m-2]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "positive_electrode_double_layer_capacity",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "F.m-2",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 0.2
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Positive electrode double-layer capacity [F.m-2]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Positive electrode double-layer capacity [F.m-2]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Positive electrode double-layer capacity [F.m-2]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "Positive electrode double-layer capacity [F.m-2]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "total_heat_transfer_coefficient",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "UNRESOLVED",
+        "unit": "W.m-2.K-1",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 10.0
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Total heat transfer coefficient [W.m-2.K-1]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Total heat transfer coefficient [W.m-2.K-1]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Total heat transfer coefficient [W.m-2.K-1]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "UNRESOLVED"
+      },
+      "pybamm_names": [
+        "Total heat transfer coefficient [W.m-2.K-1]"
+      ]
+    },
+    {
+      "analysis": {
+        "note": ""
+      },
+      "approval": {
+        "approver": "NOT_RECORDED",
+        "decision": "NOT_RECORDED",
+        "note": "NOT_RECORDED",
+        "rubric_version": "NOT_RECORDED",
+        "status": "NOT_RECORDED",
+        "timestamp": "NOT_RECORDED"
+      },
+      "canonical_id": "contact_resistance",
+      "causes": [
+        "set_extension"
+      ],
+      "cell_conditions": {
+        "cell": "LG M50 21700 cylindrical cell (70.00 mm x 21.00 mm, 68.38 g with can)",
+        "chemistry": "NMC 811 positive (assumed composition Li0.833Ni0.80Mn0.08Co0.08Al0.04O2) / bi-component graphite-SiOx negative (10 wt% SiOx)",
+        "electrolyte_note": "exact electrolyte of the commercial cell unknown; experiments used 1 mol dm-3 LiPF6 in EC:EMC (3:7 V/V) with 1 wt% VC (Soulbrain R&D 281), the same electrolyte studied by Nyman et al. 2008",
+        "model_assumption": "isothermal, T = 298.15 K constant",
+        "rated_capacity_ah": 5.0,
+        "temperature_k": 298.15,
+        "voltage_window_v": "2.5-4.2"
+      },
+      "family": "set_extension",
+      "operative": {
+        "status": "ASSUMED",
+        "unit": "Ohm",
+        "validation_state": "NEEDS_REVIEW",
+        "value": 0.0
+      },
+      "paper_evidence": {
+        "reason": "Chen2020 does not parameterize this family; value is an installed PyBaMM default carried in the registry",
+        "status": "NOT_APPLICABLE"
+      },
+      "preserved_conflicts": [],
+      "provenance": {
+        "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Contact resistance [Ohm]']",
+        "notes": [],
+        "source": {
+          "char_end": "NOT_RECORDED",
+          "char_start": "NOT_RECORDED",
+          "document_id": "NOT_RECORDED",
+          "doi_or_url": "NOT_RECORDED",
+          "has_literature_source": false,
+          "kind": "installed_pybamm_default",
+          "locator": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Contact resistance [Ohm]']",
+          "method": "NOT_RECORDED",
+          "quote": "NOT_RECORDED",
+          "registry_source_location": "pybamm 26.8.0.0 ParameterValues('Chen2020')['Contact resistance [Ohm]']",
+          "review_state": "NOT_RECORDED"
+        },
+        "status": "ASSUMED"
+      },
+      "pybamm_names": [
+        "Contact resistance [Ohm]"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "status": {
+    "approval": "PENDING_HUMAN_APPROVAL",
+    "exportable": false,
+    "kind": "candidate_provenance_artifact",
+    "n_approved_fields": 0,
+    "pybamm_set_registered": false,
+    "registration_note": "This artifact is NOT a named PyBaMM parameter set; registration requires a human gate decision and a separate explicit action (AGENTS.md rule 10)."
+  }
+}
