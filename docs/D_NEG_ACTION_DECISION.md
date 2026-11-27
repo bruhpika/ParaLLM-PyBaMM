@@ -1,8 +1,10 @@
 # Decision package: action for `Negative particle diffusivity [m2.s-1]`
 
-**Status: awaiting owner decision (AGENTS.md rule 10). No dossier decision has
-been changed.** All numbers below are **SYNTHETIC**, local, finite-difference
-FIM diagnostics on model-generated curves; none is experimental evidence.
+**Status: owner decision taken (2026-11-27) — option C, conditional
+`CALIBRATE`.** The dossier action is unchanged (`MEASURE`) until the gates at
+the end of this document are recorded (AGENTS.md rule 10). All numbers below
+are **SYNTHETIC**, local, finite-difference FIM diagnostics on model-generated
+curves; none is experimental evidence.
 
 ## Question
 
@@ -68,6 +70,22 @@ next scientific gate before B is even discussable.
 
 ## Decision record
 
-- owner decision: **PENDING**
-- decided by / date: —
-- dossier changed: **no** (rule 10)
+- owner decision: **C — conditional `CALIBRATE`** (2026-11-27)
+- decided by / date: owner / 2026-11-27
+- dossier changed: **no** (rule 10) — the action stays `MEASURE` and
+  `assembly/observability.py` is unchanged
+
+### Gate for the upgrade to `CALIBRATE` (all four required)
+
+1. an experimental dataset meeting `docs/EXPERIMENTAL_DATA_REQUIREMENTS.md`
+   §2.7 is acquired and licence-verified (T6; currently blocked);
+2. synthetic joint parameter-recovery on that dataset's protocol (fit
+   `D_neg` + `j0_neg` + `D_e`, multiple starting points) recovers `D_neg`
+   within the declared tolerance;
+3. a profile likelihood for `D_neg` on the same data is closed (not flat /
+   unbounded);
+4. the calibration/validation split is defined before fitting (rule 9), and
+   the identifiability evidence is kept separate from validation evidence.
+
+Until all four are recorded, any dossier change to `CALIBRATE` is a rule-10
+violation.

@@ -355,9 +355,11 @@ prevent.
    **Deliverables (2026-11-27):** the measurement specification for an
    experimental GITT dataset (`docs/EXPERIMENTAL_DATA_REQUIREMENTS.md` §2.7)
    and the owner decision package for `MEASURE` vs `CALIBRATE`
-   (`docs/D_NEG_ACTION_DECISION.md`). The decision itself is **pending** — the
-   deterministic observability join is unchanged and the dossier still reads
-   `MEASURE`.
+   (`docs/D_NEG_ACTION_DECISION.md`). **Owner decision (2026-11-27): option C —
+   conditional `CALIBRATE`**; the action stays `MEASURE` until a §2.7 dataset,
+   a synthetic joint recovery, a closed profile likelihood and a pre-declared
+   data split are all recorded. The deterministic observability join is
+   unchanged and the dossier still reads `MEASURE`.
 
 ## 8. Risk register
 

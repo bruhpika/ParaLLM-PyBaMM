@@ -99,7 +99,11 @@ sets of exports/helpers.
   `MEASURE` vs `CALIBRATE` action (`docs/D_NEG_ACTION_DECISION.md`). **No
   decision was taken**: the deterministic observability join
   (`assembly/observability.py`) still reads only the voltage-only P2 artifact
-  and the dossier action stays `MEASURE` (rule 10).
+  and the dossier action stays `MEASURE` (rule 10). **Owner decision
+  (2026-11-27): option C — conditional `CALIBRATE`.** The action stays
+  `MEASURE` until all four gates are recorded: a §2.7-compliant licensed
+  dataset, synthetic joint parameter recovery on it, a closed profile
+  likelihood for `D_neg`, and a pre-declared calibration/validation split.
 - Recorded tool finding: PyBaMM 26.8.0.0 EIS does not respond to solid
   diffusivity (100× change gives ~8e-5 relative Re(Z) change) while responding
   to kinetics (~0.37 for 10× exchange-current density). A positive control and
