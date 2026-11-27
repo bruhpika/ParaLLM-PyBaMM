@@ -1,0 +1,119 @@
+# Observable-augmented observability diagnostic (ROADMAP_V0.2.md §7 item 7).
+#
+# Question: does adding a non-voltage forward observable (GITT-D, EIS, OCV-vs-SOC)
+# change the *observability* of the negative particle diffusivity, which the
+# committed voltage-only study (results/p2/diffusivity_feasibility/report.json)
+# reports as UNOBSERVABLE at 0.5C/1C/2C (mean |normalized sensitivity| 0.011 /
+# 0.021 / 0.048, all below the recorded 0.05 threshold)?
+#
+# This is a LOCAL SENSITIVITY DIAGNOSTIC only:
+#   * no parameter estimation / calibration objective is changed;
+#   * no registry record is written and no decision is changed;
+#   * every curve is model-generated (SYNTHETIC), never experimental data.
+# Scientific rules 7 (fit != identifiability) and 8 (synthetic != validation)
+# apply to every number produced from this config.
+#
+# All noise values below are *assumptions* declared by the analyst. They are
+# recorded in the run manifest; the result is conditional on them.
+schema_version: 1
+run_id: observable_identifiability_neg_diffusivity
+description: >
+  Finite-difference local-sensitivity study of the negative particle
+  diffusivity scale factor under a voltage-only observable set versus an
+  observable-augmented set (GITT-D rest voltages and pulse drops, EIS real and
+  imaginary impedance, OCV-vs-SOC null control). Compared against the committed
+  voltage-only baseline; diagnostic only.
+
+model_name: DFN
+parameter_set: Chen2020
+# Study parameter: a scalar in the installed Chen2020 set, verified by
+# introspection at run time (see docs/FORWARD_OBSERVABLES.md).
+parameter: "Negative particle diffusivity [m2.s-1]"
+
+# Central-difference step on the scale factor; identical to the committed
+# voltage-only study (configs/p2/diffusivity_feasibility.yaml).
+rel_perturbation: 0.02
+
+# Committed voltage-only baseline this run is compared against.
+baseline_report: results/p2/diffusivity_feasibility/report.json
+# Absolute tolerance on mean |normalized sensitivity| when reproducing the
+# committed voltage-only numbers (solver/library drift check).
+baseline_tolerance: 0.005
+
+# --- voltage block: identical protocols/grids to the committed study --------
+voltage_conditions:
+  - name: "0.5C"
+    steps: ["Discharge at 0.5C for 1800 s"]
+    t_end_s: 1800.0
+  - name: "1C"
+    steps: ["Discharge at 1C for 900 s"]
+    t_end_s: 900.0
+  - name: "2C"
+    steps: ["Discharge at 2C for 450 s"]
+    t_end_s: 450.0
+voltage_n_points: 24
+voltage_t_start_s: 10.0
+
+# --- GITT-D block -----------------------------------------------------------
+# Two theoretically motivated features are scored, both from one protocol:
+#   * end-of-rest voltages   -> the quasi-relaxed OCV points of a GITT-D analysis
+#   * per-pulse voltage drop -> the pulse overpotential that includes transport
+# Neither feature is selected after seeing its sensitivity; both are reported.
+gitt_d:
+  model_name: DFN
+  current_A: 0.5
+  pulse_duration_s: 120.0
+  rest_duration_s: 180.0
+  n_pulses: 5
+  period_s: 30.0
+  initial_soc: null
+
+# --- EIS block --------------------------------------------------------------
+# Band set a priori to cover the solid-diffusion frequency computed from the
+# installed parameter set: tau = R_neg^2 / D_neg ~ 1041 s, f = 1/(2*pi*tau)
+# ~ 1.5e-4 Hz. Both the real part (dissipative) and the negative imaginary
+# part (storage, where diffusion signatures appear) are scored; neither is
+# selected after seeing the result.
+eis:
+  model_name: DFN
+  frequencies_Hz: logspace(-4, 1, 28)
+  initial_soc: 0.5
+
+# --- OCV-vs-SOC null control ------------------------------------------------
+# Thermodynamic equilibrium is insensitive to a transport parameter; this
+# control demonstrates that the diagnostic does not manufacture information.
+ocv_soc:
+  n_points: 21
+  direction: null
+
+# --- EIS propagation positive control --------------------------------------
+# Proves the EIS simulation really does use the supplied parameter values: a
+# kinetic parameter that must change the impedance is scaled and the resulting
+# relative impedance change is recorded. Without this control, a null EIS
+# sensitivity to diffusivity could be mistaken for a bug in this harness.
+positive_control:
+  parameter: "Negative electrode exchange-current density [A.m-2]"
+  factor: 10.0
+  component: z_re
+
+# --- declared noise assumptions --------------------------------------------
+noise:
+  voltage_V: 1.0e-3          # documented V2.4 synthetic measurement noise
+  gitt_voltage_V: 1.0e-3     # same instrument class as voltage
+  eis_relative: 1.0e-2       # 1% of mean |Z| assumed instrument error
+  ocv_voltage_V: 1.0e-3
+
+# Normalization convention per observable family. "std" divides by the standard
+# deviation of the baseline curve (the convention of the committed study);
+# "mean_magnitude" divides by the mean absolute feature magnitude (used for the
+# per-pulse scalar features, which have no meaningful curve std).
+normalization:
+  voltage: std
+  gitt_rest_voltage: std
+  gitt_pulse_drop: mean_magnitude
+  eis: std
+  ocv: std
+
+outputs:
+  report: results/observables/diffusivity_multi_observable_fim.json
+  summary: results/observables/diffusivity_multi_observable_fim.md

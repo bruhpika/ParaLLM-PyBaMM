@@ -95,6 +95,65 @@ FIMs do **not** prove global identifiability, and the callers must supply
 their own assumed noise scales; fitting workflows and existing V2.x code are
 unchanged.
 
+## Observable-augmented observability diagnostic (negative diffusivity)
+
+`benchmarks/observables/diffusivity_multi_observable_fim.py` (config:
+`configs/v03/observable_identifiability.yaml`; artifact:
+`results/observables/diffusivity_multi_observable_fim.{json,md}`) asks whether
+the committed **UNOBSERVABLE** verdict for
+`Negative particle diffusivity [m2.s-1]` (voltage-only, ≤2C; mean |S| 0.011 /
+0.021 / 0.048 vs threshold 0.05) changes when non-voltage observables are
+added.
+
+Everything is model-generated (**SYNTHETIC**) and **diagnostic only**: no
+calibration objective, registry record or dossier decision changes.
+
+Results (PyBaMM 26.8.0.0, Chen2020, DFN, `rel_perturbation = 0.02`):
+
+| observable | n | mean \|S\| | implied rel. SE |
+|---|---:|---:|---:|
+| voltage 0.5C | 24 | 0.01068 | 0.0171 |
+| voltage 1C | 24 | 0.02131 | 0.00872 |
+| voltage 2C | 24 | 0.04757 | 0.00368 |
+| GITT-D end-of-rest voltage | 5 | 3.0e-6 | 86.2 |
+| GITT-D pulse voltage drop | 5 | 0.00504 | 0.0885 |
+| EIS Re(Z) | 28 | 8.7e-4 | 0.0504 |
+| EIS −Im(Z) | 28 | 2.1e-4 | 0.231 |
+| OCV-vs-SOC (negative control) | 21 | 0 | ∞ |
+
+- Combined FIM: 9.029e4 (voltage only) → 9.083e4 (voltage + GITT-D + EIS);
+  standard-error reduction factor **1.003**. The added observables carry no
+  material information about this parameter.
+- **No flip.** Both sets stay `UNOBSERVABLE`; the parameter remains `MEASURE`,
+  not `CALIBRATE`.
+- The committed voltage-only baseline is reproduced **exactly** (Δ = 0.0 at
+  0.5C/1C/2C), validating the study device and the comparison.
+- Combined sets are classified by a conjunction declared before scoring: the
+  combined implied relative SE must meet the recorded 5% rule **and** at least
+  one contributing block must clear the recorded mean-|S| ≥ 0.05 rule.
+  Stacking cannot manufacture a flip.
+
+Two structural findings explain the null and are recorded as tool/protocol
+limitations, not physical conclusions about real cells:
+
+1. **GITT-D end-of-rest voltage is quasi-OCV.** It measures the relaxed
+   thermodynamic state, which is insensitive to a transport coefficient; the
+   pulse *drop* is the transport-bearing feature, and it is also below the
+   sensitivity bar at this protocol.
+2. **PyBaMM 26.8.0.0 EIS does not respond to solid particle diffusivity.**
+   A 100× change in `Negative particle diffusivity [m2.s-1]` changes Re(Z) by
+   ~8e-5 relative, while a 10× change in the negative exchange-current
+   density changes it by ~0.37 relative. The positive control proves parameter
+   propagation works, so the null is a property of the installed EIS
+   formulation. `tests/integration/test_observable_identifiability_pybamm.py`
+   pins this contrast and fails loudly if a future PyBaMM release changes it,
+   at which point this limitation and the artifact must be revisited.
+
+Interpretation guard: the a-priori diffusion scale (τ = R²/D ≈ 1041 s,
+f ≈ 1.5e-4 Hz) was computed from the installed parameter set and the EIS band
+(1e-4–10 Hz) covers it, so the null is not an artefact of a mis-placed
+frequency window.
+
 ## Reproduction
 
 ```bash
@@ -104,6 +163,10 @@ unchanged.
 # Scientific benchmark: regenerate results/observables/
 .venv/bin/python -o addopts='' -m benchmark \
     benchmarks/observables/run_forward_observables.py
+
+# Observable-augmented observability diagnostic (writes JSON + Markdown)
+.venv/bin/python benchmarks/observables/diffusivity_multi_observable_fim.py \
+    --config configs/v03/observable_identifiability.yaml
 
 # Equivalent script entry point
 .venv/bin/python benchmarks/observables/run_forward_observables.py --out results/observables
@@ -130,3 +193,8 @@ shapes, live API signatures and limitations in
   **intentionally unchanged** in this milestone; connecting these observables
   to calibration objectives would change scientific scope and needs separate
   approval.
+* **PyBaMM 26.8.0.0 EIS ignores solid particle diffusivity** (verified by a
+  positive control; see the diagnostic section). The observable-augmented null
+  is therefore conditional on this tool behaviour. Testing whether real-cell
+  EIS informs diffusivity would require an impedance formulation that includes
+  solid diffusion — unavailable in the pinned stack and not approximated here.

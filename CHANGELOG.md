@@ -49,11 +49,35 @@ sets of exports/helpers.
   fit is still not proof of identifiability and no real-data claim is made
   (D4). Real-data noise robustness remains untested.
 
+### Observable-augmented observability diagnostic (2026-11-27)
+
+- Added `benchmarks/observables/diffusivity_multi_observable_fim.py`,
+  `configs/v03/observable_identifiability.yaml` and SYNTHETIC-labelled
+  artifacts `results/observables/diffusivity_multi_observable_fim.{json,md}`.
+  The study perturbs the `Negative particle diffusivity [m2.s-1]` scale factor
+  (2 % central difference, same device as the committed feasibility study) and
+  stacks voltage, GITT-D and EIS Jacobians through `multi_observable_fim` with
+  declared per-observable noise.
+- **Honest null:** voltage-only FIM 9.029e4 → augmented 9.083e4 (implied
+  relative SE 0.333 % → 0.332 %; SE reduction factor 1.003). Every added
+  observable is below the recorded 0.05 mean-|S| bar, so the verdict does
+  **not** flip and the parameter remains `MEASURE`. The committed baseline is
+  reproduced exactly (Δ = 0.0 at 0.5C/1C/2C).
+- Recorded tool/protocol findings: GITT end-of-rest voltage is quasi-OCV, and
+  PyBaMM 26.8.0.0 EIS does not respond to solid diffusivity (100× change gives
+  ~8e-5 relative Re(Z) change) while responding to kinetics (~0.37 for 10×
+  exchange-current density). A positive control and a pinned integration test
+  make the latter explicit, and fail if a future PyBaMM release changes it.
+- No calibration objective, registry record or dossier decision changed
+  (rule 10); rules 7/8 guard the interpretation. Unit tests cover the pure
+  helpers; an ecosystem-free integration test runs a tiny protocol under the
+  pinned PyBaMM.
+
 **V2.6 remains blocked** by the owner decision to keep D9 and the
 2026-11-22/27 holds in force (V2.5 exit criterion still open). Experimental
 dataset acquisition remains blocked on licensing; local-model experimentation
 remains blocked on D3's revisit condition. Verification: `ruff` clean,
-`mkdocs build --strict` clean, core scope **675 passed, 9 skipped, 3
+`mkdocs build --strict` clean, core scope **709 passed, 9 skipped, 3
 deselected, 1 xfailed**.
 
 ### V2.5 owner decision: stop after v27 (2026-11-27)

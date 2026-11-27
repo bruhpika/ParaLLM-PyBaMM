@@ -315,22 +315,28 @@ prevent.
 6. **Experimentation with a small local model** (optional, only if D3's revisit
    condition is met).
 7. **Observable-augmented observability diagnostic for negative diffusivity**
-   (**next proposed milestone, 2026-11-27; not started**). Demonstrate whether
+   (**implemented 2026-11-27; honest null, no decision change**). Asked whether
    GITT-D and/or EIS change the observability verdict for
    `neg_particle_diffusivity` — documented `UNOBSERVABLE` from voltage-only
    ≤2C (mean |normalized sensitivity| 0.011 / 0.021 / 0.048, all < 0.05).
-   Add `benchmarks/observables/diffusivity_multi_observable_fim.py` +
+   Landed `benchmarks/observables/diffusivity_multi_observable_fim.py` +
    `configs/v03/observable_identifiability.yaml`; finite-difference observable
-   Jacobians using the verified `pybamm_engine/observables.py` curves and feed
-   them into the landed `multi_observable_fim` with declared per-observable
-   noise; write a SYNTHETIC-labelled side-by-side artifact under
-   `results/observables/` against the voltage-only baseline. **Diagnostic only:**
-   no calibration-objective change, no registry write, no decision change
-   without approval (AGENTS.md rule 10; `docs/FORWARD_OBSERVABLES.md` §lines
-   128–132). Exit criterion: committed result with a flip or an honest null,
-   unit + ecosystem-gated integration tests, docs/CHANGELOG updated. Guard
-   rules 7/8 (FIM evidence ≠ identifiability; synthetic ≠ experimental) and D4
-   (no real-data claims).
+   Jacobians using the verified `pybamm_engine/observables.py` curves fed into
+   the landed `multi_observable_fim` with declared per-observable noise;
+   SYNTHETIC-labelled artifacts in
+   `results/observables/diffusivity_multi_observable_fim.{json,md}`.
+   **Result:** voltage-only FIM 9.029e4 vs augmented 9.083e4 (SE reduction
+   factor 1.003); every added block is below the 0.05 sensitivity bar, so the
+   verdict does **not** flip and the parameter stays `MEASURE`. The committed
+   baseline reproduces exactly (Δ = 0.0 at 0.5C/1C/2C). Two structural
+   findings recorded: GITT end-of-rest voltage is quasi-OCV (transport-poor),
+   and PyBaMM 26.8.0.0 EIS ignores solid diffusivity even for a 100× change
+   while responding to kinetics (positive control ~0.37) — a verified tool
+   limitation pinned by an integration test. **Diagnostic only:** no
+   calibration-objective change, no registry write, no decision change
+   (AGENTS.md rule 10; `docs/FORWARD_OBSERVABLES.md`). Guard rules 7/8 (FIM
+   evidence ≠ identifiability; synthetic ≠ experimental) and D4 (no real-data
+   claims).
 
 ## 8. Risk register
 

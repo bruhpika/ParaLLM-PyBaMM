@@ -1,0 +1,247 @@
+{
+  "label": "SYNTHETIC OBSERVABLE-AUGMENTED IDENTIFIABILITY DIAGNOSTIC",
+  "run_id": "observable_identifiability_neg_diffusivity",
+  "description": "Finite-difference local-sensitivity study of the negative particle diffusivity scale factor under a voltage-only observable set versus an observable-augmented set (GITT-D rest voltages and pulse drops, EIS real and imaginary impedance, OCV-vs-SOC null control). Compared against the committed voltage-only baseline; diagnostic only.\n",
+  "diagnostic_only": true,
+  "decision_changed": false,
+  "registry_write": false,
+  "parameter": "Negative particle diffusivity [m2.s-1]",
+  "parameter_set": "Chen2020",
+  "model_name": "DFN",
+  "baseline_parameter_value": 3.3e-14,
+  "scale_factor": 1.0,
+  "rel_perturbation": 0.02,
+  "thresholds": {
+    "sensitivity_observability": 0.05,
+    "relative_std_observability": 0.05,
+    "source": "src/pybamm_closed_loop/assembly/observability.py (recorded rules)"
+  },
+  "a_priori_diffusion_scales": {
+    "diffusivity_m2_s": 3.3e-14,
+    "particle_radius_m": 5.86e-06,
+    "diffusion_time_constant_s": 1040.5939393939393,
+    "diffusion_frequency_Hz": 0.00015294625219957562,
+    "eis_band_Hz": [
+      0.0001,
+      10.0
+    ],
+    "eis_band_covers_diffusion_frequency": true,
+    "source": "installed Chen2020 values; tau = R^2/D, f = 1/(2*pi*tau)"
+  },
+  "per_observable": {
+    "voltage_0.5C": {
+      "name": "voltage_0.5C",
+      "normalization": "std",
+      "sigma": 0.001,
+      "y_scale": 0.0558293880531265,
+      "n_points": 24,
+      "mean_abs_normalized_sensitivity": 0.010684202597885606,
+      "fim": 3417.6610358761923,
+      "implied_relative_standard_error": 0.017105489489315815,
+      "classification": "UNOBSERVABLE"
+    },
+    "voltage_1C": {
+      "name": "voltage_1C",
+      "normalization": "std",
+      "sigma": 0.001,
+      "y_scale": 0.06928429768244446,
+      "n_points": 24,
+      "mean_abs_normalized_sensitivity": 0.02130821853605302,
+      "fim": 13157.874336796736,
+      "implied_relative_standard_error": 0.008717804645141157,
+      "classification": "UNOBSERVABLE"
+    },
+    "voltage_2C": {
+      "name": "voltage_2C",
+      "normalization": "std",
+      "sigma": 0.001,
+      "y_scale": 0.10308836401295747,
+      "n_points": 24,
+      "mean_abs_normalized_sensitivity": 0.04757405571912124,
+      "fim": 73716.90242912975,
+      "implied_relative_standard_error": 0.0036831250219077024,
+      "classification": "UNOBSERVABLE"
+    },
+    "gitt_d_rest_voltage": {
+      "name": "gitt_d_rest_voltage",
+      "normalization": "std",
+      "sigma": 0.001,
+      "y_scale": 0.0078165052109644,
+      "n_points": 5,
+      "mean_abs_normalized_sensitivity": 3.0122170650880996e-06,
+      "fim": 0.00013453282644861842,
+      "implied_relative_standard_error": 86.21560234241134,
+      "classification": "UNOBSERVABLE"
+    },
+    "gitt_d_pulse_drop": {
+      "name": "gitt_d_pulse_drop",
+      "normalization": "mean_magnitude",
+      "sigma": 0.001,
+      "y_scale": 0.017719392038074842,
+      "n_points": 5,
+      "mean_abs_normalized_sensitivity": 0.005036586843360244,
+      "fim": 127.63504673771547,
+      "implied_relative_standard_error": 0.08851462405358955,
+      "classification": "UNOBSERVABLE"
+    },
+    "eis_re_impedance": {
+      "name": "eis_re_impedance",
+      "normalization": "std",
+      "sigma": 0.000372577559547011,
+      "y_scale": 0.011003587718805484,
+      "n_points": 28,
+      "mean_abs_normalized_sensitivity": 0.0008651448413108118,
+      "fim": 393.2703032142438,
+      "implied_relative_standard_error": 0.050425988853989856,
+      "classification": "UNOBSERVABLE"
+    },
+    "eis_neg_im_impedance": {
+      "name": "eis_neg_im_impedance",
+      "normalization": "std",
+      "sigma": 0.000372577559547011,
+      "y_scale": 0.019025440149459307,
+      "n_points": 28,
+      "mean_abs_normalized_sensitivity": 0.00020809539053399123,
+      "fim": 18.71110646229061,
+      "implied_relative_standard_error": 0.23118000302989802,
+      "classification": "UNOBSERVABLE"
+    },
+    "ocv_soc_control": {
+      "name": "ocv_soc_control",
+      "normalization": "std",
+      "sigma": 0.001,
+      "y_scale": 0.38935124590852627,
+      "n_points": 21,
+      "mean_abs_normalized_sensitivity": 0.0,
+      "fim": 0.0,
+      "implied_relative_standard_error": Infinity,
+      "classification": "UNOBSERVABLE"
+    }
+  },
+  "voltage_only": {
+    "observables": [
+      "voltage_0.5C",
+      "voltage_1C",
+      "voltage_2C"
+    ],
+    "fim": 90292.43780180269,
+    "implied_relative_standard_error": 0.003327930980361266,
+    "classification": "UNOBSERVABLE",
+    "strongest_block_mean_abs_normalized_sensitivity": 0.04757405571912124,
+    "classification_rule": "conjunction: combined implied rel. SE <= 0.05 AND strongest block mean |S| >= 0.05",
+    "per_block_mean_abs_normalized_sensitivity": {
+      "voltage_0.5C": 0.010684202597885606,
+      "voltage_1C": 0.02130821853605302,
+      "voltage_2C": 0.04757405571912124
+    },
+    "condition_number": 1.0,
+    "stacked_jacobian_shape": [
+      72,
+      1
+    ]
+  },
+  "observable_augmented": {
+    "observables": [
+      "voltage_0.5C",
+      "voltage_1C",
+      "voltage_2C",
+      "gitt_d_rest_voltage",
+      "gitt_d_pulse_drop",
+      "eis_re_impedance",
+      "eis_neg_im_impedance"
+    ],
+    "fim": 90832.05439274973,
+    "implied_relative_standard_error": 0.0033180309408084563,
+    "classification": "UNOBSERVABLE",
+    "strongest_block_mean_abs_normalized_sensitivity": 0.04757405571912124,
+    "classification_rule": "conjunction: combined implied rel. SE <= 0.05 AND strongest block mean |S| >= 0.05",
+    "per_block_mean_abs_normalized_sensitivity": {
+      "voltage_0.5C": 0.010684202597885606,
+      "voltage_1C": 0.02130821853605302,
+      "voltage_2C": 0.04757405571912124,
+      "gitt_d_rest_voltage": 3.0122170650880996e-06,
+      "gitt_d_pulse_drop": 0.005036586843360244,
+      "eis_re_impedance": 0.0008651448413108118,
+      "eis_neg_im_impedance": 0.00020809539053399123
+    },
+    "condition_number": 1.0,
+    "stacked_jacobian_shape": [
+      138,
+      1
+    ]
+  },
+  "information_gain_sqrt_ratio": 1.002983709232801,
+  "standard_error_reduction_factor": 1.002983709232801,
+  "verdict": {
+    "voltage_only_classification": "UNOBSERVABLE",
+    "observable_augmented_classification": "UNOBSERVABLE",
+    "flip": false,
+    "statement": "The added observables do NOT flip the recorded UNOBSERVABLE verdict under the declared aggregation rule; the parameter remains MEASURE, not CALIBRATE.",
+    "decision": "unchanged"
+  },
+  "eis_positive_control": {
+    "parameter": "Negative electrode exchange-current density [A.m-2]",
+    "factor": 10.0,
+    "component": "z_re",
+    "relative_impedance_change": 0.3677667194064058,
+    "interpretation": "A non-zero relative change proves the EIS simulation applies supplied parameter values. A near-zero change for the study parameter is therefore a property of the installed EIS formulation, not a harness bug."
+  },
+  "baseline_comparison": {
+    "path": "results/p2/diffusivity_feasibility/report.json",
+    "source": "results/p2/diffusivity_feasibility/report.json",
+    "parameter": "Negative particle diffusivity [m2.s-1]",
+    "checks": {
+      "0.5C": {
+        "reproduced_mean_abs_normalized_sensitivity": 0.010684202597885606,
+        "baseline_mean_abs_normalized_sensitivity": 0.010684202597885606,
+        "absolute_delta": 0.0,
+        "tolerance": 0.005,
+        "within_tolerance": true
+      },
+      "1C": {
+        "reproduced_mean_abs_normalized_sensitivity": 0.02130821853605302,
+        "baseline_mean_abs_normalized_sensitivity": 0.02130821853605302,
+        "absolute_delta": 0.0,
+        "tolerance": 0.005,
+        "within_tolerance": true
+      },
+      "2C": {
+        "reproduced_mean_abs_normalized_sensitivity": 0.04757405571912124,
+        "baseline_mean_abs_normalized_sensitivity": 0.04757405571912124,
+        "absolute_delta": 0.0,
+        "tolerance": 0.005,
+        "within_tolerance": true
+      }
+    },
+    "all_within_tolerance": true
+  },
+  "environment": {
+    "python": "3.14.10",
+    "pybamm": "26.8.0.0"
+  },
+  "verified_api_signatures": {
+    "pybamm.__version__": "26.8.0.0",
+    "EISSimulation": "EISSimulation(model, parameter_values=None, geometry=None, submesh_types=None, var_pts=None, spatial_methods=None, skip_surface_form_check=False)",
+    "EISSimulation.solve": "EISSimulation.solve(self, frequencies, inputs=None, initial_soc=None)",
+    "EISSolution": "EISSolution(frequencies, impedance)",
+    "EISSolution.get_data_dict": "EISSolution.get_data_dict(self)",
+    "get_initial_stoichiometries": "lithium_ion.get_initial_stoichiometries(initial_value, parameter_values, direction=None, param=None, known_value='cyclable lithium capacity', options=None, tol=1e-06, inputs=None, esoh_solver=None)",
+    "get_min_max_stoichiometries": "lithium_ion.get_min_max_stoichiometries(parameter_values, direction=None, param=None, known_value='cyclable lithium capacity', options=None, inputs=None)",
+    "Experiment": "Experiment(operating_conditions: 'list[str | tuple[str] | BaseStep]', period: 'str | None' = None, temperature: 'float | None' = None, termination: 'list[str] | None' = None)",
+    "Simulation": "Simulation(model, experiment=None, geometry=None, parameter_values=None, submesh_types=None, var_pts=None, spatial_methods=None, solver=None, output_variables=None, C_rate=None, discretisation_kwargs=None, cache_esoh=True, experiment_model_mode='legacy')",
+    "Simulation.solve": "Simulation.solve(self, t_eval=None, solver=None, save_at_cycles=None, calc_esoh=None, starting_solution=None, initial_soc=None, direction=None, callbacks=None, showprogress=False, inputs=None, t_interp=None, **kwargs)",
+    "step.string": "step.string(text, **kwargs)"
+  },
+  "config_sha256": "0851f81fa9aaa17edbbe5e9c454cd7ea9c8c71ecc3b59c2557885e008247df31",
+  "limitations": [
+    "SYNTHETIC ONLY: every curve is model-generated, not measured experimentally.",
+    "Local finite-difference sensitivity at scale factor 1.0; it is not a global identifiability proof.",
+    "The result is conditional on the declared noise assumptions in the config.",
+    "No calibration objective, registry record or dossier decision was changed.",
+    "GITT-D end-of-rest voltages approximate quasi-relaxed OCV; they are not extrapolated to infinite time.",
+    "PyBaMM 26.8.0.0 EIS does not respond to the solid particle diffusivity, although it does respond to kinetic and geometric parameters (positive control recorded); this is a verified tool limitation, not a physical conclusion about real cells.",
+    "OCV-vs-SOC is a negative control: equilibrium thermodynamics is insensitive to a transport parameter."
+  ],
+  "scientific_note": "Local sensitivity diagnostic only. A well-conditioned FIM is not proof of identifiability (rule 7) and all curves are synthetic (rule 8). No calibration objective, registry record or dossier decision was changed.",
+  "runtime_s": 20.290787440000713
+}
