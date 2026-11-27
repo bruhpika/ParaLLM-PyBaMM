@@ -430,6 +430,13 @@ and chemistry rose 0.143 → 0.455, but both gates remain open. Cell is capped
 by evidence reachability (0.333). · V2.6 gated · V2.7 CI/packaging landed;
 publish pending.
 
-**TODO carried (not v0.2 scope):** multi-chemistry (LFP/graphite, NMC811,
-Li-metal); experimental dataset acquisition + licensing; observables beyond
-voltage (EIS/OCV/dQ/dV/GITT-D); first-party parameter set; PyPI/CI/docs site.
+**TODO carried (not v0.2 scope):** experimental dataset acquisition +
+licensing (still blocked, D4); PyPI publish (pending owner credentials/version);
+local-model experimentation (blocked on D3's revisit condition). **Landed as
+v0.3 (2026-11-27, merged from three isolated worktrees):** multi-chemistry
+target specs (`configs/v3/`, `docs/V3_CHEMISTRY_COVERAGE.md`), forward observables
+(`pybamm_engine/observables.py`, `multi_observable_fim`, `docs/FORWARD_OBSERVABLES.md`),
+first-party parameter-set candidate (`results/v03/param_set/`,
+`docs/FIRST_PARTY_PARAMETER_SET.md`). **Next proposed milestone:** observable-
+augmented observability diagnostic for `neg_particle_diffusivity` (roadmap §7
+item 7) — diagnostic only, no decision change.

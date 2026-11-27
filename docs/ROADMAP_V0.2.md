@@ -287,21 +287,50 @@ prevent.
 ## 7. TODO (carried into the queue, not v0.2 scope)
 
 1. **Multi-chemistry coverage (LFP/graphite, NMC811, Li-metal)** — needs its own
-   parameter sets + applicability rules; highest-value v0.3 item.
+   parameter sets + applicability rules; highest-value v0.3 item. **Implemented
+   (2026-11-27):** declarative `configs/v3/` target specs for LFP/graphite
+   (`Prada2013`), NMC811/LG M50 (`ORegan2022`) and Li-metal/NMC (`Xu2019`), with
+   all set names/OCP fields introspected from PyBaMM 26.8.0.0 and v0.2 LG M50
+   behaviour unchanged (`docs/V3_CHEMISTRY_COVERAGE.md`). No `NMC811`-named set
+   and no LMO set exist in the pinned install — recorded `UNRESOLVED`, not
+   fabricated.
 2. **Experimental dataset acquisition & licensing** — Chen2020 traces (author
    request), public LG M50 multi-rate sets; blocks the experimental-validation
-   claim.
+   claim. Still blocked (D4): no dataset satisfies T6.
 3. **Observables beyond voltage** — forward EIS, OCV-vs-SOC, dQ/dV, GITT-D, to
-   improve identifiability structurally.
+   improve identifiability structurally. **Implemented (2026-11-27):**
+   `pybamm_engine/observables.py` + `multi_observable_fim` + forward benchmark
+   (`docs/FORWARD_OBSERVABLES.md`, `results/observables/`), all PyBaMM 26.8.0.0
+   API signatures verified by introspection. Voltage-only calibration path is
+   deliberately unchanged; connecting observables to calibration objectives
+   needs separate approval.
 4. **First-party parameter set** ("ParaLLM-Chen2020-ext") from the 16 documented
    discrepancy families, with per-field provenance. **Implemented as a candidate
    artifact (2026-11-27):** 11 numeric discrepancy families **plus** 16
    set-extension families = 27 fields (see
    `docs/FIRST_PARTY_PARAMETER_SET.md`). Not an approved/exportable PyBaMM set:
    no gate, no registry writes, no set registration (rule 10).
-5. **PyPI release + CI + docs site + examples gallery.**
+5. **PyPI release + CI + docs site + examples gallery.** CI/docs/gallery landed;
+   PyPI publish pending owner credentials + version decision.
 6. **Experimentation with a small local model** (optional, only if D3's revisit
    condition is met).
+7. **Observable-augmented observability diagnostic for negative diffusivity**
+   (**next proposed milestone, 2026-11-27; not started**). Demonstrate whether
+   GITT-D and/or EIS change the observability verdict for
+   `neg_particle_diffusivity` — documented `UNOBSERVABLE` from voltage-only
+   ≤2C (mean |normalized sensitivity| 0.011 / 0.021 / 0.048, all < 0.05).
+   Add `benchmarks/observables/diffusivity_multi_observable_fim.py` +
+   `configs/v03/observable_identifiability.yaml`; finite-difference observable
+   Jacobians using the verified `pybamm_engine/observables.py` curves and feed
+   them into the landed `multi_observable_fim` with declared per-observable
+   noise; write a SYNTHETIC-labelled side-by-side artifact under
+   `results/observables/` against the voltage-only baseline. **Diagnostic only:**
+   no calibration-objective change, no registry write, no decision change
+   without approval (AGENTS.md rule 10; `docs/FORWARD_OBSERVABLES.md` §lines
+   128–132). Exit criterion: committed result with a flip or an honest null,
+   unit + ecosystem-gated integration tests, docs/CHANGELOG updated. Guard
+   rules 7/8 (FIM evidence ≠ identifiability; synthetic ≠ experimental) and D4
+   (no real-data claims).
 
 ## 8. Risk register
 
