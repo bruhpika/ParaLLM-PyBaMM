@@ -1,0 +1,179 @@
+{
+  "applied": true,
+  "candidates": [
+    {
+      "created_at": "2026-11-20T10:25:44Z",
+      "environment": "github-pages",
+      "id": 7939227732,
+      "ref": "main",
+      "sha": "013eebff4e0b640ab0a995e44e87085c98429362"
+    },
+    {
+      "created_at": "2026-11-20T10:29:45Z",
+      "environment": "github-pages",
+      "id": 7939311257,
+      "ref": "main",
+      "sha": "6fdc8fbe93f7a940cee2d420d7a367c721fb2700"
+    },
+    {
+      "created_at": "2026-11-22T15:41:42Z",
+      "environment": "github-pages",
+      "id": 7981019026,
+      "ref": "main",
+      "sha": "9195e36b265dad17ddf312336f9a7e62469cfcde"
+    },
+    {
+      "created_at": "2026-11-22T16:35:01Z",
+      "environment": "github-pages",
+      "id": 7981682073,
+      "ref": "main",
+      "sha": "523ddcba018eed4c41ebc8a00b4d719ec74881fb"
+    },
+    {
+      "created_at": "2026-11-22T17:41:45Z",
+      "environment": "github-pages",
+      "id": 7982500753,
+      "ref": "main",
+      "sha": "028e0794e7d490490138d764c44fcd542eb33a3e"
+    },
+    {
+      "created_at": "2026-11-22T17:59:43Z",
+      "environment": "github-pages",
+      "id": 7982711574,
+      "ref": "main",
+      "sha": "b6c2b36743bc1258007fc4736d8484d3b2952c3e"
+    },
+    {
+      "created_at": "2026-11-22T18:06:59Z",
+      "environment": "github-pages",
+      "id": 7982806305,
+      "ref": "main",
+      "sha": "8bf99d426eec80127d6bba07387e45d7553b6a7c"
+    },
+    {
+      "created_at": "2026-11-23T02:13:11Z",
+      "environment": "github-pages",
+      "id": 7988756507,
+      "ref": "main",
+      "sha": "71cf70fd74c950d30f1b45ca1ffff9db7e7af11f"
+    },
+    {
+      "created_at": "2026-11-23T02:19:34Z",
+      "environment": "github-pages",
+      "id": 7988836426,
+      "ref": "main",
+      "sha": "dc1c1310fc4f3aa6e81c4cfa3e63e39280345d2c"
+    },
+    {
+      "created_at": "2026-11-23T02:24:58Z",
+      "environment": "github-pages",
+      "id": 7988906743,
+      "ref": "main",
+      "sha": "76afc7c550acdf5d37817e615de72d0524883540"
+    },
+    {
+      "created_at": "2026-11-23T16:52:06Z",
+      "environment": "github-pages",
+      "id": 8005158175,
+      "ref": "main",
+      "sha": "3679994bb92fcc39f80821e1eb2c87bea99a19b9"
+    },
+    {
+      "created_at": "2026-11-23T16:58:13Z",
+      "environment": "github-pages",
+      "id": 8005304677,
+      "ref": "main",
+      "sha": "74e92b3843d3d35f340ad1261d5f08bd26a89495"
+    },
+    {
+      "created_at": "2026-11-23T17:20:12Z",
+      "environment": "github-pages",
+      "id": 8005847236,
+      "ref": "main",
+      "sha": "ded9bb836c9608e5319d1760f72a137e0db0ecd0"
+    },
+    {
+      "created_at": "2026-11-23T17:37:45Z",
+      "environment": "github-pages",
+      "id": 8006265039,
+      "ref": "main",
+      "sha": "5059114c4a80c05f93b1c5dc613ca5afcc337415"
+    },
+    {
+      "created_at": "2026-11-23T17:44:57Z",
+      "environment": "github-pages",
+      "id": 8006430260,
+      "ref": "main",
+      "sha": "641da92cbbffda221bc1582b0d2ccbaa152bfdb7"
+    },
+    {
+      "created_at": "2026-11-24T06:48:10Z",
+      "environment": "github-pages",
+      "id": 8020806298,
+      "ref": "main",
+      "sha": "5cb10914af7a80979978ee3d79ba3f9c9173661b"
+    },
+    {
+      "created_at": "2026-11-24T07:02:23Z",
+      "environment": "github-pages",
+      "id": 8021035241,
+      "ref": "main",
+      "sha": "be674ee124e2c7014084feb3fddb4866c53bc18f"
+    },
+    {
+      "created_at": "2026-11-26T04:03:22Z",
+      "environment": "github-pages",
+      "id": 8076152038,
+      "ref": "main",
+      "sha": "a095861671c9eb909e909f0960a43b148a1d66ac"
+    },
+    {
+      "created_at": "2026-11-26T04:46:29Z",
+      "environment": "github-pages",
+      "id": 8076751832,
+      "ref": "main",
+      "sha": "1751f4a9431da58f5876dfa45d538efbbd8c7509"
+    },
+    {
+      "created_at": "2026-11-26T16:33:45Z",
+      "environment": "github-pages",
+      "id": 8090860730,
+      "ref": "main",
+      "sha": "d6d02388071ccac0bdb080af514ea9f9aeb9b29f"
+    },
+    {
+      "created_at": "2026-11-27T07:15:21Z",
+      "environment": "github-pages",
+      "id": 8104074584,
+      "ref": "main",
+      "sha": "3c5991060df84824626c9a78a4eb08564774b6bc"
+    },
+    {
+      "created_at": "2026-11-27T07:16:45Z",
+      "environment": "github-pages",
+      "id": 8104096818,
+      "ref": "main",
+      "sha": "fb547ec92a2136397a9240961ecb7abea008a4e1"
+    },
+    {
+      "created_at": "2026-11-27T12:48:30Z",
+      "environment": "github-pages",
+      "id": 8110173948,
+      "ref": "main",
+      "sha": "5fba713a7a1e00e8cc2cab4fe12237c4e22303ad"
+    }
+  ],
+  "deleted_count": 23,
+  "keep_after": "2026-11-27T13:00:00Z",
+  "notes": [
+    "All 23 push-triggered github-pages deployment records created before the v0.2.0-beta.1 release were deleted via scripts/cleanup_pages_deployments.py (dry-run then --apply --confirm DELETE).",
+    "GitHub refuses to delete an active deployment while another active deployment exists in the same environment. The release-era deployment was marked inactive and deleted first, then the final old deployment was deleted, leaving zero records.",
+    "A clean release deployment was then created by a manual workflow_dispatch run (id 8110498694, sha 6ddc7b2521e633e53a9b9f9fe5eee490465156b0, 2026-11-27T13:05:12Z)."
+  ],
+  "remaining_deployment": {
+    "created_at": "2026-11-27T13:05:12Z",
+    "id": 8110498694,
+    "sha": "6ddc7b2521e633e53a9b9f9fe5eee490465156b0"
+  },
+  "repo": "bruhpika/ParaLLM-PyBaMM"
+}
