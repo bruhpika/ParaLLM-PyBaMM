@@ -1,8 +1,10 @@
 name: Docs
 
+# Docs deployment is manual-only. A `release` event's ref is the tag, but
+# GitHub Pages accepts deployments only from its configured source branch
+# (main), so release-triggered deploys fail. Publish the release, then run
+# this workflow via workflow_dispatch to create one clean deployment record.
 on:
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -20,8 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Release events check out the tag ref; GitHub Pages deploys from
-          # the main branch, so always build the docs from main.
+          # Pages is configured to deploy from main; always build from it.
           ref: main
       - uses: actions/setup-python@v5
         with:

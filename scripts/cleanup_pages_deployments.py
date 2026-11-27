@@ -12,8 +12,9 @@ Safety:
   ``--confirm`` token so it cannot be triggered accidentally.
 * Every candidate is matched on ``environment == "github-pages"`` and
   ``created_at < KEEP_AFTER`` (the release publication time), never on a
-  guessed ID. The recorded SHA/ref/date of each deletion is written to a
-  manifest under ``results/`` for traceability.
+  guessed ID. On ``--apply``, the recorded SHA/ref/date of each deletion is
+  written to a manifest under ``results/`` for traceability; dry runs leave
+  that manifest untouched.
 * Deleting a deployment also requires deleting its status records; both
   calls are made per candidate, oldest first.
 
@@ -27,7 +28,7 @@ import argparse
 import json
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -123,12 +124,12 @@ def delete_deployment(dep: dict[str, Any]) -> None:
     gh_api(f"/repos/{REPO}/deployments/{dep['id']}", method="DELETE")
 
 
-def write_manifest(candidates: list[dict[str, Any]], applied: bool) -> None:
+def write_manifest(candidates: list[dict[str, Any]]) -> None:
     record = {
         "repo": REPO,
         "keep_after": KEEP_AFTER,
-        "applied": applied,
-        "deleted_count": len(candidates) if applied else 0,
+        "applied": True,
+        "deleted_count": len(candidates),
         "candidates": candidates,
     }
     MANIFEST.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
@@ -171,11 +172,11 @@ def main(argv: list[str] | None = None) -> int:
         for dep in candidates:
             delete_deployment(dep)
             print(f"  deleted {dep['id']}")
-        write_manifest(candidates, applied=True)
+        write_manifest(candidates)
         print(f"Manifest written to {MANIFEST.relative_to(ROOT)}")
     else:
         print("DRY RUN: no deployments deleted. Re-run with --apply --confirm DELETE.")
-        write_manifest(candidates, applied=False)
+        # A dry run must not overwrite the historical record of a prior apply.
     return 0
 
 
