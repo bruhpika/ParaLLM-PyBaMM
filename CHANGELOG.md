@@ -73,11 +73,25 @@ sets of exports/helpers.
   `gitt_protocol_warnings()` guard now flags full-charge GITT runs, and an
   integration test pins the corrected protocol's signal. The EIS null is
   unchanged and remains a PyBaMM 26.8.0.0 formulation limitation.
-- **Limits of the flip:** single-parameter local sensitivity (all other
-  parameters fixed), so joint D–kinetics/electrolyte collinearity is not
-  assessed; the GITT features include ohmic/kinetic overpotential and are not
-  pure solid-diffusion estimators; synthetic only (rules 7/8). The dossier
-  action stays `MEASURE` pending owner review (rule 10).
+- **Joint collinearity check (2026-11-27):** added a three-parameter joint FIM
+  (`D_neg`, `j0_neg`, `D_e` free together) to the same benchmark; artifact
+  `results/observables/joint_diffusivity_fim.{json,md}`. `D_neg` marginal
+  relative SE **0.263 %** (single-parameter reference 0.236 %; variance
+  inflation **1.25**), correlations 0.153 (`j0_neg`) and −0.444 (`D_e`), all
+  below the declared 0.9 warning. The classification stays `OBSERVABLE` and
+  the collinearity check passes; the joint fit gains **1.79×** in `D_neg` SE
+  over the voltage-only joint fit. A 0.5/1/5 % finite-difference step sweep
+  leaves the classification unchanged (max SE deviation 0.59 %, max
+  correlation deviation 0.006). Honest nuance: the voltage-only joint set
+  already meets the relative-SE limb but not the per-block |S| limb (0.0476),
+  so the flip is a **conservative classification flip**, not evidence that
+  voltage data are uninformative.
+- **Limits of the flip:** only three parameters are free; function-valued
+  `j0_neg`/`D_e` are perturbed by a constant multiplier, so their functional
+  form is assumed known; other parameters remain fixed. The GITT features
+  include ohmic/kinetic overpotential; this is a local synthetic FIM, not an
+  identifiability proof (rules 7/8). The dossier action stays `MEASURE`
+  pending owner review (rule 10).
 - Recorded tool finding: PyBaMM 26.8.0.0 EIS does not respond to solid
   diffusivity (100× change gives ~8e-5 relative Re(Z) change) while responding
   to kinetics (~0.37 for 10× exchange-current density). A positive control and
@@ -92,7 +106,7 @@ sets of exports/helpers.
 2026-11-22/27 holds in force (V2.5 exit criterion still open). Experimental
 dataset acquisition remains blocked on licensing; local-model experimentation
 remains blocked on D3's revisit condition. Verification: `ruff` clean,
-`mkdocs build --strict` clean, core scope **710 passed, 9 skipped, 3
+`mkdocs build --strict` clean, core scope **717 passed, 9 skipped, 3
 deselected, 1 xfailed**.
 
 ### V2.5 owner decision: stop after v27 (2026-11-27)

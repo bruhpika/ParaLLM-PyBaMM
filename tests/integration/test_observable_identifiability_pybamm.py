@@ -55,6 +55,28 @@ def test_scaled_parameter_values_scales_only_the_study_parameter(module):
     assert float(scaled[other]) == pytest.approx(float(base[other]))
 
 
+def test_scaled_parameter_values_multi_scales_scalars_and_callables(module):
+    base = pybamm.ParameterValues(PARAMETER_SET)
+    d_e = "Electrolyte diffusivity [m2.s-1]"
+    j0 = "Negative electrode exchange-current density [A.m-2]"
+    scaled = module.scaled_parameter_values_multi(
+        PARAMETER_SET, [PARAMETER, d_e, j0], [2.0, 3.0, 4.0]
+    )
+    assert float(scaled[PARAMETER]) == pytest.approx(float(base[PARAMETER]) * 2.0)
+    # Callables keep their arguments and gain the multiplicative factor.
+    assert scaled[d_e](1000.0, 298.15) == pytest.approx(
+        3.0 * base[d_e](1000.0, 298.15)
+    )
+    assert scaled[j0] is not base[j0]
+    # Unrelated values are untouched.
+    other = "Negative particle radius [m]"
+    assert float(scaled[other]) == pytest.approx(float(base[other]))
+    with pytest.raises(ValueError):
+        module.scaled_parameter_values_multi(PARAMETER_SET, [PARAMETER], [1.0, 2.0])
+    with pytest.raises(KeyError):
+        module.scaled_parameter_values_multi(PARAMETER_SET, ["not a parameter"], [1.0])
+
+
 def test_gitt_features_are_finite_and_per_pulse(module):
     pv = pybamm.ParameterValues(PARAMETER_SET)
     spec = {
@@ -154,6 +176,8 @@ def test_committed_gitt_protocol_has_resolvable_transport_signal(module):
 def test_run_diagnostic_writes_labelled_synthetic_artifacts(module, tmp_path):
     report_path = tmp_path / "report.json"
     summary_path = tmp_path / "summary.md"
+    joint_report_path = tmp_path / "joint.json"
+    joint_summary_path = tmp_path / "joint.md"
     config = {
         "schema_version": 1,
         "run_id": "integration_tiny",
@@ -203,6 +227,25 @@ def test_run_diagnostic_writes_labelled_synthetic_artifacts(module, tmp_path):
             "eis": "std",
             "ocv": "std",
         },
+        "joint_fim": {
+            "enabled": True,
+            "rel_perturbation": 0.02,
+            "collinearity_warning_abs_correlation": 0.9,
+            "robustness_rel_perturbations": [0.01],
+            "parameters": [
+                {"label": "D_neg", "name": PARAMETER},
+                {
+                    "label": "j0_neg",
+                    "name": "Negative electrode exchange-current density [A.m-2]",
+                },
+                {"label": "D_e", "name": "Electrolyte diffusivity [m2.s-1]"},
+            ],
+            "observables": ["voltage_0.5C", "gitt_d_pulse_drop"],
+            "outputs": {
+                "report": str(joint_report_path),
+                "summary": str(joint_summary_path),
+            },
+        },
         "outputs": {"report": str(report_path), "summary": str(summary_path)},
     }
     config_path = tmp_path / "config.yaml"
@@ -239,3 +282,22 @@ def test_run_diagnostic_writes_labelled_synthetic_artifacts(module, tmp_path):
     on_disk = json.loads(report_path.read_text(encoding="utf-8"))
     assert on_disk["run_id"] == "integration_tiny"
     assert "SYNTHETIC" in summary_path.read_text(encoding="utf-8")
+
+    joint = report["joint_fim"]
+    assert joint["single_parameter_cross_check_passed"] is True
+    assert joint["parameters"] == ["D_neg", "j0_neg", "D_e"]
+    assert joint["primary_parameter"] == "D_neg"
+    assert joint["classification_stable_across_fd_steps"] is True
+    joint_on_disk = json.loads(joint_report_path.read_text(encoding="utf-8"))
+    assert joint_on_disk["label"].startswith("SYNTHETIC")
+    assert joint_on_disk["diagnostic_only"] is True
+    assert joint_on_disk["decision_changed"] is False
+    assert joint_on_disk["registry_write"] is False
+    assert joint_on_disk["single_parameter_cross_check"]["all_within_tolerance"] is True
+    assert joint_on_disk["observable_sets"]["all_configured"]["rank"] >= 1
+    assert len(joint_on_disk["observable_sets"]["all_configured"]["correlation"]) == 3
+    assert joint_on_disk["primary_parameter_summary"]["classification"] in {
+        "OBSERVABLE",
+        "UNOBSERVABLE",
+    }
+    assert "SYNTHETIC" in joint_summary_path.read_text(encoding="utf-8")

@@ -315,8 +315,9 @@ prevent.
 6. **Experimentation with a small local model** (optional, only if D3's revisit
    condition is met).
 7. **Observable-augmented observability diagnostic for negative diffusivity**
-   (**implemented 2026-11-27; protocol-corrected flip to OBSERVABLE, decision
-   unchanged**). Asked whether GITT-D and/or EIS change the observability
+   (**implemented 2026-11-27; protocol-corrected flip to OBSERVABLE; joint
+   three-parameter collinearity check passed; decision unchanged**). Asked
+   whether GITT-D and/or EIS change the observability
    verdict for `neg_particle_diffusivity` — documented `UNOBSERVABLE` from
    voltage-only ≤2C (mean |normalized sensitivity| 0.011 / 0.021 / 0.048, all
    < 0.05). Landed `benchmarks/observables/diffusivity_multi_observable_fim.py`
@@ -334,13 +335,23 @@ prevent.
    graphite OCP is flat; its "no flip" conclusion was a protocol artefact. The
    committed protocol is 20% SOC / 0.2C, validated against the 3.0 V cutoff;
    `gitt_protocol_warnings()` flags full-charge runs and an integration test
-   pins the corrected signal. **Limits:** single-parameter local sensitivity
-   (joint D–kinetics collinearity not assessed), GITT features include
-   ohmic/kinetic overpotential, synthetic only (rules 7/8). EIS remains a
-   verified PyBaMM 26.8.0.0 formulation limitation (positive control ~0.37
-   from kinetics vs ~8e-5 from 100× diffusivity), pinned by an integration
-   test. **Diagnostic only:** no calibration-objective change, no registry
-   write, no decision change (AGENTS.md rule 10; `docs/FORWARD_OBSERVABLES.md`).
+   pins the corrected signal. **Joint collinearity check (same milestone):**
+   `D_neg`, `j0_neg` and `D_e` freed together give a `D_neg` marginal relative
+   SE of **0.00263** (single-parameter reference 0.00236; variance inflation
+   **1.25**), correlations 0.153 and −0.444, and classification `OBSERVABLE`
+   under the declared rule. Voltage-only already meets the relative-SE limb but
+   not the per-block |S| limb (0.0476), so the flip is a conservative
+   classification flip; the joint FIM itself shows voltage data carry local
+   information. A 0.5–5 % finite-difference sweep is stable (SE deviation
+   <0.6 %). Artifacts: `results/observables/joint_diffusivity_fim.{json,md}`.
+   **Limits:** only three parameters are free, function-valued parameters are
+   perturbed by a constant multiplier (their form is assumed known), and this
+   remains a local synthetic FIM, not identifiability proof; GITT features
+   include ohmic/kinetic overpotential; rules 7/8 apply. EIS remains a verified
+   PyBaMM 26.8.0.0 formulation limitation (positive control ~0.37 from kinetics
+   vs ~8e-5 from 100× diffusivity), pinned by an integration test.
+   **Diagnostic only:** no calibration-objective change, no registry write, no
+   decision change (AGENTS.md rule 10; `docs/FORWARD_OBSERVABLES.md`).
 
 ## 8. Risk register
 

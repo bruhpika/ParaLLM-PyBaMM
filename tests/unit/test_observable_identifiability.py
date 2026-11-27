@@ -76,6 +76,14 @@ def test_committed_config_is_complete():
         "eis",
         "ocv",
     }
+    joint = cfg["joint_fim"]
+    assert joint["enabled"] is True
+    assert joint["collinearity_warning_abs_correlation"] == pytest.approx(0.9)
+    assert joint["robustness_rel_perturbations"] == [0.005, 0.01, 0.05]
+    assert [p["label"] for p in joint["parameters"]] == ["D_neg", "j0_neg", "D_e"]
+    assert joint["parameters"][0]["name"] == cfg["parameter"]
+    assert joint["observables"]
+    assert joint["outputs"]["report"].startswith("results/observables/")
 
 
 def test_voltage_query_times_matches_committed_convention():
@@ -195,6 +203,56 @@ def test_information_ratio():
 
 
 # --------------------------------------------------------------------------
+# Joint multi-parameter FIM helpers
+# --------------------------------------------------------------------------
+def test_marginal_relative_standard_errors():
+    mod = load_module()
+    diagonal = mod.marginal_relative_standard_errors(np.diag([4.0, 9.0]))
+    assert diagonal == pytest.approx([0.5, 1.0 / 3.0])
+    # Rank-deficient FIM: a finite pseudo-inverse diagonal would be misleading.
+    rank_deficient = mod.marginal_relative_standard_errors(
+        np.array([[1.0, 1.0], [1.0, 1.0]])
+    )
+    assert np.all(np.isinf(rank_deficient))
+    with pytest.raises(ValueError):
+        mod.marginal_relative_standard_errors(np.ones((2, 3)))
+
+
+def test_parameter_correlation_matrix():
+    mod = load_module()
+    identity = mod.parameter_correlation_matrix(np.diag([4.0, 9.0]))
+    assert identity == pytest.approx(np.eye(2))
+    correlated = mod.parameter_correlation_matrix(np.array([[1.0, 0.5], [0.5, 1.0]]))
+    assert correlated[0, 1] == pytest.approx(-0.5)
+    assert correlated[1, 0] == pytest.approx(-0.5)
+    assert np.all(np.isfinite(correlated))
+
+
+def test_variance_inflation_factor_and_se_reduction():
+    mod = load_module()
+    assert mod.variance_inflation_factor(0.2, 0.1) == pytest.approx(4.0)
+    assert mod.variance_inflation_factor(0.2, 0.2) == pytest.approx(1.0)
+    assert mod.variance_inflation_factor(float("inf"), 0.1) == float("inf")
+    assert mod.variance_inflation_factor(0.2, float("inf")) == float("inf")
+    assert mod.variance_inflation_factor(0.2, 0.0) == float("inf")
+
+    assert mod.standard_error_reduction(0.2, 0.1) == pytest.approx(2.0)
+    assert mod.standard_error_reduction(0.2, float("inf")) == 0.0
+    assert mod.standard_error_reduction(float("inf"), 0.1) == float("inf")
+
+
+def test_joint_observable_specs_cover_every_configured_observable():
+    mod = load_module()
+    cfg = mod.load_config(CONFIG)
+    specs = mod.joint_observable_specs(cfg, cfg["model_name"], eis_sigma=1e-3)
+    assert set(cfg["joint_fim"]["observables"]) <= set(specs)
+    assert specs["eis_re_impedance"]["sigma"] == pytest.approx(1e-3)
+    for name in cfg["joint_fim"]["observables"]:
+        assert callable(specs[name]["predict"])
+        assert specs[name]["sigma"] > 0
+
+
+# --------------------------------------------------------------------------
 # GITT protocol guard (the defect that produced the 2026-11-27 correction)
 # --------------------------------------------------------------------------
 def test_gitt_protocol_warnings_flag_null_or_high_soc():
@@ -208,7 +266,8 @@ def test_gitt_protocol_warnings_flag_null_or_high_soc():
 
 # --------------------------------------------------------------------------
 # A-priori diffusion scales
-# --------------------------------------------------------------------------def test_diffusion_frequency_arithmetic():
+# --------------------------------------------------------------------------
+def test_diffusion_frequency_arithmetic():
     mod = load_module()
     result = mod.diffusion_frequency(4.0, 2.0)
     assert result["diffusion_time_constant_s"] == pytest.approx(1.0)
@@ -333,3 +392,51 @@ def test_committed_report_is_labelled_and_non_decision_changing():
             > 0.05
         ), name
     assert report["verdict"]["flip"] is True
+    joint = report["joint_fim"]
+    assert joint["primary_parameter"] == "D_neg"
+    assert joint["parameters"] == ["D_neg", "j0_neg", "D_e"]
+    assert joint["survives_collinearity_check"] is True
+    assert joint["single_parameter_cross_check_passed"] is True
+
+
+# --------------------------------------------------------------------------
+# Committed joint artifact (present after the benchmark run)
+# --------------------------------------------------------------------------
+def test_committed_joint_report_pins_collinearity_result():
+    report_path = REPO_ROOT / "results/observables/joint_diffusivity_fim.json"
+    if not report_path.exists():
+        pytest.skip("committed joint diagnostic artifact absent")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["label"].startswith("SYNTHETIC")
+    assert report["diagnostic_only"] is True
+    assert report["decision_changed"] is False
+    assert report["registry_write"] is False
+    assert report["primary_parameter"] == "D_neg"
+    assert [p["label"] for p in report["parameters"]] == ["D_neg", "j0_neg", "D_e"]
+    assert report["single_parameter_cross_check"]["all_within_tolerance"] is True
+
+    summary = report["primary_parameter_summary"]
+    thresholds = report["thresholds"]
+    assert summary["classification"] == "OBSERVABLE"
+    assert summary["survives_collinearity_check"] is True
+    assert (
+        summary["marginal_relative_standard_error"]
+        <= thresholds["relative_std_observability"]
+    )
+    assert (
+        summary["strongest_mean_abs_normalized_sensitivity"]
+        >= thresholds["sensitivity_observability"]
+    )
+    # Freeing parameters cannot reduce the marginal variance.
+    assert summary["variance_inflation_factor"] >= 1.0
+    for entry in summary["correlations"]:
+        assert (
+            abs(entry["correlation"])
+            < thresholds["collinearity_warning_abs_correlation"]
+        ), entry
+
+    robustness = report["perturbation_robustness"]
+    assert robustness["checks"]
+    assert robustness["classification_stable"] is True
+    # The conservative-classification caveat must stay in the artifact.
+    assert "conservative" in report["interpretation"]

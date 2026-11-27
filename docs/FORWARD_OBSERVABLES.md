@@ -145,10 +145,12 @@ Results (PyBaMM 26.8.0.0, Chen2020, DFN, `rel_perturbation = 0.02`):
 
 Limits of the flip:
 
-1. **Single-parameter sensitivity.** Every other parameter is held fixed, so
-   joint D–kinetics/electrolyte collinearity is not assessed. The pulse drop and
-   relaxation slope contain ohmic and kinetic overpotential, not pure solid
-   diffusion.
+1. **Single-parameter sensitivity in this section.** Every other parameter is
+   held fixed here; the joint section below frees `D_neg`, `j0_neg` and `D_e`
+   together and finds a variance inflation factor of 1.25 with |correlation| ≤
+   0.44. Other parameters (porosities, conductivities, positive-electrode
+   parameters, further kinetics) remain fixed. The pulse drop and relaxation
+   slope contain ohmic and kinetic overpotential, not pure solid diffusion.
 2. **GITT protocol dependence.** At 100% SOC the same features are numerically
    weak (pulse drop 0.005, slope ~1e-5). The result is a statement about a
    low-SOC protocol, not about GITT in general.
@@ -166,6 +168,52 @@ frequency window. The GITT sqrt(t) window (first 5 rest samples = 150 s) is
 short against τ, so the semi-infinite approximation used by the slope feature
 is appropriate.
 
+### Joint multi-parameter FIM: does the GITT signal survive collinearity?
+
+Artifact: `results/observables/joint_diffusivity_fim.{json,md}`. The same
+protocols, noise and 2 % central difference are used, but `D_neg`, `j0_neg`
+and `D_e` are free together (each at baseline scale factor 1.0). Function-valued
+parameters are perturbed by a constant multiplicative factor; their functional
+form is assumed known.
+
+| observable set (3 parameters free) | `D_neg` marginal rel. SE | classification | cond(FIM) |
+|---|---:|---|---:|
+| voltage only | 0.00471 | UNOBSERVABLE | 1.50e3 |
+| GITT-D only | 0.0142 | OBSERVABLE | 5.97e2 |
+| voltage + GITT-D | 0.00303 | OBSERVABLE | 6.28e2 |
+| EIS only | 0.274 | UNOBSERVABLE | 5.87e7 |
+| all configured | **0.00263** | **OBSERVABLE** | 5.67e3 |
+
+| parameter | joint marginal rel. SE | single-parameter ref. | variance inflation | strongest mean \|S\| |
+|---|---:|---:|---:|---:|
+| `D_neg` | 0.00263 | 0.00236 | 1.25 | 0.100 |
+| `j0_neg` | 3.84e-5 | 3.52e-5 | 1.19 | 1.89 |
+| `D_e` | 1.47e-4 | 1.22e-4 | 1.45 | 1.25 |
+
+Joint correlations: `D_neg`–`j0_neg` **0.153**, `D_neg`–`D_e` **−0.444**,
+`j0_neg`–`D_e` **−0.398** — all below the declared 0.9 collinearity warning.
+Freeing the other two parameters inflates the `D_neg` variance by only 25 %
+(SE by ~12 %), and the all-observable joint fit improves the `D_neg` SE by
+**1.79×** relative to the voltage-only joint fit. A finite-difference step sweep
+(0.5 %, 1 %, 5 %) leaves the classification unchanged; the largest SE deviation
+is 0.59 % and the largest correlation deviation is 0.006.
+
+Honest reading:
+
+- The single-parameter flip is **not** an artefact of freezing kinetics and
+  electrolyte transport: this three-parameter joint fit retains a 0.26 %
+  marginal SE and no severe collinearity.
+- The **voltage-only joint fit already meets the relative-SE limb** (0.47 %).
+  Its `UNOBSERVABLE` label comes from the declared conjunction's second limb:
+  no individual voltage block reaches mean |S| ≥ 0.05 (strongest 0.0476). The
+  flip is therefore a **conservative classification flip**, not a claim that
+  voltage data are uninformative. The joint FIM says the opposite: voltage data
+  carry real local information about `D_neg` under the declared noise.
+- This is still a **local** three-parameter FIM on **synthetic** curves with
+  i.i.d. noise. It is not global identifiability (rule 7), not experimental
+  validation (rule 8), and not a calibration recommendation. The dossier action
+  remains `MEASURE` pending owner review (rule 10).
+
 ## Reproduction
 
 ```bash
@@ -176,7 +224,9 @@ is appropriate.
 .venv/bin/python -o addopts='' -m benchmark \
     benchmarks/observables/run_forward_observables.py
 
-# Observable-augmented observability diagnostic (writes JSON + Markdown)
+# Observable-augmented observability diagnostic (writes the main and joint
+# artifacts: diffusivity_multi_observable_fim.{json,md} and
+# joint_diffusivity_fim.{json,md})
 .venv/bin/python benchmarks/observables/diffusivity_multi_observable_fim.py \
     --config configs/v03/observable_identifiability.yaml
 

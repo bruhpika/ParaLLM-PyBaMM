@@ -1,7 +1,7 @@
 {
   "label": "SYNTHETIC OBSERVABLE-AUGMENTED IDENTIFIABILITY DIAGNOSTIC",
   "run_id": "observable_identifiability_neg_diffusivity",
-  "description": "Finite-difference local-sensitivity study of the negative particle diffusivity scale factor under a voltage-only observable set versus an observable-augmented set (low-SOC GITT-D rest voltages, pulse drops and sqrt-time relaxation slopes; EIS real and imaginary impedance; OCV-vs-SOC null control). Compared against the committed voltage-only baseline; diagnostic only.\n",
+  "description": "Finite-difference local-sensitivity study of the negative particle diffusivity scale factor under a voltage-only observable set versus an observable-augmented set (low-SOC GITT-D rest voltages, pulse drops and sqrt-time relaxation slopes; EIS real and imaginary impedance; OCV-vs-SOC null control), plus a joint three-parameter FIM (D_neg, j0_neg, D_e) as a collinearity check. Compared against the committed voltage-only baseline; diagnostic only.\n",
   "diagnostic_only": true,
   "decision_changed": false,
   "registry_write": false,
@@ -212,6 +212,27 @@
     "relative_impedance_change": 0.3677667194064058,
     "interpretation": "A non-zero relative change proves the EIS simulation applies supplied parameter values. A near-zero change for the study parameter is therefore a property of the installed EIS formulation, not a harness bug."
   },
+  "joint_fim": {
+    "report": "results/observables/joint_diffusivity_fim.json",
+    "summary": "results/observables/joint_diffusivity_fim.md",
+    "primary_parameter": "D_neg",
+    "parameters": [
+      "D_neg",
+      "j0_neg",
+      "D_e"
+    ],
+    "classification": "OBSERVABLE",
+    "marginal_relative_standard_error": 0.0026345582726903906,
+    "single_parameter_relative_standard_error": 0.0023597650742116063,
+    "variance_inflation_factor": 1.2464592357413806,
+    "collinear_with": [],
+    "survives_collinearity_check": true,
+    "joint_condition_number": 5666.802201656245,
+    "single_parameter_cross_check_passed": true,
+    "classification_stable_across_fd_steps": true,
+    "max_relative_se_deviation_across_fd_steps": 0.005933005543333425,
+    "statement": "D_neg remains marginally observable in the joint 3-parameter fit and no free parameter is correlated above |rho| = 0.9."
+  },
   "baseline_comparison": {
     "path": "results/p2/diffusivity_feasibility/report.json",
     "source": "results/p2/diffusivity_feasibility/report.json",
@@ -258,11 +279,12 @@
     "Simulation.solve": "Simulation.solve(self, t_eval=None, solver=None, save_at_cycles=None, calc_esoh=None, starting_solution=None, initial_soc=None, direction=None, callbacks=None, showprogress=False, inputs=None, t_interp=None, **kwargs)",
     "step.string": "step.string(text, **kwargs)"
   },
-  "config_sha256": "00e54219b0df423eea49321e8c4b8e6d875d09943ab6abab716db49a2d3f8d30",
+  "config_sha256": "1b6201efda6bad08d86e1f26f5b4234be302e3553c8cfa5d2afaad4cf6825180",
   "limitations": [
     "SYNTHETIC ONLY: every curve is model-generated, not measured experimentally.",
     "Local finite-difference sensitivity at scale factor 1.0; it is not a global identifiability proof.",
-    "Single-parameter sensitivity: every other parameter is held fixed, so joint D-kinetics collinearity is not assessed.",
+    "The single-parameter study holds every other parameter fixed; the companion joint FIM frees D_neg, j0_neg and D_e, but still only locally and only for that three-parameter subset.",
+    "A large joint-FIM variance inflation or |correlation| near 1 means the parameters are not separately identifiable from this observable set, even if the marginal relative standard error is small.",
     "The result is conditional on the declared noise assumptions in the config.",
     "No calibration objective, registry record or dossier decision was changed.",
     "GITT end-of-rest voltages approximate quasi-relaxed OCV; the pulse drop and sqrt-time slope include ohmic and kinetic overpotential, so they are not pure solid-diffusion estimators.",
@@ -271,5 +293,5 @@
     "OCV-vs-SOC is a negative control: equilibrium thermodynamics is insensitive to a transport parameter."
   ],
   "scientific_note": "Local sensitivity diagnostic only. A well-conditioned FIM is not proof of identifiability (rule 7) and all curves are synthetic (rule 8). No calibration objective, registry record or dossier decision was changed.",
-  "runtime_s": 21.36659176000103
+  "runtime_s": 151.602917016
 }

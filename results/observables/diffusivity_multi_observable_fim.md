@@ -47,6 +47,16 @@ Information gain (sqrt FIM ratio = standard-error reduction factor): **1.41**
 - verdict flip: **True** — The added observables flip the recorded UNOBSERVABLE verdict for this parameter under the declared aggregation rule.
 - parameter decision: **unchanged**
 
+## Joint multi-parameter FIM (collinearity check)
+
+Parameters free together: D_neg, j0_neg, D_e. Primary parameter: `D_neg`.
+
+- joint marginal relative SE: **0.002635** (single-parameter reference 0.00236)
+- variance inflation factor: **1.246**; joint FIM condition number 5667
+- no free parameter exceeds the declared collinearity threshold
+- survives the collinearity check: **True** — D_neg remains marginally observable in the joint 3-parameter fit and no free parameter is correlated above |rho| = 0.9.
+- full artifact: `results/observables/joint_diffusivity_fim.json`
+
 ## EIS propagation positive control
 
 Scaling `Negative electrode exchange-current density [A.m-2]` by 10 changes the z_re spectrum by **0.3678** (relative). A non-zero relative change proves the EIS simulation applies supplied parameter values. A near-zero change for the study parameter is therefore a property of the installed EIS formulation, not a harness bug.
@@ -63,7 +73,8 @@ Scaling `Negative electrode exchange-current density [A.m-2]` by 10 changes the 
 
 - SYNTHETIC ONLY: every curve is model-generated, not measured experimentally.
 - Local finite-difference sensitivity at scale factor 1.0; it is not a global identifiability proof.
-- Single-parameter sensitivity: every other parameter is held fixed, so joint D-kinetics collinearity is not assessed.
+- The single-parameter study holds every other parameter fixed; the companion joint FIM frees D_neg, j0_neg and D_e, but still only locally and only for that three-parameter subset.
+- A large joint-FIM variance inflation or |correlation| near 1 means the parameters are not separately identifiable from this observable set, even if the marginal relative standard error is small.
 - The result is conditional on the declared noise assumptions in the config.
 - No calibration objective, registry record or dossier decision was changed.
 - GITT end-of-rest voltages approximate quasi-relaxed OCV; the pulse drop and sqrt-time slope include ohmic and kinetic overpotential, so they are not pure solid-diffusion estimators.

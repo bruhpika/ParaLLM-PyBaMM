@@ -22,7 +22,8 @@ description: >
   diffusivity scale factor under a voltage-only observable set versus an
   observable-augmented set (low-SOC GITT-D rest voltages, pulse drops and
   sqrt-time relaxation slopes; EIS real and imaginary impedance; OCV-vs-SOC
-  null control). Compared against the committed voltage-only baseline;
+  null control), plus a joint three-parameter FIM (D_neg, j0_neg, D_e) as a
+  collinearity check. Compared against the committed voltage-only baseline;
   diagnostic only.
 
 model_name: DFN
@@ -126,6 +127,43 @@ normalization:
   gitt_relaxation_slope: mean_magnitude
   eis: std
   ocv: std
+
+# --- joint multi-parameter FIM ----------------------------------------------
+# Tests whether the low-SOC GITT-D information about D_neg survives when the
+# negative kinetics and electrolyte diffusivity are free. All parameters are
+# multiplicative scale factors on the installed values/functions (baseline
+# 1.0); function-valued parameters keep their concentration/temperature
+# dependence. Diagnostic only: no fit, no registry write, no decision change.
+joint_fim:
+  enabled: true
+  rel_perturbation: 0.02
+  # Declared diagnostic convention, not a scientific constant: a free
+  # parameter whose |correlation| with D_neg reaches this value is reported as
+  # a collinearity warning and blocks the "survives" verdict.
+  collinearity_warning_abs_correlation: 0.9
+  # Re-score the joint FIM at these alternative finite-difference steps. This
+  # is a numerical-robustness check, not a parameter search: all steps are
+  # declared before scoring and the nominal 0.02 step is still the reported one.
+  robustness_rel_perturbations: [0.005, 0.01, 0.05]
+  parameters:
+    - label: D_neg
+      name: "Negative particle diffusivity [m2.s-1]"
+    - label: j0_neg
+      name: "Negative electrode exchange-current density [A.m-2]"
+    - label: D_e
+      name: "Electrolyte diffusivity [m2.s-1]"
+  observables:
+    - voltage_0.5C
+    - voltage_1C
+    - voltage_2C
+    - gitt_d_rest_voltage
+    - gitt_d_pulse_drop
+    - gitt_d_relaxation_slope
+    - eis_re_impedance
+    - eis_neg_im_impedance
+  outputs:
+    report: results/observables/joint_diffusivity_fim.json
+    summary: results/observables/joint_diffusivity_fim.md
 
 outputs:
   report: results/observables/diffusivity_multi_observable_fim.json
