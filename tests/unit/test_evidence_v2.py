@@ -151,3 +151,39 @@ class TestEvidenceBlockSections:
             assert "25 °C" in block, mode
             # the probe window itself is present
             assert "9.61·10−15" in block, mode
+
+    def test_v25_ctx_is_opt_in_and_adds_only_verbatim_lines(self, tmp_path):
+        from types import SimpleNamespace
+
+        from pybamm_closed_loop.eval.benchmark_p5 import EVIDENCE_MODES, _evidence_block
+        from pybamm_closed_loop.literature.ingest import DocumentStore
+
+        assert "v25+ctx" in EVIDENCE_MODES
+        text = (
+            "Table VI. Parameter values.\n"
+            "High energy (HE): INR21700 –50E High power (HP): INR21700 –30T\n"
+            "Parameter Symbol Unit Experiment Simulation\n"
+            "Diffusion coefficient of anode Dn m2 s-1 9.61·10−15\n"
+            "Pulses at C/10 were applied at 25 °C.\n"
+        )
+        store = DocumentStore(tmp_path / "store")
+        store.ingest_text("doc1", text)
+        item = SimpleNamespace(
+            item_id="T1", document_id="doc1", probe="9.61·10−15",
+            passage_probe=None,
+        )
+        frozen = _evidence_block(item, store, "v25")
+        ctx = _evidence_block(item, store, "v25+ctx")
+        # the opt-in mode only ADDS labelled blocks; it never removes lines
+        for line in frozen.splitlines():
+            if line.strip():
+                assert line in ctx.splitlines()
+        assert "CELL IDENTIFICATION" in ctx
+        assert "INR21700" in ctx
+        # one of the added blocks is a verbatim source line
+        assert "High energy (HE): INR21700 –50E High power (HP): INR21700 –30T" in ctx
+        assert "Pulses at C/10" in ctx
+        # every injected line must be a verbatim substring of the source
+        for line in ctx.splitlines():
+            if line.startswith("- ") or line.startswith("High energy"):
+                assert line.lstrip("- ").strip() in text

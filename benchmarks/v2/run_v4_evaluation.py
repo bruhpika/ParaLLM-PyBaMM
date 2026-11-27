@@ -93,7 +93,7 @@ STORE_DIR = PRIVATE_ROOT / "store"
 PRIVATE_RESULTS = PRIVATE_ROOT / "results"
 PUBLIC_RESULTS = REPO_ROOT / "results/v2/v4"
 
-ORACLE_MODES = ("compact", "expanded", "v25")
+ORACLE_MODES = ("compact", "expanded", "v25", "v25+ctx")
 RETRIEVAL_MODE = "retrieval"
 OFFLINE_TUNED_MODE = "offline_bm25_tuned"
 RETRIEVAL_TUNED_MODE = "retrieval_tuned"
@@ -403,8 +403,9 @@ def _write_outputs(items, args, extractor, summaries, arm_means) -> None:
         f"prompt: `{payload['prompt_version']}`; "
         "deterministic post-extraction rules, identical for every arm.",
         "",
-        f"- {ORACLE_LABEL}: compact/expanded/v25 locate evidence from the probe; "
-        "location oracle, not retrieval and not a performance upper bound.",
+        f"- {ORACLE_LABEL}: compact/expanded/v25/v25+ctx locate evidence from "
+        "the probe; location oracle, not retrieval and not a performance upper "
+        "bound.",
         f"- {REAL_RETRIEVAL_LABEL}: query from parameter name/unit only; full-store "
         "BM25; no probe, target document or gold condition used.",
         "",
@@ -488,8 +489,9 @@ def main() -> int:
         "--modes",
         nargs="+",
         default=["compact", "expanded", "v25", RETRIEVAL_MODE],
-        help="evidence arms; compact/expanded/v25 are oracle-located (probe "
-        "window; not performance upper bounds), retrieval is real full-store BM25",
+        help="evidence arms; compact/expanded/v25/v25+ctx are oracle-located "
+        "(probe window; not performance upper bounds), retrieval is real "
+        "full-store BM25",
     )
     ap.add_argument("--repeats", type=int, default=1)
     ap.add_argument("--items", default=str(FIXTURE))

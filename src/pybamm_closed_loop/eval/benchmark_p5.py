@@ -410,7 +410,7 @@ _OFFLINE_EVIDENCE_SOURCE = {
 }
 
 
-EVIDENCE_MODES = ("compact", "expanded", "v25")
+EVIDENCE_MODES = ("compact", "expanded", "v25", "v25+ctx")
 
 
 def _evidence_block(
@@ -432,24 +432,33 @@ def _evidence_block(
                    sentences (verbatim), clearly labelled as document-level
                    statements.
     ``v25``      : expanded + table-aware chunking + deduplicated multi-window.
+    ``v25+ctx``  : opt-in V2.5 evidence expansion — v25 + explicit
+                   cell-product patterns, raised cell-sentence cap, protocol
+                   setup cues and the probe's own table caption/header line.
+                   All injected lines are verbatim and document-level; every
+                   other mode stays byte-identical.
     """
     probe = getattr(item, "passage_probe", None) or item.probe
     if evidence_mode == "compact":
         return resolve_passage(store, item.document_id, probe)
 
     from ..literature.evidence import (
+        PROTOCOL_SETUP_RE,
         cell_identification_sentences,
         document_conditions,
         multi_windows,
+        table_header_context,
         table_window,
         window_from_store,
     )
+
+    expanded_ctx = evidence_mode == "v25+ctx"
 
     raw = (store.raw_dir / f"{item.document_id}.txt").read_text()
     window = window_from_store(store, item.document_id, probe)
     text = window.text
 
-    if evidence_mode == "v25":
+    if evidence_mode in ("v25", "v25+ctx"):
         # table-aware chunking: if the probe sits in a table row, the whole
         # table block (caption, header, footnotes) is included
         try:
@@ -469,14 +478,28 @@ def _evidence_block(
         if extra:
             text += "\n\nADDITIONAL OCCURRENCES (same document):\n" + "\n---\n".join(extra)
 
-    cell_sentences = cell_identification_sentences(raw)
+    if expanded_ctx:
+        header = table_header_context(raw, probe)
+        if header:
+            text += (
+                "\n\nTABLE CONTEXT (verbatim caption/header lines of the "
+                "value's own table; document-level, not value-local):\n" + header
+            )
+
+    cell_sentences = cell_identification_sentences(
+        raw, max_sentences=10 if expanded_ctx else 4, extended=expanded_ctx
+    )
     if cell_sentences:
         text += (
             "\n\nCELL IDENTIFICATION (statements from the same document naming the "
             "cell/product used):\n" + "\n".join(f"- {s}" for s in cell_sentences)
         )
 
-    doc_conditions = document_conditions(raw)
+    doc_conditions = (
+        document_conditions(raw, extra_setup_re=PROTOCOL_SETUP_RE)
+        if expanded_ctx
+        else document_conditions(raw)
+    )
     if doc_conditions.sentences:
         text += (
             "\n\nEXPERIMENT CONDITIONS (document-level statements from the same "

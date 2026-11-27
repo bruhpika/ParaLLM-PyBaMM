@@ -33,6 +33,19 @@ _SOC_RE = re.compile(r"(\d{1,3}(?:\.\d+)?)\s*%\s*(?:soc|state[- ]of[- ]charge)",
 _SOC_ALT_RE = re.compile(r"soc\s*(?:of|=|:)?\s*(\d{1,3}(?:\.\d+)?)\s*%", re.IGNORECASE)
 _CRATE_RE = re.compile(r"\b(\d+(?:\.\d+)?)\s*c\b(?!\w)", re.IGNORECASE)
 _CELL_RE = re.compile(r"\b(lg\s?m50|lgnm50|18650|21700|coin cell|pouch cell|cylindrical)\b", re.IGNORECASE)
+
+# Opt-in cell-product patterns (V2.5 evidence expansion). Default-off so the
+# frozen v25/v26/v27/v28 evidence stays byte-identical. These are literal
+# product names from the source documents, never generated values.
+_CELL_PRODUCT_RE = re.compile(
+    r"\b(?:inr\s?21700\s?[-–—]\s?(?:50e|30t)|2032\s+coin\s+cells?)\b",
+    re.IGNORECASE,
+)
+
+
+def cell_patterns_extended(text: str) -> bool:
+    """True when an opt-in cell-product pattern occurs in the text."""
+    return bool(_CELL_PRODUCT_RE.search(ascii_fold(text)))
 _CHEMISTRY_RE = re.compile(
     r"\b(nmc\s?\d{3}|nmc|lfp|lco|lmo|nca|li[- ]metal|graphite|siox|siOx)\b", re.IGNORECASE
 )
@@ -231,6 +244,13 @@ _SETUP_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Opt-in extra setup cues (V2.5 evidence expansion). Default-off: callers pass
+# ``extra_setup_re=PROTOCOL_SETUP_RE`` only for the new evidence mode.
+PROTOCOL_SETUP_RE = re.compile(
+    r"\bgalvanostatic\b|\bpulse\b|\brest\b|\bocv\b|\bc-?rate\b",
+    re.IGNORECASE,
+)
+
 
 @dataclass
 class DocumentConditions:
@@ -250,7 +270,12 @@ class DocumentConditions:
         }
 
 
-def document_conditions(raw_text: str, max_sentences: int = 8) -> DocumentConditions:
+def document_conditions(
+    raw_text: str,
+    max_sentences: int = 8,
+    *,
+    extra_setup_re: re.Pattern[str] | None = None,
+) -> DocumentConditions:
     """Find the document-level experimental setup statements (deterministic).
 
     Experimental conditions are usually stated in the methods/experimental
@@ -271,7 +296,11 @@ def document_conditions(raw_text: str, max_sentences: int = 8) -> DocumentCondit
             continue
         # a sentence is an experimental-setup statement when it carries setup
         # cues, or when it names the cell/product the experiment used
-        if not (_SETUP_RE.search(sentence) or _CELL_RE.search(sentence)):
+        if not (
+            _SETUP_RE.search(sentence)
+            or _CELL_RE.search(sentence)
+            or (extra_setup_re is not None and extra_setup_re.search(sentence))
+        ):
             continue
         facts = extract_conditions(sentence)
         n_classes = sum(1 for v in facts.coverage().values() if v)
@@ -669,7 +698,66 @@ def _norm_quote(text: str) -> str:
     return " ".join(ascii_fold(text).split())
 
 
-def cell_identification_sentences(raw_text: str, max_sentences: int = 4) -> list[str]:
+def table_header_context(raw_text: str, probe: str, max_chars: int = 400) -> str:
+    """Verbatim caption/header lines of the probe's own table (opt-in).
+
+    ``detect_table_blocks`` anchors a block at its first numeric row, so the
+    product-name line two rows above the value is normally cut off. This
+    helper recovers that line from the *same* table only, selected by probe
+    location (never by gold label or item id). Returns empty when the probe is
+    not inside a detected table block.
+    """
+    folded = ascii_fold(raw_text)
+    probe_index = folded.find(ascii_fold(probe))
+    if probe_index < 0:
+        return ""
+    lines = raw_text.splitlines()
+    for block in detect_table_blocks(raw_text):
+        if not (block.start <= probe_index <= block.end):
+            continue
+        start_line = _line_index_at_offset(lines, raw_text, block.start)
+        header: list[str] = []
+        cursor = start_line - 1
+        while cursor >= 0 and len("\n".join(header)) < max_chars:
+            candidate = lines[cursor].strip()
+            if not candidate:
+                break
+            if detect_table_blocks("\n".join(lines[cursor : cursor + 3])):
+                header.insert(0, lines[cursor])
+                cursor -= 1
+                continue
+            if len(candidate) < 200 and (
+                _CELL_PRODUCT_RE.search(ascii_fold(candidate))
+                or "Parameter" in candidate
+                or "Symbol" in candidate
+                or "Unit" in candidate
+                or candidate.upper().startswith("TABLE")
+            ):
+                header.insert(0, lines[cursor])
+                cursor -= 1
+                continue
+            break
+        if header:
+            return "\n".join(header)[:max_chars]
+        if block.caption:
+            return block.caption[:max_chars]
+        if block.header:
+            return "\n".join(block.header)[:max_chars]
+    return ""
+
+
+def _line_index_at_offset(lines: list[str], text: str, offset: int) -> int:
+    position = 0
+    for index, line in enumerate(text.splitlines(keepends=True)):
+        if position >= offset:
+            return index
+        position += len(line)
+    return len(lines) - 1
+
+
+def cell_identification_sentences(
+    raw_text: str, max_sentences: int = 4, *, extended: bool = False
+) -> list[str]:
     """Sentences that name the cell / product the experiment used.
 
     The cell identity is the condition most often lost when a table block
@@ -682,7 +770,10 @@ def cell_identification_sentences(raw_text: str, max_sentences: int = 4) -> list
         sentence = raw_text[start:end].strip()
         if not sentence or len(sentence) > 500:
             continue
-        if not _CELL_RE.search(sentence):
+        if not (
+            _CELL_RE.search(sentence)
+            or (extended and cell_patterns_extended(sentence))
+        ):
             continue
         if not _SETUP_RE.search(sentence):
             # a bare product name without setup context is still useful, but

@@ -77,7 +77,11 @@ def main(argv: list[str] | None = None) -> int:
         "fixture": "PRIVATE v4 (30 items; fixture not published)",
         "split": args.split,
         "split_seed": split["seed"],
-        "evidence_source": str(args.evidence_from.relative_to(REPO_ROOT)),
+        "evidence_source": str(
+            args.evidence_from.relative_to(REPO_ROOT)
+            if args.evidence_from.is_relative_to(REPO_ROOT)
+            else args.evidence_from
+        ),
         "n_items": result["n_items"],
         "n_fields": result["n_fields"],
         "n_reachable_fields": result["n_reachable_fields"],
