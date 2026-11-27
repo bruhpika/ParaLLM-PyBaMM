@@ -220,6 +220,30 @@ once and stands. Public aggregates:
 `results/v2/v4_prompt_v27_all/summary.md` and
 `results/v2/v4_prompt_v27_all_assoc/summary.md`.
 
+### 4.6 Dev-only explorations after the frozen v27 measurement (2026-11-27)
+
+Owner decision: **v27 all-30 (0.398 / 0.067) remains the final V2.5
+measurement.** The following arms were developed and measured on the dev half
+only and are **not** final results — the test half was deliberately not run
+again.
+
+- **v28 prompt** (v27 + document-id sentinel `UNRESOLVED` and cue-free
+  abstention phrasing): dev association 0.454 ± 0.043, invented 0.000,
+  quote verification 0.943. `results/v2/v4_prompt_v28_dev_assoc/`.
+- **Opt-in `v25+ctx` evidence mode** (verbatim cell-product lines, raised
+  cell-sentence cap, protocol setup cues, probe's own table caption/header):
+  offline dev ceiling 0.829 → 0.886, cell 0.333 → 0.600. Same-extractor
+  dev A/B with v28: control `v25` 0.451 / 0.067, treatment `v25+ctx`
+  0.457 / 0.022, cell 0.210 → 0.256, value-found 0.444 → 0.489, but
+  quote verification fell 0.905 → 0.844. `results/v2/v4_ctx_dev/`.
+- **Opt-in `entailment` discipline** (label-free value-in-quote, role-only
+  material, imported cell name): on the frozen v27 raws it is a measured
+  no-op (0 candidates dropped, identical scores) — kept as a guardrail, not
+  a gain.
+
+None of these closes the ≥0.5 gate. They are recorded to keep the exploration
+reproducible and to make the owner's "stop here" decision auditable.
+
 ### 4.4 Evidence reachability ceiling (diagnostic, 2026-11-26)
 
 A second limit is in the **evidence**, not the extractor. Running

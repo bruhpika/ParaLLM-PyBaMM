@@ -422,7 +422,8 @@ way of producing incorrect results.
 **Milestone status (2026-11-26):** V2.1 ✅ implemented (agreement 0.958 vs
 owner-reviewed labels) · V2.2 ✅ acceptance met (traceability 96/96 after the
 verbatim-quote backfill) · V2.3 ✅ acceptance met · V2.4 ✅ acceptance met ·
-V2.5 ⏳ exit criterion **still not met**: best frozen measurement v27
+V2.5 ⏳ exit criterion **still not met** (owner decision 2026-11-27: stop
+after v27; keep it as the final measurement): best frozen measurement v27
 association **0.398 / 0.067** (MiMo V2.6 Flash, all 30 items, 3 repeats) vs
 ≥0.5 / 0.000; this is a large gain over the old v25 association 0.254 / 0.044
 and chemistry rose 0.143 → 0.455, but both gates remain open. Cell is capped

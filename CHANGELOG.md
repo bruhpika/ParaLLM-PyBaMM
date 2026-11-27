@@ -12,6 +12,17 @@ Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:
 `docs/V2_EXECUTION_PLAN.md`.
 
+### V2.5 owner decision: stop after v27 (2026-11-27)
+
+- Kept the frozen **v27 all-30 result (0.398 / 0.067)** as the final V2.5
+  measurement. V2.5 remains open; V2.6 stays gated. No threshold or criterion
+  was relaxed and the test half was not run again.
+- Dev-only explorations recorded but **not** promoted: v28 prompt (0.454 /
+  0.000), opt-in `v25+ctx` evidence expansion (0.457 / 0.022 vs control
+  0.451 / 0.067), and the label-free `entailment` discipline (a measured
+  no-op on frozen v27 raws). None closes the ≥0.5 gate.
+- Details: `docs/V2_PRIVATE_V4_BENCHMARK.md` §4.6.
+
 ### V2.5 v27 final measurement (2026-11-26)
 
 - Froze the v27 prompt and both value-local association abstention rules on
