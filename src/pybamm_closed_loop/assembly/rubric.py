@@ -86,7 +86,7 @@ def _electrolyte_key(text: str) -> str | None:
 
 def _nmc_composition(families: Iterable[str], text: str | None) -> str | None:
     """Return the NMC composition number (e.g. '811') if it can be read."""
-    joined = " ".join(families) + " " + (text or "")
+    joined = " ".join(families) + " " + ("" if text is None else str(text))
     m = _NMC_COMPOSITION_RE.search(joined.lower())
     return m.group(1) if m else None
 
@@ -239,7 +239,10 @@ class Rubric:
             )
             return 0.0
         cand_comp = _nmc_composition(fam, cand.conditions.raw.get("chemistry") if cand.conditions.raw else None)
-        target_comp = _nmc_composition(target_fam, None)
+        # The target composition is an explicit, auditable field (e.g. "811");
+        # family labels alone cannot distinguish NMC811 from NMC111. Fall back
+        # to parsing the labels only for legacy targets without that field.
+        target_comp = str(target.nmc_composition) if target.nmc_composition else _nmc_composition(target_fam, None)
         if cand_comp and target_comp and cand_comp != target_comp:
             self._fire(
                 outcome,

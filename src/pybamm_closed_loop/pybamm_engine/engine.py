@@ -81,13 +81,74 @@ def installed_parameter_names(parameter_set: str = "Chen2020") -> list[str]:
     return sorted(pybamm.ParameterValues(parameter_set).keys())
 
 
-def build_model(config: BaselineRunConfig):
-    """Build the configured lithium-ion model with explicit options."""
+def _build_model(model_name: str, options: dict[str, str] | None):
+    """Construct a lithium-ion model by verified name (single PyBaMM touchpoint)."""
     import pybamm
 
-    model_cls = getattr(pybamm.lithium_ion, _MODEL_CLASS_NAMES[config.pybamm.model.name])
-    options = dict(config.pybamm.model.options) or None
-    return model_cls(options=options)
+    model_cls = getattr(pybamm.lithium_ion, _MODEL_CLASS_NAMES[model_name])
+    return model_cls(options=options or None)
+
+
+def build_model(config: BaselineRunConfig):
+    """Build the configured lithium-ion model with explicit options."""
+    return _build_model(config.pybamm.model.name, dict(config.pybamm.model.options))
+
+
+def parameter_set_chemistry(parameter_set: str) -> str | None:
+    """Return the installed PyBaMM ``chemistry`` field of a parameter set.
+
+    Introspection only: the value comes from the pinned library, never from a
+    hard-coded mapping in this project.
+    """
+    import pybamm
+
+    if parameter_set not in pybamm.parameter_sets:
+        raise UnknownParameterSetError(
+            f"parameter set '{parameter_set}' not in installed pybamm; "
+            f"available: {list(pybamm.parameter_sets)}"
+        )
+    raw = pybamm.parameter_sets[parameter_set]
+    if not isinstance(raw, dict):
+        return None
+    chemistry = raw.get("chemistry")
+    return str(chemistry) if chemistry is not None else None
+
+
+def parameter_set_ocp_names(parameter_set: str) -> dict[str, str]:
+    """Return the installed OCP identifiers for the positive/negative electrode.
+
+    Function-valued OCPs report their function name; numeric OCPs (e.g. the
+    0.0 V lithium-metal counter electrode) report their value as text.
+    """
+    import pybamm
+
+    if parameter_set not in pybamm.parameter_sets:
+        raise UnknownParameterSetError(
+            f"parameter set '{parameter_set}' not in installed pybamm; "
+            f"available: {list(pybamm.parameter_sets)}"
+        )
+    pv = pybamm.ParameterValues(parameter_set)
+    out: dict[str, str] = {}
+    for side, key in (
+        ("positive", "Positive electrode OCP [V]"),
+        ("negative", "Negative electrode OCP [V]"),
+    ):
+        value = pv.get(key)
+        out[side] = getattr(value, "__name__", str(value))
+    return out
+
+
+def validate_model_options(model_name: str, options: dict[str, str]) -> list[str]:
+    """Return PyBaMM's objections to ``options`` (empty list means accepted).
+
+    PyBaMM itself validates option names/values at model construction; this
+    helper reports that verdict without embedding a second option vocabulary.
+    """
+    try:
+        _build_model(model_name, dict(options))
+    except Exception as exc:  # PyBaMM raises several exception types at build time
+        return [f"{type(exc).__name__}: {exc}"]
+    return []
 
 
 def build_solver(config: BaselineRunConfig):
