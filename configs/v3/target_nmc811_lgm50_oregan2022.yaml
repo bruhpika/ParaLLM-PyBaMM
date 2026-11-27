@@ -1,0 +1,38 @@
+# v3 target specification — NMC811 / graphite, LG M50.
+# The installed PyBaMM library has no parameter set literally named "NMC811".
+# The NMC 811 designation is documented by PyBaMM for the LG M50 cell
+# represented by ORegan2022 (see verification.source_location below).
+target:
+  target_id: nmc811_lgm50_oregan2022
+  cell_product: "LG M50"
+  chemistry_families: [NMC, graphite]
+  nmc_composition: "811"
+  temperature_k: 298.15
+  electrolyte: "LiPF6 in EC:EMC (3:7 w:w)"
+  model: DFN
+  parameter_set: ORegan2022
+  model_options: {}
+  notes: >
+    LG M50 NMC811 / graphite-SiOx cell at the 298.15 K reference temperature.
+    This is a distinct parameter set from the v0.2 Chen2020 demonstrator, but
+    it shares the LGM50 NMC open-circuit-potential fit. The composition label
+    "811" is applied only where the installed PyBaMM source explicitly says
+    "LG M50 NMC 811"; it is not inferred from the generic "nmc" function name.
+
+  verification:
+    pybamm_version: "26.8.0.0"
+    parameter_set: ORegan2022
+    chemistry_field: lithium_ion
+    positive_ocp_function: nmc_LGM50_ocp_Chen2020
+    negative_ocp_function: graphite_LGM50_ocp_Chen2020
+    extraction_status: verified_by_introspection
+    source_location: >-
+      pybamm/input/parameters/lithium_ion/ORegan2022.py:721,
+      nmc_LGM50_entropic_change_ORegan2022 docstring:
+      "LG M50 NMC 811 entropic change in open-circuit potential (OCP)";
+      get_parameter_values docstring "Parameters for an LG M50 cell";
+      LiPF6 in EC:EMC (3:7 w:w) electrolyte from Landesfeind2019
+    caveat: >-
+      No installed set is named "NMC811"; NMC811 is the documented chemistry
+      of the LG M50 cell. Chen2020 and OKane2022 reuse the same LGM50 NMC OCP
+      but do not themselves state the 811 stoichiometry.

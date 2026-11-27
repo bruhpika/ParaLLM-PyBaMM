@@ -1,0 +1,36 @@
+# v3 target specification — LFP / graphite full cell.
+# All PyBaMM-facing facts below were verified by introspection of the pinned
+# version (26.8.0.0). No parameter value is invented or overridden here.
+target:
+  target_id: lfp_graphite_prada2013
+  cell_product: "Prada2013 LFP cell"
+  chemistry_families: [LFP, graphite]
+  temperature_k: 298.0
+  electrolyte: "LiPF6 in EC:EMC (3:7)"
+  model: DFN
+  parameter_set: Prada2013
+  model_options: {}
+  notes: >
+    LFP positive electrode / graphite negative electrode full cell. The
+    installed PyBaMM set documents itself as "Parameters for an LFP cell"
+    (Prada2013). PyBaMM itself substitutes the Chen2020 LG M50 graphite OCP
+    because Prada2013 provides none; that substitution is a property of the
+    installed set, not a value fitted or invented by this project. Cell format
+    and state-of-charge are deliberately left unset: the installed set does
+    not declare them.
+
+  verification:
+    pybamm_version: "26.8.0.0"
+    parameter_set: Prada2013
+    chemistry_field: lithium_ion
+    positive_ocp_function: LFP_ocp_Afshar2017
+    negative_ocp_function: graphite_LGM50_ocp_Chen2020
+    extraction_status: verified_by_introspection
+    source_location: >-
+      pybamm/input/parameters/lithium_ion/Prada2013.py:
+      get_parameter_values docstring "Parameters for an LFP cell";
+      electrolyte_conductivity_Prada2013 docstring "LiPF6 in EC:EMC (3:7)";
+      Reference/Ambient temperature = 298 K in the parameter dict
+    caveat: >-
+      PyBaMM replaces the missing Prada2013 graphite OCP with the Chen2020
+      LG M50 fit (documented in graphite_LGM50_ocp_Chen2020 docstring).

@@ -1,0 +1,45 @@
+# v3 target specification — lithium-metal negative electrode / NMC positive.
+# Xu2019 is a Li-metal cell in the installed PyBaMM library: its negative
+# electrode OCP is 0.0 V and it defines the Li-metal exchange-current density.
+target:
+  target_id: limetal_nmc_xu2019
+  cell_product: "Kokam SLPB78205130H half-cell"
+  chemistry_families: [NMC, Li-metal]
+  temperature_k: 298.15
+  electrolyte: "LiPF6"
+  model: DFN
+  parameter_set: Xu2019
+  # Verified: the default "working electrode: both" fails on Xu2019 because
+  # the set has no negative-electrode intercalation parameters. PyBaMM 26.8
+  # accepts "positive" for a Li-metal counter electrode.
+  model_options:
+    working electrode: positive
+  notes: >
+    Lithium-metal counter electrode with an NMC working electrode, at the
+    298.15 K reference temperature. The PyBaMM model option
+    "working electrode: positive" is required; it is validated by
+    pybamm_engine in the v3 integration test. Cell format and SOC are left
+    unset: the installed set does not declare them.
+
+  verification:
+    pybamm_version: "26.8.0.0"
+    parameter_set: Xu2019
+    chemistry_field: lithium_ion
+    positive_ocp_function: nmc_ocp_Xu2019
+    negative_ocp: "0.0 V (lithium metal counter electrode)"
+    lithium_metal_key: >-
+      Exchange-current density for lithium metal electrode [A.m-2]
+      = li_metal_electrolyte_exchange_current_density_Xu2019
+    extraction_status: verified_by_introspection
+    source_location: >-
+      pybamm/input/parameters/lithium_ion/Xu2019.py:get_parameter_values
+      (negative electrode OCP = 0.0, lithium-metal partial molar volume and
+      exchange-current density); paper "Evolution of Dead Lithium Growth in
+      Lithium Metal Batteries" (Xu et al., 2019)
+    caveat: >-
+      The Xu2019 set docstring contains an inconsistent copy-paste sentence
+      ("anode is graphite MCMB 2528", "cathode is lithium Cobalt Oxide") that
+      conflicts with its own parameter dict. The dict is authoritative here:
+      NMC positive electrode, lithium-metal negative electrode, and no
+      graphite negative-electrode parameters. This inconsistency is recorded,
+      not silently resolved.

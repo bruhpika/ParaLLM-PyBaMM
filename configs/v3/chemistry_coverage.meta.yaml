@@ -1,0 +1,46 @@
+# Declarative coverage record for the v3 multi-chemistry extension.
+# Every "parameter_set" below was verified by introspecting the installed
+# PyBaMM 26.8.0.0 parameter_sets registry; nothing is inferred from names.
+pybamm_version: "26.8.0.0"
+scope: >
+  LFP/graphite, NMC811 and Li-metal target support. The three target specs in
+  this directory are the only v3 targets; configs/v2/target_lgm50.yaml remains
+  the unchanged v0.2 demonstrator.
+
+coverage:
+  - chemistry: LFP/graphite
+    status: verified
+    parameter_set: Prada2013
+    target_spec: configs/v3/target_lfp_graphite_prada2013.yaml
+    basis: >-
+      get_parameter_values docstring "Parameters for an LFP cell"; positive OCP
+      LFP_ocp_Afshar2017; negative OCP graphite_LGM50_ocp_Chen2020.
+  - chemistry: NMC811
+    status: verified_with_caveat
+    parameter_set: ORegan2022
+    target_spec: configs/v3/target_nmc811_lgm50_oregan2022.yaml
+    basis: >-
+      nmc_LGM50_entropic_change_ORegan2022 docstring states "LG M50 NMC 811";
+      positive OCP nmc_LGM50_ocp_Chen2020.
+  - chemistry: Li-metal
+    status: verified
+    parameter_set: Xu2019
+    target_spec: configs/v3/target_limetal_nmc_xu2019.yaml
+    basis: >-
+      Negative electrode OCP = 0.0 V and lithium-metal exchange-current density
+      are defined; requires model option "working electrode: positive".
+
+unresolved:
+  - item: "a parameter set literally named NMC811"
+    status: UNRESOLVED
+    reason: >-
+      The installed PyBaMM 26.8.0.0 registry contains no set named "NMC811" and
+      no stoichiometry 811 in any lithium-ion set docstring except the
+      ORegan2022 entropic-change function for the LG M50 cell. NMC811 is
+      therefore supported through the documented LG M50 set, not through a
+      dedicated NMC811 set. No set was fabricated.
+  - item: "LMO chemistry target"
+    status: UNRESOLVED
+    reason: >-
+      The lexicon recognises the LMO family, but the installed PyBaMM registry
+      has no LMO parameter set. No LMO target spec is added in v3.

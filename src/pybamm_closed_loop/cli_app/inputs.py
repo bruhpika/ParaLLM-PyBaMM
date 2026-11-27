@@ -15,6 +15,17 @@ from .. import __version__
 from .errors import InputError, ParseError
 
 
+def _string_map(value: Any, field_name: str) -> dict[str, str]:
+    """Validate a YAML mapping of string -> string without inventing defaults."""
+    if value is None:
+        return {}
+    if not isinstance(value, dict) or any(
+        not isinstance(k, str) or not isinstance(v, str) for k, v in value.items()
+    ):
+        raise ValueError(f"{field_name} must be a mapping of strings to strings")
+    return dict(value)
+
+
 def load_target(path: Path) -> "TargetSpecification":
     """Load a target specification; preserves the historical SystemExit API."""
     import yaml
@@ -40,9 +51,14 @@ def load_target(path: Path) -> "TargetSpecification":
             model=target.get("model") or "DFN",
             parameter_set=target.get("parameter_set") or "Chen2020",
             notes=target.get("notes") or "",
+            model_options=_string_map(target.get("model_options"), "model_options"),
+            nmc_composition=target.get("nmc_composition"),
+            verification=_string_map(target.get("verification"), "verification"),
         )
     except KeyError as exc:
         raise SystemExit(f"target spec {path} missing required key {exc}") from exc
+    except ValueError as exc:
+        raise SystemExit(f"target spec {path}: {exc}") from exc
 
 
 def read_target(path: Path) -> "TargetSpecification":

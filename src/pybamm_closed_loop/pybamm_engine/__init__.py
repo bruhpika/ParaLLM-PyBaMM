@@ -13,8 +13,11 @@ from pybamm_closed_loop.pybamm_engine.engine import (
     build_solver,
     installed_parameter_sets,
     installed_parameter_names,
+    parameter_set_chemistry,
+    parameter_set_ocp_names,
     run,
     save_result,
+    validate_model_options,
 )
 from pybamm_closed_loop.pybamm_engine.outputs import (
     ExtractionResult,
@@ -36,6 +39,9 @@ __all__ = [
     "extract_all",
     "installed_parameter_sets",
     "installed_parameter_names",
+    "parameter_set_chemistry",
+    "parameter_set_ocp_names",
     "run",
     "save_result",
+    "validate_model_options",
 ]

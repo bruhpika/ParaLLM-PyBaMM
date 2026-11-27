@@ -28,6 +28,7 @@ nav:
       - Scientific limitations: SCIENTIFIC_LIMITATIONS.md
       - Scientific validation: SCIENTIFIC_VALIDATION.md
       - Data provenance: DATA_PROVENANCE.md
+      - v3 chemistry coverage: V3_CHEMISTRY_COVERAGE.md
   - Architecture:
       - Architecture: ARCHITECTURE.md
       - CLI capability matrix: CLI_CAPABILITY_MATRIX.md

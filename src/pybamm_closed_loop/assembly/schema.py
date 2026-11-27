@@ -164,6 +164,16 @@ class TargetSpecification:
     model: str = "DFN"
     parameter_set: str = "Chen2020"
     notes: str = ""
+    # PyBaMM model options required by this chemistry (e.g. the Li-metal
+    # half-cell option). They are validated by pybamm_engine, never here.
+    model_options: dict[str, str] = field(default_factory=dict)
+    # NMC stoichiometry label (e.g. "811") when the target is a specific NMC
+    # composition. Kept separate from the family label so the rubric can
+    # distinguish NMC811 from NMC111 without breaking family applicability.
+    nmc_composition: str | None = None
+    # Introspection-derived provenance for the parameter set / chemistry
+    # designation. No numeric electrochemical value is stored here.
+    verification: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -178,6 +188,9 @@ class TargetSpecification:
             "model": self.model,
             "parameter_set": self.parameter_set,
             "notes": self.notes,
+            "model_options": dict(self.model_options),
+            "nmc_composition": self.nmc_composition,
+            "verification": dict(self.verification),
         }
 
 
