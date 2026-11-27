@@ -1,0 +1,22 @@
+# Deterministic build configuration for the first-party candidate parameter set
+# "ParaLLM-Chen2020-ext" (ROADMAP_V0.2.md §7 item 4).
+#
+# This is a *candidate* artifact with per-field provenance. Values are copied
+# from the two immutable inputs below; no value is authored here. A human gate
+# file is optional (approval annotation only) and the builder never registers a
+# named PyBaMM parameter set (AGENTS.md rule 10).
+schema_version: 1
+artifact:
+  artifact_id: ParaLLM-Chen2020-ext
+  artifact_version: "0.1.0"
+inputs:
+  discrepancies: data/registry/chen2020_discrepancies.json
+  registry: data/registry/registry.json
+  # Human gate file. null = no recorded approvals (the default).
+  gate: null
+outputs:
+  artifact: results/v03/param_set/parallm_chen2020_ext.json
+  manifest: results/v03/param_set/manifest.json
+pybamm:
+  parameter_set: Chen2020
+  required_version: 26.8.0.0

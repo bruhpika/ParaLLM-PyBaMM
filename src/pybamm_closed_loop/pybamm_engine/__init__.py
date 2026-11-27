@@ -13,8 +13,11 @@ from pybamm_closed_loop.pybamm_engine.engine import (
     build_solver,
     installed_parameter_sets,
     installed_parameter_names,
+    installed_pybamm_version,
+    installed_scalar_values,
     run,
     save_result,
+    verify_parameter_names,
 )
 from pybamm_closed_loop.pybamm_engine.outputs import (
     ExtractionResult,
@@ -36,6 +39,9 @@ __all__ = [
     "extract_all",
     "installed_parameter_sets",
     "installed_parameter_names",
+    "installed_pybamm_version",
+    "installed_scalar_values",
     "run",
     "save_result",
+    "verify_parameter_names",
 ]

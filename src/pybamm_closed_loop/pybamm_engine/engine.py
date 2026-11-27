@@ -7,6 +7,7 @@ names, model options or solver classes are assumed from other versions.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
@@ -79,6 +80,54 @@ def installed_parameter_names(parameter_set: str = "Chen2020") -> list[str]:
             f"available: {list(pybamm.parameter_sets)}"
         )
     return sorted(pybamm.ParameterValues(parameter_set).keys())
+
+
+def installed_pybamm_version() -> str:
+    """Return the installed PyBaMM version string (introspected, never assumed)."""
+    import pybamm
+
+    return str(pybamm.__version__)
+
+
+def installed_scalar_values(parameter_set: str = "Chen2020") -> dict[str, Any]:
+    """Scalar values of an installed PyBaMM set (callables are not fabricated)."""
+    import pybamm
+
+    if parameter_set not in pybamm.parameter_sets:
+        raise UnknownParameterSetError(
+            f"parameter set '{parameter_set}' not in installed pybamm; "
+            f"available: {list(pybamm.parameter_sets)}"
+        )
+    values = pybamm.ParameterValues(parameter_set)
+    return {
+        name: values[name]
+        for name in values.keys()
+        if isinstance(values[name], (int, float)) and not isinstance(values[name], bool)
+    }
+
+
+def verify_parameter_names(
+    names: Iterable[str], parameter_set: str = "Chen2020"
+) -> dict[str, Any]:
+    """Check requested parameter names against the installed PyBaMM set.
+
+    This is a read-only guard: it verifies that a name exists in the pinned
+    installation before any artifact claims it. Missing names are reported
+    instead of being invented, substituted or registered.
+    """
+    installed = set(installed_parameter_names(parameter_set))
+    requested = sorted(dict.fromkeys(str(name) for name in names))
+    found = [name for name in requested if name in installed]
+    missing = [name for name in requested if name not in installed]
+    return {
+        "parameter_set": parameter_set,
+        "pybamm_version": installed_pybamm_version(),
+        "n_requested": len(requested),
+        "n_installed": len(installed),
+        "found": found,
+        "missing": missing,
+        "all_present": not missing,
+    }
 
 
 def build_model(config: BaselineRunConfig):

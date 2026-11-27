@@ -294,7 +294,11 @@ prevent.
 3. **Observables beyond voltage** — forward EIS, OCV-vs-SOC, dQ/dV, GITT-D, to
    improve identifiability structurally.
 4. **First-party parameter set** ("ParaLLM-Chen2020-ext") from the 16 documented
-   discrepancy families, with per-field provenance.
+   discrepancy families, with per-field provenance. **Implemented as a candidate
+   artifact (2026-11-27):** 11 numeric discrepancy families **plus** 16
+   set-extension families = 27 fields (see
+   `docs/FIRST_PARTY_PARAMETER_SET.md`). Not an approved/exportable PyBaMM set:
+   no gate, no registry writes, no set registration (rule 10).
 5. **PyPI release + CI + docs site + examples gallery.**
 6. **Experimentation with a small local model** (optional, only if D3's revisit
    condition is met).
