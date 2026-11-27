@@ -6,7 +6,15 @@ is milestones P0–P5, and v0.2 work is tracked as V2.x (see
 `docs/ROADMAP_V0.2.md` §9). Scientific behavior is versioned conservatively and
 documented with provenance.
 
-## [Unreleased] — v0.2 "Parameter Assembly" (in execution)
+## [Unreleased]
+
+Work committed after the v0.2 beta release is recorded here.
+
+## [0.2.0b1] — 2026-11-27
+
+v0.2 "Parameter Assembly" beta. All content below was previously under
+[Unreleased] and is released as-is: scientific caveats (synthetic-only
+results, rules 7/8/10, V2.5/V2.6 gated status) are unchanged by the release.
 
 Scope, exit criteria, risks and decisions: `docs/ROADMAP_V0.2.md`.
 Positioning/competitive scan: `docs/POSITIONING.md`. Milestone plan:

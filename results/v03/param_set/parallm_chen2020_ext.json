@@ -38,7 +38,7 @@
       "sha256": "c2b27c8792f22097ea18198ee5f61fc7f1ab8fe407b598da21d8148ead9dd2a1"
     },
     "generator": {
-      "package_version": "0.1.0b1",
+      "package_version": "0.2.0b1",
       "pybamm_version": "26.8.0.0",
       "python": "3.14.10",
       "script": "scripts/v03/build_param_set.py"

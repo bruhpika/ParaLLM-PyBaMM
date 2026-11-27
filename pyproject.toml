@@ -1,6 +1,6 @@
 [project]
 name = "parallm-pybamm"
-version = "0.1.0b1"
+version = "0.2.0b1"
 description = "PARALLM: LLM-assisted, provenance-grounded parameterization for PyBaMM (research beta)"
 readme = "README.md"
 license = {file = "LICENSE"}
