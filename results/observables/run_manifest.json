@@ -1,0 +1,219 @@
+{
+  "label": "SYNTHETIC FORWARD-OBSERVABLE DEMONSTRATION",
+  "pybamm_version": "26.8.0.0",
+  "parameter_set": "Chen2020",
+  "model": "SPM",
+  "protocol": {
+    "eis": {
+      "frequencies_Hz": "np.logspace(-2, 2, 20)",
+      "initial_soc": 0.5,
+      "surface_form": "differential"
+    },
+    "ocv_soc": {
+      "soc": "np.linspace(0, 1, 101)",
+      "eSOH direction": null
+    },
+    "dqdv": {
+      "step": "Discharge at 1C for 600 s",
+      "period": "30 s"
+    },
+    "gitt_d": {
+      "current_A": 0.5,
+      "pulse_duration_s": 120.0,
+      "rest_duration_s": 180.0,
+      "n_pulses": 5,
+      "period_s": 30.0,
+      "steps": [
+        "Discharge at 0.5 A for 120 s",
+        "Rest for 180 s",
+        "Discharge at 0.5 A for 120 s",
+        "Rest for 180 s",
+        "Discharge at 0.5 A for 120 s",
+        "Rest for 180 s",
+        "Discharge at 0.5 A for 120 s",
+        "Rest for 180 s",
+        "Discharge at 0.5 A for 120 s",
+        "Rest for 180 s"
+      ]
+    }
+  },
+  "randomness": {
+    "seed": null,
+    "note": "No stochastic sampling: all protocols and grids are deterministic."
+  },
+  "shapes": {
+    "eis__frequency_Hz": [
+      20
+    ],
+    "eis__z_re_Ohm": [
+      20
+    ],
+    "eis__z_im_Ohm": [
+      20
+    ],
+    "ocv_soc__soc": [
+      101
+    ],
+    "ocv_soc__ocv_V": [
+      101
+    ],
+    "ocv_soc__x_negative": [
+      101
+    ],
+    "ocv_soc__y_positive": [
+      101
+    ],
+    "dqdv__capacity_Ah": [
+      21
+    ],
+    "dqdv__voltage_V": [
+      21
+    ],
+    "dqdv__dqdv_Ah_per_V": [
+      21
+    ],
+    "gitt_d__time_s": [
+      60
+    ],
+    "gitt_d__voltage_V": [
+      60
+    ],
+    "gitt_d__current_A": [
+      60
+    ],
+    "gitt_d__capacity_Ah": [
+      60
+    ],
+    "gitt_d__titration_index": [
+      60
+    ]
+  },
+  "gitt_d_relaxation_summary": [
+    {
+      "titration_index": 0,
+      "time_s": 300.0,
+      "voltage_V": 4.172725109257025,
+      "capacity_Ah": 0.016666666666666666,
+      "soc_estimate": 0.9966666666666667
+    },
+    {
+      "titration_index": 1,
+      "time_s": 600.0,
+      "voltage_V": 4.1665096620564155,
+      "capacity_Ah": 0.03333333333333334,
+      "soc_estimate": 0.9933333333333333
+    },
+    {
+      "titration_index": 2,
+      "time_s": 900.0,
+      "voltage_V": 4.160886429620315,
+      "capacity_Ah": 0.049999999999999996,
+      "soc_estimate": 0.99
+    },
+    {
+      "titration_index": 3,
+      "time_s": 1200.0,
+      "voltage_V": 4.155627057125873,
+      "capacity_Ah": 0.06666666666666664,
+      "soc_estimate": 0.9866666666666667
+    },
+    {
+      "titration_index": 4,
+      "time_s": 1500.0,
+      "voltage_V": 4.150627040334785,
+      "capacity_Ah": 0.08333333333333333,
+      "soc_estimate": 0.9833333333333333
+    }
+  ],
+  "verified_api_signatures": {
+    "pybamm.__version__": "26.8.0.0",
+    "EISSimulation": "EISSimulation(model, parameter_values=None, geometry=None, submesh_types=None, var_pts=None, spatial_methods=None, skip_surface_form_check=False)",
+    "EISSimulation.solve": "EISSimulation.solve(self, frequencies, inputs=None, initial_soc=None)",
+    "EISSolution": "EISSolution(frequencies, impedance)",
+    "EISSolution.get_data_dict": "EISSolution.get_data_dict(self)",
+    "get_initial_stoichiometries": "lithium_ion.get_initial_stoichiometries(initial_value, parameter_values, direction=None, param=None, known_value='cyclable lithium capacity', options=None, tol=1e-06, inputs=None, esoh_solver=None)",
+    "get_min_max_stoichiometries": "lithium_ion.get_min_max_stoichiometries(parameter_values, direction=None, param=None, known_value='cyclable lithium capacity', options=None, inputs=None)",
+    "Experiment": "Experiment(operating_conditions: 'list[str | tuple[str] | BaseStep]', period: 'str | None' = None, temperature: 'float | None' = None, termination: 'list[str] | None' = None)",
+    "Simulation": "Simulation(model, experiment=None, geometry=None, parameter_values=None, submesh_types=None, var_pts=None, spatial_methods=None, solver=None, output_variables=None, C_rate=None, discretisation_kwargs=None, cache_esoh=True, experiment_model_mode='legacy')",
+    "Simulation.solve": "Simulation.solve(self, t_eval=None, solver=None, save_at_cycles=None, calc_esoh=None, starting_solution=None, initial_soc=None, direction=None, callbacks=None, showprogress=False, inputs=None, t_interp=None, **kwargs)",
+    "step.string": "step.string(text, **kwargs)"
+  },
+  "observable_metadata": {
+    "eis": {
+      "complex_impedance_source": "EISSolution.impedance",
+      "synthetic_only": true,
+      "api": "pybamm.EISSimulation.solve(frequencies, inputs=None, initial_soc=None)",
+      "pybamm_version": "26.8.0.0",
+      "surface_form": "differential",
+      "initial_soc": 0.5,
+      "verified_signatures": {
+        "pybamm.__version__": "26.8.0.0",
+        "EISSimulation": "EISSimulation(model, parameter_values=None, geometry=None, submesh_types=None, var_pts=None, spatial_methods=None, skip_surface_form_check=False)",
+        "EISSimulation.solve": "EISSimulation.solve(self, frequencies, inputs=None, initial_soc=None)",
+        "EISSolution": "EISSolution(frequencies, impedance)",
+        "EISSolution.get_data_dict": "EISSolution.get_data_dict(self)",
+        "get_initial_stoichiometries": "lithium_ion.get_initial_stoichiometries(initial_value, parameter_values, direction=None, param=None, known_value='cyclable lithium capacity', options=None, tol=1e-06, inputs=None, esoh_solver=None)",
+        "get_min_max_stoichiometries": "lithium_ion.get_min_max_stoichiometries(parameter_values, direction=None, param=None, known_value='cyclable lithium capacity', options=None, inputs=None)",
+        "Experiment": "Experiment(operating_conditions: 'list[str | tuple[str] | BaseStep]', period: 'str | None' = None, temperature: 'float | None' = None, termination: 'list[str] | None' = None)",
+        "Simulation": "Simulation(model, experiment=None, geometry=None, parameter_values=None, submesh_types=None, var_pts=None, spatial_methods=None, solver=None, output_variables=None, C_rate=None, discretisation_kwargs=None, cache_esoh=True, experiment_model_mode='legacy')",
+        "Simulation.solve": "Simulation.solve(self, t_eval=None, solver=None, save_at_cycles=None, calc_esoh=None, starting_solution=None, initial_soc=None, direction=None, callbacks=None, showprogress=False, inputs=None, t_interp=None, **kwargs)",
+        "step.string": "step.string(text, **kwargs)"
+      }
+    },
+    "ocv_soc": {
+      "method": "eSOH stoichiometry + parameter-set OCP functions (no dedicated API)",
+      "api": "pybamm.lithium_ion.get_initial_stoichiometries",
+      "ocp_keys": [
+        "Negative electrode OCP [V]",
+        "Positive electrode OCP [V]"
+      ],
+      "direction": null,
+      "known_value": "cyclable lithium capacity",
+      "min_max_stoichiometries": {
+        "x_0": 0.02634579027064577,
+        "x_100": 0.9106180466524088,
+        "y_100": 0.2638452245913302,
+        "y_0": 0.8539746746300468
+      },
+      "pybamm_version": "26.8.0.0",
+      "synthetic_only": true
+    },
+    "dqdv": {
+      "method": "numpy.gradient(Q, V), no smoothing",
+      "sign_convention": "gradient(Q, V): negative on discharge",
+      "direction": "discharge",
+      "n_samples": 21,
+      "synthetic_only": true,
+      "source": "pybamm.Solution via verified 'Discharge capacity [A.h]'"
+    },
+    "gitt_d": {
+      "protocol": "galvanostatic intermittent titration, discharge (GITT-D)",
+      "steps": [
+        "Discharge at 0.5 A for 120 s",
+        "Rest for 180 s",
+        "Discharge at 0.5 A for 120 s",
+        "Rest for 180 s",
+        "Discharge at 0.5 A for 120 s",
+        "Rest for 180 s",
+        "Discharge at 0.5 A for 120 s",
+        "Rest for 180 s",
+        "Discharge at 0.5 A for 120 s",
+        "Rest for 180 s"
+      ],
+      "period_s": 30.0,
+      "n_pulses": 5,
+      "initial_soc": null,
+      "soc_estimate_note": "SOC = initial_soc - Q / 'Nominal cell capacity [A.h]' (approximate, does not account for capacity fade or non-unity coulombic efficiency)",
+      "api": "pybamm.Experiment + pybamm.Simulation.solve (no dedicated GITT API)",
+      "pybamm_version": "26.8.0.0",
+      "synthetic_only": true
+    }
+  },
+  "limitations": [
+    "SYNTHETIC ONLY: every curve is generated by the model, not measured experimentally.",
+    "A successful fit to any observable is NOT proof of parameter identifiability.",
+    "dQ/dV is finite-difference post-processing and is sensitive to noise; no smoothing is applied.",
+    "GITT relaxation voltages are end-of-rest samples, not extrapolation to infinite time.",
+    "PyBaMM 26.8.0.0 has no dedicated OCV-vs-SOC or GITT API; see docs/FORWARD_OBSERVABLES.md."
+  ]
+}
