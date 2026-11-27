@@ -80,6 +80,60 @@ negative / NMC positive ("graphite_LGM50"/"nmc_LGM50" data), voltage window
     held-out cycle; split defined *before* fitting and recorded in the run
     manifest.
 
+### 2.7 GITT-D specification for the negative diffusivity (2026-11-27)
+
+`Negative particle diffusivity [m2.s-1]` is documented `UNOBSERVABLE` from
+voltage-only ≤2C and is therefore actioned `MEASURE`. The v0.3 observable
+diagnostics (`results/observables/diffusivity_multi_observable_fim.{json,md}`,
+`results/observables/joint_diffusivity_fim.{json,md}`, all **SYNTHETIC**)
+specify what a measurement must look like to make it locally observable. This
+section is the **measurement specification** for the T6 dataset search; it is
+derived from model diagnostics and is not evidence about a real cell.
+
+**Protocol (the one validated in the diagnostics).** On the 5 A.h LG M50 cell
+at 25 °C:
+
+| element | value | note |
+|---|---|---|
+| start SOC | **20 %** (a-priori grid 15–30 %) | at 100 % SOC the graphite OCP is flat and the diagnostic signal collapses (2026-11-27 protocol correction) |
+| current | **1.0 A (0.2C)** | 0.1–0.2C all clear the sensitivity bar in the validated grid |
+| titration | **120 s discharge pulse + 180 s rest**, × **5** | ~3.3 % of nominal capacity; V_min ≈ 3.41 V vs 2.5 V limit |
+| sampling | ≤ 10 s during transients, **≤ 1 s preferred** during the pulse | the diagnostic used a 30 s period; the sqrt(t) fit uses the first 150 s of each rest |
+| voltage accuracy | ≤ 1 mV (already required in §2.4) | the diagnostic noise assumption is exactly 1 mV i.i.d. |
+
+**Features to record (all three, none selected after the fact):**
+
+1. **per-pulse voltage drop** (pulse overpotential) — mean |normalized
+   sensitivity| 0.082 in the diagnostic;
+2. **sqrt(t) relaxation slope**, fitted over the first ~150 s of each rest
+   (short against τ = R²/D ≈ 1041 s, so the semi-infinite approximation
+   applies) — mean |S| 0.100;
+3. **end-of-rest voltages** — transport-poor (quasi-OCV, mean |S| 0.009) but
+   required as the quasi-relaxed reference points of a GITT-D analysis.
+
+**Acceptance criteria for a candidate dataset (in addition to §2):**
+
+1. GITT or pulse-relaxation segments matching the protocol above, or a
+   protocol whose SOC start (≤ 0.3), C-rate (0.1–0.2C) and pulse/rest durations
+   are documented well enough to re-analyse;
+2. raw, unfiltered voltage with the sampling/accuracy of §2.4;
+3. initial SOC established reproducibly (low-rate OCV reference, §2.3 item 9);
+4. temperature recorded at the cell for every segment;
+5. license permitting analysis and publication of derived results (hard gate;
+   see `docs/P5_DATA_ACQUISITION.md`);
+6. a calibration/validation split defined before any fit (rule 9).
+
+**Limitations carried with this specification.** The diagnostics are local,
+synthetic, single/joint-parameter FIM studies: the joint fit frees only
+`D_neg`, `neg exchange-current density` and `electrolyte diffusivity`
+(variance inflation 1.25, |ρ| ≤ 0.44), function-valued parameters are
+perturbed by a constant multiplier, and the pulse drop and sqrt(t) slope
+include ohmic and kinetic overpotential — they are not pure solid-diffusion
+estimators. A protocol built to this specification gives the *model* a
+resolvable signal; whether real data identify `D_neg` (rules 7–8) is exactly
+what the dataset must be used to find out. Calibration data must never double
+as validation data (rule 9).
+
 ## 3. Explicitly unsuitable datasets (do not substitute for convenience)
 
 | Dataset | Why unsuitable |

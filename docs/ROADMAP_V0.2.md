@@ -352,6 +352,12 @@ prevent.
    vs ~8e-5 from 100× diffusivity), pinned by an integration test.
    **Diagnostic only:** no calibration-objective change, no registry write, no
    decision change (AGENTS.md rule 10; `docs/FORWARD_OBSERVABLES.md`).
+   **Deliverables (2026-11-27):** the measurement specification for an
+   experimental GITT dataset (`docs/EXPERIMENTAL_DATA_REQUIREMENTS.md` §2.7)
+   and the owner decision package for `MEASURE` vs `CALIBRATE`
+   (`docs/D_NEG_ACTION_DECISION.md`). The decision itself is **pending** — the
+   deterministic observability join is unchanged and the dossier still reads
+   `MEASURE`.
 
 ## 8. Risk register
 

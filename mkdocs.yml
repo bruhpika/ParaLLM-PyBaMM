@@ -28,6 +28,7 @@ nav:
       - Scientific limitations: SCIENTIFIC_LIMITATIONS.md
       - Scientific validation: SCIENTIFIC_VALIDATION.md
       - Forward observables: FORWARD_OBSERVABLES.md
+      - Diffusivity action decision: D_NEG_ACTION_DECISION.md
       - Data provenance: DATA_PROVENANCE.md
       - v3 chemistry coverage: V3_CHEMISTRY_COVERAGE.md
   - Architecture:

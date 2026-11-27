@@ -92,6 +92,14 @@ sets of exports/helpers.
   include ohmic/kinetic overpotential; this is a local synthetic FIM, not an
   identifiability proof (rules 7/8). The dossier action stays `MEASURE`
   pending owner review (rule 10).
+- **Deliverables (2026-11-27):** a measurement specification for an
+  experimental GITT dataset (`docs/EXPERIMENTAL_DATA_REQUIREMENTS.md` §2.7:
+  20 % SOC start, 0.2C, 120 s pulse / 180 s rest × 5, feature list and
+  acceptance criteria for the T6 search) and the owner decision package for the
+  `MEASURE` vs `CALIBRATE` action (`docs/D_NEG_ACTION_DECISION.md`). **No
+  decision was taken**: the deterministic observability join
+  (`assembly/observability.py`) still reads only the voltage-only P2 artifact
+  and the dossier action stays `MEASURE` (rule 10).
 - Recorded tool finding: PyBaMM 26.8.0.0 EIS does not respond to solid
   diffusivity (100× change gives ~8e-5 relative Re(Z) change) while responding
   to kinetics (~0.37 for 10× exchange-current density). A positive control and

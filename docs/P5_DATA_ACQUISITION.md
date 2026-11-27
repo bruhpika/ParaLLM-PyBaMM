@@ -29,7 +29,10 @@ standardized charge (CC-CV, documented), then galvanostatic **discharge at
 0.5C / 1C / 2C** (and a low-rate C/20–C/30 OCV reference) over 2.5–4.2 V, with
 rest/relaxation recorded, time-synchronized V/I/T, documented cell history and a
 clear license permitting research use. Calibration and validation subsets must be
-disjoint (rule 9).
+disjoint (rule 9). For `neg_particle_diffusivity` (action `MEASURE`), the
+dataset should additionally contain a **low-SOC GITT / pulse-relaxation block**
+matching `docs/EXPERIMENTAL_DATA_REQUIREMENTS.md` §2.7 (20 % SOC start, 0.2C,
+120 s pulse / 180 s rest × 5, ≤ 1 s sampling during the pulse).
 
 ### Unresolved / acquisition-needed candidates
 
@@ -46,4 +49,8 @@ No dataset currently in the repository satisfies the T6 validation target
 calibration). The LG M50 PyProBE sample is **audited but ineligible** for that
 role. Real-data fitting therefore remains **blocked on data acquisition +
 license verification**; the T6 deliverable is an experiment design (not a
-calibration run) — see `P5_REAL_DATA_EXPERIMENT_DESIGN.md`.
+calibration run) — see `P5_REAL_DATA_EXPERIMENT_DESIGN.md`. The GITT block that
+would make the negative diffusivity identifiable is specified in
+`docs/EXPERIMENTAL_DATA_REQUIREMENTS.md` §2.7 (2026-11-27, model-derived), and
+the `MEASURE` vs `CALIBRATE` action for that parameter is an open owner decision
+(`docs/D_NEG_ACTION_DECISION.md`).

@@ -214,6 +214,15 @@ Honest reading:
   validation (rule 8), and not a calibration recommendation. The dossier action
   remains `MEASURE` pending owner review (rule 10).
 
+Two deliverables follow from this result and are committed with it:
+
+- the **measurement specification** for an experimental GITT dataset
+  (`docs/EXPERIMENTAL_DATA_REQUIREMENTS.md` §2.7) — the concrete protocol,
+  features and acceptance criteria for the T6 dataset search;
+- the **owner decision package** for the `MEASURE` vs `CALIBRATE` action
+  (`docs/D_NEG_ACTION_DECISION.md`) — options, evidence and what each would
+  change, with no decision taken here (rule 10).
+
 ## Reproduction
 
 ```bash
