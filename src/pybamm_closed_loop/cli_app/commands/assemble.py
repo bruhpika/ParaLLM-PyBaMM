@@ -47,7 +47,7 @@ def assemble_command(
     accuracy_critical: list[str] = typer.Option(
         [], "--accuracy-critical", help="Canonical ids whose accuracy is critical."
     ),
-    rubric_version: str = typer.Option("rubric-v2", "--rubric-version"),
+    rubric_version: str = typer.Option("rubric-v3", "--rubric-version"),
 ) -> int:
     """Assemble provenance-grounded dossiers into a reviewable report."""
     from ...assembly import ApprovalGate, GateValidationError, Rubric, assemble

@@ -90,15 +90,21 @@ def _distinct_values(candidates: Sequence[CandidateValue]) -> bool:
 
 
 def _decision_for_method(candidate: CandidateValue) -> Decision:
-    """Decision implied by the method class when there is no conflict."""
+    """Decision implied by the method class when there is no conflict.
+
+    A selected UNRESOLVED value is never silently fixed: the registry records
+    that no source resolved it, so a human must decide (scientific rule 5).
+    """
+    if str(candidate.status or "").upper() == "UNRESOLVED":
+        return Decision.REVIEW
     if candidate.method_class in (MethodClass.MEASURED, MethodClass.CALCULATED, MethodClass.FITTED):
         return Decision.USE
     if candidate.method_class in (MethodClass.ASSUMED, MethodClass.CALIBRATED):
         return Decision.FIX
-    return Decision.FIX
+    return Decision.REVIEW
 
 
-def resolve_parameter(
+def _resolve_parameter_core(
     canonical_id: str,
     candidates: Sequence[CandidateValue],
     target: TargetSpecification,
@@ -355,3 +361,57 @@ def resolve_parameter(
         conflict_class=conflict_class,
         rubric_version=rubric.version,
     )
+
+
+def resolve_parameter(
+    canonical_id: str,
+    candidates: Sequence[CandidateValue],
+    target: TargetSpecification,
+    rubric: Rubric,
+) -> Resolution:
+    """Resolve one parameter, then apply the chemistry-specific guard.
+
+    Chemistry-specific values (the approved list in ``lexicon.py``) only
+    transfer to a target of the same chemistry. An unknown chemistry is
+    escalated to REVIEW; a known mismatch is a REJECT. This runs after the
+    rubric so every adopted value is checked, including same-source conflicts.
+    """
+    from .lexicon import is_chemistry_specific
+
+    result = _resolve_parameter_core(canonical_id, candidates, target, rubric)
+    if not is_chemistry_specific(canonical_id) or result.chosen is None:
+        return result
+    if result.decision is Decision.REJECT or result.decision is Decision.REVIEW:
+        return result
+
+    fam = set(result.chosen.conditions.chemistry_families)
+    target_fam = set(target.chemistry_families)
+    # A positive-electrode parameter is decided by the cathode chemistry, a
+    # negative-electrode or SEI parameter by the anode chemistry. Counting any
+    # shared family (e.g. "graphite" from the cell's anode text) would let an
+    # NMC-cathode value through for an LFP-cathode target.
+    if canonical_id.startswith(("pos_", "positive_")):
+        relevant = {"NMC", "NCA", "LFP", "LCO", "LMO", "Li-metal"}
+    elif canonical_id.startswith(("sei_", "neg_", "negative_")):
+        relevant = {"graphite", "Li-metal", "silicon"}
+    else:
+        relevant = fam | target_fam
+    cand_relevant = fam & relevant
+    target_relevant = target_fam & relevant
+    if not cand_relevant:
+        result.decision = Decision.REVIEW
+        result.review_required = True
+        result.rationale.append(
+            "REVIEW: chemistry-specific parameter with unknown evidence chemistry; "
+            "a human must decide whether it applies to this target"
+        )
+        return result
+    if not (cand_relevant & target_relevant):
+        result.decision = Decision.REJECT
+        result.review_required = False
+        result.chosen = None
+        result.rationale.append(
+            f"REJECT: chemistry-specific parameter measured on {sorted(cand_relevant)}, "
+            f"target chemistry is {sorted(target_relevant)}"
+        )
+    return result

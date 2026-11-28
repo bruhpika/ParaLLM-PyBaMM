@@ -127,6 +127,34 @@ def is_cell_specific(parameter: str) -> bool:
     return any(pattern in p for pattern in CELL_SPECIFIC_PATTERNS)
 
 
+# Chemistry-specific parameters: their physical meaning depends on the active
+# material (electrode OCP / kinetics / solid diffusion / microstructure and the
+# SEI that forms on the negative electrode). Approved by the project owner.
+# Generic thermal, electrolyte, separator and current-collector constants are
+# deliberately NOT included, even when the registry's condition text mentions
+# the source cell's chemistry.
+CHEMISTRY_SPECIFIC_PARAMETERS: frozenset[str] = frozenset({
+    # positive electrode
+    "pos_electrode_ocp", "pos_entropic_change", "pos_exchange_current_density",
+    "pos_particle_diffusivity", "pos_particle_radius", "pos_bruggeman_electrode",
+    "positive_electrode_density", "positive_electrode_double_layer_capacity",
+    "positive_electrode_reaction_driven_lam_factor",
+    # negative electrode
+    "neg_electrode_ocp", "neg_entropic_change", "neg_exchange_current_density",
+    "neg_particle_diffusivity", "neg_particle_radius", "neg_bruggeman_electrode",
+    "negative_electrode_density", "negative_electrode_double_layer_capacity",
+    "negative_electrode_reaction_driven_lam_factor",
+    # SEI (on the negative active material)
+    "sei_open_circuit_potential", "sei_reaction_exchange_current_density",
+    "sei_lithium_interstitial_diffusivity", "sei_solvent_diffusivity",
+})
+
+
+def is_chemistry_specific(parameter: str) -> bool:
+    """True when the value only applies to the chemistry it was measured on."""
+    return _normalise(parameter) in CHEMISTRY_SPECIFIC_PARAMETERS
+
+
 @dataclass(frozen=True)
 class CellFacts:
     """Facts recovered from a free-text condition blob."""

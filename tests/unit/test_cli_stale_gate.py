@@ -6,8 +6,9 @@ import json
 from pathlib import Path
 
 from pybamm_closed_loop.cli import main
+from pybamm_closed_loop.assembly import Rubric, TargetSpecification, assemble
 
-from tests._gate_helpers import binding_for_record, decision_for_registry_id
+from tests._gate_helpers import binding_for_record
 
 ROOT = Path(__file__).resolve().parents[2]
 TARGET = ROOT / "configs/v2/target_lgm50.yaml"
@@ -30,17 +31,25 @@ def _record(value=5.86e-6):
         "source_id": "doc",
         "evidence": {"source": {"document_id": "doc", "locator": "Table II",
                                 "quote": "the mean particle radius is 5.86 um by SEM"}},
-        "conditions": {"cell": "LG M50"}, "conflicts": [],
+        "conditions": {"cell": "LG M50", "chemistry": "NMC811 graphite"},
+        "conflicts": [],
         "pybamm_names": ["Negative particle radius [m]"],
     }
 
 
 def _gate(tmp_path, record):
+    target = TargetSpecification(
+        target_id="lgm50_test", cell_product="LG M50",
+        chemistry_families=("NMC", "graphite"), format="21700",
+        temperature_k=298.15, soc="50%", parameter_set="Chen2020",
+    )
+    report = assemble([record], target, Rubric("rubric-v3"))
+    decision = report.dossiers[0]["decision"]
     path = tmp_path / "gate.json"
     path.write_text(json.dumps({"approvals": [{
         "parameter": "neg_particle_radius",
-        "decision": decision_for_registry_id("neg_particle_radius"),
-        "approved": True, "approver": "owner", "rubric_version": "rubric-v2",
+        "decision": decision,
+        "approved": True, "approver": "owner", "rubric_version": "rubric-v3",
         "binding_sha256": binding_for_record(record),
     }]}), encoding="utf-8")
     return path

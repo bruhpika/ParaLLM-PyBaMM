@@ -367,6 +367,14 @@ def assemble(
         resolution = resolve_parameter(canonical_id, candidates, target, rubric)
         report.resolutions.append(resolution)
         assess = (observability or {}).get(canonical_id)
+        if (
+            assess is not None
+            and assess.parameter_set is not None
+            and target.parameter_set
+            and assess.parameter_set != target.parameter_set
+        ):
+            # A result recorded for one cell cannot be applied to another.
+            assess = None
         d = dossier(
             resolution,
             identifiability=assess.to_dossier_field() if assess else None,

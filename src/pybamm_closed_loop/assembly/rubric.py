@@ -224,10 +224,12 @@ class Rubric:
         fam = set(cand.conditions.chemistry_families)
         target_fam = set(target.chemistry_families)
         if not fam:
-            self._fire(outcome, "chemistry", 0.5, "chemistry not stated in the evidence conditions",
+            self._fire(outcome, "chemistry", 0.0,
+                       "chemistry not stated in the evidence conditions; "
+                       "no chemistry match credit without stated evidence",
                        {"candidate_families": []})
             outcome.warnings.append("chemistry unknown")
-            return 0.5
+            return 0.0
         if not (fam & target_fam):
             self._fire(
                 outcome,
@@ -284,10 +286,12 @@ class Rubric:
                        {"range_k": [lo, hi], "target_k": t_t, "distance_k": round(d, 3)})
             return score
         if t_c is None or t_t is None:
-            self._fire(outcome, "temperature", 0.5, "temperature not stated on one side",
+            self._fire(outcome, "temperature", 0.0,
+                       "temperature not stated on one side; no target-match credit "
+                       "without stated evidence",
                        {"candidate_k": t_c, "target_k": t_t})
             outcome.warnings.append("temperature unknown")
-            return 0.5
+            return 0.0
         d = abs(t_c - t_t)
         if d <= 2.0:
             score, reason = 1.0, "temperature within 2 K of the target"
@@ -338,9 +342,11 @@ class Rubric:
     def _score_soc(self, cand: CandidateValue, target: TargetSpecification, outcome: RubricOutcome) -> float:
         c, t = cand.conditions.soc, target.soc
         if not c or not t:
-            self._fire(outcome, "soc", 0.5, "SOC window not stated on one side",
+            self._fire(outcome, "soc", 0.0,
+                       "SOC window not stated on one side; no target-match credit "
+                       "without stated evidence",
                        {"candidate_soc": c, "target_soc": t})
-            return 0.5
+            return 0.0
         if str(c).strip() == str(t).strip():
             self._fire(outcome, "soc", 1.0, "SOC window matches the target", {"soc": c})
             return 1.0
@@ -351,9 +357,11 @@ class Rubric:
     def _score_format(self, cand: CandidateValue, target: TargetSpecification, outcome: RubricOutcome) -> float:
         c, t = cand.conditions.format, target.format
         if not c or not t:
-            self._fire(outcome, "format", 0.5, "format not stated on one side",
+            self._fire(outcome, "format", 0.0,
+                       "format not stated on one side; no target-match credit "
+                       "without stated evidence",
                        {"candidate_format": c, "target_format": t})
-            return 0.5
+            return 0.0
         if c == t:
             self._fire(outcome, "format", 1.0, "cell format matches the target", {"format": c})
             return 1.0
@@ -451,11 +459,12 @@ class Rubric:
         self._fire(
             outcome,
             "cell_product",
-            0.5,
-            "cell build could not be matched to the target",
+            0.0,
+            "cell build not stated on one side; no target-match credit "
+            "without stated evidence",
             {"candidate_cell": raw_cell or c, "target_cell": t},
         )
-        return 0.5
+        return 0.0
 
     def _score_electrolyte(
         self, cand: CandidateValue, target: TargetSpecification, outcome: RubricOutcome
@@ -464,9 +473,11 @@ class Rubric:
         c = (cand.conditions.raw or {}).get("electrolyte")
         t = (target.electrolyte or "").strip()
         if not c or not t:
-            self._fire(outcome, "electrolyte", 0.5, "electrolyte not stated on one side",
+            self._fire(outcome, "electrolyte", 0.0,
+                       "electrolyte not stated on one side; no target-match credit "
+                       "without stated evidence",
                        {"candidate": c, "target": t or None})
-            return 0.5
+            return 0.0
         cn = ascii_fold(str(c)).lower()
         tn = ascii_fold(t).lower()
         if cn == tn:

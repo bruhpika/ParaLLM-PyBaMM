@@ -181,7 +181,7 @@ def test_explicit_gate_only_annotates_approval(tmp_path: Path):
                 "decision": "FIX",
                 "approved": True,
                 "approver": "owner",
-                "rubric_version": "rubric-v2",
+                "rubric_version": "rubric-v3",
                 "binding_sha256": binding_for_registry_id("contact_resistance"),
                 "timestamp": "2026-11-27T00:00:00+00:00",
                 "note": "test fixture",

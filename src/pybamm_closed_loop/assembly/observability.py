@@ -52,6 +52,7 @@ class ObservabilityAssessment:
     status: str
     action: str | None
     protocols: tuple[str, ...]
+    parameter_set: str | None = None
     metrics: dict[str, Any] = field(default_factory=dict)
     rules_fired: tuple[dict[str, Any], ...] = ()
     sources: tuple[str, ...] = ()
@@ -62,6 +63,7 @@ class ObservabilityAssessment:
             "status": self.status,
             "action": self.action,
             "protocols": list(self.protocols),
+            "parameter_set": self.parameter_set,
             "metrics": self.metrics,
             "rules_fired": [dict(r) for r in self.rules_fired],
             "sources": list(self.sources),
@@ -124,6 +126,7 @@ def load_observability(
         src = str(p2_dir / "diffusivity_feasibility" / "report.json")
         per_condition = diff.get("per_condition") or {}
         protocols = tuple(sorted(per_condition))
+        recorded_set = (diff.get("config") or {}).get("parameter_set")
         # collect sensitivities per PyBaMM name across protocols
         sens: dict[str, dict[str, float]] = {}
         for cond in protocols:
@@ -166,6 +169,7 @@ def load_observability(
                 status=status,
                 action=_action_for(status, cid in accuracy_critical),
                 protocols=protocols,
+                parameter_set=recorded_set,
                 metrics={"mean_abs_normalized_sensitivity": by_cond},
                 rules_fired=rules,
                 sources=(src,),
@@ -182,6 +186,27 @@ def load_observability(
             "fim_single_condition_number": (ident.get("fim_single") or {}).get("condition_number"),
             "fim_multi_condition_number": (ident.get("fim_multi") or {}).get("condition_number"),
         }
+        recorded_set = None
+        for key in ("recovery_config_single", "recovery_config_multi"):
+            rel = (ident.get("config") or {}).get(key)
+            if not rel:
+                continue
+            cfg_path = Path(rel)
+            if not cfg_path.is_file():
+                cfg_path = p2_dir.parent.parent / str(rel)
+            if not cfg_path.is_file():
+                cfg_path = p2_dir.parent / str(rel)
+            if cfg_path.is_file():
+                try:
+                    import yaml
+                    cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+                    recorded_set = cfg.get("parameter_set")
+                    if isinstance(recorded_set, dict):
+                        recorded_set = recorded_set.get("name")
+                    if recorded_set:
+                        break
+                except (OSError, ValueError):
+                    continue
         for name, stats in per_parameter.items():
             cid = by_pybamm_name.get(str(name))
             if cid is None:
@@ -218,6 +243,7 @@ def load_observability(
                 status=status,
                 action=_action_for(status, cid in accuracy_critical),
                 protocols=("1C", "0.5C+1C+2C"),
+                parameter_set=recorded_set,
                 metrics=metrics,
                 rules_fired=rules,
                 sources=(src,),
