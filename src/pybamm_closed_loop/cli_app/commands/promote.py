@@ -62,8 +62,8 @@ _NUMBER_RE = re.compile(r"[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
 # notation and compound units such as "m2 s-1" / "m2.s-1" / "mol m-3".
 _VALUE_UNIT_RE = re.compile(
     r"(?P<value>[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)"
-    r"(?:\s*[x\u00d7]\s*10\s*(?P<exp>[-\u2212+]?\d+))?"
-    r"\s*(?P<unit>[A-Za-z\u00b5\u03bc][A-Za-z0-9.\u00b5\u03bc-]*(?:\s+[A-Za-z0-9.\u00b5\u03bc-]+){0,2})"
+    r"(?:\s*[x\u00d7]\s*10\s*(?:\^)?\s*(?P<exp>[-\u2212+]?\d+))?"
+    r"\s*(?P<unit>[A-Za-z\u00b5\u03bc%][A-Za-z0-9.\u00b5\u03bc%-]*(?:\s+[A-Za-z0-9.\u00b5\u03bc%-]+){0,2})?"
 )
 
 _POSITIVE_HINTS = ("positive", "cathode", "nmc", "lfp", "lco", "nca", "limetal")
@@ -78,19 +78,19 @@ def _normalise_text(text: str) -> str:
     )
 
 
-def _canonical_unit_of(token: str) -> str | None:
-    """Canonical unit name for a quoted unit token, or None if unrecognised."""
+def _canonical_unit_and_factor(token: str) -> tuple[str, float] | None:
+    """Exact canonical unit and scale factor for a quoted unit token."""
     from ...registry.units import to_canonical
 
-    words = token.strip().split()
+    words = token.strip().rstrip(".").split()
     if not words:
         return None
-    # The regex may capture a few trailing prose words; try progressively
-    # shorter leading prefixes so "um measured by" resolves as "um".
+    # The regex may capture trailing prose words; try the longest coherent
+    # unit prefix first ("m2 s-1 measured" -> "m2 s-1").
     for n in range(len(words), 0, -1):
         form = ".".join(words[:n])
         try:
-            return to_canonical(form)[0]
+            return to_canonical(form)
         except KeyError:
             continue
     return None
@@ -114,25 +114,31 @@ def _electrode_hint(canonical_id: str) -> str | None:
     return None
 
 
-def _quote_pairs(quote: str, expected_unit: str | None) -> list[tuple[float, int, int]]:
-    """(value, start, end) for number+unit pairs with a compatible unit."""
-    pairs: list[tuple[float, int, int]] = []
+def _number_pairs(quote: str) -> list[tuple[float, str | None, int, int]]:
+    """(value, canonical unit or None, start, end) for each number in a quote."""
+    pairs: list[tuple[float, str | None, int, int]] = []
     for match in _VALUE_UNIT_RE.finditer(_normalise_text(quote)):
-        unit = _canonical_unit_of(match.group("unit"))
-        if expected_unit is not None and unit != expected_unit:
-            continue
         value = float(match.group("value"))
         if match.group("exp"):
             value *= 10.0 ** int(match.group("exp"))
-        pairs.append((value, match.start(), match.end()))
+        unit = match.group("unit")
+        canonical = _canonical_unit_and_factor(unit) if unit else None
+        factor = 1.0
+        if canonical is not None:
+            canonical, factor = canonical
+        pairs.append((value * factor, canonical, match.start("value"), match.end()))
     return pairs
+
+
+def _quantity_near(pairs: list[tuple], window: str, terms: tuple[str, ...]) -> bool:
+    return all(term in window for term in terms)
 
 
 def _associated_values(quote: str, canonical_id: str,
                        expected_unit: str | None) -> tuple[list[float], str | None]:
-    """Values in the quote that belong to the named quantity and electrode.
+    """Converted values belonging to the named quantity and electrode.
 
-    Returns (values, ambiguity_reason). Refusing on ambiguity is intentional:
+    Returns (values, ambiguity reason). Refusing on ambiguity is intentional:
     a narrower quote is safer than guessing which number was meant.
     """
     folded = _normalise_text(quote).lower()
@@ -140,26 +146,30 @@ def _associated_values(quote: str, canonical_id: str,
     positive = any(word in folded for word in _POSITIVE_HINTS)
     negative = any(word in folded for word in _NEGATIVE_HINTS)
     if hint == "positive" and negative and not positive:
-        return [], "quote names the negative electrode for a positive parameter"
+        return [], "quote names the negative electrode for a positive parameter; use a narrower quote"
     if hint == "negative" and positive and not negative:
-        return [], "quote names the positive electrode for a negative parameter"
+        return [], "quote names the positive electrode for a negative parameter; use a narrower quote"
     if positive and negative:
         return [], "quote names both electrodes; use a narrower quote"
+    if hint is not None and not (positive or negative):
+        return [], f"quote does not name the {hint} electrode; use a narrower quote"
 
     terms = _quantity_terms(canonical_id)
     if not terms or not all(term in folded for term in terms):
-        return [], "quote does not name the quantity"
+        return [], "quote does not name the quantity; use a narrower quote"
 
-    pairs = _quote_pairs(quote, expected_unit)
-    if not pairs:
-        return [], "quote has no number with a compatible unit near the quantity"
-    # Only pairs whose local window names the quantity count as belonging to it.
-    values = [
-        value for value, start, end in pairs
-        if all(term in folded[max(0, start - 60):min(len(folded), end + 60)] for term in terms)
-    ]
+    pairs = _number_pairs(quote)
+    values: list[float] = []
+    for value, unit, start, end in pairs:
+        if expected_unit == "dimensionless" and unit is None:
+            values.append(value)
+        elif unit == expected_unit:
+            values.append(value)
     if not values:
-        return [], "no number with a compatible unit is associated with the quantity"
+        return [], "quote has no number with a compatible unit near the quantity"
+    distinct = sorted(set(round(v, 12) for v in values))
+    if len(distinct) > 1:
+        return [], "quote has several values with a compatible unit; use a narrower quote"
     return values, None
 
 
@@ -243,7 +253,7 @@ def _quote_supports(payload: dict[str, Any], doc_text: str,
     if not quote or not verify_quote_in_evidence(quote, doc_text):
         return False, "quote not verified against --documents"
     try:
-        canonical, _ = to_canonical(str(payload.get("unit")))
+        canonical, candidate_factor = to_canonical(str(payload.get("unit")))
     except KeyError as exc:
         return False, f"unknown or incompatible unit: {exc}"
     if expected_unit is not None and canonical != expected_unit:
@@ -279,7 +289,12 @@ def _quote_supports(payload: dict[str, Any], doc_text: str,
         candidate_value = float(payload.get("value"))
     except (TypeError, ValueError):
         return False, "candidate value is not numeric"
-    if not values or values[0] != candidate_value:
+    def _matches(candidate: float) -> bool:
+        return bool(values) and abs(values[0] - candidate) <= 1e-12 * max(1.0, abs(values[0]))
+
+    # Accept a value already in canonical units, or one stated in the quoted
+    # unit that converts to the canonical value. Never accept a different value.
+    if not (_matches(candidate_value) or _matches(candidate_value * candidate_factor)):
         return False, "value is not supported by the recorded quote"
     return True, "quote, value and unit are consistent"
 
