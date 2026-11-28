@@ -111,13 +111,14 @@ def root(
         render.header(console, context=context, version=__version__)
 
 
-from .commands import assemble, calibration, core, export, science  # noqa: E402
+from .commands import assemble, calibration, core, export, promote, science  # noqa: E402
 
 app.command("assemble")(assemble.assemble_command)
 app.command("export")(export.export)
 app.add_typer(calibration.calibrate_app, name="calibrate")
 app.command("extract")(science.extract)
 app.command("validate")(science.validate)
+app.command("promote")(promote.promote)
 app.command("explain")(science.explain)
 app.add_typer(science.evidence_app, name="evidence")
 app.command("doctor")(core.doctor)

@@ -231,7 +231,18 @@ class OfflineDeterministicExtractor:
         self,
         segments: list[RetrievedSegment],
         target_names: list[str] | None = None,
+        parameter_units: dict[str, str] | None = None,
     ) -> ExtractionBatch:
+        """Mine numeric statements, abstaining unless parameter and unit agree.
+
+        A numeric match is only emitted when (a) the requested parameter's
+        alias appears in the *same sentence* as the number, (b) exactly one
+        requested parameter matches that sentence, and (c) the matched unit is
+        compatible with that parameter's declared unit. These are general
+        rules; nothing is specialised for any one paper.
+        """
+        from ..registry.units import to_canonical
+
         batch = ExtractionBatch(provider=self.name)
         seen: set[tuple[str, str, float]] = set()
         for seg in segments:
@@ -239,9 +250,29 @@ class OfflineDeterministicExtractor:
             for m in _NUMBER_UNIT_RE.finditer(folded):
                 value = _parse_matched_value(m)
                 unit = re.sub(r"\s+", " ", m.group("unit")).strip()
-                param = _match_parameter_name(folded, target_names)
+                sentence = _sentence_around(folded, m.start(), m.end())
+                # Strict same-sentence + unit gating applies only when the
+                # requested names are canonical registry ids with known units.
+                # Descriptive retrieval facets have no declared unit to check,
+                # so they keep the documented passage-level baseline.
+                strict_names = [
+                    n for n in (target_names or ())
+                    if n in (parameter_units or {})
+                ]
+                scope = sentence if strict_names else folded
+                names_for_match = strict_names or target_names
+                param = _match_parameter_name(scope, names_for_match)
                 if param is None:
                     continue
+                if parameter_units and param in parameter_units:
+                    try:
+                        matched_dim = to_canonical(unit)[0]
+                        expected_dim = to_canonical(parameter_units[param])[0]
+                    except KeyError:
+                        # Unknown units never silently pass.
+                        continue
+                    if matched_dim != expected_dim:
+                        continue
                 key = (param, unit, value)
                 if key in seen:
                     continue
@@ -313,6 +344,10 @@ def _match_parameter_name(
             name_groups = _groups_of_name(name)
             if name_groups & matched_groups:
                 return name
+        # When the caller asked for specific parameters, never fall back to an
+        # unrelated alias found in the passage: that is how DOI/equation
+        # fragments get mislabelled as one of the requested parameters.
+        return None
     return best[1] if best else None
 
 
@@ -328,15 +363,27 @@ def _groups_of_name(name: str) -> set[str]:
     return out
 
 
+def _is_sentence_break(text: str, j: int) -> bool:
+    """A full stop only breaks a sentence when it is not a decimal point."""
+    if text[j] not in ".!?\n":
+        return False
+    if text[j] == ".":
+        before = text[j - 1] if j > 0 else ""
+        after = text[j + 1] if j + 1 < len(text) else ""
+        if before.isdigit() and after.isdigit():
+            return False
+    return True
+
+
 def _sentence_around(text: str, start: int, end: int) -> str:
-    lo = start
-    hi = end
-    for j in range(start, max(0, start - 200), -1):
-        if text[j] in ".!?\n":
+    lo = 0
+    hi = len(text)
+    for j in range(start - 1, max(-1, start - 200), -1):
+        if _is_sentence_break(text, j):
             lo = j + 1
             break
     for j in range(end, min(len(text), end + 200)):
-        if text[j] in ".!?\n":
+        if _is_sentence_break(text, j):
             hi = j + 1
             break
     return text[lo:hi].strip()
@@ -366,7 +413,10 @@ def run_extraction(client: LLMClient, context: RAGContext) -> ExtractionBatch:
     """
     if isinstance(client, OfflineDeterministicExtractor):
         targets = (context.facets or {}).get("parameter_names") or []
-        return client.extract_from_segments(context.segments, target_names=targets)
+        units = (context.facets or {}).get("parameter_units") or {}
+        return client.extract_from_segments(
+            context.segments, target_names=targets, parameter_units=units
+        )
     batch = ExtractionBatch(provider=getattr(client, "name", "llm"))
     user = context.to_prompt_block()
     content = client.complete(EXTRACTION_PROMPT_SYSTEM, user)

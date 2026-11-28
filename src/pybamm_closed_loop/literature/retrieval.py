@@ -19,6 +19,10 @@ from .ingest import Segment
 @dataclass
 class RetrievalFacets:
     parameter_names: list[str] = field(default_factory=list)
+    # canonical parameter id -> expected unit token (from the registry).
+    # The offline extractor abstains when a matched number's unit is not
+    # compatible with the requested parameter's declared unit.
+    parameter_units: dict[str, str] = field(default_factory=dict)
     synonyms: list[str] = field(default_factory=list)
     materials: list[str] = field(default_factory=list)
     cell_chemistry: list[str] = field(default_factory=list)

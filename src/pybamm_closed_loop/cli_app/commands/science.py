@@ -228,10 +228,28 @@ def extract(
 
     index = build_index(store)
     extractor = _client(provider, live)
+    # Resolve the requested names' declared units from the configured registry;
+    # unknown names are left out so the extractor simply abstains for them.
+    parameter_units: dict[str, str] = {}
+    registry_path = (
+        state.config.resolve(state.config.paths.registry)
+        if state.config is not None else None
+    )
+    if registry_path is None or not registry_path.is_file():
+        repo_registry = Path(__file__).resolve().parents[4] / "data/registry/registry.json"
+        if repo_registry.is_file():
+            registry_path = repo_registry
+    if registry_path is not None and registry_path.is_file():
+        for record in load_json(registry_path, description="registry"):
+            if isinstance(record, dict) and record.get("canonical_id") in names:
+                unit = record.get("value_unit") or record.get("normalized_value_unit")
+                if isinstance(unit, str) and unit:
+                    parameter_units[str(record["canonical_id"])] = unit
     batches = []
     n_evidence = 0
     for document_id in ingested_ids:
-        facets = RetrievalFacets(parameter_names=names)
+        facets = RetrievalFacets(parameter_names=names,
+                                 parameter_units=parameter_units)
         context = build_rag_context(facets, index, k=k)
         n_evidence += len(context.segments)
         batches.append(run_extraction(extractor, context))
@@ -361,6 +379,17 @@ def validate(
     data = load_json(path, description="validation input")
     if isinstance(data, dict) and "canonical_id" in data and "value_unit" in data:
         items = [(_payload_from_record(data), "registry record")]
+    elif isinstance(data, dict) and isinstance(data.get("candidates"), list):
+        # The exact output of `parallm extract`: validate one result per
+        # candidate payload, never the envelope as a single payload.
+        items = []
+        for index, item in enumerate(data["candidates"]):
+            payload = item.get("payload") if isinstance(item, dict) else item
+            if not isinstance(payload, dict):
+                raise ParseError(
+                    f"candidate #{index} is not an object.", why=str(path)
+                )
+            items.append((payload, "extraction candidate"))
     elif isinstance(data, dict):
         items = [(data, "extraction payload")]
     elif isinstance(data, list):
@@ -472,7 +501,8 @@ def validate(
             kv(state.console, (("Decision", result["state"]),))
         notice(state.console, "A passed check is not proof of identifiability; extraction is not calibration.")
     state.emit(
-        {"input": str(path), "summary": total, "results": results},
+        {"input": str(path), "summary": total, "results": results,
+         "candidates": [payload for payload, _ in items]},
         status="failed" if failed else "completed",
     )
     return 1 if failed or (strict and needs_review) else 0
