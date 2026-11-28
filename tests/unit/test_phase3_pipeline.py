@@ -114,6 +114,12 @@ class TestEndToEnd:
                      "--documents", str(out / "literature_store")]) in (0, 1)
         validated = json.loads(_json_output(capsys))
         validated_path = tmp_path / "validated.json"
+        # Synthetic fixture: give the candidate an explicit method so the
+        # deterministic method classifier can produce an exportable decision.
+        # Nothing is invented about a real paper; this is a labelled fixture.
+        for candidate in validated["data"]["candidates"]:
+            if isinstance(candidate, dict):
+                candidate["measurement_method"] = "measured by SEM"
         validated_path.write_text(json.dumps(validated["data"], indent=2), encoding="utf-8")
         accepted = [r for r in validated["data"]["results"]
                     if r["state"] in ("ACCEPTED", "NEEDS_REVIEW")]
