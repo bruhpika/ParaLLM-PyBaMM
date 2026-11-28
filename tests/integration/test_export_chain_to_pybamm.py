@@ -167,3 +167,117 @@ def test_chain_rejects_tampered_candidate_hash(tmp_path):
                  "--documents", str(extracted / "literature_store"),
                  "--out", str(tmp_path / "should_not_exist.json")]) == 2
     assert not (tmp_path / "should_not_exist.json").exists()
+
+
+# --- Step 1: SI conversion on export ---------------------------------------
+
+def _candidate_from_quote(name: str, value, unit: str, quote: str, **extra) -> dict:
+    """A clearly labelled synthetic candidate payload for a public-CLI chain."""
+    payload = {
+        "parameter_name": name,
+        "value": value,
+        "unit": unit,
+        "definition": f"SYNTHETIC definition for {name}",
+        "material": "graphite-SiOx (SYNTHETIC fixture)" if name.startswith("neg_") else "SYNTHETIC",
+        "temperature": 298.15,
+        "cell_config": "LG M50 21700 (SYNTHETIC fixture)",
+        "measurement_method": "measured by SEM (SYNTHETIC fixture)",
+        "qualifier": "measured",
+        "context": quote,
+        "source": {
+            "document_id": "synth", "locator": "Synthetic line 1", "quote": quote,
+        },
+        "reported_uncertainty": None,
+    }
+    payload.update(extra)
+    return payload
+
+
+def _chain_to_pybamm(tmp_path: Path, candidate: dict, quote: str,
+                     target: Path = TARGET, *, export_schema: int = 1):
+    """validate -> review -> promote -> assemble -> approve -> export -> PyBaMM.
+
+    Human actions are simulated only by clearly labelled SYNTHETIC review and
+    gate files. No validator or promoter output is edited.
+    """
+    cfg = _config(tmp_path)
+    docs = tmp_path / "docs" / "synth"
+    docs.mkdir(parents=True, exist_ok=True)
+    (docs / "synth_fulltext.txt").write_text(
+        f"SYNTHETIC FIXTURE -- NOT A REAL PAPER VALUE.\n{quote}.\n", encoding="utf-8"
+    )
+    candidates = tmp_path / "candidates.json"
+    candidates.write_text(json.dumps({"candidates": [{"payload": candidate}]}), encoding="utf-8")
+    envelope = _cli_json(tmp_path, [
+        "validate", str(candidates), "--documents", str(tmp_path / "docs"),
+        "--registry", str(REGISTRY_DIR),
+    ])
+    result = envelope["data"]["results"][0]
+    assert result["state"] in ("ACCEPTED", "NEEDS_REVIEW")
+    digest = result["candidate_hash"]
+    validated = tmp_path / "validated.json"
+    validated.write_text(json.dumps(envelope), encoding="utf-8")
+    review = tmp_path / "review.json"
+    review.write_text(json.dumps({"reviews": [{
+        "parameter": candidate["parameter_name"], "candidate_hash": digest,
+        "reviewer": "SYNTHETIC-OWNER", "decision": "APPROVED",
+        "timestamp": "2026-11-28T00:00:00Z",
+        "reason": "SYNTHETIC labelled fixture for export-conversion test",
+    }]}), encoding="utf-8")
+    registry = tmp_path / "new_registry.json"
+    assert main([*cfg, "--quiet", "promote", str(validated), "--review", str(review),
+                 "--documents", str(tmp_path / "docs"), "--out", str(registry)]) == 0
+
+    first = tmp_path / "assembly_first"
+    assert main([*cfg, "--quiet", "assemble", "--target", str(target),
+                 "--registry", str(registry), "--out", str(first)]) == 0
+    pending = json.loads((first / "gate.pending.json").read_text(encoding="utf-8"))
+    gate_entry = next(
+        (r for r in pending["approvals"] if r["parameter"] == candidate["parameter_name"]),
+        None,
+    )
+    assert gate_entry is not None, "candidate decision is not exportable"
+    gate_entry.update(approved=True, approver="SYNTHETIC-OWNER",
+                      timestamp="2026-11-28T00:00:00Z",
+                      note="SYNTHETIC approval of labelled fixture")
+    gate = tmp_path / "gate.json"
+    gate.write_text(json.dumps({"approvals": [gate_entry]}), encoding="utf-8")
+    final = tmp_path / "assembly_final"
+    assert main([*cfg, "--quiet", "assemble", "--target", str(target),
+                 "--registry", str(registry), "--out", str(final),
+                 "--gate", str(gate)]) == 0
+
+    overlay_file = tmp_path / "params.py"
+    env = _cli_json(tmp_path, [
+        "export", "--format", "pybamm", "--from", str(final), "--output", str(overlay_file),
+    ])
+    assert env["data"]["attestation"]["level"] == "ATTESTED"
+    text = overlay_file.read_text(encoding="utf-8")
+    return ast.literal_eval(text.split("=", 1)[1].strip()), final
+
+
+def test_um_particle_radius_exports_converted_si_value(tmp_path):
+    """5.86 um in the registry must reach PyBaMM as 5.86e-06 m, not 5.86."""
+    _init(tmp_path)
+    quote = "the negative particle radius is 5.86 um measured by SEM"
+    candidate = _candidate_from_quote("neg_particle_radius", 5.86, "um", quote)
+    overlay, _ = _chain_to_pybamm(tmp_path, candidate, quote)
+    assert overlay["Negative particle radius [m]"] == 5.86e-06
+
+
+def test_second_non_si_unit_exports_converted_si_value(tmp_path):
+    """A second non-SI unit (cm) must also be converted on export."""
+    _init(tmp_path)
+    quote = "the electrode height is 6.5 cm measured on a synthetic cell"
+    candidate = _candidate_from_quote("cell_electrode_height", 6.5, "cm", quote)
+    overlay, _ = _chain_to_pybamm(tmp_path, candidate, quote)
+    assert overlay["Electrode height [m]"] == 0.065
+
+
+def test_reexport_preserves_converted_si_value(tmp_path):
+    """A v2 exported artifact re-exports the converted value, still attested."""
+    _init(tmp_path)
+    quote = "the negative particle radius is 5.86 um measured by SEM"
+    candidate = _candidate_from_quote("neg_particle_radius", 5.86, "um", quote)
+    overlay, final = _chain_to_pybamm(tmp_path, candidate, quote, export_schema=2)
+    assert overlay["Negative particle radius [m]"] == 5.86e-06

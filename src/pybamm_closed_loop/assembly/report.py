@@ -127,6 +127,61 @@ def candidates_from_record(record: Mapping[str, Any]) -> list[CandidateValue]:
     return out
 
 
+def export_value_for_dossier(
+    dossier: Mapping[str, Any], pybamm_name: str | None = None
+) -> tuple[Any, str | None]:
+    """Resolve the numeric value to export from an assembled dossier.
+
+    PyBaMM parameter names carry their unit in brackets; a numeric export must
+    therefore use the dossier's canonical (SI) value, never the raw literature
+    printing. If the canonical unit is missing, non-numeric, or does not match
+    the unit in the PyBaMM name, the parameter is refused with a reason rather
+    than falling back to the raw value. Function-valued parameters are left to
+    the caller unchanged (their behaviour is not altered here).
+    """
+    from ..registry.units import pybamm_unit_suffix, to_canonical
+
+    selected = dossier.get("selected") or {}
+    raw = selected.get("value")
+    canonical = selected.get("canonical_value")
+    if isinstance(raw, str) and "<function" in raw:
+        return raw, None
+    canonical_unit = selected.get("canonical_unit")
+    if not isinstance(canonical, (int, float)) or isinstance(canonical, bool):
+        # A record without canonical fields is converted here from its raw
+        # value and unit. This is deterministic conversion, never a fallback
+        # to the raw printing.
+        raw_unit = selected.get("unit")
+        if isinstance(raw, (int, float)) and not isinstance(raw, bool) and raw_unit:
+            try:
+                canonical_unit, factor = to_canonical(str(raw_unit))
+                canonical = float(raw) * factor
+            except KeyError as exc:
+                return None, f"unit cannot be converted: {exc}"
+        else:
+            return None, "no numeric canonical value to export"
+    if not isinstance(canonical_unit, str) or not canonical_unit.strip():
+        return None, "canonical unit is not stated"
+    if pybamm_name is not None:
+        suffix = pybamm_unit_suffix(pybamm_name)
+        if not suffix:
+            return None, "PyBaMM name has no unit suffix for a numeric value"
+        try:
+            expected, _ = to_canonical(suffix)
+        except KeyError:
+            return None, f"unit in PyBaMM name {suffix!r} is unknown"
+        try:
+            actual, _ = to_canonical(canonical_unit)
+        except KeyError:
+            return None, f"canonical unit {canonical_unit!r} is unknown"
+        if actual != expected:
+            return None, (
+                f"unit mismatch: dossier has {canonical_unit} ({actual}), "
+                f"PyBaMM name requires {suffix} ({expected})"
+            )
+    return canonical, None
+
+
 @dataclass
 class AssemblyReport:
     """Set-level result of an assembly run."""
@@ -237,7 +292,10 @@ class AssemblyReport:
                     f"{parameter}: decision {d['decision']} is not exportable"
                 )
                 continue
-            value = (d.get("selected") or {}).get("value")
+            value, reason = export_value_for_dossier(d)
+            if reason is not None:
+                blocked[parameter] = f"{parameter}: {reason}"
+                continue
             if value is None:
                 blocked[parameter] = f"{parameter}: no selected value to export"
                 continue

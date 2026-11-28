@@ -277,9 +277,31 @@ def export(
         if metadata["calibration"]["status"] == "LITERATURE FIT REPORTED":
             limitations.append(f"{name}: origin records a literature fit; no recorded calibration report")
         names = entry.data.get("pybamm_names") or (registry_by_id.get(name) or {}).get("pybamm_names") or []
+        # Numeric exports use the canonical (converted SI) value, never the raw
+        # literature printing (e.g. 5.86 um -> 5.86e-06 m). Function values
+        # keep their existing behaviour.
+        value = entry.value
+        canonical = metadata["canonical"].get("value")
+        canonical_unit = metadata["canonical"].get("unit")
+        if not (isinstance(canonical, (int, float)) and not isinstance(canonical, bool)):
+            # No recorded canonical field: convert the raw value with its
+            # stated unit deterministically. Never export the raw printing.
+            from ...registry.units import to_canonical
+            raw_unit = metadata.get("unit")
+            if isinstance(value, (int, float)) and not isinstance(value, bool) and raw_unit:
+                try:
+                    canonical_unit, factor = to_canonical(str(raw_unit))
+                    canonical = float(value) * factor
+                except KeyError:
+                    canonical = None
+        if isinstance(canonical, (int, float)) and not isinstance(canonical, bool):
+            value = canonical
+        else:
+            canonical_unit = None
         entries[name] = {
-            "value": entry.value,
+            "value": value,
             "unit": metadata["unit"],
+            "canonical_unit": canonical_unit,
             "pybamm_names": list(names),
             "metadata": metadata,
         }
@@ -295,6 +317,8 @@ def export(
                 why=f"No readable registry was found at {registry_path or '<not configured>'}.",
                 action="Pass --registry PATH, or re-run `parallm assemble` so its manifest records an existing registry.",
             )
+        from ...registry.units import pybamm_unit_suffix, to_canonical
+
         installed = set(installed_parameter_names(parameter_set))
         mapped: dict[str, Any] = {}
         for name, item in entries.items():
@@ -307,7 +331,40 @@ def export(
                 skipped.append({"parameter": name, "reason": "PYBAMM_NAME_NOT_INSTALLED",
                                 "detail": f"{names[0]!r} not in installed {parameter_set}; skipped"})
                 continue
-            mapped[names[0]] = item["value"]
+            value = item["value"]
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                # The canonical unit must match the unit in the PyBaMM name.
+                canonical_unit = item.get("canonical_unit") or item["metadata"]["canonical"].get("unit")
+                expected_suffix = pybamm_unit_suffix(names[0])
+                if not isinstance(canonical_unit, str) or not canonical_unit.strip():
+                    skipped.append({
+                        "parameter": name, "reason": "CANONICAL_UNIT_MISSING",
+                        "detail": "no canonical unit recorded for a numeric value; not exported",
+                    })
+                    continue
+                if not expected_suffix:
+                    skipped.append({
+                        "parameter": name, "reason": "PYBAMM_UNIT_MISSING",
+                        "detail": f"{names[0]!r} has no unit suffix for a numeric value",
+                    })
+                    continue
+                try:
+                    actual, _ = to_canonical(canonical_unit)
+                    expected, _ = to_canonical(expected_suffix)
+                except KeyError as exc:
+                    skipped.append({
+                        "parameter": name, "reason": "UNIT_UNKNOWN",
+                        "detail": str(exc),
+                    })
+                    continue
+                if actual != expected:
+                    skipped.append({
+                        "parameter": name, "reason": "UNIT_MISMATCH",
+                        "detail": (f"canonical {canonical_unit} ({actual}) does not match "
+                                   f"{names[0]} ({expected})"),
+                    })
+                    continue
+            mapped[names[0]] = value
         # Entries stay keyed by canonical id; only the overlay uses PyBaMM names.
         exported_pybamm = mapped
 

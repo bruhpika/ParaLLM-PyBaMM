@@ -332,18 +332,24 @@ def verify_gate_bindings(
                 f"binding mismatch: gate={record.binding_sha256}, assembly={expected_binding}"
             )
         if exported_values is not None and parameter in exported_values:
-            selected = (dossier.get("selected") or {}).get("value")
+            selected = dossier.get("selected") or {}
+            # A numeric export must carry the canonical (converted SI) value;
+            # the raw literature printing is not an exportable value.
+            bound = selected.get("canonical_value")
+            if not isinstance(bound, (int, float)) or isinstance(bound, bool):
+                bound = selected.get("value")
             exported = exported_values[parameter]
             if isinstance(exported, dict):
                 exported = exported.get("value")
-            if isinstance(selected, (int, float)) and isinstance(exported, (int, float)):
-                if float(selected) != float(exported):
+            if isinstance(bound, (int, float)) and isinstance(exported, (int, float)):
+                if float(bound) != float(exported):
                     reasons.append(
-                        f"exported value mismatch: gate bound {selected!r}, export has {exported!r}"
+                        f"exported value mismatch: gate bound canonical {bound!r}, "
+                        f"export has {exported!r}"
                     )
-            elif selected != exported:
+            elif bound != exported:
                 reasons.append(
-                    f"exported value mismatch: gate bound {selected!r}, export has {exported!r}"
+                    f"exported value mismatch: gate bound {bound!r}, export has {exported!r}"
                 )
         if reasons:
             result.reasons[parameter] = "; ".join(reasons)
