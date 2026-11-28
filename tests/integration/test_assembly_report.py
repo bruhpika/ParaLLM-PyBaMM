@@ -16,6 +16,7 @@ from pybamm_closed_loop.assembly import (
     assemble,
 )
 from pybamm_closed_loop.assembly.dossier import DOSSIER_FIELDS
+from pybamm_closed_loop.assembly.gate import binding_sha256
 
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = ROOT / "data/registry/registry.json"
@@ -70,7 +71,9 @@ class TestAssemblyOverRealRegistry:
         gate = ApprovalGate()
         exported = report.pybamm_export(gate)
         assert exported == {}
-        gate.approve("neg_bruggeman_electrolyte", "FIX", "owner", "rubric-v2")
+        d = next(x for x in report.dossiers if x["parameter"] == "neg_bruggeman_electrolyte")
+        gate.approve("neg_bruggeman_electrolyte", d["decision"], "owner",
+                     d["rubric_version"], binding_sha256(d))
         exported = report.pybamm_export(gate)
         assert exported == {"neg_bruggeman_electrolyte": 1.5}
 

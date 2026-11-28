@@ -14,6 +14,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+from tests._gate_helpers import binding_for_registry_id
+
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts/v03/build_param_set.py"
 CONFIG = ROOT / "configs/v03/param_set.yaml"
@@ -180,6 +182,7 @@ def test_explicit_gate_only_annotates_approval(tmp_path: Path):
                 "approved": True,
                 "approver": "owner",
                 "rubric_version": "rubric-v2",
+                "binding_sha256": binding_for_registry_id("contact_resistance"),
                 "timestamp": "2026-11-27T00:00:00+00:00",
                 "note": "test fixture",
             }

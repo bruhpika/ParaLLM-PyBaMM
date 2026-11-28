@@ -7,6 +7,13 @@ from pathlib import Path
 
 from pybamm_closed_loop.cli import main
 
+from tests._gate_helpers import (
+    binding_for_record, binding_for_registry_id, decision_for_registry_id,
+)
+from pybamm_closed_loop.assembly import (
+    Rubric, TargetSpecification, assemble,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = ROOT / "data" / "registry" / "registry.json"
 TARGET = ROOT / "configs" / "v2" / "target_lgm50.yaml"
@@ -61,10 +68,26 @@ def _record(
     }
 
 
-def _gate(path: Path, names: list[str], *, approved: bool = True) -> Path:
+def _gate(path: Path, names: list[str], *, approved: bool = True,
+          registry: Path | None = None) -> Path:
+    records = json.loads((registry or REGISTRY).read_text())
+    by_id = {r["canonical_id"]: r for r in records}
+    if registry is not None:
+        target = TargetSpecification(
+            target_id="lgm50_chen2020_dfn", cell_product="LG M50",
+            chemistry_families=("NMC", "graphite"), format="21700",
+            temperature_k=298.15, soc="50%",
+        )
+        report = assemble(records, target, Rubric("rubric-v2"))
+        decisions = {d["parameter"]: d["decision"] for d in report.dossiers}
+    else:
+        decisions = {}
     payload = {"approvals": [
-        {"parameter": name, "decision": "USE", "approved": approved,
-         "approver": "owner", "rubric_version": "rubric-v2", "timestamp": "2026-11-23T00:00:00Z"}
+        {"parameter": name, "decision": decisions.get(name, decision_for_registry_id(name)),
+         "approved": approved,
+         "approver": "owner", "rubric_version": "rubric-v2", "timestamp": "2026-11-23T00:00:00Z",
+         "binding_sha256": (binding_for_record(by_id[name])
+                            if name in by_id else binding_for_registry_id(name))}
         for name in names
     ]}
     path.write_text(json.dumps(payload), encoding="utf-8")
@@ -204,7 +227,7 @@ def test_rejected_validation_never_exported(tmp_path, capsys):
     registry = tmp_path / "registry.json"
     registry.write_text(json.dumps([_record("ambient_temperature", validation_state="REJECTED")]),
                         encoding="utf-8")
-    gate = _gate(tmp_path / "gate.json", ["ambient_temperature"])
+    gate = _gate(tmp_path / "gate.json", ["ambient_temperature"], registry=registry)
     source = _assemble(tmp_path, "assembly", registry=registry, gate=gate)
     assert _export(tmp_path, source, tmp_path / "out.json") == 2
     diagnostic = _envelope(capsys)["diagnostics"][0]
@@ -217,7 +240,7 @@ def test_needs_review_with_approval_is_flagged(tmp_path, capsys):
     registry = tmp_path / "registry.json"
     registry.write_text(json.dumps([_record("ambient_temperature", validation_state="NEEDS_REVIEW")]),
                         encoding="utf-8")
-    gate = _gate(tmp_path / "gate.json", ["ambient_temperature"])
+    gate = _gate(tmp_path / "gate.json", ["ambient_temperature"], registry=registry)
     source = _assemble(tmp_path, "assembly", registry=registry, gate=gate)
     assert _export(tmp_path, source, tmp_path / "out.json") == 0
     artifact = _artifact(tmp_path / "out.json")
@@ -341,7 +364,7 @@ def test_empty_after_filtering_fails(tmp_path, capsys):
     registry = tmp_path / "registry.json"
     registry.write_text(json.dumps([_record("ambient_temperature", validation_state="REJECTED")]),
                         encoding="utf-8")
-    gate = _gate(tmp_path / "gate.json", ["ambient_temperature"])
+    gate = _gate(tmp_path / "gate.json", ["ambient_temperature"], registry=registry)
     source = _assemble(tmp_path, "assembly", registry=registry, gate=gate)
     assert _export(tmp_path, source, tmp_path / "out.json") == 2
     assert _envelope(capsys)["diagnostics"][0]["code"] == "E404"

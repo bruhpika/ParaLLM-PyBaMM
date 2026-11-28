@@ -12,6 +12,8 @@ import pytest
 from pybamm_closed_loop.cli import main
 from pybamm_closed_loop.cli_app.artifact import normalise_validation_state
 
+from tests._gate_helpers import binding_for_registry_id, decision_for_registry_id
+
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = ROOT / "data" / "registry" / "registry.json"
 TARGET = ROOT / "configs" / "v2" / "target_lgm50.yaml"
@@ -37,8 +39,9 @@ def _init(tmp_path: Path) -> None:
 
 
 def _approval(name: str = "ambient_temperature", approved: bool = True) -> dict:
-    return {"parameter": name, "decision": "USE", "approved": approved,
-            "approver": "owner", "rubric_version": "rubric-v2"}
+    return {"parameter": name, "decision": decision_for_registry_id(name), "approved": approved,
+            "approver": "owner", "rubric_version": "rubric-v2",
+            "binding_sha256": binding_for_registry_id(name)}
 
 
 def _gate(path: Path, *records: dict) -> Path:

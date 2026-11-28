@@ -274,7 +274,7 @@ class TestDossier:
 class TestApprovalGate:
     def test_approval_roundtrip(self):
         gate = ApprovalGate()
-        gate.approve("p", "USE", "owner", "rubric-v2", note="ok")
+        gate.approve("p", "USE", "owner", "rubric-v2", "0" * 64, note="ok")
         assert gate.is_approved("p")
         restored = ApprovalGate.from_dict(gate.to_dict())
         assert restored.is_approved("p")

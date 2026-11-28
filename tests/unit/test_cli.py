@@ -9,6 +9,8 @@ import pytest
 from pybamm_closed_loop.assembly.dossier import check_traceability
 from pybamm_closed_loop.cli import load_target, main
 
+from tests._gate_helpers import binding_for_record
+
 TARGET_YAML = """\
 target:
   target_id: lgm50_test
@@ -119,6 +121,7 @@ def test_export_contains_only_approved_parameters(tmp_path):
                         "approved": True,
                         "approver": "owner",
                         "rubric_version": "rubric-v2",
+                        "binding_sha256": binding_for_record(_record()),
                     },
                     {
                         "parameter": "not_in_registry",
@@ -126,6 +129,7 @@ def test_export_contains_only_approved_parameters(tmp_path):
                         "approved": True,
                         "approver": "owner",
                         "rubric_version": "rubric-v2",
+                        "binding_sha256": "0" * 64,
                     },
                 ]
             }

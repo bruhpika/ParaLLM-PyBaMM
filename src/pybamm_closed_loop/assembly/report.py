@@ -183,22 +183,67 @@ class AssemblyReport:
         return to_markdown(self.dossiers, title=f"PARALLM parameter assembly — {self.target.target_id}")
 
     # -- export ----------------------------------------------------------
-    def pybamm_export(self, gate: ApprovalGate | None = None) -> dict[str, Any]:
+    def pybamm_export(
+        self, gate: ApprovalGate | None = None, with_reasons: bool = False
+    ) -> dict[str, Any] | dict[str, dict[str, str]]:
         """Approved parameters as a PyBaMM-style {name: value} mapping.
 
         Only parameters with a recorded human approval are exported; the
-        approval record is the audit trail (rule 10).
+        approval record is the audit trail (rule 10). With no gate, nothing is
+        exported. Each approval must match the dossier's parameter, decision,
+        rubric version and deterministic value/unit/source hash; any mismatch
+        blocks that parameter.
+
+        When ``with_reasons=True``, returns ``{"parameters": ..., "blocked":
+        {parameter: reason}}`` so callers can report why a value was withheld.
         """
+        from .gate import binding_sha256
+
         out: dict[str, Any] = {}
+        blocked: dict[str, str] = {}
         for d in self.dossiers:
-            if gate is not None and not gate.is_approved(d["parameter"]):
+            parameter = d["parameter"]
+            if gate is None:
+                blocked[parameter] = f"{parameter}: no approval gate provided"
+                continue
+            record = gate.record_for(parameter)
+            if record is None or not record.approved:
+                blocked[parameter] = (
+                    f"{parameter}: no approved gate record for this parameter"
+                )
+                continue
+            reasons: list[str] = []
+            if record.decision != d["decision"]:
+                reasons.append(
+                    f"decision mismatch: approved {record.decision!r}, "
+                    f"assembly produced {d['decision']!r}"
+                )
+            if record.rubric_version != d["rubric_version"]:
+                reasons.append(
+                    f"rubric mismatch: approved {record.rubric_version!r}, "
+                    f"assembly produced {d['rubric_version']!r}"
+                )
+            expected = binding_sha256(d)
+            if record.binding_sha256 != expected:
+                reasons.append(
+                    f"binding mismatch: approved {record.binding_sha256}, "
+                    f"assembly produced {expected}"
+                )
+            if reasons:
+                blocked[parameter] = f"{parameter}: " + "; ".join(reasons)
                 continue
             if d["decision"] not in (Decision.USE.value, Decision.FIX.value):
+                blocked[parameter] = (
+                    f"{parameter}: decision {d['decision']} is not exportable"
+                )
                 continue
             value = (d.get("selected") or {}).get("value")
             if value is None:
+                blocked[parameter] = f"{parameter}: no selected value to export"
                 continue
-            out[d["parameter"]] = value
+            out[parameter] = value
+        if with_reasons:
+            return {"parameters": out, "blocked": blocked}
         return out
 
 
