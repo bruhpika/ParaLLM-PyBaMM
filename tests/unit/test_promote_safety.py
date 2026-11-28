@@ -13,6 +13,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from pybamm_closed_loop.cli import main
 from pybamm_closed_loop.cli_app.commands.promote import _candidate_hash
 
@@ -246,3 +248,54 @@ def test_promoted_record_has_verified_pybamm_names(tmp_path):
     assert _promote(tmp_path, validated, review, documents) == 0
     record = json.loads((tmp_path / "registry.json").read_text(encoding="utf-8"))[0]
     assert record["pybamm_names"] == ["Ambient temperature [K]"]
+
+
+# --- Step 3: the number must belong to the quantity -------------------------
+
+def _promote_payload(tmp_path: Path, candidate: dict) -> tuple[Path, Path]:
+    """Run validate on a labelled synthetic candidate and write a raw envelope."""
+    documents = _documents(tmp_path, candidate["source"]["quote"])
+    validated, _ = _write_envelope(tmp_path, [candidate], documents, allow_failed=True)
+    review = _review(tmp_path, [candidate])
+    return validated, review
+
+
+def _named_candidate(parameter: str, value: float, unit: str, quote: str) -> dict:
+    candidate = _candidate(value=value, unit=unit, quote=quote)
+    candidate["parameter_name"] = parameter
+    candidate["source"]["quote"] = quote
+    return candidate
+
+
+RADIUS_QUOTE = (
+    "The negative particle radius is 5.86 um measured by SEM at 25 C "
+    "on a synthetic cell with 12 samples"
+)
+AMBIENT_QUOTE = "ambient 300.15 K and reference 298.15 K"
+
+
+@pytest.mark.parametrize("value,unit,name", [
+    (25, "um", "neg_particle_radius"),
+    (12, "um", "neg_particle_radius"),
+    (5.86, "um", "pos_particle_radius"),
+    (298.15, "K", "ambient_temperature"),
+    (5.86, "K", "neg_particle_radius"),
+])
+def test_promote_refuses_number_not_belonging_to_quantity(tmp_path, capsys,
+                                                          value, unit, name):
+    """A number found elsewhere in a quote must not be promoted as the value."""
+    _init(tmp_path)
+    quote = AMBIENT_QUOTE if name == "ambient_temperature" else RADIUS_QUOTE
+    candidate = _named_candidate(name, value, unit, quote)
+    validated, review = _promote_payload(tmp_path, candidate)
+    assert _promote(tmp_path, validated, review, _documents(tmp_path, quote)) == 2
+    text = json.dumps(_envelope(capsys)["diagnostics"])
+    assert any(word in text for word in ("quantity", "unit", "electrode", "quote", "ambiguous"))
+
+
+def test_promote_accepts_correct_negative_radius(tmp_path):
+    """The correct 5.86 um negative radius still passes."""
+    _init(tmp_path)
+    candidate = _named_candidate("neg_particle_radius", 5.86, "um", RADIUS_QUOTE)
+    validated, review = _promote_payload(tmp_path, candidate)
+    assert _promote(tmp_path, validated, review, _documents(tmp_path, RADIUS_QUOTE)) == 0

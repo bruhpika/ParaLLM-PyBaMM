@@ -439,3 +439,13 @@ becoming an approval by changing only `approved` to `true`. It records a name
 and a time — it **does not prove identity**: a person can type any approver
 name. Identity proof would require signatures or an external audit system,
 which this prototype does not implement.
+
+### 13.3a Quantity/quote association is heuristic
+`promote` checks that the candidate's value and unit appear together in the
+quote, that the quote names the quantity and the matching electrode for
+`pos_`/`neg_` parameters, and that no second compatible value or both
+electrodes make the quote ambiguous. It handles micro signs, scientific
+notation and compound units. These are **heuristic text checks**: they refuse
+clearly mismatched or ambiguous quotes, but they cannot prove the scientific
+meaning of a sentence. A human must still review the extracted value against
+the source before approving it; the recorded review reason remains mandatory.

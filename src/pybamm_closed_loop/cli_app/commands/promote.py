@@ -58,28 +58,109 @@ def _unwrap_report(raw: Any) -> dict[str, Any]:
 
 _NUMBER_RE = re.compile(r"[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
 
+# A number followed by a unit-bearing token. Handles micro signs, scientific
+# notation and compound units such as "m2 s-1" / "m2.s-1" / "mol m-3".
+_VALUE_UNIT_RE = re.compile(
+    r"(?P<value>[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)"
+    r"(?:\s*[x\u00d7]\s*10\s*(?P<exp>[-\u2212+]?\d+))?"
+    r"\s*(?P<unit>[A-Za-z\u00b5\u03bc][A-Za-z0-9.\u00b5\u03bc-]*(?:\s+[A-Za-z0-9.\u00b5\u03bc-]+){0,2})"
+)
 
-def _value_in_quote(value: Any, quote: str) -> bool:
-    """True when the quoted text contains the candidate value verbatim.
+_POSITIVE_HINTS = ("positive", "cathode", "nmc", "lfp", "lco", "nca", "limetal")
+_NEGATIVE_HINTS = ("negative", "anode", "graphite", "siox", "li-metal")
 
-    Numbers are compared as canonical decimal strings; formatting variants
-    such as thousands separators are normalised away, but a different value
-    is never accepted.  A value edited after validation therefore fails here.
-    """
-    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
-        return False
-    try:
-        canonical = float(value)
-    except (TypeError, ValueError):
-        return False
-    tokens = _NUMBER_RE.findall(quote.replace(",", ""))
-    for token in tokens:
+
+def _normalise_text(text: str) -> str:
+    """Fold micro signs and unicode minus so paper typography still matches."""
+    return (
+        str(text).replace("\u00b5", "u").replace("\u03bc", "u")
+        .replace("\u2212", "-").replace("\u2013", "-")
+    )
+
+
+def _canonical_unit_of(token: str) -> str | None:
+    """Canonical unit name for a quoted unit token, or None if unrecognised."""
+    from ...registry.units import to_canonical
+
+    words = token.strip().split()
+    if not words:
+        return None
+    # The regex may capture a few trailing prose words; try progressively
+    # shorter leading prefixes so "um measured by" resolves as "um".
+    for n in range(len(words), 0, -1):
+        form = ".".join(words[:n])
         try:
-            if float(token) == canonical:
-                return True
-        except ValueError:
+            return to_canonical(form)[0]
+        except KeyError:
             continue
-    return False
+    return None
+
+
+def _quantity_terms(canonical_id: str) -> tuple[str, ...]:
+    """Meaningful words of the quantity name (ignoring electrode prefixes)."""
+    tokens = [
+        t for t in re.split(r"[_\s]+", canonical_id.lower())
+        if t and t not in ("pos", "neg", "positive", "negative")
+    ]
+    return tuple(tokens)
+
+
+def _electrode_hint(canonical_id: str) -> str | None:
+    name = canonical_id.lower()
+    if name.startswith(("pos_", "positive_")):
+        return "positive"
+    if name.startswith(("neg_", "negative_")):
+        return "negative"
+    return None
+
+
+def _quote_pairs(quote: str, expected_unit: str | None) -> list[tuple[float, int, int]]:
+    """(value, start, end) for number+unit pairs with a compatible unit."""
+    pairs: list[tuple[float, int, int]] = []
+    for match in _VALUE_UNIT_RE.finditer(_normalise_text(quote)):
+        unit = _canonical_unit_of(match.group("unit"))
+        if expected_unit is not None and unit != expected_unit:
+            continue
+        value = float(match.group("value"))
+        if match.group("exp"):
+            value *= 10.0 ** int(match.group("exp"))
+        pairs.append((value, match.start(), match.end()))
+    return pairs
+
+
+def _associated_values(quote: str, canonical_id: str,
+                       expected_unit: str | None) -> tuple[list[float], str | None]:
+    """Values in the quote that belong to the named quantity and electrode.
+
+    Returns (values, ambiguity_reason). Refusing on ambiguity is intentional:
+    a narrower quote is safer than guessing which number was meant.
+    """
+    folded = _normalise_text(quote).lower()
+    hint = _electrode_hint(canonical_id)
+    positive = any(word in folded for word in _POSITIVE_HINTS)
+    negative = any(word in folded for word in _NEGATIVE_HINTS)
+    if hint == "positive" and negative and not positive:
+        return [], "quote names the negative electrode for a positive parameter"
+    if hint == "negative" and positive and not negative:
+        return [], "quote names the positive electrode for a negative parameter"
+    if positive and negative:
+        return [], "quote names both electrodes; use a narrower quote"
+
+    terms = _quantity_terms(canonical_id)
+    if not terms or not all(term in folded for term in terms):
+        return [], "quote does not name the quantity"
+
+    pairs = _quote_pairs(quote, expected_unit)
+    if not pairs:
+        return [], "quote has no number with a compatible unit near the quantity"
+    # Only pairs whose local window names the quantity count as belonging to it.
+    values = [
+        value for value, start, end in pairs
+        if all(term in folded[max(0, start - 60):min(len(folded), end + 60)] for term in terms)
+    ]
+    if not values:
+        return [], "no number with a compatible unit is associated with the quantity"
+    return values, None
 
 
 def _revalidate(payload: dict[str, Any], doc_texts: dict[str, str],
@@ -161,8 +242,6 @@ def _quote_supports(payload: dict[str, Any], doc_text: str,
     quote = str((payload.get("source") or {}).get("quote") or "")
     if not quote or not verify_quote_in_evidence(quote, doc_text):
         return False, "quote not verified against --documents"
-    if not _value_in_quote(payload.get("value"), quote):
-        return False, "value is not supported by the recorded quote"
     try:
         canonical, _ = to_canonical(str(payload.get("unit")))
     except KeyError as exc:
@@ -172,10 +251,9 @@ def _quote_supports(payload: dict[str, Any], doc_text: str,
             f"unit mismatch: quote/parameter expects {expected_unit}, "
             f"candidate has {canonical}"
         )
-    # A table row needs its own header/caption to be checkable. Use a
-    # conservative signal (tab/column spacing or a table locator) so ordinary
-    # prose containing two numbers is not mistaken for a table. If the header
-    # cannot be recovered from the same table, refuse rather than guess.
+    # A table row needs its own header/caption to be checkable. Refuse before
+    # trying to associate numbers with the quantity: an unchecked table cannot
+    # support a value/quantity claim.
     locator = str((payload.get("source") or {}).get("locator") or "")
     looks_like_table = (
         "\t" in quote
@@ -187,6 +265,22 @@ def _quote_supports(payload: dict[str, Any], doc_text: str,
         context = table_header_context(doc_text, quote)
         if not context:
             return False, "table quote cannot be checked: no header/context for this table"
+
+    name = str(payload.get("parameter_name") or "")
+    values, ambiguity = _associated_values(quote, name, canonical)
+    if ambiguity:
+        return False, ambiguity
+    # A dimensionless quantity must be the only number that could be its value.
+    if canonical == "dimensionless" and len(values) > 1:
+        return False, "ambiguous quote: several dimensionless numbers could be the value"
+    if len(values) > 1:
+        return False, "ambiguous quote: several values with a compatible unit; use a narrower quote"
+    try:
+        candidate_value = float(payload.get("value"))
+    except (TypeError, ValueError):
+        return False, "candidate value is not numeric"
+    if not values or values[0] != candidate_value:
+        return False, "value is not supported by the recorded quote"
     return True, "quote, value and unit are consistent"
 
 
