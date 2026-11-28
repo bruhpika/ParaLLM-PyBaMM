@@ -1,11 +1,25 @@
 # Step 4 — current/capacity transfer review
 
-## Decision counts (before and after)
+## Decision counts
 
-| Target | rubric-v4 (before classification change) | rubric-v5 (after) |
-|---|---|---|
-| NMC / LG M50 (`configs/v2/target_lgm50.yaml`) | FIX 19, REVIEW 52, USE 25 | FIX 19, REVIEW 52, USE 25 |
-| LFP / Prada2013 (`configs/v3/target_lfp_graphite_prada2013.yaml`) | FIX 14, REJECT 9, REVIEW 65, USE 8 | FIX 14, REJECT 9, REVIEW 66, USE 7 |
+From the repository root, where `--p2-results results/p2` is present:
+
+```
+.venv/bin/parallm --quiet --json assemble --target configs/v2/target_lgm50.yaml --registry data/registry/registry.json --out /tmp/step5/LGd
+LG M50  {"CALIBRATE": 6, "FIX": 18, "REVIEW": 52, "USE": 20}
+
+.venv/bin/parallm --quiet --json assemble --target configs/v3/target_lfp_graphite_prada2013.yaml --registry data/registry/registry.json --out /tmp/step5/LFPd
+LFP     {"FIX": 14, "REJECT": 9, "REVIEW": 66, "USE": 7}
+```
+
+| Target | Corrected rubric-v5 counts |
+|---|---|
+| NMC / LG M50 (`configs/v2/target_lgm50.yaml`) | CALIBRATE 6, FIX 18, REVIEW 52, USE 20 |
+| LFP / Prada2013 (`configs/v3/target_lfp_graphite_prada2013.yaml`) | FIX 14, REJECT 9, REVIEW 66, USE 7 |
+
+The earlier table said LG M50 FIX 19 / USE 25 with no CALIBRATE. That was
+wrong: it omitted the observability join from `results/p2`, which reclassifies
+six parameters as `CALIBRATE`. The counts above are from the command output.
 
 The only change is `current_function`: `USE` → `REVIEW` on the LFP target.
 It is unchanged (`USE`) on the LG M50 target because that target's stated cell
