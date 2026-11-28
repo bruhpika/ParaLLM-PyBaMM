@@ -281,3 +281,74 @@ def test_reexport_preserves_converted_si_value(tmp_path):
     candidate = _candidate_from_quote("neg_particle_radius", 5.86, "um", quote)
     overlay, final = _chain_to_pybamm(tmp_path, candidate, quote, export_schema=2)
     assert overlay["Negative particle radius [m]"] == 5.86e-06
+
+
+# --- Step 4: full export regression with the committed registry -------------
+
+def test_full_export_regression_approved_values_to_pybamm(tmp_path):
+    """38 approved entries, 31 PyBaMM parameters, 7 named skips.
+
+    Public CLI commands only. The approver is clearly fake; no human is
+    simulated implicitly and no intermediate output is hand-edited.
+    """
+    cfg = _config(tmp_path)
+    _init(tmp_path)
+    registry = REGISTRY_DIR / "registry.json"
+    target = ROOT / "configs" / "v2" / "target_lgm50.yaml"
+
+    # assemble -> pending gate (38 unapproved exportable decisions)
+    first = tmp_path / "assembly_first"
+    assert main([*cfg, "--quiet", "assemble", "--target", str(target),
+                 "--registry", str(registry), "--out", str(first)]) == 0
+    pending = json.loads((first / "gate.pending.json").read_text(encoding="utf-8"))
+    assert len(pending["approvals"]) == 38
+    for entry in pending["approvals"]:
+        entry.update(approved=True, approver="FAKE-APPROVER",
+                     timestamp="2026-11-28T00:00:00Z",
+                     note="SYNTHETIC fake approval for regression test")
+    gate = tmp_path / "gate.json"
+    gate.write_text(json.dumps({"approvals": pending["approvals"]}), encoding="utf-8")
+
+    final = tmp_path / "assembly_final"
+    assert main([*cfg, "--quiet", "assemble", "--target", str(target),
+                 "--registry", str(registry), "--out", str(final), "--gate", str(gate)]) == 0
+    approved = json.loads((final / "pybamm_export.json").read_text(encoding="utf-8"))
+    assert len(approved) == 38, len(approved)
+
+    overlay_file = tmp_path / "params.py"
+    envelope = _cli_json(tmp_path, ["export", "--format", "pybamm",
+                                    "--from", str(final), "--output", str(overlay_file)])
+    data = envelope["data"]
+    assert data["n_exported"] == 31, data["n_exported"]
+    assert data["skipped"] == 7, data["skipped"]
+
+    expected_skips = {
+        "electrolyte_conductivity": "NON_NUMERIC",
+        "neg_electrode_ocp": "NON_NUMERIC",
+        "pos_electrode_ocp": "NON_NUMERIC",
+        "neg_activation_energy": "NO_PYBAMM_NAME",
+        "neg_reaction_rate": "NO_PYBAMM_NAME",
+        "pos_activation_energy": "NO_PYBAMM_NAME",
+        "pos_reaction_rate": "NO_PYBAMM_NAME",
+    }
+    actual_skips = {s["parameter"]: s["reason"] for s in data["skipped_details"]}
+    assert actual_skips == expected_skips, actual_skips
+
+    records = json.loads(registry.read_text(encoding="utf-8"))
+    names_by_id = {
+        r["canonical_id"]: r.get("pybamm_names") or []
+        for r in records if isinstance(r, dict)
+    }
+    overlay = ast.literal_eval(
+        overlay_file.read_text(encoding="utf-8").split("=", 1)[1].strip()
+    )
+    assert len(overlay) == 31
+    for canonical_id, value in approved.items():
+        names = names_by_id.get(canonical_id) or []
+        if not names or names[0] not in overlay:
+            continue  # one of the seven documented skips
+        assert overlay[names[0]] == value, (canonical_id, names[0], overlay[names[0]], value)
+
+    parameter_values = apply_export_overlay("Chen2020", overlay)
+    for name, value in overlay.items():
+        assert parameter_values[name] == value, (name, value, parameter_values[name])
