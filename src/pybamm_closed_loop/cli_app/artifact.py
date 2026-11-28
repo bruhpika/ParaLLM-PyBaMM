@@ -692,11 +692,34 @@ def build_metadata(
     d_evidence = dossier.get("evidence") or {}
     approval_record = gate_records.get(name) or {}
 
+    # An assembled dossier describes the SELECTED candidate. The registry's
+    # operative record may be a different value (a conflict); it must never
+    # supply values or provenance for an approved export.
+    selected = dossier.get("selected") or {}
+    literature = dossier.get("literature_value") or {}
     unit = entry.unit
+    if unit == NOT_RECORDED and selected.get("unit") is not None:
+        unit = selected["unit"]
     if unit == NOT_RECORDED and record.get("value_unit") is not None:
         unit = record["value_unit"]
-    canonical_value = record.get("normalized_value", NOT_RECORDED)
-    canonical_unit = record.get("normalized_value_unit", NOT_RECORDED)
+    if dossier:
+        canonical_value = selected.get("canonical_value", NOT_RECORDED)
+        canonical_unit = selected.get("canonical_unit", NOT_RECORDED)
+        original_value = literature.get("as_printed", selected.get("value", NOT_RECORDED))
+        original_unit = literature.get("as_printed_unit", selected.get("unit", NOT_RECORDED))
+        origin_status = literature.get("status", record.get("status", NOT_RECORDED))
+    else:
+        canonical_value = record.get("normalized_value", NOT_RECORDED)
+        canonical_unit = record.get("normalized_value_unit", NOT_RECORDED)
+        if record:
+            original_value = record.get("value", NOT_RECORDED)
+            original_unit = record.get("value_unit", NOT_RECORDED)
+            origin_status = record.get("status", NOT_RECORDED)
+        else:
+            # Direct input: its own value/unit are the only available original.
+            original_value = entry.value
+            original_unit = entry.unit
+            origin_status = NOT_RECORDED
 
     verification_state = d_evidence.get("quote_verified")
     if verification_state is True:
@@ -737,9 +760,9 @@ def build_metadata(
 
     conditions = record.get("conditions") or dossier.get("conditions") or NOT_RECORDED
     return {
-        "origin": _sentinel(record.get("status"), NOT_RECORDED),
-        "original": {"value": _sentinel(record.get("value"), NOT_RECORDED),
-                     "unit": _sentinel(record.get("value_unit"), NOT_RECORDED)},
+        "origin": _sentinel(origin_status, NOT_RECORDED),
+        "original": {"value": _sentinel(original_value, NOT_RECORDED),
+                     "unit": _sentinel(original_unit, NOT_RECORDED)},
         "canonical": {"value": _sentinel(canonical_value), "unit": _sentinel(canonical_unit)},
         "unit": _sentinel(unit),
         "source": {

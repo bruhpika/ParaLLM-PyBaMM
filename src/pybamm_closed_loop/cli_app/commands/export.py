@@ -277,30 +277,58 @@ def export(
         if metadata["calibration"]["status"] == "LITERATURE FIT REPORTED":
             limitations.append(f"{name}: origin records a literature fit; no recorded calibration report")
         names = entry.data.get("pybamm_names") or (registry_by_id.get(name) or {}).get("pybamm_names") or []
-        # Numeric exports use the canonical (converted SI) value, never the raw
-        # literature printing (e.g. 5.86 um -> 5.86e-06 m). Function values
-        # keep their existing behaviour.
-        value = entry.value
-        canonical = metadata["canonical"].get("value")
+        # The value comes ONLY from the input artifact. For an assembly folder
+        # that is the approved, already-converted export; the registry may
+        # supply names and descriptive metadata, never a value.
+        approved_value = entry.value
+        value = approved_value
         canonical_unit = metadata["canonical"].get("unit")
-        if not (isinstance(canonical, (int, float)) and not isinstance(canonical, bool)):
-            # No recorded canonical field: convert the raw value with its
-            # stated unit deterministically. Never export the raw printing.
+        unit = metadata["unit"]
+        dossier = dossier_by_id.get(name) or {}
+        selected = dossier.get("selected") or {}
+        if dossier:
+            # An approved dossier is authoritative for the selected value and
+            # its unit. Never take these from the registry's main record.
+            approved_canonical = selected.get("canonical_value")
+            approved_unit = selected.get("canonical_unit")
+            if isinstance(approved_canonical, (int, float)) and not isinstance(approved_canonical, bool):
+                if isinstance(value, (int, float)) and float(value) != float(approved_canonical):
+                    raise ExportError(
+                        f"Approved value for {name!r} does not match the assembled dossier.",
+                        why=(f"artifact has {value!r}, approved dossier has {approved_canonical!r}"),
+                        action="Re-run `parallm assemble` and approve the current decision; nothing was written.",
+                    )
+            if approved_unit and approved_unit != NOT_RECORDED:
+                canonical_unit = approved_unit
+                unit = approved_unit
+        elif isinstance(value, (int, float)) and not isinstance(value, bool):
+            # Direct input: convert only from a unit the input itself states.
+            input_unit = entry.data.get("unit", NOT_RECORDED)
             from ...registry.units import to_canonical
-            raw_unit = metadata.get("unit")
-            if isinstance(value, (int, float)) and not isinstance(value, bool) and raw_unit:
+            if input_unit and input_unit != NOT_RECORDED:
                 try:
-                    canonical_unit, factor = to_canonical(str(raw_unit))
-                    canonical = float(value) * factor
+                    canonical_unit, factor = to_canonical(str(input_unit))
+                    value = float(value) * factor
+                except KeyError as exc:
+                    raise ExportError(
+                        f"Cannot convert {name!r}: unit is not recognised.",
+                        why=str(exc), action="State a unit known to the unit table.",
+                    ) from exc
+            elif unit and unit != NOT_RECORDED:
+                # Unit is descriptive metadata, not a value: the registry may
+                # supply it when the input states none.
+                from ...registry.units import to_canonical
+                try:
+                    canonical_unit, _ = to_canonical(str(unit))
                 except KeyError:
-                    canonical = None
-        if isinstance(canonical, (int, float)) and not isinstance(canonical, bool):
-            value = canonical
-        else:
-            canonical_unit = None
+                    canonical_unit = None
+            else:
+                canonical_unit = None
+        if isinstance(canonical_unit, str) and canonical_unit != NOT_RECORDED:
+            unit = canonical_unit
         entries[name] = {
             "value": value,
-            "unit": metadata["unit"],
+            "unit": unit,
             "canonical_unit": canonical_unit,
             "pybamm_names": list(names),
             "metadata": metadata,
