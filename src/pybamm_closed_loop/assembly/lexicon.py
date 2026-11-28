@@ -96,6 +96,7 @@ CELL_SPECIFIC_PATTERNS: tuple[str, ...] = (
     "cell area",
     "cell_electrode_width",
     "cell_electrode_height",
+    "current_function",
     "electrode_conductivity",
     "electrode_specific_heat_capacity",
     "electrode_thermal_conductivity",

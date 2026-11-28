@@ -55,7 +55,7 @@ def assemble_command(
     accuracy_critical: list[str] = typer.Option(
         [], "--accuracy-critical", help="Canonical ids whose accuracy is critical."
     ),
-    rubric_version: str = typer.Option("rubric-v4", "--rubric-version"),
+    rubric_version: str = typer.Option("rubric-v5", "--rubric-version"),
 ) -> int:
     """Assemble dossiers; write a fail-closed gate.pending.json template.
 

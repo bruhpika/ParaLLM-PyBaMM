@@ -43,14 +43,14 @@ def _gate(tmp_path, record):
         chemistry_families=("NMC", "graphite"), format="21700",
         temperature_k=298.15, soc="50%", parameter_set="Chen2020",
     )
-    report = assemble([record], target, Rubric("rubric-v4"))
+    report = assemble([record], target, Rubric("rubric-v5"))
     decision = report.dossiers[0]["decision"]
     path = tmp_path / "gate.json"
     path.write_text(json.dumps({"approvals": [{
         "parameter": "neg_particle_radius",
         "decision": decision,
         "approved": True, "approver": "owner", "timestamp": "2026-11-28T00:00:00Z",
-        "rubric_version": "rubric-v4",
+        "rubric_version": "rubric-v5",
         "binding_sha256": binding_for_record(record),
     }]}), encoding="utf-8")
     return path

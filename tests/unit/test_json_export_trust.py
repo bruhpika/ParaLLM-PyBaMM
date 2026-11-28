@@ -78,14 +78,14 @@ def _gate(path: Path, names: list[str], *, approved: bool = True,
             chemistry_families=("NMC", "graphite"), format="21700",
             temperature_k=298.15, soc="50%",
         )
-        report = assemble(records, target, Rubric("rubric-v4"))
+        report = assemble(records, target, Rubric("rubric-v5"))
         decisions = {d["parameter"]: d["decision"] for d in report.dossiers}
     else:
         decisions = {}
     payload = {"approvals": [
         {"parameter": name, "decision": decisions.get(name, decision_for_registry_id(name)),
          "approved": approved,
-         "approver": "owner", "rubric_version": "rubric-v4", "timestamp": "2026-11-23T00:00:00Z",
+         "approver": "owner", "rubric_version": "rubric-v5", "timestamp": "2026-11-23T00:00:00Z",
          "binding_sha256": (binding_for_record(by_id[name])
                             if name in by_id else binding_for_registry_id(name))}
         for name in names

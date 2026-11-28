@@ -38,7 +38,7 @@ class CLIConfig(BaseModel):
 
     schema_version: int = SCHEMA_VERSION
     workspace: Path | None = None
-    rubric_version: str = "rubric-v4"
+    rubric_version: str = "rubric-v5"
     default_export_format: Literal["json", "pybamm"] = "json"
     paths: PathSettings = Field(default_factory=PathSettings)
 

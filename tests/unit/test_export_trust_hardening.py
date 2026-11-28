@@ -43,7 +43,7 @@ def _init(tmp_path: Path) -> None:
 def _approval(name: str = "ambient_temperature", approved: bool = True) -> dict:
     return {"parameter": name, "decision": decision_for_registry_id(name), "approved": approved,
             "approver": "owner", "timestamp": "2026-11-28T00:00:00Z",
-            "rubric_version": "rubric-v4",
+            "rubric_version": "rubric-v5",
             "binding_sha256": binding_for_registry_id(name)}
 
 

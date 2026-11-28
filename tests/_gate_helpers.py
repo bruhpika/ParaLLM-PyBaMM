@@ -62,7 +62,7 @@ def decision_for_registry_id(name: str, registry: Path = REGISTRY) -> str:
         temperature_k=298.15,
         soc="50%",
     )
-    report = assemble(records, target, Rubric("rubric-v4"))
+    report = assemble(records, target, Rubric("rubric-v5"))
     decisions = {d["parameter"]: d["decision"] for d in report.dossiers}
     # Synthetic fixture parameters are not in the committed registry; the
     # trust tests that use them do not assert on the rubric decision.
