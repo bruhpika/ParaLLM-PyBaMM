@@ -6,10 +6,33 @@ locally from registry data and verified against the installed versions.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 from .model import ParameterRecord
 from .store import RegistryStore
+
+#: The committed, read-only canonical-id -> PyBaMM-name mapping used by promote.
+EXPLICIT_MAPPING_PATH = (
+    Path(__file__).resolve().parents[3] / "data" / "registry" / "registry.json"
+)
+
+
+def load_explicit_pybamm_mapping() -> dict[str, list[str]]:
+    """Load canonical-id -> PyBaMM names from the committed registry.
+
+    This is an explicit mapping, never inferred from parameter names or from an
+    extraction payload. The file is read-only; promotion never edits it.
+    """
+    raw = json.loads(EXPLICIT_MAPPING_PATH.read_text(encoding="utf-8"))
+    if not isinstance(raw, list):
+        raise ValueError("explicit PyBaMM mapping is not a JSON list")
+    return {
+        str(record["canonical_id"]): list(record.get("pybamm_names") or [])
+        for record in raw
+        if isinstance(record, dict) and record.get("canonical_id")
+    }
 
 
 def build_pybamm_name_index(store: RegistryStore) -> dict[str, str]:

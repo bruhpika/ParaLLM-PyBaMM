@@ -312,9 +312,16 @@ positive beats baseline 15/18 and negative does not 18/18 — also **SYNTHETIC**
   invent parameter values, sources or labels.
 - **This fix round.** The trust-layer, rubric and pipeline corrections and
   their documentation were implemented with the assistance of an OpenCode AI
-  agent. The project owner reviewed and approved each phase before it was
-  applied. No LLM output was accepted as scientific evidence without the
-  deterministic checks and explicit human approval described above.
+  agent. The project owner reviewed and approved each of the six phases of this
+  fix round before it was applied. No LLM output was accepted as scientific
+  evidence without the deterministic checks and explicit human approval
+  described above.
+- **End-to-end status.** Because the integration test in
+  `tests/integration/test_export_chain_to_pybamm.py` passes, the public CLI
+  chain `extract → validate → review → promote → assemble → approve → export →
+  pybamm.ParameterValues` is demonstrated with a labelled synthetic value. This
+  is a software-chain result, not experimental validation; see
+  `docs/JSON_EXPORT_TRUST_MODEL.md` §13 and `docs/SCIENTIFIC_LIMITATIONS.md`.
 
 Full disclosure: `docs/SCIENTIFIC_LIMITATIONS.md`.
 

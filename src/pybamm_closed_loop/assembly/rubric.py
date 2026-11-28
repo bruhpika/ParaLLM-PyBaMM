@@ -60,6 +60,12 @@ DEFAULT_WEIGHTS: dict[str, float] = {
 _NMC_COMPOSITION_RE = re.compile(r"nmc[^0-9]{0,3}(\d{3})")
 
 
+def _rubric_major(version: str) -> int:
+    """Numeric major version from strings like ``rubric-v4`` (0 if unparseable)."""
+    m = re.search(r"v(\d+)", str(version))
+    return int(m.group(1)) if m else 0
+
+
 def _electrolyte_tokens(text: str) -> set[str]:
     """Distinguishing tokens of an electrolyte description (salt, ratio, additive)."""
     t = ascii_fold(str(text)).lower()
@@ -152,6 +158,9 @@ class Rubric:
         rules: Sequence[Rule] | None = None,
     ) -> None:
         self.version = version
+        # rubric v4: cell/chemistry-specific values need a *stated* match to
+        # the target before a single candidate may be adopted as USE/FIX.
+        self.require_stated_transfer_match = _rubric_major(version) >= 4
         self.weights = dict(weights or DEFAULT_WEIGHTS)
         self.electrolyte_weights = dict(
             electrolyte_weights or ELECTROLYTE_WEIGHTS
@@ -390,6 +399,37 @@ class Rubric:
         self._fire(outcome, "agreement", 0.35, "independent sources report differing values",
                    {"n_independent": len(others)})
         return 0.35
+
+    def stated_transfer_matches(
+        self, cand: CandidateValue, target: TargetSpecification
+    ) -> bool:
+        """True when a cell/chemistry-specific candidate has a stated match.
+
+        Unstated conditions never count: an absent cell product or chemistry
+        family is not evidence that the value transfers to the target.
+        """
+        from .lexicon import is_cell_specific, is_chemistry_specific, cell_tokens
+
+        specific = is_cell_specific(cand.canonical_id) or is_chemistry_specific(cand.canonical_id)
+        if not specific:
+            return True
+        if is_cell_specific(cand.canonical_id):
+            raw_cell = (cand.conditions.raw or {}).get("cell")
+            tokens = cell_tokens(raw_cell) or cell_tokens(cand.conditions.cell_product)
+            target_tokens = {tok.lower() for tok in cell_tokens(target.cell_product)}
+            if not tokens or not target_tokens:
+                return False
+            if not any(
+                tok.lower() in target_tokens or any(tok.lower() in tt for tt in target_tokens)
+                for tok in tokens
+            ):
+                return False
+        if is_chemistry_specific(cand.canonical_id):
+            families = {f.lower() for f in cand.conditions.chemistry_families}
+            target_families = {f.lower() for f in target.chemistry_families}
+            if not families or not target_families or not (families & target_families):
+                return False
+        return True
 
     def _score_cell_product(
         self, cand: CandidateValue, target: TargetSpecification, outcome: RubricOutcome

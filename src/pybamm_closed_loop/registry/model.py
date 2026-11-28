@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import enum
 import hashlib
+import json
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
@@ -118,6 +119,16 @@ def sha256_text(text: str) -> str:
     Used for content-keyed provenance identifiers; never carries secrets.
     """
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def candidate_sha256(payload: Any) -> str:
+    """Stable SHA-256 of an extraction candidate payload.
+
+    Both `validate --json` and `promote` use this exact projection, so a human
+    can copy the hash from the validation report into a review record and
+    promote can verify it without trusting any reported state.
+    """
+    return sha256_text(json.dumps(payload, sort_keys=True, default=str))
 
 
 def _schema_ok(obj: Any, spec: dict[str, type | tuple]) -> bool:

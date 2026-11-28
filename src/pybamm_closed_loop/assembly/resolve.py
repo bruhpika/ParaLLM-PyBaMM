@@ -104,6 +104,33 @@ def _decision_for_method(candidate: CandidateValue) -> Decision:
     return Decision.REVIEW
 
 
+def _final_decision(
+    decision: Decision,
+    candidate: CandidateValue,
+    target: TargetSpecification,
+    rubric: Rubric,
+    rationale: list[str],
+) -> Decision:
+    """rubric v4: withhold USE/FIX when a specific value has no stated match.
+
+    An unstated cell product or chemistry family is not evidence of transfer.
+    Escalate to REVIEW rather than adopting a value from another cell/chemistry.
+    """
+    if (
+        rubric.require_stated_transfer_match
+        and decision in (Decision.USE, Decision.FIX)
+        and not rubric.stated_transfer_matches(candidate, target)
+    ):
+        rationale.append(
+            f"REVIEW (rubric {rubric.version}): {candidate.canonical_id} is "
+            "cell/chemistry-specific and the selected candidate has no stated, "
+            "matching condition for this target; a specific value cannot be "
+            "transferred on unstated conditions - a human must decide."
+        )
+        return Decision.REVIEW
+    return decision
+
+
 def _resolve_parameter_core(
     canonical_id: str,
     candidates: Sequence[CandidateValue],
@@ -197,7 +224,9 @@ def _resolve_parameter_core(
 
     if not conflicting:
         best = max(surviving, key=lambda o: o.total)
-        decision = _decision_for_method(best.candidate)
+        decision = _final_decision(
+            _decision_for_method(best.candidate), best.candidate, target, rubric, rationale
+        )
         if rejected:
             # other candidates existed but failed the rubric: the survivor is
             # adopted, and the rejection is recorded as a preserved conflict
@@ -241,7 +270,9 @@ def _resolve_parameter_core(
     if len(ranked) < 2:
         # defensive: conflicting was true but ranking collapsed (should not
         # happen once _distinct_values requires >= 2 candidates)
-        decision = _decision_for_method(top.candidate)
+        decision = _final_decision(
+            _decision_for_method(top.candidate), top.candidate, target, rubric, rationale
+        )
         rationale.append(
             f"adopted {top.candidate.value} {top.candidate.unit or ''} "
             f"(source={top.candidate.source_id}, rubric score {top.total:.3f}); "
@@ -274,7 +305,9 @@ def _resolve_parameter_core(
             f"(source={chosen.candidate.source_id}, method class "
             f"{chosen.candidate.method_class.value}, rubric score {chosen.total:.3f})"
         )
-        decision = _decision_for_method(chosen.candidate)
+        decision = _final_decision(
+            _decision_for_method(chosen.candidate), chosen.candidate, target, rubric, rationale
+        )
         alternatives = [o.candidate for o in surviving if o.candidate is not chosen.candidate]
         return Resolution(
             canonical_id=canonical_id,
@@ -341,7 +374,9 @@ def _resolve_parameter_core(
             rubric_version=rubric.version,
         )
 
-    decision = _decision_for_method(top.candidate)
+    decision = _final_decision(
+        _decision_for_method(top.candidate), top.candidate, target, rubric, rationale
+    )
     rationale.append(
         f"adopted {top.candidate.value} {top.candidate.unit or ''} "
         f"(source={top.candidate.source_id}, rubric score {top.total:.3f}; runner-up "

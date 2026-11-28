@@ -1246,7 +1246,11 @@ def build_records(pybamm_params: dict[str, Any], text: str) -> list[ParameterRec
                 source_id=src_id,
                 source_location=src_loc,
                 evidence=pe,
-                conditions=(pe.conditions if pe else COND_CELL) or {},
+                # A PyBaMM/Chen2020 default with no primary evidence carries NO
+                # stated experimental conditions. Copying COND_CELL here would
+                # manufacture cell/chemistry/temperature evidence that no
+                # source states (rubric v4).
+                conditions=dict(pe.conditions) if pe else {},
                 method=pe.method if pe else None,
                 reported_uncertainty=(pe.reported_uncertainty if pe else None),
                 validation_state=val_state,
@@ -1303,13 +1307,16 @@ def build_records(pybamm_params: dict[str, Any], text: str) -> list[ParameterRec
                 source_id=PYBAMM_DEFAULT_SOURCE_ID,
                 source_location=f"pybamm 26.8.0.0 ParameterValues('Chen2020')['{key}']",
                 evidence=None,
-                conditions=dict(COND_CELL),
+                # No source states conditions for an uncovered PyBaMM default;
+                # do not inherit the demonstrator's cell/chemistry/temperature.
+                conditions={},
                 method=None,
                 reported_uncertainty=None,
                 validation_state=RS.NEEDS_REVIEW,
                 compatibility={"note": f["note"]},
                 conflicts=[],
-                notes=[],
+                notes=["Experimental conditions are not stated for this PyBaMM default; "
+                       "no cell, chemistry or temperature evidence is inferred."],
             )
         )
     return records

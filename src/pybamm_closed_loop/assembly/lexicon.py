@@ -92,7 +92,13 @@ CELL_SPECIFIC_PATTERNS: tuple[str, ...] = (
     "current_collector",
     "separator",
     "volume fraction",
+    "active_material_volume_fraction",
     "cell area",
+    "cell_electrode_width",
+    "cell_electrode_height",
+    "electrode_conductivity",
+    "electrode_specific_heat_capacity",
+    "electrode_thermal_conductivity",
     "grain size",
     "coating",
     "loading",
@@ -147,6 +153,13 @@ CHEMISTRY_SPECIFIC_PARAMETERS: frozenset[str] = frozenset({
     # SEI (on the negative active material)
     "sei_open_circuit_potential", "sei_reaction_exchange_current_density",
     "sei_lithium_interstitial_diffusivity", "sei_solvent_diffusivity",
+    # active-material thermodynamics and kinetics (rubric v4): these depend on
+    # the chemistry, not on the specific cell build.
+    "pos_initial_concentration", "neg_initial_concentration",
+    "pos_max_concentration", "neg_max_concentration",
+    "pos_activation_energy", "neg_activation_energy",
+    "pos_reaction_rate", "neg_reaction_rate",
+    "pos_charge_transfer_coefficient", "neg_charge_transfer_coefficient",
 })
 
 

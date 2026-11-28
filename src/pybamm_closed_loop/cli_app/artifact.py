@@ -3,7 +3,18 @@
 This module owns the artifact-level trust decision and the v1/v2 artifact
 schema.  Approval is never inferred from a file's name, shape, values or
 user-supplied claims: it is established from an ``ApprovalGate`` record and
-verified against the assembly manifest hashes where a manifest exists.
+verified against the *decision it claims to approve* by one shared verifier
+(``assembly.gate.verify_gate_bindings``).  That verifier checks parameter,
+decision, rubric version, recomputed binding hash and exported value.
+
+A raw registry has no assembled decisions, so it cannot be verified and is
+refused.  For assembly folders, file hashes are checked first and then the
+bindings and exported values are re-verified from the registry and dossiers.
+This protects against stale or mistaken gate/registry/export files (e.g. a
+gate left over from an earlier run, or a value edited after approval).  It
+cannot protect against an actor who can rewrite *every* file, including the
+assembly manifest and gate; that would require a cryptographic signature over
+the whole chain, which this prototype does not implement.
 """
 
 from __future__ import annotations
@@ -14,6 +25,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from ..assembly.gate import ApprovalGate, verify_gate_bindings
 from ..registry.model import sha256_text
 from .errors import ExportError, InputError
 from .inputs import load_json, sha256
@@ -311,7 +323,12 @@ def _parse_gate_file(path: Path):
 
 def _gate_approval(
     manifest_gate: dict[str, Any], base: Path
-) -> tuple[set[str], Path | None, str | None]:
+) -> tuple[ApprovalGate, Path | None, str | None]:
+    """Load and hash-check the gate, returning the parsed gate for verification.
+
+    The returned gate is *not* trust by itself; every record must still be
+    checked against the assembled decision with ``verify_gate_bindings``.
+    """
     path = _resolve_path(manifest_gate.get("path"), base)
     if path is None or not path.is_file():
         raise ExportError(
@@ -328,7 +345,47 @@ def _gate_approval(
             action="Re-run `parallm assemble` with the current gate; nothing was written.",
         )
     gate = _parse_gate_file(path)
-    return gate.approved_parameters(), path, actual_hash
+    if not isinstance(gate, ApprovalGate):  # defensive: parser contract
+        raise ExportError("Assembly gate file could not be parsed.", action="Provide a valid gate.")
+    return gate, path, actual_hash
+
+
+def _dossiers_from_assembly(src: Path) -> dict[str, dict[str, Any]]:
+    """Read the assembly report's dossiers keyed by parameter, if available."""
+    report_file = src / "report.json"
+    if not report_file.is_file():
+        return {}
+    try:
+        report = load_json(report_file, description="assembly report")
+    except (InputError, OSError, ValueError):
+        return {}
+    if not isinstance(report, dict) or not isinstance(report.get("parameters"), list):
+        return {}
+    return {
+        str(d["parameter"]): d for d in report["parameters"]
+        if isinstance(d, dict) and d.get("parameter")
+    }
+
+
+def _verify_exported_bindings(
+    *,
+    gate: ApprovalGate,
+    dossiers: dict[str, dict[str, Any]],
+    exported: dict[str, Any],
+    rubric_version: str | None,
+) -> tuple[set[str], list[str]]:
+    """Re-verify bindings and exported values; return (approved, block reasons).
+
+    Dossiers are the authoritative decision records produced by assembly; a
+    registry record on its own is never a decision.  Pass only the dossiers
+    that have gate records: ungated parameters are simply not exported.  The
+    caller separately checks that the assembly report exists and is readable.
+    """
+    result = verify_gate_bindings(
+        gate, dossiers, exported_values=exported,
+        expected_rubric_version=rubric_version,
+    )
+    return result.approved, [f"{name}: {reason}" for name, reason in result.reasons.items()]
 
 
 def _verify_manifest(
@@ -357,24 +414,58 @@ def _verify_manifest(
     gate_hash: str | None = None
     if manifest_gate.get("path"):
         try:
-            approved, gate_path, gate_hash = _gate_approval(manifest_gate, base)
+            gate, gate_path, gate_hash = _gate_approval(manifest_gate, base)
         except ExportError as exc:
             failures.append(str(exc.what))
             failures.extend(str(exc.why or ""))
         else:
-            if manifest_gate.get("n_approved") != len(approved):
+            dossiers = _dossiers_from_assembly(src)
+            rubric_version = manifest.get("rubric_version")
+            try:
+                raw_export = json.loads(export_file.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                raw_export = {}
+            exported = raw_export if isinstance(raw_export, dict) else {}
+            if not dossiers:
+                failures.append(
+                    "assembly report is missing or unreadable; decisions cannot be verified"
+                )
+            # Only parameters with a gate record can be approved; dossiers
+            # without one are simply not exported and are not failures.
+            gated = {
+                name: d for name, d in dossiers.items()
+                if name in {r.parameter for r in gate.records}
+            }
+            approved, reasons = _verify_exported_bindings(
+                gate=gate, dossiers=gated,
+                exported=exported, rubric_version=rubric_version,
+            )
+            if manifest_gate.get("n_approved") != len(gate.approved_parameters()):
                 failures.append("manifest n_approved disagrees with the gate record")
+            if reasons:
+                failures.extend(f"binding verification failed: {reason}" for reason in reasons)
             missing = [name for name in data.entries if name not in approved]
             if missing:
-                failures.append(f"export contains parameters without gate approval: {missing}")
+                failures.append(f"export contains parameters without verified gate approval: {missing}")
             gate_info = {
                 "path": str(gate_path) if gate_path else None,
                 "sha256": gate_hash,
-                "n_approved": len(approved),
+                "n_approved": len(gate.approved_parameters()),
+                "n_verified": len(approved),
                 "n_approved_in_manifest": manifest_gate.get("n_approved"),
             }
     elif data.entries:
         notes.append("manifest records no gate; attestation downgraded to UNVERIFIED")
+
+    manifest_resolution = manifest.get("resolutions") or {}
+    resolution_path = _resolve_path(manifest_resolution.get("path"), base)
+    if resolution_path is not None:
+        if not resolution_path.is_file():
+            failures.append("human resolution file recorded in the manifest is missing")
+        elif manifest_resolution.get("sha256") and (
+            sha256(resolution_path) != manifest_resolution["sha256"]
+        ):
+            failures.append("human resolution file was modified after assembly")
 
     manifest_registry = manifest.get("registry") or {}
     registry_path = _resolve_path(manifest_registry.get("path"), base)
@@ -521,7 +612,6 @@ def establish_attestation(
     export_file: Path,
     data: ArtifactData,
     claim: dict[str, Any] | None,
-    explicit_gate: Path | None,
     explicit_registry: Path | None,
 ) -> Attestation:
     """Establish the artifact trust level from verifiable evidence only."""
@@ -544,17 +634,23 @@ def establish_attestation(
             return _verify_manifest(manifest, src, export_file, data, explicit_registry)
         return Attestation(UNVERIFIED, "none", notes=["no manifest in the source directory"])
 
-    if isinstance(data.raw, list) and (explicit_gate is not None):
-        gate = _parse_gate_file(explicit_gate)
-        approved = gate.approved_parameters()
-        registry_info: dict[str, Any] = {}
-        if explicit_registry is not None and explicit_registry.is_file():
-            registry_info = {"path": str(explicit_registry), "sha256": sha256(explicit_registry)}
-        return Attestation(
-            ATTESTED, "gate",
-            gate={"path": str(explicit_gate), "sha256": sha256(explicit_gate),
-                  "n_approved": len(approved)},
-            registry=registry_info,
+    if isinstance(data.raw, list):
+        # A raw registry carries values but no assembled decisions, rubric
+        # version or binding inputs.  There is nothing deterministically
+        # verifiable against a gate, so a direct registry export is refused
+        # rather than attested on the strength of a gate file alone.
+        raise ExportError(
+            "A raw registry cannot be exported: it has no assembled decisions to verify.",
+            why=(
+                f"Source {src} is a registry list. A gate only records a human's "
+                "claim; without assembly dossiers the decision, rubric version "
+                "and binding hash cannot be recomputed and checked."
+            ),
+            action=(
+                "Run `parallm assemble --target ... --registry ... --gate ...` and "
+                "pass the assembly folder with `--from`. Its manifest binds each "
+                "approval to a specific decision and value, which export re-verifies."
+            ),
         )
 
     claims: dict[str, Any] = {}

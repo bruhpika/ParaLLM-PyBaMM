@@ -7,6 +7,7 @@ from pybamm_closed_loop.pybamm_engine.config import (
 from pybamm_closed_loop.pybamm_engine.engine import (
     BaselineRunResult,
     UnknownParameterSetError,
+    apply_export_overlay,
     build_model,
     build_parameter_values,
     build_simulation,
@@ -56,6 +57,7 @@ __all__ = [
     "ProfileResult",
     "UnknownParameterSetError",
     "VersionMismatchError",
+    "apply_export_overlay",
     "build_eis_model",
     "build_model",
     "build_parameter_values",

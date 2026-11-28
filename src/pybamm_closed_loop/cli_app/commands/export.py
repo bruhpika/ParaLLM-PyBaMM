@@ -41,10 +41,16 @@ from ..render import kv, notice, section, table
 
 EXPORT_HELP = """Export only human-approved parameters.
 
-Sources: an assembly report directory (uses its gate-attested
-pybamm_export.json), an approved-export JSON file, or a registry JSON with an
-explicit --gate. Direct JSON inputs are reported as UNVERIFIED: approval is
-never inferred from a file name, values or user-supplied claims.
+Sources: an assembly report directory or an approved-export JSON file.
+A raw registry is refused: it has no assembled decisions, so a gate cannot be
+verified against a decision, rubric version, value and binding hash. Direct
+JSON inputs are reported as UNVERIFIED: approval is never inferred from a file
+name, values or user-supplied claims.
+
+For assembly folders, every approval is re-verified against the assembled
+decision and the exported value, not just file hashes. This catches stale or
+mistaken gate/registry/export files. It cannot catch someone who can rewrite
+every file including the manifest; that would need a signature over the chain.
 """
 
 
@@ -131,7 +137,10 @@ def export(
         None, "--from", help="Assembly report directory, export JSON, or registry JSON."
     ),
     output: Path = typer.Option(..., "--output", help="Destination file."),
-    gate: Path | None = typer.Option(None, "--gate", help="Approval gate JSON (required for registry sources)."),
+    gate: Path | None = typer.Option(
+        None, "--gate",
+        help="Legacy option; gates are verified from the assembly manifest, not a CLI override.",
+    ),
     registry: Path | None = typer.Option(
         None, "--registry", help="Registry JSON supplying scientific metadata and PyBaMM names."
     ),
@@ -162,17 +171,13 @@ def export(
     data: ArtifactData = read_artifact(export_file)
     explicit_gate = gate.expanduser().resolve() if gate is not None else None
     explicit_registry = registry.expanduser().resolve() if registry is not None else None
-    if data.source_kind == "registry" and explicit_gate is None and _resolve_gate_path(state, None) is None:
-        raise InputError(
-            "A registry export requires an approval gate.",
-            why="Registry records are not approved values.",
-            action="Pass --gate with human approvals, or export an assembly report directory.",
-        )
+    # Raw registry sources are refused inside establish_attestation(): without
+    # assembled decisions there is no decision/rubric/binding to verify against
+    # any gate.  Direct JSON and v2 export artifacts remain UNVERIFIED.
 
     attestation = establish_attestation(
         src=src, export_file=export_file, data=data,
-        claim=data.attestation_claim, explicit_gate=explicit_gate,
-        explicit_registry=explicit_registry,
+        claim=data.attestation_claim, explicit_registry=explicit_registry,
     )
     attestation.require_verified()
 

@@ -59,6 +59,29 @@ def build_parameter_values(config: BaselineRunConfig):
     return parameter_values
 
 
+def apply_export_overlay(
+    parameter_set: str, overlay: dict[str, Any]
+):
+    """Return a PyBaMM ParameterValues with an approved export overlay applied.
+
+    All PyBaMM access stays in this module. The overlay is a ``{name: value}``
+    mapping emitted by `parallm export --format pybamm`; names are verified
+    here against the installed parameter set before the update.
+    """
+    import pybamm
+
+    if parameter_set not in pybamm.parameter_sets:
+        raise UnknownParameterSetError(
+            f"parameter set '{parameter_set}' not in installed pybamm"
+        )
+    pv = pybamm.ParameterValues(parameter_set)
+    unknown = [name for name in overlay if name not in pv]
+    if unknown:
+        raise ValueError(f"export contains names not in {parameter_set}: {unknown}")
+    pv.update(overlay)
+    return pv
+
+
 def installed_parameter_sets() -> list[str]:
     """List parameter-set names available in the installed PyBaMM library."""
     import pybamm

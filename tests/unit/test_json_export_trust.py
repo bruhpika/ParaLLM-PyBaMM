@@ -78,14 +78,14 @@ def _gate(path: Path, names: list[str], *, approved: bool = True,
             chemistry_families=("NMC", "graphite"), format="21700",
             temperature_k=298.15, soc="50%",
         )
-        report = assemble(records, target, Rubric("rubric-v3"))
+        report = assemble(records, target, Rubric("rubric-v4"))
         decisions = {d["parameter"]: d["decision"] for d in report.dossiers}
     else:
         decisions = {}
     payload = {"approvals": [
         {"parameter": name, "decision": decisions.get(name, decision_for_registry_id(name)),
          "approved": approved,
-         "approver": "owner", "rubric_version": "rubric-v3", "timestamp": "2026-11-23T00:00:00Z",
+         "approver": "owner", "rubric_version": "rubric-v4", "timestamp": "2026-11-23T00:00:00Z",
          "binding_sha256": (binding_for_record(by_id[name])
                             if name in by_id else binding_for_registry_id(name))}
         for name in names
@@ -251,26 +251,30 @@ def test_needs_review_with_approval_is_flagged(tmp_path, capsys):
 
 
 def test_needs_review_without_approval_is_not_exported(tmp_path, capsys):
+    """NEEDS_REVIEW without approval is blocked through the verifiable path."""
     _init(tmp_path)
     registry = tmp_path / "registry.json"
     registry.write_text(json.dumps([_record("ambient_temperature", validation_state="NEEDS_REVIEW")]),
                         encoding="utf-8")
     gate = _gate(tmp_path / "gate.json", [], approved=False)
-    assert main([*_config(tmp_path), "--json", "export", "--from", str(registry),
-                 "--output", str(tmp_path / "out.json"), "--schema-version", "2",
-                 "--gate", str(gate)]) == 2
-    assert "NEEDS_APPROVAL" in str(_envelope(capsys)["diagnostics"][0]["why"])
+    source = _assemble(tmp_path, "assembly", registry=registry, gate=gate)
+    # With no approval the assembly export is empty; the export is intentionally
+    # empty (never a NEEDS_REVIEW value silently promoted to ACCEPTED).
+    assert _export(tmp_path, source, tmp_path / "out.json") == 0
+    artifact = _artifact(tmp_path / "out.json")
+    assert artifact["export"]["status"] == "INTENTIONALLY_EMPTY"
+    assert artifact["parameters"] == {}
 
 
 def test_unknown_validation_state_is_never_promoted(tmp_path, capsys):
+    """An unrecognised validation state is blocked through the verifiable path."""
     _init(tmp_path)
     registry = tmp_path / "registry.json"
     registry.write_text(json.dumps([_record("ambient_temperature", validation_state="BOGUS")]),
                         encoding="utf-8")
-    gate = _gate(tmp_path / "gate.json", ["ambient_temperature"])
-    assert main([*_config(tmp_path), "--json", "export", "--from", str(registry),
-                 "--output", str(tmp_path / "out.json"), "--schema-version", "2",
-                 "--gate", str(gate)]) == 2
+    gate = _gate(tmp_path / "gate.json", ["ambient_temperature"], registry=registry)
+    source = _assemble(tmp_path, "assembly", registry=registry, gate=gate)
+    assert _export(tmp_path, source, tmp_path / "out.json") == 2
     assert "VALIDATION_UNKNOWN" in str(_envelope(capsys)["diagnostics"][0]["why"])
 
 

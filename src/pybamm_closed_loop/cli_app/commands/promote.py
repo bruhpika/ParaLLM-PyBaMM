@@ -1,9 +1,14 @@
 """Promote a validated, reviewed extraction candidate into a NEW registry file.
 
-Nothing is written unless all three gates pass:
-1. deterministic validation ACCEPTED the candidate,
+Nothing is written unless every gate passes:
+
+1. deterministic validation is *re-run here* on the candidate payload; no
+   state, check result or quote claim from the input report is trusted;
 2. the source quote verifies verbatim against the supplied document store,
-3. an explicit human review record approves that exact candidate hash.
+   contains the candidate's value and uses a compatible, known unit;
+3. an explicit human review carries a non-empty candidate hash matching
+   exactly one candidate, a reviewer and a recorded reason; and
+4. the canonical id has an explicit, installed PyBaMM name mapping.
 
 Conflicting values are preserved as conflicts; an existing base registry is
 never modified. The output is always a new file chosen with ``--out``.
@@ -13,6 +18,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -24,7 +30,7 @@ from ..inputs import load_json, sha256
 from ..render import kv, notice, section
 from ...registry.model import (
     ParameterRecord, ParameterStatus, ReviewState, SourceRef,
-    ValueEntry, sha256_text, validate_extraction_schema,
+    ValueEntry, candidate_sha256, validate_extraction_schema,
 )
 
 
@@ -36,7 +42,164 @@ def _state(ctx: typer.Context) -> State:
 
 
 def _candidate_hash(payload: dict[str, Any]) -> str:
-    return sha256_text(json.dumps(payload, sort_keys=True, default=str))
+    """The hash a human copies from `validate --json` into a review record."""
+    return candidate_sha256(payload)
+
+
+def _unwrap_report(raw: Any) -> dict[str, Any]:
+    """Accept the exact JSON emitted by `validate --json` or its `data` block."""
+    if not isinstance(raw, dict):
+        return {}
+    data = raw.get("data")
+    if isinstance(data, dict) and isinstance(data.get("results"), list):
+        return data
+    return raw
+
+
+_NUMBER_RE = re.compile(r"[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
+
+
+def _value_in_quote(value: Any, quote: str) -> bool:
+    """True when the quoted text contains the candidate value verbatim.
+
+    Numbers are compared as canonical decimal strings; formatting variants
+    such as thousands separators are normalised away, but a different value
+    is never accepted.  A value edited after validation therefore fails here.
+    """
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        return False
+    try:
+        canonical = float(value)
+    except (TypeError, ValueError):
+        return False
+    tokens = _NUMBER_RE.findall(quote.replace(",", ""))
+    for token in tokens:
+        try:
+            if float(token) == canonical:
+                return True
+        except ValueError:
+            continue
+    return False
+
+
+def _revalidate(payload: dict[str, Any], doc_texts: dict[str, str],
+                store: Any, installed_names: list[str] | None) -> tuple[str, list[dict[str, str]]]:
+    """Run the deterministic checks again; never trust reported state."""
+    from ...validation.checks import (
+        ReviewReport, check_conditions, check_definition, check_plausibility,
+        check_provenance, check_pybamm_mapping, check_qualifier,
+        check_value_unit, detect_conflict,
+    )
+    from ...cli_app.render import status_text
+
+    report = ReviewReport()
+    schema_ok, schema_reason = validate_extraction_schema(payload)
+    report.add("schema", "ok" if schema_ok else "fail", schema_reason)
+    for fn in (check_definition, check_conditions, check_qualifier):
+        level, detail = fn(payload)
+        report.add(fn.__name__, level, detail)
+    if doc_texts:
+        level, detail = check_provenance(payload, doc_texts)
+        report.add("check_provenance", level, detail)
+    else:
+        report.add("check_provenance", "not_checked", "no --documents store supplied")
+    try:
+        canonical, value, _ = check_value_unit(payload)
+        report.add("unit_conversion", "ok", f"converted to {value:g} {canonical}")
+    except (ValueError, KeyError) as exc:
+        report.add("unit_conversion", "fail", str(exc))
+    level, detail = check_plausibility(payload, None)
+    report.add("physical_plausibility", level, detail)
+    if store is not None:
+        level, detail = detect_conflict(payload, store)
+        report.add("conflicting_evidence", level, detail)
+        level, detail = check_pybamm_mapping(payload, store, installed_names)
+        report.add("pybamm_mapping", level, detail)
+    else:
+        report.add("conflicting_evidence", "not_checked", "no registry supplied")
+        report.add("pybamm_mapping", "not_checked", "no registry supplied")
+    levels = {c.level for c in report.checks}
+    state = (
+        "REJECTED" if "fail" in levels
+        else "NEEDS_REVIEW" if "warn" in levels or "not_checked" in levels
+        else "ACCEPTED"
+    )
+    checks = [
+        {"name": c.name, "level": status_text(c.level).plain, "detail": c.detail}
+        for c in report.checks
+    ]
+    return state, checks
+
+
+def _expected_canonical_unit(payload: dict[str, Any], pybamm_names: list[str]) -> str | None:
+    """Return the canonical unit implied by the parameter family / PyBaMM name."""
+    from ...registry.units import pybamm_unit_suffix, to_canonical
+    from ...validation.checks import PLAUSIBILITY_RANGES
+
+    for name in pybamm_names:
+        suffix = pybamm_unit_suffix(name)
+        if suffix:
+            try:
+                return to_canonical(suffix)[0]
+            except KeyError:
+                continue
+    probe = str(payload.get("parameter_name", "")).lower().replace(" ", "_")
+    for key, (_, _, expected) in PLAUSIBILITY_RANGES.items():
+        if key in probe:
+            return expected
+    return None
+
+
+def _quote_supports(payload: dict[str, Any], doc_text: str,
+                    expected_unit: str | None) -> tuple[bool, str]:
+    """Check that the quote supports the value and a compatible known unit."""
+    from ...literature.evidence import (
+        table_header_context, verify_quote_in_evidence,
+    )
+    from ...registry.units import to_canonical
+
+    quote = str((payload.get("source") or {}).get("quote") or "")
+    if not quote or not verify_quote_in_evidence(quote, doc_text):
+        return False, "quote not verified against --documents"
+    if not _value_in_quote(payload.get("value"), quote):
+        return False, "value is not supported by the recorded quote"
+    try:
+        canonical, _ = to_canonical(str(payload.get("unit")))
+    except KeyError as exc:
+        return False, f"unknown or incompatible unit: {exc}"
+    if expected_unit is not None and canonical != expected_unit:
+        return False, (
+            f"unit mismatch: quote/parameter expects {expected_unit}, "
+            f"candidate has {canonical}"
+        )
+    # A table row needs its own header/caption to be checkable. Use a
+    # conservative signal (tab/column spacing or a table locator) so ordinary
+    # prose containing two numbers is not mistaken for a table. If the header
+    # cannot be recovered from the same table, refuse rather than guess.
+    locator = str((payload.get("source") or {}).get("locator") or "")
+    looks_like_table = (
+        "\t" in quote
+        or bool(re.search(r"\S {2,}\S", quote))
+        or "table" in locator.lower()
+    )
+    numeric_tokens = _NUMBER_RE.findall(quote.replace(",", ""))
+    if looks_like_table and len(numeric_tokens) >= 2:
+        context = table_header_context(doc_text, quote)
+        if not context:
+            return False, "table quote cannot be checked: no header/context for this table"
+    return True, "quote, value and unit are consistent"
+
+
+def _verified_pybamm_names(canonical: str, mapping: dict[str, list[str]],
+                           installed: set[str]) -> tuple[list[str], str]:
+    """Take names only from the explicit mapping and verify installation."""
+    names = mapping.get(canonical) or []
+    if not names:
+        return [], f"parameter {canonical!r} is not in the explicit PyBaMM mapping"
+    verified = [name for name in names if name in installed]
+    if not verified:
+        return [], f"no mapped PyBaMM name for {canonical!r} is installed"
+    return verified, ""
 
 
 def promote(
@@ -54,9 +217,11 @@ def promote(
     base: Path | None = typer.Option(
         None, "--base", help="Existing registry to copy (never modified)."
     ),
+    parameter_set: str = typer.Option("Chen2020", "--parameter-set"),
 ) -> int:
     """Add a reviewed candidate to a new registry file; keep conflicts."""
-    from ...literature.evidence import verify_quote_in_evidence
+    from ...pybamm_engine import installed_parameter_names
+    from ...registry.mapping import load_explicit_pybamm_mapping
     from ..inputs import load_doc_texts
 
     state = _state(ctx)
@@ -70,11 +235,11 @@ def promote(
             action="Choose a new --out path; a base registry is never modified.",
         )
 
-    report = load_json(vpath, description="validation report")
-    if not isinstance(report, dict) or not isinstance(report.get("results"), list):
+    report = _unwrap_report(load_json(vpath, description="validation report"))
+    if not isinstance(report.get("results"), list):
         raise InputError(
             "Validation report is missing 'results'.",
-            action="Pass the JSON emitted by `parallm validate --json`.",
+            action="Pass the JSON emitted by `parallm validate --json` (the whole object or its data block).",
         )
     review_data = load_json(rpath, description="human review record")
     if not isinstance(review_data, dict) or not isinstance(review_data.get("reviews"), list):
@@ -93,69 +258,121 @@ def promote(
         c.get("payload") if isinstance(c, dict) and "payload" in c else c
         for c in candidates
     ]
-    reviews = {str(r.get("parameter")): r for r in review_data["reviews"]
-               if isinstance(r, dict)}
+    if len(payloads) != len(report["results"]):
+        raise InputError(
+            "Validation report candidates and results have different lengths.",
+            action="Re-run validate so candidates and results come from the same invocation.",
+        )
 
     doc_texts = load_doc_texts(documents.expanduser().resolve()) if documents else {}
+    mapping = load_explicit_pybamm_mapping()
+    installed = set(installed_parameter_names(parameter_set))
+
+    # The mapping also provides PyBaMM names for unit compatibility. Registry
+    # directory for the other checks: prefer the base file's directory, else
+    # the committed registry directory (read-only).
+    from ...registry.store import RegistryStore
+
+    if base is not None:
+        base_path = base.expanduser().resolve()
+        store = RegistryStore(base_path.parent)
+    else:
+        store = RegistryStore(
+            Path(__file__).resolve().parents[4] / "data" / "registry"
+        )
 
     records: list[dict[str, Any]] = []
     if base is not None:
-        base_path = base.expanduser().resolve()
         loaded = load_json(base_path, description="base registry")
         if isinstance(loaded, list):
             records = copy.deepcopy(loaded)
 
     promoted: list[str] = []
+    shown_hashes: dict[str, str] = {}
     skipped: list[dict[str, str]] = []
-    for index, (payload, result) in enumerate(zip(payloads, report["results"])):
-        if not isinstance(payload, dict) or not isinstance(result, dict):
+    for index, (payload, _reported) in enumerate(zip(payloads, report["results"])):
+        if not isinstance(payload, dict):
             skipped.append({"index": str(index), "reason": "malformed candidate"})
             continue
-        name = str(payload.get("parameter_name") or result.get("parameter") or "")
-        if result.get("state") not in ("ACCEPTED", "NEEDS_REVIEW"):
+        name = str(payload.get("parameter_name") or "")
+        if not name:
+            skipped.append({"index": str(index), "reason": "candidate has no parameter name"})
+            continue
+
+        state_name, checks = _revalidate(payload, doc_texts, store,
+                                         sorted(installed) if installed else None)
+        if state_name == "REJECTED":
+            failed = [c["detail"] for c in checks if c["level"] == "FAILED"]
             skipped.append({
                 "parameter": name,
-                "reason": f"validation state {result.get('state')} blocks promotion",
+                "reason": "re-validation REJECTED: " + "; ".join(failed),
             })
             continue
-        ok, why = validate_extraction_schema(payload)
-        if not ok:
-            skipped.append({"parameter": name, "reason": f"schema: {why}"})
-            continue
 
-        review = reviews.get(name)
-        if not review or review.get("decision") != "APPROVED" or not str(review.get("reviewer") or "").strip():
+        digest = _candidate_hash(payload)
+        matches = [r for r in review_data["reviews"]
+                   if isinstance(r, dict)
+                   and str(r.get("candidate_hash") or "").strip() == digest]
+        if not str(digest):
+            skipped.append({"parameter": name, "reason": "empty candidate hash"})
+            continue
+        if not matches:
+            skipped.append({
+                "parameter": name,
+                "reason": "review requires a non-empty candidate_hash matching this candidate",
+            })
+            continue
+        if len(matches) != 1:
+            skipped.append({
+                "parameter": name,
+                "reason": "candidate_hash matches more than one review record",
+            })
+            continue
+        human = matches[0]
+        if human.get("decision") != "APPROVED" or not str(human.get("reviewer") or "").strip():
             skipped.append({"parameter": name, "reason": "no explicit APPROVED human review"})
             continue
-        if str(review.get("candidate_hash") or "") not in ("", _candidate_hash(payload)):
-            skipped.append({"parameter": name, "reason": "review does not match this candidate hash"})
+        reason = str(human.get("reason") or "").strip()
+        if not reason:
+            skipped.append({"parameter": name, "reason": "human review has no recorded reason"})
             continue
 
-        src = payload.get("source") if isinstance(payload.get("source"), dict) else {}
-        quote = src.get("quote")
-        if not quote:
-            skipped.append({"parameter": name, "reason": "no source quote to verify"})
+        names, mapping_reason = _verified_pybamm_names(name, mapping, installed)
+        if not names:
+            skipped.append({"parameter": name, "reason": mapping_reason})
             continue
+        expected_unit = _expected_canonical_unit(payload, names)
+        src = payload.get("source") if isinstance(payload.get("source"), dict) else {}
         doc_id = src.get("document_id")
         text = doc_texts.get(str(doc_id)) if doc_id else None
-        if not text or not verify_quote_in_evidence(str(quote), text):
-            skipped.append({"parameter": name, "reason": "quote not verified against --documents"})
+        if not text:
+            skipped.append({"parameter": name, "reason": "source document not in --documents store"})
+            continue
+        ok, why = _quote_supports(payload, text, expected_unit)
+        if not ok:
+            skipped.append({"parameter": name, "reason": why})
             continue
 
-        canonical = name
         status = {
             "measured": ParameterStatus.LITERATURE_DERIVED,
             "fitted": ParameterStatus.CALIBRATED,
             "calculated": ParameterStatus.CALCULATED,
             "assumed": ParameterStatus.ASSUMED,
         }.get(str(payload.get("qualifier")), ParameterStatus.UNRESOLVED)
+
+        # NEVER store NEEDS_REVIEW as ACCEPTED without the human's reason.
+        validation_state = (
+            ReviewState.NEEDS_REVIEW if state_name == "NEEDS_REVIEW"
+            else ReviewState.ACCEPTED
+        )
+        review_reason = f"{reason} (reviewer: {human['reviewer']}, hash: {digest})"
         entry = ValueEntry(
             value=payload.get("value"), unit=payload.get("unit"),
             source=SourceRef(
                 document_id=str(doc_id or "UNRESOLVED"),
                 doi_or_url=src.get("doi_or_url"),
                 locator=src.get("locator"), page=src.get("page"),
-                quote=str(quote),
+                quote=str(src.get("quote") or ""),
             ),
             kind=status,
             reported_uncertainty=payload.get("reported_uncertainty"),
@@ -164,25 +381,25 @@ def promote(
                         "chemistry": payload.get("material")},
             method=payload.get("measurement_method"),
             context=payload.get("context"),
-            review_state=ReviewState.ACCEPTED,
-            review_reason=f"promoted after human review by {review['reviewer']}",
+            review_state=validation_state,
+            review_reason=review_reason,
         )
-        existing = next((r for r in records if r.get("canonical_id") == canonical), None)
+        existing = next((r for r in records if r.get("canonical_id") == name), None)
         if existing is None:
             from ...registry.units import to_canonical
             try:
-                canon_value, factor = to_canonical(str(payload.get("unit")))
+                canon_unit, factor = to_canonical(str(payload.get("unit")))
             except KeyError:
-                canon_value, factor = str(payload.get("unit")), 1.0
+                canon_unit, factor = str(payload.get("unit")), 1.0
             record = ParameterRecord(
-                canonical_id=canonical,
-                pybamm_names=[],
+                canonical_id=name,
+                pybamm_names=names,
                 pybop_mapping=None,
                 definition=str(payload.get("definition") or "UNRESOLVED"),
                 value=payload.get("value"),
                 value_unit=payload.get("unit"),
                 normalized_value=float(payload["value"]) * factor,
-                normalized_value_unit=canon_value,
+                normalized_value_unit=canon_unit,
                 status=status,
                 source_id=str(doc_id or "UNRESOLVED"),
                 source_location=src.get("locator"),
@@ -190,30 +407,31 @@ def promote(
                 conditions=entry.conditions,
                 method=payload.get("measurement_method"),
                 reported_uncertainty=payload.get("reported_uncertainty"),
-                validation_state=ReviewState.ACCEPTED,
+                validation_state=validation_state,
                 compatibility={},
-                notes=[f"promoted by human review: {review['reviewer']}"],
+                notes=[f"promoted by human review: {human['reviewer']}", review_reason],
             )
             records.append(record.to_dict())
         else:
-            # Keep conflicting values; never silently overwrite the operative one.
             existing.setdefault("conflicts", []).append(entry.to_dict())
             existing.setdefault("notes", []).append(
-                f"additional value preserved after review by {review['reviewer']}"
+                f"additional value preserved after review by {human['reviewer']}: {reason}"
             )
-        promoted.append(canonical)
+        promoted.append(name)
+        shown_hashes[name] = digest
 
     if not promoted:
         raise InputError(
             "No candidate was promoted; nothing was written.",
-            why="; ".join(f"{s['parameter']}: {s['reason']}" for s in skipped),
-            action="Fix validation, quote verification or the human review record.",
+            why="; ".join(f"{s.get('parameter', s.get('index'))}: {s['reason']}" for s in skipped),
+            action="Fix validation, quote/unit consistency, the human review or the PyBaMM mapping.",
         )
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(records, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     result = {
         "output": str(out_path), "promoted": promoted,
+        "candidate_hashes": shown_hashes,
         "skipped": skipped, "n_records": len(records),
         "output_sha256": sha256(out_path),
     }
@@ -223,6 +441,8 @@ def promote(
             ("Output", str(out_path)), ("Promoted", ", ".join(promoted)),
             ("Skipped", len(skipped)), ("Records", len(records)),
         ))
+        for name in promoted:
+            notice(state.console, f"{name}: candidate_hash {shown_hashes[name]}", "info")
         for s in skipped:
             notice(state.console, f"{s.get('parameter', s.get('index'))}: {s['reason']}", "warn")
     state.emit(result)

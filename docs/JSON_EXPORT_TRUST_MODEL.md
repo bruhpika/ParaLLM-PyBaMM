@@ -13,8 +13,8 @@ The existing design is deliberate and should be preserved:
 
 1. `pybamm_closed_loop/registry/` holds provenance-first `ParameterRecord`s (96 seeded records). Values enter only through deterministic seeding, validated extraction plus explicit approval, or user approval (`AGENTS.md` rule 10).
 2. `assembly/` turns registry records plus a target cell specification into nine-field dossiers. `ApprovalGate` (`assembly/gate.py`) records human approvals; `AssemblyReport.pybamm_export()` (`assembly/report.py:186–202`) emits **only** gate-approved parameters whose decision is `USE`/`FIX`. Without a gate the artifact is `{}` by design (D6).
-3. `parallm assemble` (`cli_app/commands/assemble.py`) writes `report.json`, `report.md`, `pybamm_export.json` and `manifest.json`. The manifest already records `registry.path`/`sha256`, `gate.path`/`sha256`/`n_approved`, `target_config.sha256`, quote-verification counts, traceability counts, tool version and `n_exported` — i.e. a reproducible attestation chain, **except that it does not hash `pybamm_export.json` itself**.
-4. `parallm export` (`cli_app/commands/export.py`) is a formatter. For a JSON **list** payload (registry records) it requires a gate; for a JSON **dict** payload (assembly export or any other object) it does not, because the dict is assumed to be an already-approved export artifact. The PyBaMM formatter additionally requires a readable registry and at least one mapped, installed parameter name (`E404`, added during remediation).
+3. `parallm assemble` (`cli_app/commands/assemble.py`) writes `report.json`, `report.md`, `pybamm_export.json` and `manifest.json`. The manifest already records `registry.path`/`sha256`, `gate.path`/`sha256`/`n_approved`, `target_config.sha256`, quote-verification counts, traceability counts, tool version and `n_exported` — i.e. a reproducible attestation chain. `manifest.outputs_sha256["pybamm_export.json"]` is recorded and checked during export.
+4. `parallm export` (`cli_app/commands/export.py`) is a formatter. A JSON **list** payload (raw registry) is now **refused** because it carries no assembled decisions (§13). A JSON **dict** payload is only trusted when its assembly manifest, gate and registry can be re-verified; otherwise it is `UNVERIFIED`. Direct JSON without an attested chain never becomes `ATTESTED`. The PyBaMM formatter requires a readable registry and at least one mapped, installed parameter name (`E404`).
 
 This separation — approval at assembly, formatting at export — is sound. The problems found are about **what the formatter claims** and **what metadata it carries forward**, not about where approval is enforced.
 
@@ -356,7 +356,7 @@ The manifest's `target_config.sha256` and `report.json` are **recorded for repro
 ### Deviations / clarifications relative to the proposal
 
 1. **Approval after re-export:** when a v2 artifact's attestation cannot be re-verified, stored approval fields are preserved for provenance but marked `"verified_on_export": false` (a small proposed field addition). `approved_only` remains `false`, so no trust is upgraded.
-2. **Attested registry lists:** a direct registry list with an explicit `--gate` is classified `ATTESTED` with `basis: "gate"` (no manifest). This follows confirmed decision 2 (approval through the actual gate record) and does not weaken manifest-based attestation for assembly artifacts.
+2. **Attested registry lists — SUPERSEDED by §13:** a direct registry list was originally classified `ATTESTED` from an explicit `--gate` alone. This was the export bypass fixed in Phase 1 and is now **refused**; see §13.
 3. **Legacy manifests:** a manifest lacking the new artifact hash or gate details is **downgraded to `UNVERIFIED`** with an explicit note rather than failing closed. Hash mismatches, missing gate files and approval disagreements still fail closed with `E404`.
 4. **Dossier approval stamping** (confirmed decision 5: permitted but not required) was **not** implemented; the gate file remains the sole authoritative approval source.
 5. **`validation.results`** is always `NOT_PERFORMED`: the `validate` command does not persist its `ReviewReport`, and no persistence was added in this implementation.
@@ -378,3 +378,54 @@ Three HIGH and four MEDIUM findings from the post-implementation adversarial aud
 - **Phase 5:** boolean `schema_version` rejected; relative manifest paths resolved against the manifest directory with `..` traversal refused; null/missing validation semantics unified; see §10.1 for what is *not* verified.
 
 **Update to deviation 1 above:** `verified_on_export: false` is now added only when a v2 artifact's attestation **cannot** be re-verified. Valid attested re-exports preserve trust and keep stored approval fields unchanged.
+
+---
+
+## 13. Independent-review fixes (2026-11-28, rubric v4)
+
+This section supersedes deviation 2 in §11 and M4 in §12.
+
+### 13.1 Export bypass closed
+All export paths now use one shared verifier,
+`assembly.gate.verify_gate_bindings()`. It checks, for each parameter, the gate
+approval, an exportable decision, the rubric version, a binding hash recomputed
+from the assembled dossier and the exported value. A raw registry has no
+assembled decisions and is **refused** with `E404` ("A raw registry cannot be
+exported: it has no assembled decisions to verify"). Assembly-folder exports
+re-verify bindings and exported values, not only file hashes.
+
+This protects against stale or mistaken files: a gate left over from an earlier
+assembly, a value edited after approval, a changed rubric version, or a copied
+registry. It **cannot** protect against an actor who can rewrite every file,
+including the assembly manifest and gate; that would require a cryptographic
+signature over the whole chain (not implemented).
+
+### 13.2 Gate usability
+`assemble` writes `gate.pending.json`: one unapproved, hash-bound entry per
+exportable decision, with a placeholder approver. An unedited file exports
+nothing. There is no auto-approve or approve-all option. `assemble` reports each
+blocked parameter and reason in text and JSON (`blocked`, `blocked.json`).
+`parallm resolve` records a human resolution of a REVIEW decision with a reason
+and evidence; `assemble --resolution` verifies it and records its hash.
+
+### 13.3 Promotion safety
+`promote` re-runs validation itself, requires a non-empty candidate hash
+matching exactly one review, requires a recorded human reason, checks that the
+quote supports the value and a known compatible unit, refuses uncheckable
+table quotes, and takes PyBaMM names only from the explicit committed mapping
+verified against the installed parameter set. `NEEDS_REVIEW` is never stored as
+`ACCEPTED` without the human's reason.
+
+### 13.4 Rubric v4
+Cell/chemistry-specific parameters now escalate to `REVIEW` when the selected
+candidate has no stated, matching condition for the target. PyBaMM-default
+records no longer inherit the demonstrator's cell, chemistry or temperature
+conditions. Weights were not changed.
+
+### 13.5 End-to-end claim (conditional, now met)
+The public-CLI chain `extract → validate → review → promote → assemble →
+approve → export → pybamm.ParameterValues` is verified in
+`tests/integration/test_export_chain_to_pybamm.py` using a labelled synthetic
+value (300.15 K) that differs from the Chen2020 default. This claim is valid
+only because that integration test passes; it is not a claim about real
+literature data or every chemistry.

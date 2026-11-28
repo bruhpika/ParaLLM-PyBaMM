@@ -12,6 +12,8 @@ import pytest
 from pybamm_closed_loop.cli import main
 from pybamm_closed_loop.cli_app.artifact import normalise_validation_state
 
+from pybamm_closed_loop.assembly.gate import binding_sha256
+
 from tests._gate_helpers import binding_for_registry_id, decision_for_registry_id
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,7 +42,7 @@ def _init(tmp_path: Path) -> None:
 
 def _approval(name: str = "ambient_temperature", approved: bool = True) -> dict:
     return {"parameter": name, "decision": decision_for_registry_id(name), "approved": approved,
-            "approver": "owner", "rubric_version": "rubric-v3",
+            "approver": "owner", "rubric_version": "rubric-v4",
             "binding_sha256": binding_for_registry_id(name)}
 
 
@@ -56,6 +58,33 @@ def _assemble(tmp_path: Path, out: str, *, registry: Path = REGISTRY, gate: Path
         args += ["--gate", str(gate)]
     assert main(args) == 0
     return tmp_path / out
+
+
+def _approval_for_dossier(dossier: dict, *, approved: bool = True,
+                          decision: str | None = None) -> dict:
+    """SYNTHETIC approval bound to one assembled decision (no human simulated)."""
+    return {
+        "parameter": dossier["parameter"],
+        "decision": decision if decision is not None else dossier["decision"],
+        "approved": approved,
+        "approver": "synthetic-reviewer",
+        "rubric_version": dossier["rubric_version"],
+        "binding_sha256": binding_sha256(dossier),
+        "timestamp": "2026-11-28T00:00:00Z",
+        "note": "SYNTHETIC approval for a regression test; not a human decision",
+    }
+
+
+def _assemble_gate_for(tmp_path: Path, out: str, registry: Path,
+                       parameters: list[str]) -> tuple[Path, Path]:
+    """Assemble first, then write a gate approving the exact dossiers produced."""
+    draft = _assemble(tmp_path, out, registry=registry, gate=None)
+    report = json.loads((draft / "report.json").read_text(encoding="utf-8"))
+    by_id = {d["parameter"]: d for d in report["parameters"]}
+    records = [_approval_for_dossier(by_id[name]) for name in parameters]
+    gate = _gate(tmp_path / f"{out}_gate.json", *records)
+    source = _assemble(tmp_path, out, registry=registry, gate=gate)
+    return source, gate
 
 
 def _envelope(capsys) -> dict:
@@ -117,14 +146,17 @@ def test_h1_null_and_missing_state_are_not_accepted(tmp_path, capsys):
 
 
 def test_h1_unknown_state_from_registry_fails_closed(tmp_path, capsys):
+    """Unrecognised validation state is blocked through the verifiable path."""
     _init(tmp_path)
     registry = tmp_path / "registry.json"
     registry.write_text(json.dumps([{
         "canonical_id": "p", "value": 1.0, "value_unit": "K", "pybamm_names": [],
-        "validation_state": "SOMETHING_ELSE",
+        "validation_state": "SOMETHING_ELSE", "status": "ASSUMED",
+        "evidence": {"value": 1.0, "unit": "K", "quote": "synthetic test value",
+                     "source": {"document_id": "synthetic", "locator": "test"}},
     }]), encoding="utf-8")
-    gate = _gate(tmp_path / "gate.json", _approval("p"))
-    assert _export_json(registry, tmp_path / "out.json", "--gate", str(gate)) == 2
+    source, _ = _assemble_gate_for(tmp_path, "assembly", registry, ["p"])
+    assert _export_json(source, tmp_path / "out.json") == 2
     assert "VALIDATION_UNKNOWN" in str(_envelope(capsys)["diagnostics"][0]["why"])
 
 
@@ -161,17 +193,17 @@ def test_h1_unknown_state_during_v2_reexport(tmp_path, capsys):
     (_approval(approved=False), _approval(approved=False)),
 ])
 def test_h2_duplicate_or_contradictory_gate_rejected(tmp_path, capsys, records):
+    """Contradictory/duplicate gate records are rejected at assembly."""
     _init(tmp_path)
     gate = _gate(tmp_path / "gate.json", *records)
-    source = tmp_path / "registry.json"
-    source.write_text(json.dumps([{"canonical_id": "ambient_temperature", "value": 298.15,
-                                   "value_unit": "K", "pybamm_names": [],
-                                   "validation_state": "ACCEPTED"}]), encoding="utf-8")
-    assert _export_json(source, tmp_path / "out.json", "--gate", str(gate)) == 2
+    assert main([*_config(tmp_path), "--json", "assemble", "--target", str(TARGET),
+                 "--registry", str(REGISTRY), "--out", str(tmp_path / "assembly"),
+                 "--gate", str(gate)]) == 2
     assert _envelope(capsys)["diagnostics"][0]["code"] == "E201"
 
 
 def test_h2_gate_order_does_not_change_result(tmp_path, capsys):
+    """Gate record order cannot change the verdict (checked at assembly)."""
     _init(tmp_path)
     outcomes = []
     for index, records in enumerate((
@@ -179,7 +211,9 @@ def test_h2_gate_order_does_not_change_result(tmp_path, capsys):
         (_approval(approved=True), _approval(approved=False)),
     )):
         gate = _gate(tmp_path / f"gate{index}.json", *records)
-        outcomes.append(_export_json(REGISTRY, tmp_path / f"out{index}.json", "--gate", str(gate)))
+        outcomes.append(main([*_config(tmp_path), "--json", "assemble", "--target", str(TARGET),
+                              "--registry", str(REGISTRY), "--out", str(tmp_path / f"a{index}"),
+                              "--gate", str(gate)]))
     assert outcomes == [2, 2]
 
 
@@ -193,10 +227,13 @@ def test_h2_contradictory_gate_rejected_by_assembly(tmp_path, capsys):
 
 
 def test_h2_duplicate_canonical_id_with_representation(tmp_path, capsys):
+    """Duplicate approval ids (even with whitespace) are rejected at assembly."""
     _init(tmp_path)
     gate = _gate(tmp_path / "gate.json",
                  _approval("ambient_temperature"), _approval(" ambient_temperature "))
-    assert _export_json(REGISTRY, tmp_path / "out.json", "--gate", str(gate)) == 2
+    assert main([*_config(tmp_path), "--json", "assemble", "--target", str(TARGET),
+                 "--registry", str(REGISTRY), "--out", str(tmp_path / "assembly"),
+                 "--gate", str(gate)]) == 2
     assert "duplicate approval" in str(_envelope(capsys)["diagnostics"][0]["why"])
 
 
@@ -371,17 +408,12 @@ def test_m3_duplicate_canonical_ids_rejected(tmp_path, capsys):
     assert "Duplicate canonical" in str(_envelope(capsys)["diagnostics"][0]["what"])
 
 
-def test_m4_pybamm_registry_list_source_without_redundant_registry(tmp_path, capsys):
+def test_m4_pybamm_export_uses_registry_name_mapping(tmp_path, capsys):
+    """PyBaMM export maps an approved canonical id to its installed PyBaMM name."""
     _init(tmp_path)
-    source = tmp_path / "registry.json"
-    source.write_text(json.dumps([{
-        "canonical_id": "ambient_temperature", "value": 298.15, "value_unit": "K",
-        "pybamm_names": ["Ambient temperature [K]"], "validation_state": "ACCEPTED",
-    }]), encoding="utf-8")
-    gate = _gate(tmp_path / "gate.json", _approval())
+    source, _ = _assemble_gate_for(tmp_path, "assembly", REGISTRY, ["ambient_temperature"])
     assert main(["--json", "export", "--from", str(source), "--output",
-                 str(tmp_path / "params.py"), "--overwrite", "--format", "pybamm",
-                 "--gate", str(gate)]) == 0
+                 str(tmp_path / "params.py"), "--overwrite", "--format", "pybamm"]) == 0
     assert "Ambient temperature [K]" in (tmp_path / "params.py").read_text(encoding="utf-8")
 
 
@@ -392,13 +424,12 @@ def test_m4_pybamm_registry_list_source_without_redundant_registry(tmp_path, cap
     "not-an-object",
 ])
 def test_m5_malformed_gate_is_domain_error(tmp_path, capsys, record):
+    """Malformed gate records are a domain error at assembly time."""
     _init(tmp_path)
     gate = _gate(tmp_path / "gate.json", record)
-    source = tmp_path / "registry.json"
-    source.write_text(json.dumps([{"canonical_id": "p", "value": 1.0, "value_unit": "K",
-                                   "pybamm_names": [], "validation_state": "ACCEPTED"}]),
-                      encoding="utf-8")
-    assert _export_json(source, tmp_path / "out.json", "--gate", str(gate)) == 2
+    assert main([*_config(tmp_path), "--json", "assemble", "--target", str(TARGET),
+                 "--registry", str(REGISTRY), "--out", str(tmp_path / "assembly"),
+                 "--gate", str(gate)]) == 2
     assert _envelope(capsys)["diagnostics"][0]["code"] == "E201"
 
 

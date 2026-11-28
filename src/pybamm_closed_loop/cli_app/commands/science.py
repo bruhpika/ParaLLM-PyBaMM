@@ -360,7 +360,7 @@ def validate(
     strict: bool = typer.Option(False, "--strict", help="Treat warnings and NOT CHECKED as failures."),
 ) -> int:
     """Run deterministic scientific checks over extraction candidates."""
-    from ...registry.model import validate_extraction_schema
+    from ...registry.model import candidate_sha256, validate_extraction_schema
     from ...registry.store import RegistryStore
     from ...validation.checks import (
         ReviewReport,
@@ -466,6 +466,7 @@ def validate(
             {
                 "parameter": payload.get("parameter_name", ""),
                 "kind": kind,
+                "candidate_hash": candidate_sha256(payload),
                 "state": state_name,
                 "checks": [
                     {"name": c.name, "level": status_text(c.level).plain, "detail": c.detail}

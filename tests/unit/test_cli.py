@@ -100,7 +100,7 @@ def test_assemble_writes_all_outputs(tmp_path):
     assert len(report["parameters"]) == 1
     assert report["traceability"][0]["level"] == "ok"
     manifest = json.loads((out / "manifest.json").read_text())
-    assert manifest["rubric_version"] == "rubric-v3"
+    assert manifest["rubric_version"] == "rubric-v4"
     assert manifest["registry"]["n_records"] == 1
     assert manifest["registry"]["sha256"]
     assert manifest["documents"]["quote_verification"]["n_verified"] == 1
@@ -120,7 +120,7 @@ def test_export_contains_only_approved_parameters(tmp_path):
                         "decision": "USE",
                         "approved": True,
                         "approver": "owner",
-                        "rubric_version": "rubric-v3",
+                        "rubric_version": "rubric-v4",
                         "binding_sha256": binding_for_record(_record()),
                     },
                     {
@@ -128,7 +128,7 @@ def test_export_contains_only_approved_parameters(tmp_path):
                         "decision": "USE",
                         "approved": True,
                         "approver": "owner",
-                        "rubric_version": "rubric-v3",
+                        "rubric_version": "rubric-v4",
                         "binding_sha256": "0" * 64,
                     },
                 ]
