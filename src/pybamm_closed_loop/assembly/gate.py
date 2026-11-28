@@ -73,6 +73,42 @@ class GateValidationError(ValueError):
     """Raised when a gate payload is malformed, stale or contradictory."""
 
 
+PLACEHOLDER_APPROVER = "NOT_RECORDED"
+
+
+def _valid_iso_datetime(value: Any) -> bool:
+    """True for a valid ISO 8601 date-time (date-only is not sufficient)."""
+    if not isinstance(value, str) or not value.strip():
+        return False
+    text = value.strip()
+    if text.endswith(("Z", "z")):
+        text = text[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return False
+    return parsed.tzinfo is not None or "T" in value or "t" in value
+
+
+def validate_approver_and_timestamp(
+    approver: Any, timestamp: Any, label: str
+) -> str | None:
+    """Return a reason when an approved entry lacks a real approver/time.
+
+    This records a name and a time, not proof of identity: a human could type
+    any name. It prevents the pending-gate placeholders from being promoted to
+    an approval by changing only ``approved`` to true.
+    """
+    name = str(approver or "").strip()
+    if not name:
+        return f"{label}: approver is empty"
+    if name.lower() == PLACEHOLDER_APPROVER.lower():
+        return f"{label}: approver is the pending-gate placeholder {PLACEHOLDER_APPROVER!r}"
+    if not _valid_iso_datetime(timestamp):
+        return f"{label}: timestamp is not a valid ISO 8601 date-time"
+    return None
+
+
 def validate_gate_records(payload: Any) -> list[ApprovalRecord]:
     """Validate and build gate records with a single, order-independent policy.
 
@@ -115,6 +151,13 @@ def validate_gate_records(payload: Any) -> list[ApprovalRecord]:
                 f"approval #{index} for {item['parameter']!r} records decision "
                 "REJECT as approved; a rejection cannot approve a parameter"
             )
+        if item["approved"]:
+            reason = validate_approver_and_timestamp(
+                item.get("approver"), item.get("timestamp"),
+                f"approval #{index} for {item['parameter']!r}",
+            )
+            if reason:
+                raise GateValidationError(reason)
         parameter = str(item["parameter"]).strip()
         if parameter in seen:
             raise GateValidationError(f"duplicate approval record for parameter {parameter!r}")
@@ -308,6 +351,11 @@ def verify_gate_bindings(
             result.reasons[parameter] = "gate record is not approved"
             continue
         reasons: list[str] = []
+        identity_reason = validate_approver_and_timestamp(
+            record.approver, record.timestamp, parameter
+        )
+        if identity_reason:
+            reasons.append(identity_reason)
         if record.decision not in EXPORTABLE_DECISIONS:
             reasons.append(
                 f"decision {record.decision!r} is not exportable"

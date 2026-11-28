@@ -429,3 +429,13 @@ approve → export → pybamm.ParameterValues` is verified in
 value (300.15 K) that differs from the Chen2020 default. This claim is valid
 only because that integration test passes; it is not a claim about real
 literature data or every chemistry.
+
+### 13.6 Approval identity fields
+An approved gate entry must carry an `approver` that is non-empty, not
+whitespace and not the pending-gate placeholder `NOT_RECORDED` (any case), plus
+a valid ISO 8601 date-time `timestamp`. This is enforced both when `assemble`
+reads a gate and when `export` re-verifies it. It prevents a pending gate from
+becoming an approval by changing only `approved` to `true`. It records a name
+and a time — it **does not prove identity**: a person can type any approver
+name. Identity proof would require signatures or an external audit system,
+which this prototype does not implement.

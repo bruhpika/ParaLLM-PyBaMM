@@ -86,6 +86,7 @@ def test_assemble_reports_each_block_reason(tmp_path, capsys):
     gate.write_text(json.dumps({"approvals": [{
         "parameter": "ambient_temperature", "decision": "USE", "approved": True,
         "approver": "synthetic-reviewer", "rubric_version": "rubric-v4",
+        "timestamp": "2026-11-28T00:00:00Z",
         "binding_sha256": "0" * 64,
         "note": "SYNTHETIC gate with a deliberately wrong binding",
     }]}), encoding="utf-8")
@@ -108,6 +109,7 @@ def test_assemble_shows_block_reasons_in_text(tmp_path, capsys):
     gate.write_text(json.dumps({"approvals": [{
         "parameter": "ambient_temperature", "decision": "USE", "approved": True,
         "approver": "synthetic-reviewer", "rubric_version": "rubric-v4",
+        "timestamp": "2026-11-28T00:00:00Z",
         "binding_sha256": "0" * 64,
         "note": "SYNTHETIC gate with a deliberately wrong binding",
     }]}), encoding="utf-8")
@@ -126,6 +128,7 @@ def test_legacy_gate_error_points_to_pending_gate(tmp_path, capsys):
     legacy.write_text(json.dumps({"approvals": [{
         "parameter": "ambient_temperature", "decision": "USE", "approved": True,
         "approver": "synthetic-reviewer", "rubric_version": "rubric-v4",
+        "timestamp": "2026-11-28T00:00:00Z",
         "note": "SYNTHETIC legacy gate without a binding hash",
     }]}), encoding="utf-8")
 

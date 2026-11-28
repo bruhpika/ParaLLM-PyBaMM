@@ -49,7 +49,8 @@ def _gate(tmp_path, record):
     path.write_text(json.dumps({"approvals": [{
         "parameter": "neg_particle_radius",
         "decision": decision,
-        "approved": True, "approver": "owner", "rubric_version": "rubric-v4",
+        "approved": True, "approver": "owner", "timestamp": "2026-11-28T00:00:00Z",
+        "rubric_version": "rubric-v4",
         "binding_sha256": binding_for_record(record),
     }]}), encoding="utf-8")
     return path
