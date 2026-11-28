@@ -15,10 +15,15 @@
   <img src="docs/assets/parallm-evidence.gif" alt="PARALLM evidence inspection CLI" width="720">
 </p>
 
-**Status:** research prototype — [v0.1.0-beta.1](CHANGELOG.md) released, `v0.2`
-in progress; three ungated v0.3 milestones (first-party parameter-set
-candidate, multi-chemistry target specs, forward observables) are integrated.
-**No experimental validation is claimed.**
+**Status:** research prototype, currently **v0.2.0b1** (matching
+`pyproject.toml` and `CITATION.cff`); three ungated v0.3 milestones
+(first-party parameter-set candidate, multi-chemistry target specs, forward
+observables) are integrated. **No experimental validation is claimed.**
+Automated assembly from papers remains incomplete: the pipeline is proven end
+to end only on a **synthetic fixture** (extract → validate → review → promote →
+assemble → approve → export → load in PyBaMM). On real papers the offline
+extractor still abstains on the Laue 2021 PDF rather than producing trustworthy
+values.
 
 PARALLM is a closed-loop research framework for parameterizing physics-based
 lithium-ion battery models built on [PyBaMM](https://pybamm.org). Its unit of
@@ -225,9 +230,12 @@ rows):
 The same source reports the **oracle-located LLM arm** (`retrieval_strict`,
 3 repeats, mean ± std): value extraction 0.946 ± 0.022, provenance
 0.928 ± 0.026, parameter identification 0.718 ± 0.009, condition completeness
-0.116 ± 0.011 (weak), false extraction 0.000 ± 0.000. The LLM real-retrieval
-arm is implemented but **not run**, so no LLM oracle-vs-real extraction
-comparison is claimed.
+0.116 ± 0.011 (weak), false extraction 0.000 ± 0.000. **This 0.946 score must
+not be read as real-retrieval performance: the oracle-located arm used evidence
+windows centred on the answer**, so the answer was effectively present in the
+context. The LLM real-retrieval arm is implemented but has **not been run in
+any committed result**, so no LLM oracle-vs-real extraction comparison is
+claimed.
 
 **Gold-passage recall@k (real BM25)** — sources
 `results/p5/benchmark_v3/retrieval_recall.md` and
@@ -246,8 +254,11 @@ as distractors (10 documents instead of 4), v4 recall@k falls to
 **0.000 / 0.167 / 0.367 / 0.767** at k = 1 / 3 / 5 / 10
 (`results/v2/v4/retrieval_recall_distractors.md`).
 
-**v0.2 scientific results.** Applicability decision agreement **0.958** on 24
-**owner-reviewed** cases (2026-11-20; `results/v2/applicability/summary.md`).
+**v0.2 scientific results.** Applicability decision match **0.958** on 24 cases
+whose labels were **reviewed by the project owner** (2026-11-20;
+`results/v2/applicability/summary.md`). This is not a multi-reviewer study: the
+labels were reviewed by one person, the project owner, not by an independent
+panel of specialists.
 Private v4: condition-field accuracy 0.144 / 0.294 / 0.310 and invented-condition
 rate 0.067 / 0.200 / 0.058 for compact/expanded/v25 (`results/v2/v4/summary.md`).
 The deterministic **association discipline** (conditions must be supported in
@@ -286,9 +297,24 @@ positive beats baseline 15/18 and negative does not 18/18 — also **SYNTHETIC**
 - Experimental-condition extraction is weak (v3 retrieval condition completeness
   0.116 all / 0.035 eval, same source as the v3 table above); an eligible
   Chen2020-aligned 25 °C multi-rate validation dataset is unresolved.
-- The rubric is hand-set (no learned weights). Expert labels were owner-reviewed
-  on 2026-11-20, so the 0.958 agreement is final for this set; the set is small
-  (24 cases, 2 ambiguous), so subclass figures are descriptive.
+- The rubric is hand-set (no learned weights). The 24 labels were reviewed by
+  the project owner on 2026-11-20, so the 0.958 match is descriptive of this
+  set, not a multi-reviewer agreement study; the set is small (24 cases,
+  2 ambiguous), so subclass figures are descriptive.
+
+## AI assistance disclosure
+
+- **Benchmark LLM arms.** An OpenAI-compatible LLM was used for the
+  oracle-located extraction arms reported above (model recorded in
+  `results/p5/benchmark_v3/summary.md` as `mimo-v2.6-flash`). It proposed
+  evidence interpretations only; units, quotes, applicability checks and
+  export eligibility were decided by deterministic code. No LLM was used to
+  invent parameter values, sources or labels.
+- **This fix round.** The trust-layer, rubric and pipeline corrections and
+  their documentation were implemented with the assistance of an OpenCode AI
+  agent. The project owner reviewed and approved each phase before it was
+  applied. No LLM output was accepted as scientific evidence without the
+  deterministic checks and explicit human approval described above.
 
 Full disclosure: `docs/SCIENTIFIC_LIMITATIONS.md`.
 
@@ -314,9 +340,9 @@ history. No history rewrite was performed here.
 
 ## Citing
 
-See `CITATION.cff`. Software citation: PARALLM v0.1.0-beta.1 (2026); v0.2 is in
-progress. AI-assistance disclosure and acknowledgements are recorded in the
-repository's documentation.
+See `CITATION.cff`. Software citation: PARALLM v0.2.0b1 (2026), matching
+`pyproject.toml` and `CITATION.cff`. The AI-assistance disclosure is recorded in
+the "AI assistance disclosure" section above.
 
 ## Author / ownership
 
