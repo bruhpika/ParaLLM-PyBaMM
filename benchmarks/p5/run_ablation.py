@@ -203,7 +203,10 @@ def _load_disk(out_dir: Path) -> dict[str, dict]:
     return disk
 
 
-def _write_summary(disk: dict[str, dict], items_path: str, repeats: int) -> None:
+def _write_summary(
+    disk: dict[str, dict], items_path: str, repeats: int, out_dir: Path | None = None
+) -> None:
+    """Write summary.md into ``out_dir`` (default: the frozen results folder)."""
     lines = [
         "# P5 benchmark v3 - retrieval/knowledge ablation",
         "",
@@ -279,8 +282,10 @@ def _write_summary(disk: dict[str, dict], items_path: str, repeats: int) -> None
             v = disk[cond]["aggregate"]["provenance"][key]
             row.append("n/a" if v is None or v != v else f"{v:.3f}")
         lines.append("| " + " | ".join(row) + " |")
-    (OUT_DIR / "summary.md").write_text("\n".join(lines) + "\n")
-    print(f"wrote {OUT_DIR / 'summary.md'}")
+    target_dir = OUT_DIR if out_dir is None else out_dir
+    target_dir.mkdir(parents=True, exist_ok=True)
+    (target_dir / "summary.md").write_text("\n".join(lines) + "\n")
+    print(f"wrote {target_dir / 'summary.md'}")
 
 
 def main() -> int:
@@ -291,6 +296,15 @@ def main() -> int:
         default="all",
     )
     ap.add_argument("--items", default="data/eval/extraction_benchmark_v3.jsonl")
+    ap.add_argument(
+        "--out-dir",
+        default=None,
+        help=(
+            "output directory for raw outputs, reports, aggregates and summary.md; "
+            "defaults to results/p5/benchmark_v3. All artifacts are confined to "
+            "this directory (nothing is written to results/p5/ when overridden)."
+        ),
+    )
     ap.add_argument("--split", choices=["dev", "eval", "all"], default="all")
     ap.add_argument("--repeats", type=int, default=3)
     ap.add_argument(
@@ -331,16 +345,17 @@ def main() -> int:
 
     policy = LiveRunPolicy(live=args.live, overwrite=args.overwrite)
     replay = args.rescore or args.replay
+    out_dir = OUT_DIR if args.out_dir is None else Path(args.out_dir).resolve()
 
     if args.repair_metadata:
-        n = _repair_metadata(OUT_DIR)
+        n = _repair_metadata(out_dir)
         print(f"repaired metadata in {n} file(s)")
         return 0
 
     if args.summary_only:
-        disk = _load_disk(OUT_DIR)
+        disk = _load_disk(out_dir)
         if disk:
-            _write_summary(disk, args.items, args.repeats)
+            _write_summary(disk, args.items, args.repeats, out_dir=out_dir)
         return 0
 
     store = DocumentStore(STORE_DIR)
@@ -379,7 +394,7 @@ def main() -> int:
         else None
     )
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
     for condition in conditions:
         repeats = 1 if condition in OFFLINE_CONDITIONS else args.repeats
         reports: list[dict] = []
@@ -389,10 +404,10 @@ def main() -> int:
                 if condition in OFFLINE_CONDITIONS
                 else f"raw_outputs_{condition}_r{repeat}.jsonl"
             )
-            raw_path = OUT_DIR / raw_name
+            raw_path = out_dir / raw_name
 
             if replay and condition not in OFFLINE_CONDITIONS:
-                frozen = find_raw(OUT_DIR, raw_name)
+                frozen = find_raw(out_dir, raw_name)
                 if frozen is None:
                     raise SystemExit(f"--replay needs {raw_name}")
                 raw_rows = [
@@ -401,7 +416,7 @@ def main() -> int:
                     if line.strip()
                 ]
                 report = rescore_from_raw(items, store, raw_rows, condition, repeat)
-                report_path = OUT_DIR / f"report_{condition}_r{repeat}.json"
+                report_path = out_dir / f"report_{condition}_r{repeat}.json"
                 prev_meta: dict = {}
                 if report_path.exists():
                     prev_meta = json.loads(report_path.read_text()).get(
@@ -445,14 +460,18 @@ def main() -> int:
                         else None
                     ),
                     rescored=True,
-                    rescored_from=str(frozen.relative_to(REPO_ROOT)),
+                    rescored_from=(
+                        str(frozen.relative_to(REPO_ROOT))
+                        if frozen.is_relative_to(REPO_ROOT)
+                        else str(frozen)
+                    ),
                 )
             else:
                 if condition in OFFLINE_CONDITIONS and raw_path.exists():
                     raw_path.unlink()
                 elif condition not in OFFLINE_CONDITIONS and raw_path.exists():
                     # live runs never clobber frozen raw outputs without --overwrite
-                    raw_path = policy.raw_path(OUT_DIR, raw_name)
+                    raw_path = policy.raw_path(out_dir, raw_name)
                     raw_path.parent.mkdir(parents=True, exist_ok=True)
                 if condition in OFFLINE_CONDITIONS:
                     client = OfflineDeterministicExtractor()
@@ -501,7 +520,11 @@ def main() -> int:
                     items_file=args.items,
                     split=args.split,
                     n_items=len(items),
-                    raw_outputs=str(raw_path.relative_to(REPO_ROOT)),
+                    raw_outputs=(
+                        str(raw_path.relative_to(REPO_ROOT))
+                        if raw_path.is_relative_to(REPO_ROOT)
+                        else str(raw_path)
+                    ),
                     temperature=0,
                     evidence_mode=args.evidence_mode,
                     evidence_source=report.get("evidence_source"),
@@ -518,14 +541,14 @@ def main() -> int:
                         else {}
                     ),
                 )
-            (OUT_DIR / f"report_{condition}_r{repeat}.json").write_text(
+            (out_dir / f"report_{condition}_r{repeat}.json").write_text(
                 json.dumps(report, indent=2, sort_keys=True)
             )
             print(json.dumps(report["metrics"]["all"], indent=2), flush=True)
             reports.append(report)
 
         aggregate = aggregate_repeats(reports)
-        (OUT_DIR / f"aggregate_{condition}.json").write_text(
+        (out_dir / f"aggregate_{condition}.json").write_text(
             json.dumps(
                 dict(
                     condition=condition,
@@ -538,9 +561,9 @@ def main() -> int:
             )
         )
 
-    disk = _load_disk(OUT_DIR)
+    disk = _load_disk(out_dir)
     if disk:
-        _write_summary(disk, args.items, args.repeats)
+        _write_summary(disk, args.items, args.repeats, out_dir=out_dir)
     return 0
 
 

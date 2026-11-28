@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 _SCRIPT = (
@@ -105,3 +106,40 @@ def test_repair_metadata_leaves_offline_report_untouched(tmp_path):
 
     assert ablation._repair_metadata(tmp_path) == 0
     assert path.read_text() == before
+
+
+def test_out_dir_confines_all_artifacts_and_leaves_results_p5_untouched(
+    tmp_path, monkeypatch
+):
+    """--out-dir redirects every artifact; the frozen results folder is untouched."""
+    frozen = ablation.OUT_DIR
+    frozen_snapshot = {p.name: p.stat().st_mtime_ns for p in frozen.iterdir()}
+    out = tmp_path / "real_retrieval" / "dev"
+    argv = [
+        "run_ablation.py",
+        "--condition",
+        "offline",
+        "--split",
+        "dev",
+        "--repeats",
+        "1",
+        "--out-dir",
+        str(out),
+    ]
+    monkeypatch.setattr(sys, "argv", argv)
+    monkeypatch.chdir(ablation.REPO_ROOT)
+
+    assert ablation.main() == 0
+
+    for name in (
+        "raw_outputs_offline.jsonl",
+        "report_offline_r0.json",
+        "aggregate_offline.json",
+        "summary.md",
+    ):
+        assert (out / name).is_file(), name
+    # summary.md must be the redirected one, not the frozen one.
+    assert "P5 benchmark v3" in (out / "summary.md").read_text()
+    assert not (out.parent / "summary.md").exists()
+    # The default results directory is byte-for-byte (and mtime) unchanged.
+    assert {p.name: p.stat().st_mtime_ns for p in frozen.iterdir()} == frozen_snapshot
