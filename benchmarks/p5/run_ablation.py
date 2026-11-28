@@ -508,7 +508,7 @@ def main() -> int:
                          retrieval_k=args.retrieval_k,
                      )
                 now = datetime.now(timezone.utc).isoformat()
-                report["run_metadata"] = dict(
+                run_metadata = dict(
                     condition=condition,
                     repeat=repeat,
                     timestamp=now,
@@ -533,14 +533,16 @@ def main() -> int:
                         if report.get("evidence_source") == "retrieval"
                         else None
                     ),
-                    **(
+                )
+                # LiveRunPolicy.metadata() is authoritative for live runs; update
+                # (instead of **-expansion) so shared keys never collide.
+                if llm_client:
+                    run_metadata.update(
                         policy.metadata(
                             model=llm_client.model, base_url=llm_client.base_url
                         )
-                        if llm_client
-                        else {}
-                    ),
-                )
+                    )
+                report["run_metadata"] = run_metadata
             (out_dir / f"report_{condition}_r{repeat}.json").write_text(
                 json.dumps(report, indent=2, sort_keys=True)
             )

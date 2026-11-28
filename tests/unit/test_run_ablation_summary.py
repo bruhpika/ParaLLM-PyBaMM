@@ -108,6 +108,53 @@ def test_repair_metadata_leaves_offline_report_untouched(tmp_path):
     assert path.read_text() == before
 
 
+def test_live_metadata_has_no_duplicate_keyword_collision(monkeypatch, tmp_path):
+    """Live runs record policy metadata (git commit, model, date) without TypeError."""
+    from dataclasses import dataclass
+
+    @dataclass
+    class _FakeLLM:
+        model = "mimo-v2.6-flash"
+        base_url = "https://example.invalid/v1"
+
+    out = tmp_path / "live"
+    argv = [
+        "run_ablation.py",
+        "--condition",
+        "retrieval_bm25_strict",
+        "--split",
+        "dev",
+        "--repeats",
+        "1",
+        "--live",
+        "--out-dir",
+        str(out),
+    ]
+    monkeypatch.setattr(sys, "argv", argv)
+    monkeypatch.chdir(ablation.REPO_ROOT)
+    # Avoid a network client by making the runner's factory return a fake that
+    # abstains on every item; only the metadata assembly path is exercised.
+    from pybamm_closed_loop.eval.benchmark_p5 import RobustLLMClient
+
+    class _FakeClient:
+        name = "fake:test"
+
+        def complete(self, system, user):
+            return "[]"
+
+    monkeypatch.setattr(ablation, "OpenAICompatibleClient", lambda: _FakeLLM())
+    monkeypatch.setattr(ablation, "RobustLLMClient", lambda c: _FakeClient())
+
+    assert ablation.main() == 0
+    meta = json.loads(
+        (out / "report_retrieval_bm25_strict_r0.json").read_text()
+    )["run_metadata"]
+    assert meta["model"] == "mimo-v2.6-flash"
+    assert meta["base_url"] == "https://example.invalid/v1"
+    assert meta["live"] is True
+    assert "git_commit" in meta
+
+
 def test_out_dir_confines_all_artifacts_and_leaves_results_p5_untouched(
     tmp_path, monkeypatch
 ):
