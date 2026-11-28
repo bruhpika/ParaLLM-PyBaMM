@@ -312,10 +312,13 @@ positive beats baseline 15/18 and negative does not 18/18 — also **SYNTHETIC**
   invent parameter values, sources or labels.
 - **This fix round.** The trust-layer, rubric and pipeline corrections and
   their documentation were implemented with the assistance of an OpenCode AI
-  agent. The project owner reviewed and approved each of the six phases of this
-  fix round before it was applied. No LLM output was accepted as scientific
-  evidence without the deterministic checks and explicit human approval
-  described above.
+  agent. No LLM output was accepted as scientific evidence without the
+  deterministic checks and explicit human approval described above.
+- **Five-defect close-out.** Numeric PyBaMM exports use converted SI values;
+  an approval needs a non-empty approver and an ISO timestamp; promotion checks
+  that the quoted value belongs to the named quantity and electrode; current
+  no longer transfers from the LG M50 cell to the LFP target (rubric v5); and
+  the test suite passes in a fresh clone without the untracked archived paper.
 - **End-to-end status.** Because the integration test in
   `tests/integration/test_export_chain_to_pybamm.py` passes, the public CLI
   chain `extract → validate → review → promote → assemble → approve → export →

@@ -449,3 +449,22 @@ notation and compound units. These are **heuristic text checks**: they refuse
 clearly mismatched or ambiguous quotes, but they cannot prove the scientific
 meaning of a sentence. A human must still review the extracted value against
 the source before approving it; the recorded review reason remains mandatory.
+
+### 13.7 Five-defect close-out
+Numeric exports (both `pybamm_export.json` and `--format pybamm`) use the
+dossier's canonical SI value; a missing or mismatched canonical unit refuses
+the parameter with a stated reason, and function values are unchanged. Export
+re-verification compares against the same canonical value. An approved gate
+entry needs a non-empty, non-placeholder approver and a valid ISO 8601
+timestamp — enforced in both `assemble` and export. Promotion checks that the
+quoted value belongs to the named quantity and electrode, refuses ambiguous
+quotes, and handles micro signs, scientific notation and compound units; these
+are heuristic text checks and a human review is still required. `current_function`
+is cell-specific, so its LG M50 value is `REVIEW` for the LFP target; the
+default rubric is v5 and graphite-vs-graphite-SiOx matching was deliberately
+not changed (see `docs/STEP4_TRANSFER_REVIEW.md`). A fresh clone without the
+untracked archived paper passes the tracked unit suite and ruff; the
+paper-dependent seeding part skips with a clear reason.
+
+End-to-end status remains conditional on
+`tests/integration/test_export_chain_to_pybamm.py`, which passes.

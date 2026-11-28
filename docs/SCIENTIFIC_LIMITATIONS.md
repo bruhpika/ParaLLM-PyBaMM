@@ -77,9 +77,9 @@ appears:
   rubric's usefulness.
 - The 0.958 figure was measured under **rubric v2** (`results/v2/applicability/`
   records `rubric_version: rubric-v2`). It does **not** validate the current
-  rubric v4 decision path, which adds cell/chemistry-specific transfer guards
-  and changes some decisions to `REVIEW`. No new expert-agreement study has
-  been run for v4.
+  rubric v5 decision path, which adds cell/chemistry-specific transfer guards,
+  makes `current_function` cell-specific, and changes some decisions to
+  `REVIEW`. No new expert-agreement study has been run for v4 or v5.
 
 ## 4c. Association discipline — what it can and cannot do
 
@@ -138,8 +138,8 @@ and no real-data calibration in P5. P6–P8 (closed loop, fine-tuning, further
 validation) are not started.
 ## 13. Committed artefacts still tied to older rubric versions
 
-These files are historical and were **not** regenerated during the v4 fix
-round. Their numbers must not be read as evidence for the current rubric.
+These files are historical and were **not** regenerated during the v4/v5 fix
+rounds. Their numbers must not be read as evidence for the current rubric.
 
 | Committed path | Recorded rubric / status |
 |---|---|
@@ -152,4 +152,5 @@ round. Their numbers must not be read as evidence for the current rubric.
 
 `docs/ROADMAP_V0.2.md`, `docs/V4A_MINI_BENCHMARK.md` and `CHANGELOG.md` also
 contain "expert agreement" wording for those older runs. They are historical
-records; the v4 caveat above applies to all of them.
+records; the v4/v5 caveat above applies to all of them. Current decision counts
+and the pending graphite-SiOx list are in `docs/STEP4_TRANSFER_REVIEW.md`.
