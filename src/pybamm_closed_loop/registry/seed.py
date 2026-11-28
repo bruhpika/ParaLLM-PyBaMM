@@ -138,6 +138,26 @@ def _paper(
 
 COND_CELL = dict(S.EXPERIMENTAL_CONDITIONS_CHEN2020)
 
+
+def conditions_for_primary_evidence(evidence: Any | None) -> dict[str, Any]:
+    """Conditions attached to a seeded record.
+
+    Only a *primary* source's evidence may state cell, chemistry or
+    temperature. A PyBaMM default with no such evidence carries none: copying
+    COND_CELL would manufacture conditions that no source states. This helper
+    is deliberately independent of the archived paper so it can be tested on a
+    clean clone with a small synthetic fixture.
+    """
+    if evidence is None:
+        return {}
+    return dict(getattr(evidence, "conditions", None) or {})
+
+
+def conditions_for_unresolved_default() -> dict[str, Any]:
+    """Explicit, empty conditions for an uncovered PyBaMM default."""
+    return {}
+
+
 SPEC: dict[str, dict[str, Any]] = {
     # ---- geometry (measured at teardown) ---------------------------------
     "neg_current_collector_thickness": dict(
@@ -1250,7 +1270,7 @@ def build_records(pybamm_params: dict[str, Any], text: str) -> list[ParameterRec
                 # stated experimental conditions. Copying COND_CELL here would
                 # manufacture cell/chemistry/temperature evidence that no
                 # source states (rubric v4).
-                conditions=dict(pe.conditions) if pe else {},
+                conditions=conditions_for_primary_evidence(pe),
                 method=pe.method if pe else None,
                 reported_uncertainty=(pe.reported_uncertainty if pe else None),
                 validation_state=val_state,
@@ -1309,7 +1329,7 @@ def build_records(pybamm_params: dict[str, Any], text: str) -> list[ParameterRec
                 evidence=None,
                 # No source states conditions for an uncovered PyBaMM default;
                 # do not inherit the demonstrator's cell/chemistry/temperature.
-                conditions={},
+                conditions=conditions_for_unresolved_default(),
                 method=None,
                 reported_uncertainty=None,
                 validation_state=RS.NEEDS_REVIEW,

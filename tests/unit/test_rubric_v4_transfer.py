@@ -79,12 +79,38 @@ def test_rubric_version_bumped_and_weights_unchanged():
     assert Rubric("rubric-v3").require_stated_transfer_match is False
 
 
-def test_pybamm_defaults_have_no_unstated_conditions():
-    """A default with no source may not inherit cell/chemistry/temperature.
+def test_pybamm_defaults_have_no_unstated_conditions(tmp_path):
+    """Seeding logic never invents conditions for an unresolved default.
 
-    Regenerate records from the read-only registry values and archived text;
-    the committed registry itself is never edited by this test.
+    The condition-assignment helpers are tested with a small tracked SYNTHETIC
+    fixture and need no archived paper. The full `build_records` run is skipped
+    with a clear reason when the untracked paper text is absent from a clone.
     """
+    import types
+
+    from pybamm_closed_loop.registry.seed import (
+        conditions_for_primary_evidence, conditions_for_unresolved_default,
+    )
+
+    fixture_path = ROOT / "tests" / "fixtures" / "synthetic_seed_conditions.json"
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    assert "SYNTHETIC" in fixture["_label"]
+
+    evidence = types.SimpleNamespace(**fixture["primary_evidence"])
+    assert conditions_for_primary_evidence(evidence) == fixture["primary_evidence"]["conditions"]
+    assert conditions_for_primary_evidence(None) == fixture["no_evidence_expected_conditions"]
+    assert conditions_for_unresolved_default() == fixture["unresolved_default_expected_conditions"]
+
+    paper = (
+        ROOT / "data" / "raw_documents" / "chen2020_jes_167_080534"
+        / "chen2020_jes_167_080534_fulltext.txt"
+    )
+    if not paper.is_file():
+        import pytest
+        pytest.skip(
+            "full seed_registry run needs the untracked archived Chen2020 text; "
+            "the condition-assignment logic is covered above without it"
+        )
     from pybamm_closed_loop.registry.seed import build_records
 
     params: dict[str, object] = {}
@@ -92,14 +118,8 @@ def test_pybamm_defaults_have_no_unstated_conditions():
         for name in record.get("pybamm_names") or []:
             value = record.get("value")
             params[name] = value if isinstance(value, (int, float)) else 0.0
-    text = (
-        ROOT / "data" / "raw_documents" / "chen2020_jes_167_080534"
-        / "chen2020_jes_167_080534_fulltext.txt"
-    ).read_text(encoding="utf-8")
-    built = build_records(params, text)
-    defaults = [
-        r for r in built if str(r.source_id).startswith("pybamm-")
-    ]
+    built = build_records(params, paper.read_text(encoding="utf-8"))
+    defaults = [r for r in built if str(r.source_id).startswith("pybamm-")]
     assert defaults, "expected PyBaMM-default records"
     for record in defaults:
         conditions = dict(record.conditions or {})

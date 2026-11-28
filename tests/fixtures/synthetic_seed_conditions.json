@@ -1,0 +1,10 @@
+{
+  "_label": "SYNTHETIC fixture for seeding condition assignment; not paper data",
+  "primary_evidence": {
+    "conditions": {"cell": "SYNTHETIC-CELL", "temperature_k": 298.15},
+    "kind": "LITERATURE_DERIVED",
+    "source": {"document_id": "synthetic", "locator": "Synthetic line 1"}
+  },
+  "no_evidence_expected_conditions": {},
+  "unresolved_default_expected_conditions": {}
+}
