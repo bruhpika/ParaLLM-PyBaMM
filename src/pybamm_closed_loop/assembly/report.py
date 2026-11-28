@@ -12,6 +12,7 @@ approval gate disposes.
 from __future__ import annotations
 
 import copy
+import re
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Mapping
 
@@ -144,7 +145,12 @@ def export_value_for_dossier(
     selected = dossier.get("selected") or {}
     raw = selected.get("value")
     canonical = selected.get("canonical_value")
-    if isinstance(raw, str) and "<function" in raw:
+    # Function-valued parameters carry a function name (or a "<function ...>"
+    # repr) instead of a number. Keep their previous behaviour: export the
+    # recorded string unchanged, with no unit conversion.
+    if isinstance(raw, str) and not re.fullmatch(
+        r"[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?", raw.strip()
+    ):
         return raw, None
     canonical_unit = selected.get("canonical_unit")
     if not isinstance(canonical, (int, float)) or isinstance(canonical, bool):

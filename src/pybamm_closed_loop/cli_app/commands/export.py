@@ -370,26 +370,28 @@ def export(
                         "detail": "no canonical unit recorded for a numeric value; not exported",
                     })
                     continue
-                if not expected_suffix:
-                    skipped.append({
-                        "parameter": name, "reason": "PYBAMM_UNIT_MISSING",
-                        "detail": f"{names[0]!r} has no unit suffix for a numeric value",
-                    })
-                    continue
                 try:
                     actual, _ = to_canonical(canonical_unit)
-                    expected, _ = to_canonical(expected_suffix)
                 except KeyError as exc:
                     skipped.append({
                         "parameter": name, "reason": "UNIT_UNKNOWN",
                         "detail": str(exc),
                     })
                     continue
-                if actual != expected:
+                if not expected_suffix:
+                    # A PyBaMM name without a bracketed unit is dimensionless.
+                    if actual not in ("dimensionless", "fraction"):
+                        skipped.append({
+                            "parameter": name, "reason": "UNIT_MISMATCH",
+                            "detail": (f"{names[0]!r} is dimensionless but the canonical "
+                                       f"unit is {canonical_unit} ({actual})"),
+                        })
+                        continue
+                elif to_canonical(expected_suffix)[0] != actual:
                     skipped.append({
                         "parameter": name, "reason": "UNIT_MISMATCH",
                         "detail": (f"canonical {canonical_unit} ({actual}) does not match "
-                                   f"{names[0]} ({expected})"),
+                                   f"{names[0]} ({expected_suffix})"),
                     })
                     continue
             mapped[names[0]] = value
